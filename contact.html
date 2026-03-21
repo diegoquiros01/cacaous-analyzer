@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Docs-Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--white:#fff;--offwhite:#f8f6f2;--cream:#f2ede4;--cream2:#e8dfd0;--brown-dark:#2c1a0e;--brown:#4a2c1a;--brown-mid:#7a4e32;--brown-light:#b8866a;--tan:#c9a882;--tan-light:#e0c9aa;--green:#3d5a3e;--green-light:#5a8c5c;--text:#1a0f08;--text-mid:#5a3e2c;--text-light:#9a7a60;--border:#d8c8b0;--border-light:#ede4d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--white);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:68px;max-width:1200px;margin:0 auto;}
+.logo-wordmark{font-family:'Raleway',sans-serif;font-size:1.6rem;font-weight:300;letter-spacing:0.18em;color:#1a1a1a;}
+.logo-tagline{font-size:0.6rem;letter-spacing:0.15em;color:#888;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:2rem;}
+nav ul{display:flex;gap:2rem;list-style:none;}
+nav a{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:500;transition:color 0.2s;}
+nav a:hover,nav a.active{color:var(--brown);}
+.lang-switch{display:flex;align-items:center;gap:0.4rem;}
+.lang-btn{background:none;border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;color:var(--text-light);font-family:'Lato',sans-serif;padding:0.2rem 0.3rem;}
+.lang-btn.active{color:var(--brown);border-bottom:1px solid var(--tan);}
+.lang-sep{color:var(--border);font-size:0.7rem;}
+
+/* HERO */
+.hero{text-align:center;padding:4rem 2rem 3rem;background:var(--white);border-bottom:1px solid var(--border-light);}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--tan);font-weight:500;margin-bottom:1rem;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:400;color:var(--brown-dark);line-height:1.2;margin-bottom:0.8rem;}
+.hero p{font-size:0.9rem;color:var(--text-mid);max-width:460px;margin:0 auto;line-height:1.7;}
+
+/* MAIN LAYOUT */
+.main{max-width:1000px;margin:0 auto;padding:3rem 2rem 5rem;display:grid;grid-template-columns:1fr 1.6fr;gap:3rem;align-items:start;}
+
+/* LEFT — TYPE SELECTOR */
+.type-panel h3{font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-light);margin-bottom:1.2rem;}
+.type-options{display:flex;flex-direction:column;gap:0.7rem;}
+.type-opt{display:flex;align-items:flex-start;gap:1rem;padding:1.1rem 1.2rem;background:var(--white);border:1px solid var(--border);border-radius:3px;cursor:pointer;transition:all 0.2s;}
+.type-opt:hover{border-color:var(--tan);}
+.type-opt.selected{border-color:var(--brown-mid);background:var(--cream);}
+.type-opt.selected.support{border-color:var(--green);background:#f0f5f0;}
+.type-icon{font-size:1.3rem;flex-shrink:0;margin-top:0.1rem;}
+.type-info .type-label{font-size:0.78rem;font-weight:600;color:var(--brown-dark);margin-bottom:0.2rem;}
+.type-info .type-desc{font-size:0.73rem;color:var(--text-light);line-height:1.4;}
+.support-badge{display:inline-block;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;background:var(--green);color:white;padding:0.15rem 0.45rem;border-radius:10px;margin-left:0.4rem;vertical-align:middle;}
+
+/* INFO CARDS */
+.info-cards{margin-top:2rem;display:flex;flex-direction:column;gap:0.8rem;}
+.info-card{padding:1rem 1.2rem;background:var(--cream);border-left:3px solid var(--tan);border-radius:0 3px 3px 0;}
+.info-card .ic-label{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.2rem;}
+.info-card .ic-val{font-size:0.8rem;color:var(--text-mid);}
+
+/* RIGHT — FORM */
+.form-panel{background:var(--white);border:1px solid var(--border);border-radius:4px;padding:2.5rem;}
+
+.form-section-title{font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-light);margin-bottom:1.5rem;padding-bottom:0.8rem;border-bottom:1px solid var(--border-light);}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem;}
+.form-group{margin-bottom:1.2rem;}
+.form-group label{display:block;font-size:0.7rem;font-weight:600;letter-spacing:0.08em;color:var(--text-mid);margin-bottom:0.4rem;text-transform:uppercase;}
+.form-group .required{color:var(--brown-light);}
+input[type=text],input[type=email],select,textarea{
+  width:100%;padding:0.65rem 0.9rem;
+  font-family:'Lato',sans-serif;font-size:0.83rem;color:var(--text);
+  background:var(--offwhite);border:1px solid var(--border);border-radius:2px;
+  transition:border-color 0.2s,background 0.2s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--tan);background:var(--white);}
+select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239a7a60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.9rem center;}
+textarea{resize:vertical;min-height:120px;line-height:1.5;}
+
+/* Support specific fields */
+.support-fields{display:none;}
+.support-fields.show{display:block;}
+
+/* Priority selector */
+.priority-opts{display:flex;gap:0.6rem;}
+.pri-opt{flex:1;padding:0.6rem 0.5rem;text-align:center;border:1px solid var(--border);border-radius:2px;cursor:pointer;font-size:0.7rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);transition:all 0.2s;}
+.pri-opt:hover{border-color:var(--tan);}
+.pri-opt.sel-low{border-color:var(--green);color:var(--green);background:#f0f5f0;}
+.pri-opt.sel-med{border-color:var(--tan);color:var(--brown-mid);background:var(--cream);}
+.pri-opt.sel-high{border-color:#b04030;color:#b04030;background:#fdf0ee;}
+
+/* Attach */
+.attach-area{border:1px dashed var(--border);border-radius:2px;padding:1rem;text-align:center;cursor:pointer;transition:border-color 0.2s;background:var(--offwhite);}
+.attach-area:hover{border-color:var(--tan);}
+.attach-label{font-size:0.75rem;color:var(--text-light);}
+.attach-label strong{color:var(--brown-mid);}
+.attach-list{margin-top:0.5rem;font-size:0.72rem;color:var(--text-mid);}
+#fileInput{display:none;}
+
+/* Submit */
+.form-submit{margin-top:2rem;}
+.btn-submit{width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background 0.2s;}
+.btn-submit:hover{background:var(--brown-mid);}
+.form-note{font-size:0.7rem;color:var(--text-light);text-align:center;margin-top:0.8rem;line-height:1.5;}
+
+/* SUCCESS */
+.success-box{display:none;text-align:center;padding:3rem 2rem;}
+.success-icon{font-size:2.5rem;margin-bottom:1rem;}
+.success-box h3{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;}
+.success-box p{font-size:0.85rem;color:var(--text-mid);line-height:1.7;}
+.success-box .ticket-ref{font-size:0.7rem;letter-spacing:0.1em;color:var(--text-light);margin-top:1rem;font-family:monospace;}
+
+/* FIELD ERRORS */
+input.err,select.err,textarea.err{border-color:#b04030;}
+.err-msg{font-size:0.68rem;color:#b04030;margin-top:0.3rem;}
+
+@media(max-width:768px){
+  .main{grid-template-columns:1fr;}
+  .header-top{padding:0 1.5rem;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="logo-wordmark">DOCS-ANALYZER</div>
+      <div class="logo-tagline" id="logoTagline">docs-analyzer.com</div>
+    </div>
+    <div class="header-right">
+      <nav><ul>
+        <li><a href="https://docs-analyzer.com" id="navHome">Home</a></li>
+        <li><a href="pricing.html" id="navPricing">Pricing</a></li>
+        <li><a href="#" class="active" id="navContact">Contact</a></li>
+      </ul></nav>
+      <div class="lang-switch">
+        <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+        <span class="lang-sep">|</span>
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow" id="heroEyebrow">Get in touch</div>
+  <h1 id="heroTitle">How can we help you?</h1>
+  <p id="heroDesc">Whether you're exploring our plans or need support with an active subscription, we're here.</p>
+</section>
+
+<div class="main">
+
+  <!-- LEFT -->
+  <div>
+    <div class="type-panel">
+      <h3 id="typeTitle">I want to...</h3>
+      <div class="type-options">
+        <div class="type-opt selected" id="opt-general" onclick="selectType('general')">
+          <div class="type-icon">💬</div>
+          <div class="type-info">
+            <div class="type-label" id="opt-general-label">General inquiry</div>
+            <div class="type-desc" id="opt-general-desc">Questions about plans, features, or how the analyzer works.</div>
+          </div>
+        </div>
+        <div class="type-opt" id="opt-trial" onclick="selectType('trial')">
+          <div class="type-icon">🚀</div>
+          <div class="type-info">
+            <div class="type-label" id="opt-trial-label">Start a free trial</div>
+            <div class="type-desc" id="opt-trial-desc">I'd like to try the Professional or Enterprise plan.</div>
+          </div>
+        </div>
+        <div class="type-opt support" id="opt-support" onclick="selectType('support')">
+          <div class="type-icon">🛠</div>
+          <div class="type-info">
+            <div class="type-label" id="opt-support-label">
+              Subscriber support
+              <span class="support-badge" id="supportBadge">Subscribers</span>
+            </div>
+            <div class="type-desc" id="opt-support-desc">Technical help, billing questions, or account issues.</div>
+          </div>
+        </div>
+        <div class="type-opt" id="opt-demo" onclick="selectType('demo')">
+          <div class="type-icon">📋</div>
+          <div class="type-info">
+            <div class="type-label" id="opt-demo-label">Request a demo</div>
+            <div class="type-desc" id="opt-demo-desc">See the analyzer in action with your own documents.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-cards" id="infoCards">
+      <div class="info-card">
+        <div class="ic-label" id="ic1label">Response time</div>
+        <div class="ic-val" id="ic1val">Within 24 business hours</div>
+      </div>
+      <div class="info-card" id="supportTimeCard" style="display:none;">
+        <div class="ic-label" id="ic2label">Subscriber priority</div>
+        <div class="ic-val" id="ic2val">Professional: 24h · Enterprise: 4h</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label" id="ic3label">Email</div>
+        <div class="ic-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b5c6c0c5c5dac7c1f5d6d4d6d4dac0c69bd6dad8">[email&#160;protected]</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — FORM -->
+  <div class="form-panel">
+    <div id="formWrap">
+      <div class="form-section-title" id="formSectionTitle">Contact information</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label id="lblName">Full name <span class="required">*</span></label>
+          <input type="text" id="fName" placeholder="Diego Quirós">
+        </div>
+        <div class="form-group">
+          <label id="lblEmail">Email <span class="required">*</span></label>
+          <input type="email" id="fEmail" placeholder="diego@docs-analyzer.com">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label id="lblCompany">Company</label>
+          <input type="text" id="fCompany" placeholder="Docs-Analyzer Venezuela">
+        </div>
+        <div class="form-group">
+          <label id="lblCountry">Country</label>
+          <input type="text" id="fCountry" placeholder="Ecuador">
+        </div>
+      </div>
+
+      <!-- GENERAL / TRIAL / DEMO fields -->
+      <div id="generalFields">
+        <div class="form-group">
+          <label id="lblPlan">Plan of interest</label>
+          <select id="fPlan">
+            <option value="" id="optPlanDef">— Select a plan —</option>
+            <option value="starter" id="optStarter">Starter (Free)</option>
+            <option value="pro" id="optPro">Professional ($79/mo)</option>
+            <option value="ent" id="optEnt">Enterprise ($149/mo)</option>
+            <option value="unsure" id="optUnsure">Not sure yet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="lblMsg">Message <span class="required">*</span></label>
+          <textarea id="fMsg" id="optUnsure" placeholder="Tell us about your export volume, document types, or any questions you have..."></textarea>
+        </div>
+      </div>
+
+      <!-- SUPPORT fields (subscribers only) -->
+      <div class="support-fields" id="supportFields">
+        <div class="form-section-title" id="supportSectionTitle">Support details</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label id="lblPlanCurrent">Current plan <span class="required">*</span></label>
+            <select id="fPlanCurrent">
+              <option value="">— Select —</option>
+              <option value="pro" id="optSPro">Professional</option>
+              <option value="ent" id="optSEnt">Enterprise</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lblTicketType">Issue type <span class="required">*</span></label>
+            <select id="fTicketType">
+              <option value="">— Select —</option>
+              <option value="technical" id="optTech">Technical issue</option>
+              <option value="billing" id="optBilling">Billing / account</option>
+              <option value="feature" id="optFeature">Feature request</option>
+              <option value="other" id="optOther">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lblPriority">Priority</label>
+          <div class="priority-opts">
+            <div class="pri-opt sel-low" id="pri-low" onclick="setPriority('low')"><span id="priLowLabel">Low</span></div>
+            <div class="pri-opt" id="pri-med" onclick="setPriority('med')"><span id="priMedLabel">Medium</span></div>
+            <div class="pri-opt" id="pri-high" onclick="setPriority('high')"><span id="priHighLabel">High</span></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="lblIssue">Describe the issue <span class="required">*</span></label>
+          <textarea id="fIssue" placeholder="Describe what happened, what you expected, and the steps to reproduce..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label id="lblAttach">Attachments <span style="font-weight:400;text-transform:none;font-size:0.65rem;color:var(--text-light)" id="lblAttachHint">(optional — screenshots, PDFs)</span></label>
+          <div class="attach-area" onclick="document.getElementById('fileInput').click()">
+            <div class="attach-label" id="attachLabel">📎 <strong>Click to attach files</strong> or drag and drop</div>
+            <div class="attach-list" id="attachList"></div>
+          </div>
+          <input type="file" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg,.xlsx,.docx" onchange="handleFiles(this.files)">
+        </div>
+      </div>
+
+      <div class="form-submit">
+        <button class="btn-submit" id="btnSubmit" onclick="submitForm()">
+          <span id="btnSubmitTxt">Send message</span>
+        </button>
+        <div class="form-note" id="formNote">We respect your privacy. Your information is never shared with third parties.</div>
+      </div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-box" id="successBox">
+      <div class="success-icon">✅</div>
+      <h3 id="successTitle">Message sent!</h3>
+      <p id="successDesc">Thank you for reaching out. We'll get back to you within the response time for your inquiry type.</p>
+      <div class="ticket-ref" id="ticketRef"></div>
+      <button class="btn-submit" style="margin-top:2rem;max-width:200px;margin-left:auto;margin-right:auto;" onclick="resetForm()" id="btnAnother">Send another</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+let lang = 'en';
+let currentType = 'general';
+let priority = 'low';
+
+const TX = {
+  en: {
+    logoTagline:'docs-analyzer.com',
+    navHome:'Home', navPricing:'Pricing', navContact:'Contact',
+    heroEyebrow:'Get in touch',
+    heroTitle:'How can we help you?',
+    heroDesc:"Whether you're exploring our plans or need support with an active subscription, we're here.",
+    typeTitle:'I want to...',
+    'opt-general-label':'General inquiry',
+    'opt-general-desc':'Questions about plans, features, or how the analyzer works.',
+    'opt-trial-label':'Start a free trial',
+    'opt-trial-desc':'I\'d like to try the Professional or Enterprise plan.',
+    'opt-support-label':'Subscriber support',
+    'opt-support-desc':'Technical help, billing questions, or account issues.',
+    'opt-demo-label':'Request a demo',
+    'opt-demo-desc':'See the analyzer in action with your own documents.',
+    supportBadge:'Subscribers',
+    formSectionTitle:'Contact information',
+    supportSectionTitle:'Support details',
+    lblName:'Full name', lblEmail:'Email', lblCompany:'Company', lblCountry:'Country',
+    lblPlan:'Plan of interest', lblMsg:'Message',
+    lblPlanCurrent:'Current plan', lblTicketType:'Issue type', lblPriority:'Priority',
+    lblIssue:'Describe the issue', lblAttach:'Attachments',
+    lblAttachHint:'(optional — screenshots, PDFs)',
+    attachLabel:'📎 <strong>Click to attach files</strong> or drag and drop',
+    optPlanDef:'— Select a plan —', optStarter:'Starter (Free)',
+    optPro:'Professional ($79/mo)', optEnt:'Enterprise ($149/mo)', optUnsure:'Not sure yet',
+    optSPro:'Professional', optSEnt:'Enterprise',
+    optTech:'Technical issue', optBilling:'Billing / account',
+    optFeature:'Feature request', optOther:'Other',
+    priLowLabel:'Low', priMedLabel:'Medium', priHighLabel:'High',
+    btnSubmitTxt:'Send message',
+    formNote:'We respect your privacy. Your information is never shared with third parties.',
+    ic1label:'Response time', ic1val:'Within 24 business hours',
+    ic2label:'Subscriber priority', ic2val:'Professional: 24h · Enterprise: 4h',
+    ic3label:'Email',
+    successTitle:'Message sent!',
+    successDesc:"Thank you for reaching out. We'll get back to you within the response time for your inquiry type.",
+    btnAnother:'Send another',
+    errName:'Please enter your name.',
+    errEmail:'Please enter a valid email.',
+    errMsg:'Please write a message.',
+    errPlan:'Please select your current plan.',
+    errTicket:'Please select an issue type.',
+    errIssue:'Please describe the issue.',
+    placeholderMsg:'Tell us about your export volume, document types, or any questions you have...',
+    placeholderIssue:'Describe what happened, what you expected, and the steps to reproduce...',
+  },
+  es: {
+    logoTagline:'docs-analyzer.com',
+    navHome:'Inicio', navPricing:'Precios', navContact:'Contacto',
+    heroEyebrow:'Contáctanos',
+    heroTitle:'¿Cómo podemos ayudarte?',
+    heroDesc:'Ya sea que estés explorando nuestros planes o necesites soporte con tu suscripción activa, estamos aquí.',
+    typeTitle:'Quiero...',
+    'opt-general-label':'Consulta general',
+    'opt-general-desc':'Preguntas sobre planes, funciones o cómo funciona el analizador.',
+    'opt-trial-label':'Iniciar prueba gratuita',
+    'opt-trial-desc':'Me gustaría probar el plan Profesional o Empresarial.',
+    'opt-support-label':'Soporte para suscriptores',
+    'opt-support-desc':'Ayuda técnica, preguntas de facturación o problemas con la cuenta.',
+    'opt-demo-label':'Solicitar una demo',
+    'opt-demo-desc':'Ver el analizador en acción con mis propios documentos.',
+    supportBadge:'Suscriptores',
+    formSectionTitle:'Información de contacto',
+    supportSectionTitle:'Detalles del soporte',
+    lblName:'Nombre completo', lblEmail:'Correo', lblCompany:'Empresa', lblCountry:'País',
+    lblPlan:'Plan de interés', lblMsg:'Mensaje',
+    lblPlanCurrent:'Plan actual', lblTicketType:'Tipo de problema', lblPriority:'Prioridad',
+    lblIssue:'Describe el problema', lblAttach:'Archivos adjuntos',
+    lblAttachHint:'(opcional — capturas, PDFs)',
+    attachLabel:'📎 <strong>Clic para adjuntar archivos</strong> o arrastra y suelta',
+    optPlanDef:'— Selecciona un plan —', optStarter:'Básico (Gratis)',
+    optPro:'Profesional ($79/mes)', optEnt:'Empresarial ($149/mes)', optUnsure:'Aún no estoy seguro',
+    optSPro:'Profesional', optSEnt:'Empresarial',
+    optTech:'Problema técnico', optBilling:'Facturación / cuenta',
+    optFeature:'Solicitud de función', optOther:'Otro',
+    priLowLabel:'Baja', priMedLabel:'Media', priHighLabel:'Alta',
+    btnSubmitTxt:'Enviar mensaje',
+    formNote:'Respetamos tu privacidad. Tu información nunca se comparte con terceros.',
+    ic1label:'Tiempo de respuesta', ic1val:'Dentro de 24 horas hábiles',
+    ic2label:'Prioridad suscriptor', ic2val:'Profesional: 24h · Empresarial: 4h',
+    ic3label:'Correo',
+    successTitle:'¡Mensaje enviado!',
+    successDesc:'Gracias por contactarnos. Te responderemos dentro del tiempo de respuesta según tu tipo de consulta.',
+    btnAnother:'Enviar otro',
+    errName:'Por favor ingresa tu nombre.',
+    errEmail:'Por favor ingresa un correo válido.',
+    errMsg:'Por favor escribe un mensaje.',
+    errPlan:'Por favor selecciona tu plan actual.',
+    errTicket:'Por favor selecciona el tipo de problema.',
+    errIssue:'Por favor describe el problema.',
+    placeholderMsg:'Cuéntanos sobre tu volumen de exportación, tipos de documentos, o cualquier pregunta...',
+    placeholderIssue:'Describe qué ocurrió, qué esperabas y los pasos para reproducirlo...',
+  }
+};
+
+function t(k){ return TX[lang][k] || TX.en[k] || ''; }
+
+function applyLang(){
+  const sh=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+  const st=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  st('logoTagline',t('logoTagline'));
+  st('navHome',t('navHome')); st('navPricing',t('navPricing')); st('navContact',t('navContact'));
+  st('heroEyebrow',t('heroEyebrow')); sh('heroTitle',t('heroTitle')); st('heroDesc',t('heroDesc'));
+  st('typeTitle',t('typeTitle'));
+  ['general','trial','support','demo'].forEach(k=>{
+    st('opt-'+k+'-label',t('opt-'+k+'-label'));
+    st('opt-'+k+'-desc',t('opt-'+k+'-desc'));
+  });
+  st('supportBadge',t('supportBadge'));
+  st('formSectionTitle',t('formSectionTitle')); st('supportSectionTitle',t('supportSectionTitle'));
+  ['lblName','lblEmail','lblCompany','lblCountry','lblPlan','lblMsg',
+   'lblPlanCurrent','lblTicketType','lblPriority','lblIssue','lblAttach'].forEach(k=>sh(k,t(k)+(['lblName','lblEmail','lblMsg','lblPlanCurrent','lblTicketType','lblIssue'].includes(k)?' <span class="required">*</span>':'')));
+  st('lblAttachHint',t('lblAttachHint'));
+  sh('attachLabel',t('attachLabel'));
+  ['optPlanDef','optStarter','optPro','optEnt','optUnsure',
+   'optSPro','optSEnt','optTech','optBilling','optFeature','optOther'].forEach(k=>st(k,t(k)));
+  st('priLowLabel',t('priLowLabel')); st('priMedLabel',t('priMedLabel')); st('priHighLabel',t('priHighLabel'));
+  st('btnSubmitTxt',t('btnSubmitTxt')); st('formNote',t('formNote'));
+  st('ic1label',t('ic1label')); st('ic1val',t('ic1val'));
+  st('ic2label',t('ic2label')); st('ic2val',t('ic2val'));
+  st('ic3label',t('ic3label'));
+  st('successTitle',t('successTitle')); st('successDesc',t('successDesc'));
+  st('btnAnother',t('btnAnother'));
+  // Placeholders
+  const fMsg=document.getElementById('fMsg'); if(fMsg) fMsg.placeholder=t('placeholderMsg');
+  const fIssue=document.getElementById('fIssue'); if(fIssue) fIssue.placeholder=t('placeholderIssue');
+}
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btnES').classList.toggle('active',l==='es');
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  applyLang();
+}
+
+function selectType(type){
+  currentType = type;
+  ['general','trial','support','demo'].forEach(k=>{
+    const el = document.getElementById('opt-'+k);
+    el.classList.remove('selected');
+  });
+  document.getElementById('opt-'+type).classList.add('selected');
+  // Show/hide support fields
+  const sf = document.getElementById('supportFields');
+  const gf = document.getElementById('generalFields');
+  const stc = document.getElementById('supportTimeCard');
+  if(type === 'support'){
+    sf.classList.add('show');
+    gf.style.display = 'none';
+    stc.style.display = 'block';
+  } else {
+    sf.classList.remove('show');
+    gf.style.display = 'block';
+    stc.style.display = 'none';
+  }
+}
+
+function setPriority(p){
+  priority = p;
+  ['low','med','high'].forEach(k=>{
+    document.getElementById('pri-'+k).className='pri-opt';
+  });
+  document.getElementById('pri-'+p).classList.add('sel-'+p);
+}
+
+function handleFiles(files){
+  const list = document.getElementById('attachList');
+  list.innerHTML = [...files].map(f=>'📄 '+f.name).join('<br>');
+}
+
+// Drag and drop
+const attachArea = document.querySelector('.attach-area');
+if(attachArea){
+  attachArea.addEventListener('dragover',e=>{e.preventDefault();attachArea.style.borderColor='var(--tan)';});
+  attachArea.addEventListener('dragleave',()=>{attachArea.style.borderColor='var(--border)';});
+  attachArea.addEventListener('drop',e=>{
+    e.preventDefault();attachArea.style.borderColor='var(--border)';
+    handleFiles(e.dataTransfer.files);
+  });
+}
+
+function clearErr(id){ const el=document.getElementById(id); if(el){el.classList.remove('err'); const em=el.parentNode.querySelector('.err-msg'); if(em)em.remove();} }
+function showErr(id){ const el=document.getElementById(id); if(!el) return; el.classList.add('err'); const em=document.createElement('div'); em.className='err-msg'; em.textContent=t('err'+id.charAt(1).toUpperCase()+id.slice(2)); el.parentNode.appendChild(em); el.scrollIntoView({block:'center'}); }
+
+function validate(){
+  let ok = true;
+  ['fName','fEmail'].forEach(id=>clearErr(id));
+  if(currentType==='support'){clearErr('fPlanCurrent');clearErr('fTicketType');clearErr('fIssue');}
+  else clearErr('fMsg');
+
+  const name = document.getElementById('fName').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  if(!name){ showErr('fName'); ok=false; }
+  if(!email||!/\S+@\S+\.\S+/.test(email)){ showErr('fEmail'); ok=false; }
+
+  if(currentType==='support'){
+    if(!document.getElementById('fPlanCurrent').value){ showErr('fPlanCurrent'); ok=false; }
+    if(!document.getElementById('fTicketType').value){ showErr('fTicketType'); ok=false; }
+    if(!document.getElementById('fIssue').value.trim()){ showErr('fIssue'); ok=false; }
+  } else {
+    if(!document.getElementById('fMsg').value.trim()){ showErr('fMsg'); ok=false; }
+  }
+  return ok;
+}
+
+function submitForm(){
+  if(!validate()) return;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  // Simulate sending
+  setTimeout(()=>{
+    document.getElementById('formWrap').style.display='none';
+    const sb = document.getElementById('successBox');
+    sb.style.display='block';
+    const ref = 'CAC-'+Date.now().toString(36).toUpperCase().slice(-6);
+    document.getElementById('ticketRef').textContent = lang==='es' ? 'Referencia: '+ref : 'Reference: '+ref;
+    btn.disabled=false; btn.style.opacity='1';
+  }, 900);
+}
+
+function resetForm(){
+  document.getElementById('formWrap').style.display='block';
+  document.getElementById('successBox').style.display='none';
+  document.getElementById('fName').value='';
+  document.getElementById('fEmail').value='';
+  document.getElementById('fCompany').value='';
+  document.getElementById('fC

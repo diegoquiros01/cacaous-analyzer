@@ -1,0 +1,3159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DOCS-ANALYZER — AI-Powered Export Validation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap');
+
+:root {
+  --white: #ffffff;
+  --offwhite: #f8f6f2;
+  --cream: #f2ede4;
+  --cream2: #e8dfd0;
+  --brown-dark: #2c1a0e;
+  --brown: #4a2c1a;
+  --brown-mid: #7a4e32;
+  --brown-light: #b8866a;
+  --tan: #c9a882;
+  --tan-light: #e0c9aa;
+  --green: #3d5a3e;
+  --green-light: #5a8c5c;
+  --red: #7a2e22;
+  --red-light: #b04030;
+  --text: #1a0f08;
+  --text-mid: #5a3e2c;
+  --text-light: #9a7a60;
+  --border: #d8c8b0;
+  --border-light: #ede4d4;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--text); font-weight: 300; }
+
+/* ══════════════════════════════════════
+   HEADER — exact Docs-Analyzer style
+══════════════════════════════════════ */
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border-light);
+  position: sticky; top: 0; z-index: 200;
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem; height: 68px;
+}
+.logo {
+  display: flex; align-items: center; gap: 1rem;
+}
+.logo img {
+  height: 32px;
+}
+.logo-wordmark {
+  font-family: 'Raleway', 'Futura', 'Century Gothic', 'Gill Sans', sans-serif;
+  font-size: 1.6rem; font-weight: 300;
+  letter-spacing: 0.18em; color: #1a1a1a;
+  text-transform: uppercase;
+}
+.logo-tagline {
+  font-size: 0.52rem; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--text-light);
+  margin-top: 0.1rem;
+}
+.header-right { display: flex; align-items: center; gap: 2rem; }
+.nav { display: flex; gap: 2rem; list-style: none; }
+.nav a {
+  font-size: 0.65rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text-mid);
+  text-decoration: none; font-weight: 400;
+  transition: color 0.2s;
+}
+.nav a:hover { color: var(--brown); }
+.lang-switch { display: flex; align-items: center; gap: 0.5rem; }
+.lang-btn {
+  background: none; border: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.62rem; letter-spacing: 0.18em; font-weight: 400;
+  color: var(--text-light); cursor: pointer; padding: 0.2rem;
+  transition: color 0.2s;
+}
+.lang-btn:hover { color: var(--brown); }
+.lang-btn.active { color: var(--brown); font-weight: 700; border-bottom: 1.5px solid var(--tan); }
+.lang-sep { color: var(--border); font-size: 0.8rem; }
+
+/* ══════════════════════════════════════
+   HERO — Docs-Analyzer banner style
+══════════════════════════════════════ */
+.hero {
+  position: relative; min-height: 360px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; overflow: hidden;
+}
+.hero-img {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(20,10,4,0.70) 0%, rgba(28,16,8,0.60) 100%),
+    url('https://static.wixstatic.com/media/b9193c_b6c100bd7aa84053b278f32de9ebd8b3~mv2.jpg/v1/fill/w_1325,h_611,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/b9193c_b6c100bd7aa84053b278f32de9ebd8b3~mv2.jpg')
+    center/cover no-repeat;
+}
+.hero-content { position: relative; z-index: 1; color: var(--white); max-width: 800px; padding: 3rem 2rem; }
+.hero-eyebrow {
+  font-size: 0.62rem; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--tan-light); margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: center; gap: 1.2rem;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content: ''; width: 40px; height: 1px; background: var(--tan-light); opacity: 0.6;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem; font-weight: 400; letter-spacing: 0.02em; line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+.hero h1 em { font-style: italic; font-weight: 400; }
+.hero-sub {
+  font-size: 0.78rem; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.7); line-height: 1.6; margin-bottom: 0;
+}
+.hero-bullets {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem 1.8rem;
+  margin-top: 1.3rem;
+}
+.hero-bullets span {
+  font-size: 0.7rem; color: rgba(255,255,255,0.7); letter-spacing: 0.05em;
+}
+.hero-quote-unused {
+  margin-top: 1.5rem;
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 1rem;
+  color: rgba(255,255,255,0.75);
+}
+
+/* ══════════════════════════════════════
+   PROGRESS STEPS — visual guide
+══════════════════════════════════════ */
+.progress-bar {
+  background: var(--brown-dark);
+  padding: 0;
+  display: flex;
+  position: sticky; top: 68px; z-index: 100;
+}
+.progress-step {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 0.7rem; padding: 0.85rem 1rem;
+  font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); font-weight: 400;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.3s; cursor: default;
+}
+.progress-step:last-child { border-right: none; }
+.progress-step.active { color: var(--tan-light); }
+.progress-step.done { color: rgba(255,255,255,0.55); }
+.step-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.58rem; flex-shrink: 0;
+}
+.progress-step.active .step-num { background: var(--tan); border-color: var(--tan); color: var(--brown-dark); }
+.progress-step.done .step-num { background: rgba(255,255,255,0.15); }
+
+/* ══════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════ */
+main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
+
+.section-label {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2rem;
+}
+.section-label-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem; font-weight: 400; color: var(--tan);
+  line-height: 1; flex-shrink: 0;
+}
+.section-label-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 500; color: var(--brown-dark);
+  margin-bottom: 0.2rem;
+}
+.section-label-text p {
+  font-size: 0.75rem; color: var(--text-light); letter-spacing: 0.04em;
+}
+.section-divider {
+  border: none; border-top: 1px solid var(--border-light);
+  margin: 2.5rem 0;
+}
+
+/* ══════════════════════════════════════
+   DOC TYPE SELECTOR
+══════════════════════════════════════ */
+.doc-types-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem; margin-bottom: 0.5rem;
+}
+.doc-type-btn {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--text-mid);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.67rem; letter-spacing: 0.1em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; font-weight: 400;
+  text-align: left; display: flex; align-items: center; gap: 0.6rem;
+}
+.doc-type-btn .dt-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0; transition: background 0.2s;
+}
+.doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
+.doc-type-btn.active { border-color: var(--brown); background: var(--brown); color: var(--white); }
+.doc-type-btn.active .dt-dot { background: var(--tan-light); }
+
+/* ══════════════════════════════════════
+   UPLOAD ZONE
+══════════════════════════════════════ */
+.upload-area {
+  border: 2px dashed var(--border);
+  background: var(--offwhite);
+  padding: 3.5rem 2rem; text-align: center;
+  cursor: pointer; transition: all 0.3s;
+  position: relative; margin-bottom: 1rem;
+}
+.upload-area:hover, .upload-area.drag-over {
+  border-color: var(--tan); background: var(--cream);
+}
+.upload-area input[type="file"] { display: none; }
+.upload-icon { font-size: 2.2rem; margin-bottom: 1rem; color: var(--tan); }
+.upload-area h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; font-weight: 400; color: var(--brown-dark);
+  margin-bottom: 0.5rem;
+}
+.upload-area p { font-size: 0.73rem; color: var(--text-light); line-height: 1.8; }
+.upload-area p strong { color: var(--text-mid); font-weight: 400; }
+.upload-cta {
+  display: inline-block; margin-top: 1.5rem;
+  padding: 0.7rem 2.2rem;
+  background: var(--brown-dark); color: var(--white);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+  border: none; cursor: pointer; transition: background 0.2s;
+}
+.upload-cta:hover { background: var(--brown); }
+
+/* FILES LIST */
+.files-list { margin-bottom: 0.5rem; }
+.file-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.85rem 1.2rem;
+  background: var(--white); border: 1px solid var(--border-light);
+  border-bottom: none; transition: background 0.15s;
+}
+.file-item:first-child { border-top: 2px solid var(--tan); }
+.file-item:last-child { border-bottom: 1px solid var(--border-light); }
+.file-item:hover { background: var(--offwhite); }
+.file-icon { font-size: 1.1rem; flex-shrink: 0; }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: 0.82rem; color: var(--brown-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-size { font-size: 0.6rem; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.1rem; }
+.file-badge {
+  font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.15rem 0.55rem; border: 1px solid; flex-shrink: 0; font-weight: 700;
+}
+.badge-excel { border-color: #2d7a3a; color: #2d7a3a; background: #f0faf1; }
+.badge-word { border-color: #2b4fa8; color: #2b4fa8; background: #f0f4ff; }
+.file-del {
+  background: none; border: none; color: var(--text-light);
+  cursor: pointer; font-size: 1rem; padding: 0.2rem 0.4rem; transition: color 0.2s;
+}
+.file-del:hover { color: var(--red-light); }
+
+/* FILES COUNT */
+.files-count {
+  text-align: right;
+  font-size: 0.62rem; color: var(--text-light); letter-spacing: 0.08em;
+  margin-bottom: 1.5rem; padding-top: 0.4rem;
+}
+
+/* ANALYZE BUTTON */
+.analyze-wrap { margin-bottom: 3rem; }
+.analyze-btn {
+  width: 100%; padding: 1.2rem;
+  background: var(--brown-dark); border: none;
+  color: var(--white);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 700;
+  cursor: pointer; transition: background 0.3s;
+  display: flex; align-items: center; justify-content: center; gap: 1rem;
+}
+.analyze-btn:hover:not(:disabled) { background: var(--brown); }
+.analyze-btn:disabled { background: var(--cream2); color: var(--text-light); cursor: not-allowed; }
+.analyze-btn .btn-icon { font-size: 1rem; }
+
+/* ══════════════════════════════════════
+   LOADING
+══════════════════════════════════════ */
+.loading { display: none; padding: 4rem 2rem; max-width: 640px; margin: 0 auto; }
+.loading.show { display: block; }
+.loading-top { text-align: center; margin-bottom: 2.5rem; }
+.loading-icon { margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; }
+.cacao-loader {
+  position: relative; width: 80px; height: 80px;
+}
+.cacao-loader .ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--tan);
+  animation: spin-ring 1.2s linear infinite;
+}
+.cacao-loader .ring2 {
+  inset: 8px;
+  border-top-color: var(--brown-mid);
+  animation: spin-ring 1.8s linear infinite reverse;
+}
+.cacao-loader .bean {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  animation: breathe 2s ease-in-out infinite;
+}
+@keyframes spin-ring { to { transform: rotate(360deg); } }
+@keyframes breathe { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(0.82);opacity:0.6} }
+.loading h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; color: var(--brown-dark); margin-bottom: 0.4rem; }
+.loading-sub { font-size: 0.72rem; color: var(--text-light); letter-spacing: 0.1em; }
+.progress-container { background: var(--offwhite); border: 1px solid var(--border-light); padding: 1.8rem 2rem; margin-bottom: 1.5rem; }
+.progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.progress-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-mid); font-weight: 700; }
+.progress-pct { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--brown-dark); line-height: 1; }
+.progress-pct span { font-size: 0.75rem; color: var(--text-light); font-family: 'Lato', sans-serif; }
+.progress-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.9rem; }
+.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--brown-mid), var(--tan)); transition: width 0.5s ease; width: 0%; }
+.progress-phase { font-size: 0.7rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; }
+.progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--tan); flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
+@keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.doc-progress-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.doc-progress-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.55rem 0.8rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
+.doc-progress-item.done { background: rgba(61,90,62,0.05); border-color: rgba(61,90,62,0.2); }
+.doc-progress-item.active { background: rgba(201,168,130,0.1); border-color: var(--tan); }
+.doc-pi-icon { font-size: 0.9rem; flex-shrink: 0; width: 20px; text-align: center; }
+.doc-pi-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-pi-status { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; flex-shrink: 0; color: var(--text-light); }
+.doc-progress-item.done .doc-pi-status { color: var(--green); }
+.doc-progress-item.active .doc-pi-status { color: var(--tan); }
+
+/* ══════════════════════════════════════
+   RESULTS
+══════════════════════════════════════ */
+.results { display: none; }
+.results.show { display: block; }
+
+/* Verdict banner */
+.verdict {
+  padding: 2rem 2.5rem; margin-bottom: 2.5rem;
+  display: flex; align-items: center; gap: 2rem;
+  border-left: 6px solid; transition: all 0.3s;
+}
+.verdict.approved {
+  border-color: var(--green);
+  background: linear-gradient(135deg, #eaf5ea 0%, #f5fbf5 100%);
+  box-shadow: 0 2px 16px rgba(61,90,62,0.10);
+}
+.verdict.warning { border-color: var(--tan); background: #fdf8f0; }
+.verdict.rejected { border-color: var(--red); background: #fdf2f0; }
+.verdict-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; flex-shrink: 0; font-weight: 700;
+  transition: all 0.3s;
+}
+.verdict.approved .verdict-icon {
+  background: var(--green); color: var(--white);
+  box-shadow: 0 4px 16px rgba(61,90,62,0.25);
+  font-size: 2.2rem;
+}
+.verdict.warning .verdict-icon { background: var(--tan); color: var(--white); }
+.verdict.rejected .verdict-icon { background: var(--red); color: var(--white); }
+.verdict h3 {
+  font-family: 'Playfair Display', serif; font-weight: 500; margin-bottom: 0.4rem;
+}
+.verdict.approved h3 { color: var(--green); font-size: 2rem; letter-spacing: 0.01em; }
+.verdict.warning h3 { color: var(--brown-mid); font-size: 1.5rem; }
+.verdict.rejected h3 { color: var(--red); font-size: 1.5rem; }
+.verdict p { font-size: 0.82rem; color: var(--text-mid); line-height: 1.6; }
+.verdict.approved p { font-size: 0.88rem; color: var(--green); opacity: 0.85; }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border-light); border: 1px solid var(--border-light); margin-bottom: 3rem; }
+.stat {
+  background: var(--white); padding: 1.8rem 1rem; text-align: center;
+  position: relative;
+}
+.stat::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background: currentColor; transition: width 0.4s; }
+.stat:hover::after { width: 60%; }
+.stat-n {
+  font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 400; line-height: 1; margin-bottom: 0.4rem;
+}
+.stat-l { font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-light); }
+.stat-total { color: var(--tan); }
+.stat-ok { color: var(--green); }
+.stat-warn { color: var(--tan); }
+.stat-err { color: var(--red); }
+
+/* Section title with line */
+.result-section-title {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+}
+.result-section-title h3 {
+  font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 500;
+  color: var(--brown-dark); white-space: nowrap;
+}
+.result-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+.rst-badge {
+  font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.2rem 0.7rem; border: 1px solid; flex-shrink: 0;
+}
+.rst-badge.ok { border-color: var(--green); color: var(--green); background: #f2f8f2; }
+.rst-badge.warn { border-color: var(--tan); color: var(--brown-mid); }
+.rst-badge.err { border-color: var(--red); color: var(--red); background: #fdf2f0; }
+
+/* Coherence table */
+.coherence-box { background: var(--white); border: 1px solid var(--border-light); margin-bottom: 2.5rem; }
+.coherence-box-header {
+  padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-light);
+  background: var(--brown-dark); color: var(--white);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.coherence-box-header h4 {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; letter-spacing: 0.05em;
+}
+.coherence-body { padding: 0; }
+
+.ctable { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+.ctable th {
+  text-align: left; padding: 0.6rem 1rem;
+  background: var(--offwhite); border-bottom: 1px solid var(--border);
+  font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 400;
+}
+.ctable td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+.ctable tr:last-child td { border-bottom: none; }
+.ctable tr.tr-ok td { background: rgba(61,90,62,0.03); }
+.ctable tr.tr-err td { background: rgba(122,46,34,0.04); }
+.ctable .td-field { font-weight: 700; color: var(--brown); font-size: 0.72rem; }
+.ctable .td-status { text-align: center; }
+.cstatus {
+  font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.2rem 0.65rem; border: 1px solid; display: inline-block;
+}
+.cstatus-ok { border-color: var(--green); color: var(--green); background: #f2f8f2; }
+.cstatus-err { border-color: var(--red); color: var(--red); background: #fdf2f0; }
+.cstatus-single { border-color: var(--border); color: var(--text-light); }
+.td-docs { font-size: 0.65rem; color: var(--text-light); }
+
+/* Inconsistency cards */
+.incons-wrap { padding: 1.5rem; border-top: 1px solid var(--border-light); }
+.incons-section-label {
+  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--red); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.incons-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(122,46,34,0.2); }
+
+.icard { border: 1px solid; margin-bottom: 0.8rem; overflow: hidden; }
+.icard-err { border-color: rgba(176,64,48,0.3); }
+.icard-warn { border-color: rgba(201,168,130,0.5); }
+.icard-head {
+  padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.icard-err .icard-head { background: rgba(122,46,34,0.05); }
+.icard-warn .icard-head { background: rgba(201,168,130,0.08); }
+.icard-field { font-weight: 700; color: var(--brown-dark); font-size: 0.78rem; flex: 1; }
+.itag {
+  font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.2rem 0.65rem; border: 1px solid; flex-shrink: 0;
+}
+.itag-err { border-color: var(--red); color: var(--red); }
+.itag-warn { border-color: var(--tan); color: var(--brown-mid); }
+.icard-body { padding: 1rem 1.2rem; }
+.icard-desc { font-size: 0.78rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 0.8rem; }
+.ivals { display: flex; flex-direction: column; gap: 0.4rem; }
+.ival {
+  display: flex; align-items: baseline; gap: 1rem;
+  padding: 0.45rem 0.8rem; font-size: 0.76rem;
+  border-left: 3px solid;
+}
+.ival-ok { border-color: var(--green); background: rgba(61,90,62,0.04); }
+.ival-diff-token {
+  background: rgba(176,64,48,0.15); color: var(--red);
+  font-weight: 700; padding: 0.1rem 0.35rem; border-radius: 3px;
+  border: 1px solid rgba(176,64,48,0.3);
+  text-decoration: underline; text-decoration-style: wavy; text-decoration-color: var(--red);
+}
+.ival-same-token { color: var(--text-mid); }
+.ival-sep { color: var(--text-light); font-size: 0.7rem; }
+.ival-err { border-color: var(--red); background: rgba(122,46,34,0.05); }
+.ival-doc { color: var(--text-light); flex-shrink: 0; min-width: 160px; font-size: 0.65rem; }
+.ival-val { color: var(--brown-dark); font-weight: 400; }
+.ival-val.diff { color: var(--red); font-weight: 700; }
+.ival-val.same { color: var(--green); }
+
+/* Per-document accordion */
+.doc-cards { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; }
+.dcard { border: 1px solid var(--border-light); overflow: hidden; }
+.dcard-head {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.1rem 1.5rem; cursor: pointer;
+  background: var(--white); transition: background 0.15s; user-select: none;
+}
+.dcard-head:hover { background: var(--offwhite); }
+.dcard-stripe { width: 4px; height: 44px; flex-shrink: 0; border-radius: 2px; }
+.dcard-stripe.ok { background: var(--green); }
+.dcard-stripe.warn { background: var(--tan); }
+.dcard-stripe.err { background: var(--red); }
+.dcard-info { flex: 1; min-width: 0; }
+.dcard-title {
+  font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 500;
+  color: var(--brown-dark); margin-bottom: 0.15rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.dcard-file { font-size: 0.62rem; color: var(--text-light); letter-spacing: 0.05em; }
+.dcard-badge {
+  font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.22rem 0.8rem; border: 1px solid; flex-shrink: 0;
+}
+.dcard-badge.ok { border-color: var(--green); color: var(--green); }
+.dcard-badge.warn { border-color: var(--tan); color: var(--brown-mid); }
+.dcard-badge.err { border-color: var(--red); color: var(--red); }
+.dcard-chevron { color: var(--text-light); font-size: 0.7rem; transition: transform 0.2s; flex-shrink: 0; }
+.dcard.open .dcard-chevron { transform: rotate(180deg); }
+.dcard-body {
+  display: none; padding: 1.5rem;
+  background: var(--offwhite); border-top: 1px solid var(--border-light);
+}
+.dcard.open .dcard-body { display: block !important; }
+.dcard-fields-label {
+  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
+}
+.dcard-fields {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr));
+  gap: 0.5rem; margin-bottom: 1.2rem;
+}
+.dfield { padding: 0.75rem 0.9rem; background: var(--white); border: 1px solid var(--border-light); transition: all 0.2s; }
+.dfield.dfield-inconsistent {
+  background: rgba(176,64,48,0.05);
+  border-color: rgba(176,64,48,0.4);
+  border-left: 3px solid var(--red);
+}
+.dfield.dfield-warning {
+  background: rgba(201,168,130,0.08);
+  border-color: rgba(201,168,130,0.5);
+  border-left: 3px solid var(--tan);
+}
+.dfield-label { font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.3rem; }
+.dfield-label .dfield-flag {
+  display: inline-block; margin-left: 0.4rem;
+  font-size: 0.5rem; letter-spacing: 0.08em;
+  padding: 0.1rem 0.4rem; border-radius: 2px;
+  vertical-align: middle;
+}
+.dfield-inconsistent .dfield-label { color: var(--red); }
+.dfield-inconsistent .dfield-label .dfield-flag { background: var(--red); color: white; }
+.dfield-warning .dfield-label { color: var(--brown-mid); }
+.dfield-warning .dfield-label .dfield-flag { background: var(--tan); color: white; }
+.dfield-val { font-size: 0.76rem; color: var(--brown-dark); line-height: 1.4; word-break: break-word; }
+.dfield-inconsistent .dfield-val { color: var(--red); font-weight: 700; }
+.dfield-warning .dfield-val { color: var(--brown-mid); font-weight: 600; }
+.dfield-val.empty { color: var(--text-light); font-style: italic; }
+.dcard-comment {
+  background: var(--white); border-left: 3px solid var(--tan);
+  padding: 1rem 1.2rem; margin-top: 1rem;
+}
+.dcard-comment-label { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tan); margin-bottom: 0.5rem; font-weight: 700; }
+.dcard-comment-text {
+  font-family: 'Playfair Display', serif; font-size: 0.95rem; font-style: italic;
+  color: var(--text-mid); line-height: 1.8;
+}
+
+/* Summary AI comment */
+.summary-comment {
+  background: var(--cream); border: 1px solid var(--border);
+  border-top: 3px solid var(--tan);
+  padding: 1.5rem 2rem; margin-top: 1.5rem;
+}
+.summary-comment-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tan); margin-bottom: 0.6rem; font-weight: 700; }
+.summary-comment-text { font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; color: var(--text-mid); line-height: 1.9; }
+
+/* Actions */
+.actions {
+  display: flex; gap: 1rem; align-items: center;
+  padding-top: 2.5rem; border-top: 1px solid var(--border-light); margin-top: 3rem;
+}
+.btn-dl {
+  padding: 0.85rem 2.2rem;
+  background: var(--brown-dark); border: none; color: var(--white);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;
+  cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.6rem;
+}
+.btn-dl:hover { background: var(--brown); }
+.btn-track {
+  padding: 0.85rem 1.8rem;
+  background: var(--brown-dark); border: 1px solid var(--brown-dark);
+  color: var(--white);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;
+}
+.btn-track:hover { background: var(--brown); border-color: var(--brown); }
+.btn-reset {
+  padding: 0.85rem 1.8rem;
+  background: var(--white); border: 1px solid var(--border);
+  color: var(--text-mid);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 400;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-reset:hover { border-color: var(--brown); color: var(--brown); }
+
+/* ══════════════════════════════════════
+   TRACKING STATUS BANNER
+══════════════════════════════════════ */
+.tracking-status-bar {
+  display: flex; align-items: center; gap: 1.2rem;
+  padding: 1.2rem 1.5rem; border: 1px solid var(--border-light);
+  background: var(--white); border-left: 4px solid var(--border);
+  transition: all 0.3s;
+}
+.tracking-status-bar.pending  { border-left-color: var(--border); }
+.tracking-status-bar.loading  { border-left-color: var(--tan); background: #fdf8f0; }
+.tracking-status-bar.verified { border-left-color: var(--green); background: #f2f8f2; }
+.tracking-status-bar.mismatch { border-left-color: var(--tan); background: #fdf8f0; }
+.tracking-status-bar.error    { border-left-color: var(--red); background: #fdf2f0; }
+
+.tsb-icon { font-size: 1.5rem; flex-shrink: 0; }
+.tsb-content { flex: 1; }
+.tsb-title {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 500;
+  color: var(--brown-dark); margin-bottom: 0.2rem;
+}
+.tsb-detail { font-size: 0.75rem; color: var(--text-light); line-height: 1.5; }
+.tsb-badge {
+  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.3rem 0.9rem; border: 1px solid; flex-shrink: 0; font-weight: 700;
+}
+.tsb-badge.pending  { border-color: var(--border); color: var(--text-light); }
+.tsb-badge.loading  { border-color: var(--tan); color: var(--brown-mid); }
+.tsb-badge.verified { border-color: var(--green); color: var(--green); }
+.tsb-badge.mismatch { border-color: var(--tan); color: var(--brown-mid); }
+.tsb-badge.error    { border-color: var(--red); color: var(--red); }
+.tsb-spinner {
+  display: inline-block; width: 10px; height: 10px;
+  border: 2px solid var(--border); border-top-color: var(--tan);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  margin-right: 0.4rem; vertical-align: middle;
+}
+
+/* ══════════════════════════════════════
+   TRACKING
+══════════════════════════════════════ */
+.tracking-box {
+  background: var(--white); border: 1px solid var(--border-light);
+  margin-bottom: 0.8rem; overflow: hidden;
+}
+.tracking-box-header {
+  background: var(--brown-dark); color: var(--white);
+  padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+}
+.tracking-box-header h4 {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400;
+  flex: 1; letter-spacing: 0.03em;
+}
+.tracking-bl {
+  font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--tan-light); background: rgba(255,255,255,0.1);
+  padding: 0.2rem 0.7rem; border: 1px solid rgba(255,255,255,0.2);
+}
+.tracking-body { padding: 1.5rem; }
+.tracking-loading {
+  display: flex; align-items: center; gap: 0.8rem;
+  font-size: 0.75rem; color: var(--text-light); padding: 0.5rem 0;
+}
+.tracking-spinner {
+  width: 16px; height: 16px; border: 2px solid var(--border);
+  border-top-color: var(--tan); border-radius: 50%;
+  animation: spin 0.8s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.tracking-error {
+  font-size: 0.75rem; color: var(--red); padding: 0.5rem 0.8rem;
+  background: #fdf2f0; border-left: 3px solid var(--red);
+}
+.tracking-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+  gap: 0.5rem; margin-bottom: 1.2rem;
+}
+.tracking-field {
+  padding: 0.8rem 1rem; background: var(--offwhite); border: 1px solid var(--border-light);
+}
+.tracking-field-label {
+  font-size: 0.54rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-light); margin-bottom: 0.3rem;
+}
+.tracking-field-val {
+  font-size: 0.78rem; color: var(--brown-dark); font-weight: 400; word-break: break-word;
+}
+.tracking-field-val.highlight { color: var(--green); font-weight: 700; }
+.tracking-field-val.warn { color: var(--tan); font-weight: 700; }
+
+.tracking-events { margin-top: 1rem; }
+.tracking-events-label {
+  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
+}
+.event-timeline { display: flex; flex-direction: column; gap: 0; }
+.event-item {
+  display: flex; gap: 1rem; padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-light); font-size: 0.74rem;
+  color: var(--text-mid);
+}
+.event-item:last-child { border-bottom: none; }
+.event-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--border);
+  margin-top: 0.35rem; flex-shrink: 0;
+}
+.event-item.latest .event-dot { background: var(--green); }
+.event-date { color: var(--text-light); font-size: 0.65rem; min-width: 90px; flex-shrink: 0; }
+.event-desc { flex: 1; }
+.event-location { color: var(--text-light); font-size: 0.65rem; }
+
+/* Tracking overall verdict in header */
+.tracking-overall {
+  font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.25rem 0.8rem; border: 1px solid rgba(255,255,255,0.3);
+  font-weight: 700; margin-left: auto; flex-shrink: 0;
+}
+.tracking-overall.ok  { color: #8fda90; border-color: #8fda90; }
+.tracking-overall.warn{ color: var(--tan-light); border-color: var(--tan-light); }
+.tracking-overall.err { color: #f09080; border-color: #f09080; }
+
+/* Validation checklist */
+.tracking-validation-title {
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--tan); font-weight: 700; margin-bottom: 0.8rem;
+}
+.tracking-data-title {
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 700; margin: 1.3rem 0 0.8rem;
+}
+.tracking-checklist { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.5rem; }
+.chk-item {
+  display: flex; align-items: flex-start; gap: 0.8rem;
+  padding: 0.65rem 1rem; border-left: 3px solid;
+}
+.chk-item.chk-ok   { background: rgba(61,90,62,0.05); border-color: var(--green); }
+.chk-item.chk-warn { background: rgba(201,168,130,0.1); border-color: var(--tan); }
+.chk-item.chk-err  { background: rgba(122,46,34,0.06); border-color: var(--red); }
+.chk-icon {
+  font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 0.1rem; width: 16px;
+}
+.chk-item.chk-ok   .chk-icon { color: var(--green); }
+.chk-item.chk-warn .chk-icon { color: var(--tan); }
+.chk-item.chk-err  .chk-icon { color: var(--red); }
+.chk-content { flex: 1; min-width: 0; }
+.chk-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.2rem; }
+.chk-val   { font-size: 0.77rem; color: var(--brown-dark); font-weight: 400; }
+.chk-diff  { margin-top: 0.4rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.68rem; }
+.chk-diff-label { color: var(--text-light); letter-spacing: 0.06em; }
+.chk-diff-val { color: var(--brown-dark); }
+.chk-diff-val.err { color: var(--red); font-weight: 700; }
+
+.tracking-match-banner {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.7rem 1rem; margin-bottom: 1rem;
+  font-size: 0.75rem; font-weight: 700; border-left: 3px solid;
+}
+.tracking-match-banner.ok { background: rgba(61,90,62,0.06); border-color: var(--green); color: var(--green); }
+.tracking-match-banner.warn { background: rgba(201,168,130,0.1); border-color: var(--tan); color: var(--brown-mid); }
+.tracking-match-banner.err { background: rgba(122,46,34,0.06); border-color: var(--red); color: var(--red); }
+
+/* Critical inconsistencies banner */
+.critical-banner {
+  background: rgba(176,64,48,0.07);
+  border: 1px solid rgba(176,64,48,0.3);
+  border-left: 4px solid var(--red);
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.critical-banner-title {
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--red); font-weight: 700; margin-bottom: 0.8rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.critical-banner-title::before { content: '✗'; font-size: 0.8rem; }
+.critical-item {
+  display: flex; align-items: baseline; gap: 0.8rem;
+  padding: 0.45rem 0; border-bottom: 1px solid rgba(176,64,48,0.1);
+  font-size: 0.76rem;
+}
+.critical-item:last-child { border-bottom: none; }
+.critical-field {
+  font-weight: 700; color: var(--red); min-width: 140px; flex-shrink: 0;
+  font-size: 0.7rem; letter-spacing: 0.05em;
+}
+.critical-msg { color: var(--text-mid); line-height: 1.5; }
+.critical-item-body { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
+.critical-details { font-size: 0.72rem; color: var(--text-light); }
+.critical-doc { font-weight: 600; color: var(--text-mid); }
+.crit-detail-row { margin-bottom: 0.3rem; font-size: 0.72rem; line-height: 1.6; }
+.crit-same-code { color: var(--text-mid); font-family: monospace; font-size: 0.75rem; }
+mark.crit-diff-code {
+  background: rgba(176,64,48,0.18); color: var(--red);
+  font-weight: 700; font-family: monospace; font-size: 0.78rem;
+  padding: 0.1rem 0.35rem; border-radius: 3px;
+  border: 1px solid rgba(176,64,48,0.35);
+  text-decoration: underline; text-decoration-style: wavy;
+  text-decoration-color: var(--red);
+}
+code.critical-code { background: rgba(176,64,48,0.1); color: var(--red); padding: 0.1rem 0.3rem; border-radius: 2px; font-size: 0.75rem; }
+
+/* Diff highlighting in table */
+.diff-block { display: flex; flex-direction: column; gap: 0.3rem; }
+.diff-row { font-size: 0.74rem; line-height: 1.5; }
+.diff-doc {
+  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-light); margin-right: 0.4rem;
+}
+.diff-val { color: var(--brown-dark); }
+mark.diff-mark {
+  background: rgba(176,64,48,0.15);
+  color: var(--red);
+  font-weight: 700;
+  padding: 0.05rem 0.25rem;
+  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-decoration-style: wavy;
+}
+
+/* Multi-doc notice */
+.multidoc-notice {
+  background: rgba(201,168,130,0.08); border: 1px solid var(--tan-light);
+  border-left: 3px solid var(--tan);
+  padding: 0.9rem 1.2rem; margin-bottom: 1.5rem;
+  font-size: 0.76rem; color: var(--text-mid); line-height: 1.7;
+}
+.multidoc-notice strong { color: var(--brown2); font-weight: 600; }
+.multidoc-notice .mdoc-row {
+  display: flex; gap: 1rem; align-items: baseline;
+  padding: 0.3rem 0; border-bottom: 1px solid var(--border-light);
+  font-size: 0.72rem;
+}
+.multidoc-notice .mdoc-row:last-child { border-bottom: none; }
+.multidoc-notice .mdoc-type { color: var(--brown); font-weight: 600; min-width: 160px; }
+.multidoc-notice .mdoc-sum { color: var(--green); font-weight: 700; }
+
+/* Partial tip */
+.partial-tip {
+  display: flex; align-items: flex-start; gap: 0.8rem;
+  background: #fdf8f0; border: 1px solid var(--tan-light);
+  border-left: 3px solid var(--tan);
+  padding: 0.9rem 1.2rem; margin-bottom: 1rem;
+  font-size: 0.76rem; color: var(--text-mid); line-height: 1.6;
+}
+.partial-tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+footer {
+  background: var(--brown-dark); color: rgba(255,255,255,0.6);
+  padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700;
+  letter-spacing: 0.12em; color: var(--white); text-transform: uppercase;
+}
+.footer-copy { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.footer-links { display: flex; gap: 1.5rem; list-style: none; }
+.footer-links a { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--tan-light); }
+
+@media(max-width:680px){
+  .header-top{padding:0 1.2rem;}
+  .nav{display:none;}
+  main{padding:2.5rem 1rem;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .hero h1{font-size:2.2rem;}
+  footer{flex-direction:column;gap:1.2rem;text-align:center;}
+  .progress-step span:not(.step-num){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div class="header-top">
+    <div class="logo">
+      <div style="display:flex;flex-direction:column;gap:0.1rem;">
+        <div class="logo-wordmark">DOCS-ANALYZER</div>
+        <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;">docs-analyzer.com</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <nav><ul class="nav">
+        <li><a href="https://docs-analyzer.com" target="_blank">Home</a></li>
+        <li><a href="https://docs-analyzer.com/pricing" target="_blank">Pricing</a></li>
+        <li><a href="https://docs-analyzer.com/contact" target="_blank">Contact</a></li>
+      </ul></nav>
+      <div class="lang-switch">
+        <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+        <span class="lang-sep">|</span>
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="hero-img"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow" id="heroEyebrow">Artificial Intelligence · Cacao & Coffee</div>
+    <h1 id="heroTitle">Validate your shipment documents<br><em>in seconds — not hours</em></h1>
+    <div class="hero-sub" id="heroSub">Upload your full or partial document set and let AI instantly detect inconsistencies</div>
+    <div class="hero-bullets" id="heroBullets">
+      <span>✓ Eliminate manual checking</span>
+      <span>✓ Catch discrepancies before they become claims</span>
+      <span>✓ Ensure full document consistency</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROGRESS BAR ══ -->
+<div class="progress-bar" id="progressBar">
+  <div class="progress-step active" id="ps1">
+    <span class="step-num">1</span>
+    <span id="ps1txt">Select Documents</span>
+  </div>
+  <div class="progress-step" id="ps2">
+    <span class="step-num">2</span>
+    <span id="ps2txt">AI Analysis</span>
+  </div>
+  <div class="progress-step" id="ps3">
+    <span class="step-num">3</span>
+    <span id="ps3txt">Review Results</span>
+  </div>
+  <div class="progress-step" id="ps4">
+    <span class="step-num">4</span>
+    <span id="ps4txt">Download Report</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- ══ STEP 1: UPLOAD ══ -->
+  <div id="uploadSection">
+
+    <div class="section-label">
+      <div class="section-label-num">01</div>
+      <div class="section-label-text">
+        <h2 id="s1title">Document Types</h2>
+        <p id="s1sub">Select the types included in this shipment set</p>
+      </div>
+    </div>
+
+    <div class="doc-types-grid" id="docTypesGrid">
+      <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
+      <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
+      <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
+      <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
+      <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
+      <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
+      <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
+      <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
+      <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
+      <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
+      <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="section-label">
+      <div class="section-label-num">02</div>
+      <div class="section-label-text">
+        <h2 id="s2title">Upload Documents</h2>
+        <p id="s2sub">Drag all shipment documents — PDF, Images, Excel, Word</p>
+      </div>
+    </div>
+
+    <div class="upload-area" id="uploadZone">
+      <div class="upload-icon">📂</div>
+      <h3 id="uploadTitle">Drag all shipment documents here</h3>
+      <p id="uploadSub">PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>All documents from the same shipment set</p>
+      <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">Select Files</button>
+      <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
+    </div>
+
+    <div class="partial-tip" id="partialTip">
+      <span class="partial-tip-icon">💡</span>
+      <span id="partialTipText">You don't need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.</span>
+    </div>
+
+    <div class="files-list" id="filesList"></div>
+    <div class="files-count" id="filesCount" style="display:none"></div>
+
+    <div class="analyze-wrap">
+      <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+        <span class="btn-icon">◆</span>
+        <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ══ LOADING ══ -->
+  <div class="loading" id="loading">
+    <div class="loading-top">
+      <div class="loading-icon">
+        <div class="cacao-loader">
+          <div class="ring"></div>
+          <div class="ring ring2"></div>
+          <div class="bean">
+            <svg viewBox="0 0 120 170" width="28" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="60" cy="85" rx="52" ry="80" fill="#5C4A2A"/>
+              <path d="M 30 40 Q 18 85 30 132 Q 38 158 52 163 Q 36 142 33 85 Q 31 48 42 26 Q 35 31 30 40 Z" fill="#8B6B3D" opacity="0.55"/>
+              <path d="M 56 12 Q 49 85 56 158 Q 60 165 64 158 Q 71 85 64 12 Q 62 8 60 8 Q 58 8 56 12 Z" fill="#F5EDD9" opacity="0.9"/>
+              <path d="M 74 20 Q 82 85 74 150 Q 80 132 82 85 Q 81 40 75 18 Q 74 18 74 20 Z" fill="#8B6B3D" opacity="0.45"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <h2 id="loadTitle">Analyzing your set</h2>
+      <div class="loading-sub" id="loadSub">Starting extraction...</div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-header">
+        <div class="progress-label" id="progressLabel">Extracting documents</div>
+        <div class="progress-pct"><span id="progressPct">0</span><span>%</span></div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-phase" id="progressPhase">Initializing...</div>
+    </div>
+
+    <div class="doc-progress-list" id="docProgressList"></div>
+  </div>
+
+  <!-- ══ RESULTS ══ -->
+  <div class="results" id="results">
+
+    <div class="section-label" style="margin-bottom:2rem;">
+      <div class="section-label-num">03</div>
+      <div class="section-label-text">
+        <h2 id="s3title">Analysis Results</h2>
+        <p id="s3sub">Internal coherence review across all documents</p>
+      </div>
+    </div>
+
+    <div id="verdictEl" class="verdict approved">
+      <div class="verdict-icon" id="verdictIcon">✓</div>
+      <div>
+        <h3 id="verdictTitle">Set Approved</h3>
+        <p id="verdictDesc">All values are consistent.</p>
+      </div>
+    </div>
+
+    <div class="stats-row" id="statsRow"></div>
+
+    <!-- Multi-doc notice — shown when same doc type appears multiple times -->
+    <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
+
+    <!-- Tracking status banner — shown after loadTracking() is called -->
+    <div id="trackingStatusBanner" style="display:none;margin-bottom:2rem;">
+      <div class="tracking-status-bar" id="trackingStatusBar">
+        <div class="tsb-icon" id="tsbIcon">🚢</div>
+        <div class="tsb-content">
+          <div class="tsb-title" id="tsbTitle">Carrier Verification</div>
+          <div class="tsb-detail" id="tsbDetail">Not yet queried</div>
+        </div>
+        <div class="tsb-badge" id="tsbBadge">—</div>
+      </div>
+    </div>
+
+    <!-- ══ TRACKING SECTION ══ -->
+    <div class="result-section-title" id="trackingSectionTitle" style="display:none;">
+      <h3 id="trackingTitle">Shipment Tracking</h3>
+    </div>
+    <div id="trackingSection" style="display:none;margin-bottom:2.5rem;"></div>
+
+    <!-- Coherence comparison -->
+    <div class="result-section-title">
+      <h3 id="coherenceTitle">Consistency Table</h3>
+      <span id="coherenceBadge" class="rst-badge ok">—</span>
+    </div>
+
+    <div id="criticalBanner" style="display:none;" class="critical-banner"></div>
+    <div class="coherence-box">
+      <div class="coherence-box-header">
+        <h4 id="ctableTitle">Field-by-field comparison across all documents</h4>
+      </div>
+      <div class="coherence-body">
+        <table class="ctable">
+          <thead><tr>
+            <th id="th1">Field</th>
+            <th id="th2">Status</th>
+            <th id="th3">Value(s) Found</th>
+            <th id="th4">Found In</th>
+          </tr></thead>
+          <tbody id="ctbody"></tbody>
+        </table>
+        <div id="inconsSec"></div>
+      </div>
+    </div>
+
+    <!-- Per document -->
+    <div class="result-section-title" style="margin-top:2.5rem;">
+      <h3 id="perDocTitle">Per Document Detail</h3>
+    </div>
+
+    <div class="doc-cards" id="docCards"></div>
+
+    <div class="actions">
+      <button class="btn-dl" id="btnDl" onclick="downloadReport()">
+        ↓ <span id="dlTxt">Download Report</span>
+      </button>
+      <button class="btn-track" id="btnTrack" onclick="loadTracking()">
+        🚢 <span id="trackTxt">Track Shipment</span>
+      </button>
+      <button class="btn-reset" id="btnReset" onclick="resetApp()">
+        ↺ <span id="resetTxt">New Analysis</span>
+      </button>
+    </div>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <div class="footer-logo">DOCS-ANALYZER</div>
+  <ul class="footer-links">
+    <li><a href="https://docs-analyzer.com" target="_blank">docs-analyzer.com</a></li>
+    <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
+  </ul>
+  <div class="footer-copy">© 2025 DOCS-ANALYZER · All Rights Reserved</div>
+</footer>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let lang = 'en';
+
+let uploadedFiles = [];
+let analysisResults = [];
+let coherenceResult = null;
+let _cachedSummary = null; // for lang switching
+
+// ══════════════════════════════════════
+// TRANSLATIONS
+// ══════════════════════════════════════
+const TX = {
+  en: {
+    logoTagline:'docs-analyzer.com',
+    heroEyebrow:'Artificial Intelligence · Cacao & Coffee',
+    heroTitle:'Validate your shipment documents<br><em>in seconds — not hours</em>',
+    heroSub:'Upload your full or partial document set and let AI instantly detect inconsistencies',
+    heroBullets:['✓ Eliminate manual checking','✓ Catch discrepancies before they become claims','✓ Ensure full document consistency'],
+    heroQuote:'',
+    ps1:'Select Documents', ps2:'AI Analysis', ps3:'Review Results', ps4:'Download Report',
+    s1title:'Document Types', s1sub:'Select the types included in this shipment set',
+    s2title:'Upload Documents', s2sub:'Drag all shipment documents — PDF, Images, Excel, Word',
+    uploadTitle:'Drag all shipment documents here',
+    uploadSub:'PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>All documents from the same shipment set',
+    uploadCta:'Select Files',
+    analyzeBtnTxt:'Analyze Full Set with AI',
+    loadTitle:'Analyzing your set', loadSub:'Starting extraction...',
+    s3title:'Analysis Results', s3sub:'Internal coherence review across all documents',
+    coherenceTitle:'Consistency Table',
+    ctableTitle:'Field-by-field comparison across all documents',
+    th1:'Field', th2:'Status', th3:'Value(s) Found', th4:'Found In',
+    perDocTitle:'Per Document Detail',
+    dlTxt:'Download Report', resetTxt:'New Analysis', trackTxt:'Track Shipment',
+    trackingTitle:'Shipment Tracking',
+    trackingLoading:'Querying carrier...',
+    trackingError:'Could not retrieve tracking data. Check the BL number and try again.',
+    trackingNobl:'No BL number found in the documents.',
+    trackingStatus:'Status', trackingVessel:'Vessel', trackingVoyage:'Voyage',
+    trackingETA:'ETA', trackingATD:'ATD (Departure)', trackingPOL:'Port of Loading',
+    trackingPOD:'Port of Discharge', trackingContainer:'Container',
+    trackingEvents:'Recent Events', trackingLatest:'Latest',
+    trackingMatchOk:'✓ Tracking data matches document information',
+    trackingMatchWarn:'⚠ Some tracking data differs from documents — review carefully',
+    trackingMatchErr:'✗ Tracking data does not match documents',
+    partialTip:'You don\'t need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.',
+    statDocs:'Documents', statOk:'No Issues', statWarn:'Observations', statErr:'Inconsistencies',
+    verdictApproved:'Set Approved — Coherence Verified',
+    verdictApprovedDesc:'All values are consistent across all documents. The shipment can proceed.',
+    verdictWarning:'Set with Observations',
+    verdictWarningDesc: n=>`${n} minor observation(s). Please review before proceeding.`,
+    verdictRejected:'Set Rejected — Inconsistencies Found',
+    verdictRejectedDesc: n=>`${n} critical inconsistency(ies) found. Values do not match across documents.`,
+    badgeOk:'✓ Consistent', badgeErr:'✗ Inconsistent', badgeSingle:'· Single Source',
+    cbOk:'Consistent ✓', cbWarn:'Observations', cbErr: n=>`${n} inconsistency(ies)`,
+    statusOk:'OK', statusWarn:'Observations', statusErr:'Inconsistent',
+    errCrit:'Critical Error', errWarn:'Observation',
+    notFound:'— (not found)',
+    inconsLabel:'Inconsistency detail',
+    fieldsLabel:'Extracted Fields', obsLabel:'Observations', analysisLabel:'✦ Analysis', summaryLabel:'✦ Set Summary',
+    FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',blNumber:'BL Number',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
+    DOCFIELDS:[['Type','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Containers','containerNumbers'],['Seals','sealNumbers'],['Lots','lotNumbers'],['Bags','bagCount'],['Net Weight','netWeight'],['Gross Weight','grossWeight'],['Product','productDescription'],['Origin','originCountry'],['Destination','destinationCountry'],['Port of Loading','portOfLoading'],['Port of Discharge','portOfDischarge'],['Vessel','vesselName'],['BL Number','blNumber'],['Invoice No.','invoiceNumber'],['Date','exportDate'],['Lab / Certifier','labName'],['Lab Cert #','labCertNumber'],['Moisture','moistureContent'],['Quality Grade','qualityGrade'],['Test Results','testResults'],['Permit Number','permitNumber'],['Permit Authority','permitAuthority'],['Permit Valid From','permitValidFrom'],['Permit Valid Until','permitValidUntil'],['Importer of Record','importerOfRecord'],['COI Cert. Number','coiCertNumber'],['Certifying Body','coiCertifier'],['Organic Standard','coiStandard'],['COI Operator','coiOperator'],['COI Products','coiProducts'],['COI Valid From','coiValidFrom'],['COI Valid Until','coiValidUntil'],['COI Auth. Quantity','coiAuthorizedQty'],['Transaction Cert. TC#','coiTransactionCert'],['COI Lots','coiLots']],
+    rptTitle:'DOCS-ANALYZER — COHERENCE ANALYSIS REPORT',
+    rptStatus:'Status',rptDocs:'Documents',rptIncons:'Inconsistencies',rptObs:'Observations',
+    rptCoherence:'COHERENCE TABLE',rptDetail:'DETAIL PER DOCUMENT',rptDetailIss:'DETAILED INCONSISTENCIES',
+    rptFile:'File',rptShipper:'Shipper',rptConsignee:'Consignee',rptContainers:'Containers',
+    rptSeals:'Seals',rptLots:'Lots',rptBags:'Bags',rptNet:'Net Weight',rptGross:'Gross Weight',
+    rptVessel:'Vessel',rptPOL:'Port of Loading',rptPOD:'Port of Discharge',rptBL:'BL Number',
+    rptInv:'Invoice No.',rptComment:'Comment',rptDate:'Date',
+    rptFooter:'© DOCS-ANALYZER · AI-Powered Export Validation',rptNotFound:'not found',
+    loadSteps:['Comparing containers, lots, bags, weights...','Verifying shipper, consignee, ports, vessel...','Identifying inconsistencies in detail...','Generating report...'],
+    filesCount: n=>`${n} document${n===1?'':'s'} selected`,
+    loadTitle:'Analyzing your set',
+    loadSubInit:'Starting extraction...',
+    progressLabelInit:'Extracting documents',
+    progressPhaseInit:'Initializing...',
+    tsbTitleInit:'Carrier Verification',
+    tsbDetailInit:'Not yet queried',
+    verdictTitleInit:'Set Approved',
+    verdictDescInit:'All values are consistent.',
+    coherenceBoxTitle:'Field-by-field comparison across all documents',
+    inconsistencyDetail:'Inconsistency Detail',
+  },
+  es: {
+    logoTagline:'docs-analyzer.com',
+    heroEyebrow:'Inteligencia Artificial · Cacao & Café',
+    heroTitle:'Valida tus documentos de exportación<br><em>en segundos — no en horas</em>',
+    heroSub:'Sube tu set completo o parcial y deja que la IA detecte inconsistencias al instante',
+    heroBullets:['✓ Elimina la revisión manual','✓ Detecta discrepancias antes de que sean reclamos','✓ Asegura coherencia documental total'],
+    heroQuote:'',
+    ps1:'Seleccionar Documentos', ps2:'Análisis IA', ps3:'Ver Resultados', ps4:'Descargar Reporte',
+    s1title:'Tipos de Documento', s1sub:'Selecciona los tipos incluidos en este set de embarque',
+    s2title:'Cargar Documentos', s2sub:'Arrastra todos los documentos del embarque — PDF, Imágenes, Excel, Word',
+    uploadTitle:'Arrastra todos los documentos del set aquí',
+    uploadSub:'PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>Todos los documentos del mismo embarque',
+    uploadCta:'Seleccionar Archivos',
+    analyzeBtnTxt:'Analizar Set Completo con IA',
+    loadTitle:'Analizando el set', loadSub:'Iniciando extracción...',
+    s3title:'Resultados del Análisis', s3sub:'Revisión de coherencia interna entre todos los documentos',
+    coherenceTitle:'Tabla de Consistencia',
+    ctableTitle:'Comparación campo por campo entre todos los documentos',
+    th1:'Campo', th2:'Estado', th3:'Valor(es) Encontrado(s)', th4:'Encontrado En',
+    perDocTitle:'Detalle por Documento',
+    dlTxt:'Descargar Reporte', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
+    trackingTitle:'Tracking del Embarque',
+    trackingLoading:'Consultando naviera...',
+    trackingError:'No se pudo obtener el tracking. Verifica el número de BL e intenta de nuevo.',
+    trackingNobl:'No se encontró número de BL en los documentos.',
+    trackingStatus:'Estado', trackingVessel:'Buque', trackingVoyage:'Viaje',
+    trackingETA:'ETA', trackingATD:'ATD (Salida)', trackingPOL:'Puerto de Carga',
+    trackingPOD:'Puerto de Descarga', trackingContainer:'Contenedor',
+    trackingEvents:'Eventos Recientes', trackingLatest:'Último',
+    trackingMatchOk:'✓ El tracking coincide con la información de los documentos',
+    trackingMatchWarn:'⚠ Algunos datos del tracking difieren de los documentos — revisar',
+    trackingMatchErr:'✗ El tracking no coincide con los documentos',
+    partialTip:'No necesitas subir todos los documentos a la vez — puedes hacer un análisis parcial con los documentos que tengas disponibles en ese momento.',
+    statDocs:'Documentos', statOk:'Sin Problemas', statWarn:'Observaciones', statErr:'Inconsistencias',
+    verdictApproved:'Set Aprobado — Coherencia Verificada',
+    verdictApprovedDesc:'Todos los valores son coherentes entre los documentos. El embarque puede proceder.',
+    verdictWarning:'Set con Observaciones',
+    verdictWarningDesc: n=>`${n} observación(es) menor(es). Revisar antes de proceder.`,
+    verdictRejected:'Set Rechazado — Inconsistencias Encontradas',
+    verdictRejectedDesc: n=>`${n} inconsistencia(s) crítica(s) detectada(s). Los valores no coinciden entre documentos.`,
+    badgeOk:'✓ Coincide', badgeErr:'✗ Inconsistente', badgeSingle:'· Un Documento',
+    cbOk:'Coherente ✓', cbWarn:'Con observaciones', cbErr: n=>`${n} inconsistencia(s)`,
+    statusOk:'OK', statusWarn:'Observaciones', statusErr:'Inconsistente',
+    errCrit:'Error Crítico', errWarn:'Observación',
+    notFound:'— (no encontrado)',
+    inconsLabel:'Detalle de inconsistencias encontradas',
+    fieldsLabel:'Campos Extraídos', obsLabel:'Observaciones', analysisLabel:'✦ Análisis', summaryLabel:'✦ Resumen del Set',
+    FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',blNumber:'N° de BL',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
+    DOCFIELDS:[['Tipo','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Contenedores','containerNumbers'],['Precintos','sealNumbers'],['Lotes','lotNumbers'],['Sacos','bagCount'],['Peso Neto','netWeight'],['Peso Bruto','grossWeight'],['Producto','productDescription'],['Origen','originCountry'],['Destino','destinationCountry'],['Puerto Carga','portOfLoading'],['Puerto Descarga','portOfDischarge'],['Buque','vesselName'],['N° BL','blNumber'],['N° Factura','invoiceNumber'],['Fecha','exportDate'],['Lab / Certificador','labName'],['N° Cert. Lab','labCertNumber'],['Humedad','moistureContent'],['Grado de Calidad','qualityGrade'],['Resultados','testResults'],['N° Permiso Importación','permitNumber'],['Autoridad Emisora','permitAuthority'],['Permiso Válido Desde','permitValidFrom'],['Permiso Válido Hasta','permitValidUntil'],['Importador de Registro','importerOfRecord'],['N° Certificado COI','coiCertNumber'],['Organismo Certificador','coiCertifier'],['Estándar Orgánico','coiStandard'],['Operador Certificado','coiOperator'],['Productos COI','coiProducts'],['COI Válido Desde','coiValidFrom'],['COI Válido Hasta','coiValidUntil'],['Cantidad Autorizada COI','coiAuthorizedQty'],['Cert. Transacción TC#','coiTransactionCert'],['Lotes en COI','coiLots']],
+    rptTitle:'DOCS-ANALYZER — REPORTE DE ANÁLISIS DE COHERENCIA',
+    rptStatus:'Estado',rptDocs:'Documentos',rptIncons:'Inconsistencias',rptObs:'Observaciones',
+    rptCoherence:'TABLA DE COHERENCIA',rptDetail:'DETALLE POR DOCUMENTO',rptDetailIss:'INCONSISTENCIAS DETALLADAS',
+    rptFile:'Archivo',rptShipper:'Shipper',rptConsignee:'Consignee',rptContainers:'Contenedores',
+    rptSeals:'Precintos',rptLots:'Lotes',rptBags:'Sacos',rptNet:'Peso Neto',rptGross:'Peso Bruto',
+    rptVessel:'Buque',rptPOL:'Puerto Carga',rptPOD:'Puerto Descarga',rptBL:'N° BL',
+    rptInv:'N° Factura',rptComment:'Comentario',rptDate:'Fecha',
+    rptFooter:'© DOCS-ANALYZER · Analizador de Documentos',rptNotFound:'no encontrado',
+    loadSteps:['Comparando contenedores, lotes, sacos, pesos...','Verificando shipper, consignee, puertos, buque...','Identificando inconsistencias con detalle...','Generando reporte...'],
+    filesCount: n=>`${n} documento${n===1?'':'s'} seleccionado${n===1?'':'s'}`,
+    loadTitle:'Analizando el set',
+    loadSubInit:'Iniciando extracción...',
+    progressLabelInit:'Extrayendo documentos',
+    progressPhaseInit:'Inicializando...',
+    tsbTitleInit:'Verificación de Naviera',
+    tsbDetailInit:'Aún no consultado',
+    verdictTitleInit:'Set Aprobado',
+    verdictDescInit:'Todos los valores son consistentes.',
+    coherenceBoxTitle:'Comparación campo por campo entre todos los documentos',
+    inconsistencyDetail:'Detalle de Inconsistencias',
+  }
+};
+
+const tx = ()=>TX[lang];
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btnES').classList.toggle('active',l==='es');
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  applyLang();
+  // Translate summary with AI if switching to ES and summary exists
+  if(_cachedSummary){
+    const summaryEls = document.querySelectorAll('.summary-comment-text');
+    const labelEls = document.querySelectorAll('.summary-comment-label');
+    labelEls.forEach(el => { el.textContent = tx().summaryLabel; });
+    if(l === 'es'){
+      // Show loading indicator
+      summaryEls.forEach(el => { el.style.opacity = '0.5'; });
+      translateWithAI(_cachedSummary, 'es').then(translated => {
+        summaryEls.forEach(el => { el.textContent = translated; el.style.opacity = '1'; });
+      });
+    } else {
+      // Back to English — use cached original
+      summaryEls.forEach(el => { el.textContent = _cachedSummary; el.style.opacity = '1'; });
+    }
+  }
+}
+
+function applyLang(){
+  const t = tx();
+  // Helper: set textContent safely
+  const st = (id, txt) => { const el = document.getElementById(id); if(el && txt !== undefined) el.textContent = txt; };
+  // Helper: set innerHTML safely
+  const sh = (id, html) => { const el = document.getElementById(id); if(el && html !== undefined) el.innerHTML = html; };
+
+  // ── Hero ──────────────────────────────────────
+  sh('logoTagline', t.logoTagline);
+  sh('heroEyebrow', t.heroEyebrow);
+  sh('heroTitle', t.heroTitle);
+  st('heroSub', t.heroSub);
+  const bulletsEl = document.getElementById('heroBullets');
+  if(bulletsEl && t.heroBullets) bulletsEl.innerHTML = t.heroBullets.map(b=>`<span>${b}</span>`).join('');
+
+  // ── Nav progress steps ─────────────────────────
+  st('ps1txt', t.ps1); st('ps2txt', t.ps2); st('ps3txt', t.ps3); st('ps4txt', t.ps4);
+
+  // ── Upload section ─────────────────────────────
+  st('s1title', t.s1title); st('s1sub', t.s1sub);
+  st('s2title', t.s2title); st('s2sub', t.s2sub);
+  sh('uploadTitle', t.uploadTitle); sh('uploadSub', t.uploadSub);
+  st('uploadCta', t.uploadCta);
+  st('analyzeBtnTxt', t.analyzeBtnTxt);
+  st('partialTipText', t.partialTip);
+
+  // ── Doc type buttons ───────────────────────────
+  document.querySelectorAll('.doc-type-btn').forEach(btn => {
+    const lbl = btn.querySelector('.dt-label');
+    if(lbl) lbl.textContent = lang==='es' ? btn.dataset.es : btn.dataset.en;
+  });
+
+  // ── Loading section ────────────────────────────
+  st('loadTitle', t.loadTitle);
+  const loadingActive = document.getElementById('loading')?.classList.contains('show');
+  if(!loadingActive){
+    st('loadSub', t.loadSubInit || (lang==='es' ? 'Iniciando extracción...' : 'Starting extraction...'));
+    st('progressLabel', t.progressLabelInit || (lang==='es' ? 'Extrayendo documentos' : 'Extracting documents'));
+    st('progressPhase', t.progressPhaseInit || (lang==='es' ? 'Inicializando...' : 'Initializing...'));
+  }
+
+  // ── Results static labels ──────────────────────
+  st('s3title', t.s3title); st('s3sub', t.s3sub);
+  st('coherenceTitle', t.coherenceTitle);
+  st('ctableTitle', t.ctableTitle);
+  st('th1', t.th1); st('th2', t.th2); st('th3', t.th3); st('th4', t.th4);
+  st('perDocTitle', t.perDocTitle);
+
+  // ── Action buttons ─────────────────────────────
+  st('dlTxt', t.dlTxt);
+  st('resetTxt', t.resetTxt);
+  st('trackTxt', t.trackTxt);
+  st('trackingTitle', t.trackingTitle);
+
+  // ── Tracking banner (initial state only) ───────
+  const tsbBanner = document.getElementById('trackingStatusBanner');
+  const tsbInactive = !tsbBanner || tsbBanner.style.display === 'none';
+  if(tsbInactive){
+    st('tsbTitle', lang==='es' ? 'Verificación de Naviera' : 'Carrier Verification');
+    st('tsbDetail', lang==='es' ? 'Aún no consultado' : 'Not yet queried');
+  }
+
+  // ── Files count ────────────────────────────────
+  if(uploadedFiles && uploadedFiles.length > 0){
+    const fc = document.getElementById('filesCount');
+    if(fc){ fc.style.display='block'; fc.textContent = t.filesCount(uploadedFiles.length); }
+  }
+
+  // ── Re-render results if visible ───────────────
+  const resultsEl = document.getElementById('results');
+  if(resultsEl && resultsEl.classList.contains('show') && analysisResults && analysisResults.length > 0){
+    setTimeout(() => {
+      try {
+        renderResults();
+        // Also directly update summary label which may not re-render
+        // Update summary label and text directly
+        document.querySelectorAll('.summary-comment-label').forEach(el => {
+          el.textContent = tx().summaryLabel;
+        });
+        document.querySelectorAll('.summary-comment-text').forEach(el => {
+          if(_cachedSummary) el.textContent = translateSummary(_cachedSummary);
+        });
+      } catch(e) { console.warn('Lang re-render error:', e.message); }
+    }, 10);
+  }
+}
+// Initialize
+applyLang();
+
+// ══════════════════════════════════════
+// DOC TYPE TOGGLES
+// ══════════════════════════════════════
+document.querySelectorAll('.doc-type-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>btn.classList.toggle('active'));
+});
+
+// ══════════════════════════════════════
+// FILE HELPERS
+// ══════════════════════════════════════
+const isExcel=n=>/\.(xlsx|xls)$/i.test(n);
+const isWord=n=>/\.(docx|doc)$/i.test(n);
+const getIcon=n=>isExcel(n)?'📊':isWord(n)?'📝':/\.pdf$/i.test(n)?'📋':'🖼';
+const getBadge=n=>isExcel(n)?'<span class="file-badge badge-excel">Excel</span>':isWord(n)?'<span class="file-badge badge-word">Word</span>':'';
+
+async function excelToText(f){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+        let t=`[Excel: ${f.name}]\n`;
+        wb.SheetNames.forEach(s=>{
+          const csv=XLSX.utils.sheet_to_csv(wb.Sheets[s],{skipHidden:true});
+          if(csv.trim()) t+=`\n[Sheet: ${s}]\n${csv}\n`;
+        });
+        res(t);
+      }catch(e){rej(e);}
+    };
+    r.onerror=rej; r.readAsArrayBuffer(f);
+  });
+}
+
+async function wordToText(f){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      mammoth.extractRawText({arrayBuffer:e.target.result})
+        .then(x=>res(`[Word: ${f.name}]\n\n${x.value}`))
+        .catch(rej);
+    };
+    r.onerror=rej; r.readAsArrayBuffer(f);
+  });
+}
+
+async function toBase64(f){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});
+}
+
+function mediaType(f){
+  if(f.type==='application/pdf') return 'application/pdf';
+  if(f.type?.startsWith('image/')) return f.type;
+  const e=f.name.split('.').pop().toLowerCase();
+  return e==='pdf'?'application/pdf':['jpg','jpeg'].includes(e)?'image/jpeg':'image/jpeg';
+}
+
+// ══════════════════════════════════════
+// UPLOAD
+// ══════════════════════════════════════
+const zone=document.getElementById('uploadZone');
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');addFiles([...e.dataTransfer.files]);});
+document.getElementById('fileInput').addEventListener('change',e=>{addFiles([...e.target.files]);e.target.value='';});
+
+async function addFiles(files){
+  for(const f of files){
+    if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
+    const entry={file:f,name:f.name,size:f.size};
+    if(isExcel(f.name)){try{entry.textContent=await excelToText(f);}catch(e){entry.textContent=`[Error: ${e.message}]`;}}
+    else if(isWord(f.name)){try{entry.textContent=await wordToText(f);}catch(e){entry.textContent=`[Error: ${e.message}]`;}}
+    uploadedFiles.push(entry);
+  }
+  renderFiles();
+}
+
+function renderFiles(){
+  const list=document.getElementById('filesList');
+  const fc=document.getElementById('filesCount');
+  list.innerHTML='';
+  uploadedFiles.forEach((f,i)=>{
+    const ext=f.name.split('.').pop().toUpperCase();
+    const size=f.size<1048576?(f.size/1024).toFixed(1)+' KB':(f.size/1048576).toFixed(1)+' MB';
+    list.innerHTML+=`<div class="file-item">
+      <div class="file-icon">${getIcon(f.name)}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${ext} · ${size}</div>
+      </div>
+      ${getBadge(f.name)}
+      <button class="file-del" onclick="removeFile(${i})">✕</button>
+    </div>`;
+  });
+  const n=uploadedFiles.length;
+  if(n>0){fc.style.display='block';fc.textContent=tx().filesCount(n);}
+  else{fc.style.display='none';}
+  document.getElementById('analyzeBtn').disabled=n===0;
+}
+
+function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
+
+// ══════════════════════════════════════
+// PROGRESS STEPS
+// ══════════════════════════════════════
+function setStep(n){
+  for(let i=1;i<=4;i++){
+    const el=document.getElementById(`ps${i}`);
+    if(!el) continue;
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  }
+}
+
+// ══════════════════════════════════════
+// API
+// ══════════════════════════════════════
+async function callClaude(system,content,maxTokens=2000){
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
+  });
+  const data=await resp.json();
+  if(data.error) throw new Error(data.error.message||'API error');
+  return (data.content?.map(b=>b.text||'').join('')||'').replace(/```json|```/g,'').trim();
+}
+
+function safeJSON(text){
+  if(!text) return null;
+  // Try direct parse
+  try{return JSON.parse(text);}catch(e){}
+  // Try extracting from first { to last }
+  const s=text.indexOf('{'), en=text.lastIndexOf('}');
+  if(s>=0&&en>s){try{return JSON.parse(text.slice(s,en+1));}catch(e){}}
+  // Try fixing truncated JSON by balancing braces
+  try{
+    let f=text.slice(text.indexOf('{'));
+    const opens=(f.match(/\{/g)||[]).length;
+    const closes=(f.match(/\}/g)||[]).length;
+    if(opens>closes) f+='}'.repeat(opens-closes);
+    const parsed = JSON.parse(f);
+    if(parsed) return parsed;
+  }catch(e){}
+  // Last resort: extract just the summary and status if JSON is too broken
+  try{
+    const statusMatch = text.match(/"overallStatus"\s*:\s*"([^"]+)"/);
+    const summaryMatch = text.match(/"summary"\s*:\s*"([^"]+)"/);
+    if(statusMatch || summaryMatch){
+      return {
+        overallStatus: statusMatch?.[1] || 'warning',
+        summary: summaryMatch?.[1] || '',
+        setValues: {},
+        coherenceIssues: [],
+        perDocumentStatus: {}
+      };
+    }
+  }catch(e){}
+  return null;
+}
+
+// ══════════════════════════════════════
+// STEP 1: EXTRACT
+// ══════════════════════════════════════
+async function extractDoc(entry){
+  const system=`You are an expert in cacao and coffee export documents. Extract ALL visible data. Respond with docType and all field values. The docType field should be in ${lang==='es'?'Spanish':'English'}.
+
+CRITICAL NUMBER EXTRACTION RULES:
+- Many documents use EUROPEAN format: period as thousands separator, comma as decimal → "50.094,00" means 50094 kg
+- Many documents use AMERICAN format: comma as thousands separator, period as decimal → "50,094.00" means 50094 kg
+- Both "50.094,00" and "50,094.00" and "50094" mean the SAME number: fifty thousand ninety four
+- NEVER read "50.094" as "50.004" — the digit after the period is NOT a decimal, it is part of the number
+- Always extract the FULL number as written, preserving all digits exactly
+- For weights: "50.094,00 KG" → extract "50094" (remove separators, keep all digits)
+- For bag counts: "726 sacos" or "726 bags" → extract "726"
+- Double-check: if a weight seems unusually small compared to bag count (e.g. 726 bags but only 50004 kg), you have likely misread a separator
+Respond ONLY in valid JSON without markdown:
+{"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"quality grade or null","testResults":"key test results if quality report or null","permitNumber":"import permit number or null","permitAuthority":"issuing authority or null","permitValidFrom":"permit start date or null","permitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiAuthorizedQty":"authorized quantity in COI or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null"}`;
+
+  let content;
+  if(entry.textContent){
+    content=`Extract all data from this cacao/coffee export document:\n\n${entry.textContent}`;
+  } else {
+    const b64=await toBase64(entry.file);
+    const mt=mediaType(entry.file);
+    content=[];
+    if(mt==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
+    else content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
+    content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
+  }
+  try{
+    const t=await callClaude(system,content,1500);
+    const p=safeJSON(t);
+    if(!p) return {docType:entry.name,_err:true};
+    // Validate extracted numbers — fix common OCR errors with separators
+    // e.g. "50004" when document clearly shows "50094" or "50.094"
+    const fixNumber = (val) => {
+      if(!val) return val;
+      const s = String(val).replace(/\s/g,'');
+      // If it looks like a weight (4-6 digits), return as-is
+      return s;
+    };
+    if(p.netWeight) p.netWeight = fixNumber(p.netWeight);
+    if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
+    return p;
+  }
+  catch(e){return{docType:entry.name,_err:true,_msg:e.message};}
+}
+
+// ══════════════════════════════════════
+// STEP 2: COHERENCE
+// ══════════════════════════════════════
+async function analyzeCoherence(docs){
+  const system=`You are an expert in cacao and coffee export document validation.
+
+Analyze the INTERNAL COHERENCE of this document set. Verify key values are consistent across documents.
+
+CRITICAL RULES FOR MULTI-DOCUMENT SETS:
+- Documents like Fumigation Certificates, Quality Certificates, and Packing Lists often appear MULTIPLE TIMES per shipment — one per container
+- When you see multiple documents of the SAME TYPE, you MUST sum their bagCount and weights before comparing to the BL/Invoice totals
+- Example: 2 Fumigation Certs each with 300 bags = 600 bags total → this MATCHES a BL with 600 bags — do NOT flag as inconsistency
+- Example: 3 Packing Lists with 200, 200, 200 bags = 600 total → matches BL 600 bags — OK
+- Each individual sub-document should cover a specific container — verify that container numbers in sub-docs match those in the BL
+- Only flag as inconsistency if the SUM does not match, or if a sub-document references a container not in the BL
+
+GENERAL RULES:
+- If a field is missing in a document: NOT an error — it simply doesn't apply
+- If the same field appears with DIFFERENT values: check if it's a multi-doc case first (sum them), then flag if truly inconsistent
+- For each inconsistency, specify EXACTLY what each document says so the user can locate it
+
+SMART COMPARISON RULES — these are NOT inconsistencies:
+- NUMBERS WITH DECIMALS: 199824.00 vs 199824 — SAME number → NOT inconsistent. Always strip trailing .00 before comparing
+- THOUSAND SEPARATORS: 119,824 vs 119824 — SAME number → NOT inconsistent
+- CASE: "SAN JOSE TRADING CORP" vs "San Jose Trading Corp" vs "san jose trading corp" — SAME → NOT inconsistent. Always compare case-insensitive
+- WEIGHT UNITS: "199824.00 KGS" vs "199824 kg" vs "199824 kilogramos" — SAME → NOT inconsistent. KGS = kg = kilogramos = kilograms
+- GEOGRAPHY VARIANTS: "New York USA" vs "New York-United States" vs "New York, NY" vs "Nueva York" — ALL SAME → NOT inconsistent
+- GEOGRAPHY SUFFIXES: "Guayaquil" vs "Guayaquil, Ecuador" vs "Puerto de Guayaquil" — SAME → NOT inconsistent
+- COUNTRY NAMES: "United States" vs "USA" vs "United States of America" vs "US" — SAME → NOT inconsistent
+- DATES: "March 16" vs "16/03" vs "03-16-2025" — SAME → NOT inconsistent. Dates 1-2 days apart → NOT inconsistent
+- ABBREVIATIONS: "Corp" vs "Corporation", "Inc" vs "Incorporated" — SAME → NOT inconsistent
+
+CRITICAL inconsistencies that MUST be flagged:
+- Container numbers that don't match exactly (MSCU123 vs MSCU456 = critical error)
+- Seal numbers that differ
+- Lot numbers that differ (unless multi-doc summing applies)
+- Bag counts that differ after summing multi-docs
+- Shipper name completely different (not just format)
+- BL number different across docs
+- Port of Loading/Discharge completely different cities
+
+Fields to check: containerNumbers, sealNumbers, lotNumbers, bagCount, netWeight, grossWeight, shipper, consigneeName, vesselName, portOfLoading, portOfDischarge, blNumber, invoiceNumber, coiCertNumber, coiCertifier, coiStandard, coiOperator, coiAuthorizedQty, coiTransactionCert, coiLots
+For COI: coiLots must match lotNumbers in BL/invoice, coiAuthorizedQty must match total bagCount/netWeight (sum if multiple), coiOperator must match shipper
+
+Respond ONLY in valid JSON without markdown:
+{"overallStatus":"approved|warning|rejected","summary":"2-3 sentence executive summary","setValues":{"containers":{"status":"consistent|inconsistent|single_source","values":[{"doc":"file.pdf","value":"MSCU123"}]},"seals":{"status":"...","values":[...]},"lots":{"status":"...","values":[...]},"bags":{"status":"...","values":[...]},"netWeight":{"status":"...","values":[...]},"grossWeight":{"status":"...","values":[...]},"shipper":{"status":"...","values":[...]},"consignee":{"status":"...","values":[...]},"vessel":{"status":"...","values":[...]},"portOfLoading":{"status":"...","values":[...]},"portOfDischarge":{"status":"...","values":[...]},"blNumber":{"status":"...","values":[...]},"coiCertNumber":{"status":"...","values":[...]},"coiCertifier":{"status":"...","values":[...]},"coiStandard":{"status":"...","values":[...]},"coiAuthorizedQty":{"status":"...","values":[...]},"coiTransactionCert":{"status":"...","values":[...]},"coiLots":{"status":"...","values":[...]}}},"coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"clear description of the inconsistency","details":[{"doc":"file.pdf","value":"exact value in this document"}]}],"perDocumentStatus":{"file.pdf":{"status":"approved|warning|rejected","docType":"type","issues":["issue if any"],"comment":"brief comment"}}}`;
+
+  // Pre-process: identify multi-doc groups
+  const docTypes = {};
+  Object.entries(docs).forEach(([filename, data]) => {
+    const dt = (data.docType||'unknown').toLowerCase();
+    if(!docTypes[dt]) docTypes[dt] = [];
+    docTypes[dt].push(filename);
+  });
+
+  const multiDocs = Object.entries(docTypes)
+    .filter(([,files]) => files.length > 1)
+    .map(([type, files]) => {
+      // Sum bags and weights for this type
+      const bags = files.reduce((sum, f) => {
+        const v = parseFloat(docs[f]?.bagCount);
+        return sum + (isNaN(v) ? 0 : v);
+      }, 0);
+      const net = files.reduce((sum, f) => {
+        const v = parseFloat(docs[f]?.netWeight);
+        return sum + (isNaN(v) ? 0 : v);
+      }, 0);
+      return { type, files, totalBags: bags||null, totalNet: net||null };
+    });
+
+  const multiDocNote = multiDocs.length > 0
+    ? '\n\nMULTI-DOCUMENT GROUPS DETECTED (sum these before comparing to BL/Invoice):\n'
+      + multiDocs.map(g =>
+          `- ${g.type} appears ${g.files.length}x: [${g.files.join(', ')}]`
+          + (g.totalBags ? ` → TOTAL bags: ${g.totalBags}` : '')
+          + (g.totalNet ? `, TOTAL net weight: ${g.totalNet}` : '')
+        ).join('\n')
+    : '';
+
+  const msg=`Analyze internal coherence of this export document set.${multiDocNote}\n\nExtracted data:\n${JSON.stringify(docs,null,2)}`;
+  try{
+    const t=await callClaude(system,msg,8000);
+    const p=safeJSON(t);
+    if(p) return p;
+    return{overallStatus:'warning',summary:lang==='es'?'Análisis completado pero la respuesta no pudo ser procesada completamente.':'Analysis completed but response could not be fully processed.',setValues:{},coherenceIssues:[],perDocumentStatus:{}};
+  }catch(e){
+    return{overallStatus:'warning',summary:(lang==='es'?`Error de conexión: ${e.message}`:`Connection error: ${e.message}`),setValues:{},coherenceIssues:[{type:'error',field:'system',message:e.message,details:[]}],perDocumentStatus:{}};
+  }
+}
+
+// ══════════════════════════════════════
+// MAIN ANALYSIS FLOW
+// ══════════════════════════════════════
+// Progress helpers
+function setProgress(pct, phase){
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressPct').textContent = Math.round(pct);
+  if(phase) document.getElementById('progressPhase').textContent = phase;
+}
+
+function buildDocList(){
+  const list = document.getElementById('docProgressList');
+  list.innerHTML = '';
+  uploadedFiles.forEach((f,i)=>{
+    const tag = isExcel(f.name)?'[Excel]':isWord(f.name)?'[Word]':'';
+    list.innerHTML += `<div class="doc-progress-item" id="dpi${i}">
+      <span class="doc-pi-icon">${getIcon(f.name)}</span>
+      <span class="doc-pi-name">${f.name} ${tag}</span>
+      <span class="doc-pi-status" id="dps${i}">${lang==='es'?'Pendiente':'Pending'}</span>
+    </div>`;
+  });
+}
+
+function setDocStatus(i, status){
+  const item = document.getElementById(`dpi${i}`);
+  const lbl  = document.getElementById(`dps${i}`);
+  if(!item||!lbl) return;
+  item.classList.remove('active','done');
+  if(status==='active'){
+    item.classList.add('active');
+    lbl.textContent = lang==='es'?'Analizando...':'Analyzing...';
+  } else if(status==='done'){
+    item.classList.add('done');
+    lbl.textContent = lang==='es'?'Listo ✓':'Done ✓';
+  }
+}
+
+async function startAnalysis(){
+  if(uploadedFiles.length === 0) return;
+
+  // Hide upload, show loading
+  const uploadSec = document.getElementById('uploadSection');
+  const loadingSec = document.getElementById('loading');
+  if(uploadSec) uploadSec.style.display='none';
+  if(loadingSec) loadingSec.classList.add('show');
+  setStep(2);
+  analysisResults = [];
+  coherenceResult = null;
+
+  const sub = document.getElementById('loadSub');
+  const lbl = document.getElementById('progressLabel');
+  const total = uploadedFiles.length + 1;
+  let done = 0;
+
+  const tick = (phase) => {
+    done++;
+    setProgress(Math.min(98, Math.round((done/total)*100)), phase);
+  };
+
+  const setSub = (txt) => { if(sub) sub.textContent = txt; };
+  const setLbl = (txt) => { if(lbl) lbl.textContent = txt; };
+
+  try {
+    buildDocList();
+    setProgress(0, lang==='es'?'Inicializando...':'Initializing...');
+    setLbl(lang==='es'?'Extrayendo documentos':'Extracting documents');
+
+    const extractedDocs = {};
+    for(let i = 0; i < uploadedFiles.length; i++){
+      const e = uploadedFiles[i];
+      setDocStatus(i, 'active');
+      setSub(`${lang==='es'?'Leyendo':'Reading'}: ${e.name} (${i+1}/${uploadedFiles.length})`);
+      setProgress(Math.round((i/total)*100), lang==='es'?`Documento ${i+1} de ${uploadedFiles.length}...`:`Document ${i+1} of ${uploadedFiles.length}...`);
+
+      const x = await extractDoc(e);
+      x._filename = e.name;
+      extractedDocs[e.name] = x;
+      analysisResults.push(x);
+      setDocStatus(i, 'done');
+      tick(lang==='es'?`${i+1}/${uploadedFiles.length} listos`:`${i+1}/${uploadedFiles.length} done`);
+    }
+
+    setLbl(lang==='es'?'Verificando coherencia':'Verifying coherence');
+    setSub(lang==='es'?'Comparando valores entre documentos...':'Cross-checking values across documents...');
+    setProgress(Math.round((uploadedFiles.length/total)*100), lang==='es'?'Analizando coherencia...':'Analyzing coherence...');
+
+    coherenceResult = await analyzeCoherence(extractedDocs);
+    _cachedSummary = coherenceResult?.summary || null;
+    setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
+    await new Promise(r => setTimeout(r, 600));
+
+  } catch(err) {
+    console.error('Analysis error:', err);
+    setSub(`Error: ${err.message}`);
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  if(loadingSec) loadingSec.classList.remove('show');
+  setStep(3);
+  if(analysisResults.length > 0){
+    renderResults();
+    logAnalysis();
+  } else {
+    // Nothing extracted — show upload again with error message
+    if(uploadSec) uploadSec.style.display='block';
+    setStep(1);
+    alert(lang==='es'?'No se pudo analizar ningún documento. Verifica los archivos e intenta de nuevo.':'Could not analyze any documents. Please check your files and try again.');
+  }
+}
+
+// ══════════════════════════════════════
+// SMART INCONSISTENCY FILTER
+// ══════════════════════════════════════
+function normalizeValue(v){
+  if(!v) return '';
+  let s = String(v).toLowerCase().trim();
+  // Strip trailing decimal zeros: 199824.00 → 199824
+  s = s.replace(/(\d+)\.0+(?=$|\s)/g, '$1');
+  // Remove thousand separators
+  s = s.replace(/(\d),(\d{3})/g, '$1$2');
+  // Normalize weight units to 'kg'
+  s = s.replace(/\bkilogramos?\b/g, 'kg').replace(/\bkilograms?\b/g, 'kg')
+       .replace(/\bkgs\b/g, 'kg').replace(/\bkilos?\b/g, 'kg');
+  // Normalize metric tons
+  s = s.replace(/\btoneladas?\s*m[eé]tricas?\b/g, 'mt').replace(/\bmetric\s*ton+e?s?\b/g, 'mt');
+  // Normalize country names
+  s = s.replace(/\bunited\s*states\s*of\s*america\b/g, 'usa')
+       .replace(/\bunited\s*states\b/g, 'usa').replace(/\bu\.s\.a\.?\b/g, 'usa');
+  // Normalize NY variants: "new york-united states" → "new york usa"
+  s = s.replace(/new\s*york[\s\-]+united\s*states\b/g, 'new york usa');
+  s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york usa');
+  s = s.replace(/\bnueva\s*york\b/g, 'new york');
+  // Remove port prefixes
+  s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of)\s+/g, '');
+  // Remove trailing geographic qualifiers
+  s = s.replace(/,?\s*(ecuador|colombia|venezuela|peru|usa|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom)\b.*/g, '');
+  s = s.replace(/,?\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '');
+  // Normalize company suffixes
+  s = s.replace(/corporation/g, 'corp').replace(/incorporated/g, 'inc')
+       .replace(/limited/g, 'ltd').replace(/company/g, 'co');
+  // Remove punctuation that doesn't affect meaning: periods, commas at end
+  s = s.replace(/[.,;]+$/g, '').replace(/\.(?=\s|$)/g, '');
+  // Collapse spaces/hyphens
+  s = s.replace(/[\s\-]+/g, ' ').trim();
+  return s;
+}
+
+function extractNum(s){
+  const m = String(s).replace(/,/g,'').match(/\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+
+function isCode(s){
+  // Container numbers, seal numbers, BL numbers, lot numbers — must match EXACTLY
+  // Container: 4 letters + 6-7 digits (e.g. ECMU5239485)
+  // BL: mix of letters and digits
+  return /^[A-Z]{4}\d{6,7}$/i.test(s.trim()) ||  // container format
+         /^[A-Z]{2,4}\d{6,}$/i.test(s.trim());    // BL/seal format
+}
+
+function splitCodes(s){
+  // Split "ECMU123, SEKU456, TCKU789" into ["ECMU123","SEKU456","TCKU789"]
+  return String(s).split(/[,;\s]+/).map(x=>x.trim().toUpperCase()).filter(x=>x.length>2);
+}
+
+function isContainerList(s){
+  // A value is a container list if it contains at least one container-format code
+  const tokens = splitCodes(s);
+  return tokens.some(t => /^[A-Z]{4}\d{6,7}$/.test(t));
+}
+
+function isTrivialDifference(a, b){
+  if(!a || !b) return false;
+  const sa = String(a).trim(), sb = String(b).trim();
+
+  // 1. Case-insensitive exact match
+  if(sa.toLowerCase() === sb.toLowerCase()) return true;
+
+  // 2. CONTAINER LISTS — compare element by element
+  // If both values contain container-format codes, compare the sets
+  if(isContainerList(sa) || isContainerList(sb)){
+    const codesA = new Set(splitCodes(sa));
+    const codesB = new Set(splitCodes(sb));
+    if(codesA.size !== codesB.size) return false;
+    for(const code of codesA){
+      if(!codesB.has(code)) return false;
+    }
+    return true; // all codes match
+  }
+
+  // 3. Single code (BL, seal) — exact match only
+  if(isCode(sa) || isCode(sb)) return false;
+
+  // 4. After full normalization
+  const na = normalizeValue(sa), nb = normalizeValue(sb);
+  if(na === nb) return true;
+
+  // 5. Containment — only for plain text (cities, names), not codes
+  const looksLikeCode = s => /^[A-Z0-9\-]{6,}$/i.test(s.replace(/[\s,]/g,''));
+  if(!looksLikeCode(na) && !looksLikeCode(nb)){
+    if(na && nb && (na.includes(nb) || nb.includes(na))) return true;
+  }
+  // 5b. After stripping company legal suffixes, check if core name matches
+  const stripSuffix = s => s
+    .replace(/\s*(corporation|incorporated|limited|company)\.?$/gi, '')
+    .replace(/\s*(corp|inc|ltd|llc|co|sa|srl|gmbh|bv|nv|plc|pvt|pty)\.?$/gi, '')
+    .trim();
+  const ca = stripSuffix(na), cb = stripSuffix(nb);
+  if(ca && cb && ca.length > 3 && ca === cb) return true;
+
+  // 6. Numeric comparison — handle European and American number formats
+  const n1 = extractNum(sa), n2 = extractNum(sb);
+  if(!isNaN(n1) && !isNaN(n2) && n1 > 0 && Math.abs(n1-n2) < 0.01) return true;
+
+  // 7. Numeric after normalization (handles 199824.00 KGS vs 199824 kg)
+  const nn1 = extractNum(na), nn2 = extractNum(nb);
+  if(!isNaN(nn1) && !isNaN(nn2) && nn1 > 0 && Math.abs(nn1-nn2) < 0.01) return true;
+
+  // 8. European vs American format (50.094 vs 50,094 vs 50094)
+  const en1 = normalizeExtractedNumber(sa), en2 = normalizeExtractedNumber(sb);
+  if(en1 && en2 && !isNaN(en1) && !isNaN(en2) && en1 > 0 && Math.abs(en1-en2) < 0.01) return true;
+
+  // 8. Both look like dates
+  const isDate = s => /\d{1,2}[\/\-\.]\d{1,2}|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ene|abr|ago)/i.test(s);
+  if(isDate(sa) && isDate(sb)) return true;
+
+  return false;
+}
+
+function filterTrivialInconsistencies(coherenceResult){
+  if(!coherenceResult) return coherenceResult;
+  const f = JSON.parse(JSON.stringify(coherenceResult));
+  // Filter coherenceIssues
+  const containerFields = new Set(['containers','containerNumbers','container_numbers','sealNumbers','seals']);
+  let containerIssueAdded = false;
+  const filtered_issues = [];
+
+  for(const iss of (f.coherenceIssues||[])){
+    // Deduplicate container issues — keep only the first one
+    if(containerFields.has(iss.field)){
+      if(containerIssueAdded) continue; // skip duplicates
+    }
+
+    const vals = (iss.details||[]).map(d=>d.value).filter(Boolean);
+    if(vals.length < 2){ filtered_issues.push(iss); if(containerFields.has(iss.field)) containerIssueAdded=true; continue; }
+
+    let keep = false;
+    for(let i=0; i<vals.length && !keep; i++)
+      for(let j=i+1; j<vals.length && !keep; j++)
+        if(!isTrivialDifference(vals[i], vals[j])) keep = true;
+
+    if(keep){
+      filtered_issues.push(iss);
+      if(containerFields.has(iss.field)) containerIssueAdded = true;
+    }
+  }
+  f.coherenceIssues = filtered_issues;
+  // Fix setValues statuses
+  if(f.setValues){
+    for(const key of Object.keys(f.setValues)){
+      const d = f.setValues[key];
+      if(d && d.status==='inconsistent' && (d.values||[]).length > 1){
+        const vals = d.values.map(v=>v.value).filter(Boolean);
+        let trivial = true;
+        outer: for(let i=0; i<vals.length; i++)
+          for(let j=i+1; j<vals.length; j++)
+            if(!isTrivialDifference(vals[i],vals[j])){ trivial=false; break outer; }
+        if(trivial) d.status = 'consistent';
+      }
+    }
+  }
+  const errs = f.coherenceIssues.filter(i=>i.type==='error').length;
+  const warns = f.coherenceIssues.filter(i=>i.type==='warning').length;
+  if(errs===0 && warns===0) f.overallStatus='approved';
+  else if(errs===0) f.overallStatus='warning';
+  return f;
+}
+
+// ══════════════════════════════════════
+// DIFF HIGHLIGHTER
+// ══════════════════════════════════════
+function highlightDiffs(uniqueVals, allValues){
+  if(!uniqueVals || uniqueVals.length <= 1) return (uniqueVals||[])[0] || '—';
+  function tokenize(s){ return String(s||'').split(/[\s,\/\-]+/).filter(Boolean); }
+  const tokenSets = uniqueVals.map(v => new Set(tokenize(v)));
+  const firstTokens = tokenize(uniqueVals[0]);
+  const commonTokens = new Set(firstTokens.filter(t => tokenSets.every(ts => ts.has(t))));
+  const rows = allValues.map(entry => {
+    const docName = (entry.doc||'').replace(/\.[^.]+$/,'');
+    const val = entry.value || '—';
+    const tokens = tokenize(val);
+    const highlighted = tokens.map(token =>
+      commonTokens.has(token) ? token : '<mark class="diff-mark">'+token+'</mark>'
+    ).join(' ');
+    return '<div class="diff-row"><span class="diff-doc">'+docName+':</span> <span class="diff-val">'+highlighted+'</span></div>';
+  });
+  return '<div class="diff-block">'+rows.join('')+'</div>';
+}
+
+// ══════════════════════════════════════
+// AI TRANSLATION CACHE
+// ══════════════════════════════════════
+const _translationCache = {}; // cache to avoid re-translating same text
+
+async function translateWithAI(text, targetLang){
+  if(!text || targetLang === 'en') return text;
+  const cacheKey = targetLang + '::' + text;
+  if(_translationCache[cacheKey]) return _translationCache[cacheKey];
+
+  // First try local phrase-by-phrase translation (no API needed)
+  const local = translateSummaryLocal(text);
+  if(local !== text){
+    _translationCache[cacheKey] = local;
+    return local;
+  }
+
+  // If local didn't change much, try API
+  try {
+    const system = 'You are a translator. Translate the following text to Spanish. Return ONLY the translated text, nothing else. Keep technical terms like BL, COI, ISF, container numbers, lot numbers, and company names as-is.';
+    const result = await callClaude(system, text, 500);
+    const translated = result.trim();
+    _translationCache[cacheKey] = translated;
+    return translated;
+  } catch(e) {
+    console.warn('Translation failed:', e.message);
+    // Return local translation as fallback even if partial
+    return local;
+  }
+}
+
+function translateSummaryLocal(text){
+  if(!text) return text;
+  // Comprehensive phrase-by-phrase translation
+  const phrases = [
+    // Verdicts
+    ['Document set shows strong internal coherence','El set de documentos muestra coherencia interna sólida'],
+    ['Document set shows','El set de documentos muestra'],
+    ['strong internal coherence','fuerte coherencia interna'],
+    ['internal coherence','coherencia interna'],
+    ['All documents are consistent','Todos los documentos son coherentes'],
+    ['All values are consistent','Todos los valores son coherentes'],
+    ['No inconsistencies found','No se encontraron inconsistencias'],
+    ['The shipment can proceed','El embarque puede proceder'],
+    // Issues
+    ['Critical warning:','Advertencia crítica:'],
+    ['Critical inconsistency:','Inconsistencia crítica:'],
+    ['Container number inconsistency','Inconsistencia en número de contenedor'],
+    ['Container number mismatch','Discrepancia en número de contenedor'],
+    ['container number','número de contenedor'],
+    ['Shipper name discrepancy','Discrepancia en nombre del shipper'],
+    ['shipper name','nombre del shipper'],
+    ['Invoice number','Número de factura'],
+    ['invoice number','número de factura'],
+    ['does not match','no coincide'],
+    ['do not match','no coinciden'],
+    ['mismatch detected','discrepancia detectada'],
+    ['mismatch','discrepancia'],
+    ['discrepancy','discrepancia'],
+    ['inconsistency','inconsistencia'],
+    ['inconsistencies','inconsistencias'],
+    ['require clarification','requieren aclaración'],
+    ['requires clarification','requiere aclaración'],
+    ['should be verified','debe verificarse'],
+    ['should be reviewed','debe revisarse'],
+    ['must be resolved','debe resolverse'],
+    // Multi-doc
+    ['with matching totals across multi-document groups','con totales coincidentes en grupos de documentos múltiples'],
+    ['multi-document groups','grupos de documentos múltiples'],
+    ['matching totals','totales coincidentes'],
+    // Units
+    ['bags','sacos'],
+    ['net weight','peso neto'],
+    ['gross weight','peso bruto'],
+    ['containers','contenedores'],
+    ['lot number','número de lote'],
+    ['bill of lading','conocimiento de embarque'],
+    ['vessel','buque'],
+    ['port of loading','puerto de carga'],
+    ['port of discharge','puerto de descarga'],
+    // Connectors
+    [' and ',' y '],
+    [' also differs',' también difiere'],
+    [' also ',' también '],
+    ['appears to be','parece ser'],
+    ['typographical error','error tipográfico'],
+    ['while','mientras que'],
+    ['shows','muestra'],
+    ['lists','indica'],
+    ['vs','vs'],
+    // More connectors and common phrases
+    ['across all documents','en todos los documentos'],
+    ['across','entre'],
+    ['between','entre'],
+    ['Analysis completed but response could not be fully processed.','Análisis completado pero la respuesta no pudo procesarse completamente.'],
+    ['could not be fully processed','no pudo procesarse completamente'],
+    ['The document set','El set de documentos'],
+    ['document set','set de documentos'],
+    ['documents show','los documentos muestran'],
+    ['are consistent','son coherentes'],
+    ['is consistent','es coherente'],
+    ['overall','en general'],
+    ['however','sin embargo'],
+    ['but','pero'],
+    ['This is a','Esto es una'],
+    ['This appears','Esto parece'],
+    ['These values','Estos valores'],
+    ['The values','Los valores'],
+    ['differ between','difieren entre'],
+    ['differ from','difieren de'],
+    ['found in','encontrado en'],
+    ['not found','no encontrado'],
+    ['missing in','falta en'],
+  ];
+
+  let result = text;
+  for(const [en, es] of phrases){
+    // Case-insensitive replacement preserving structure
+    result = result.replace(new RegExp(en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'), es);
+  }
+  return result;
+}
+
+// ══════════════════════════════════════
+// DOCUMENT TYPE TRANSLATOR
+// ══════════════════════════════════════
+const DOC_TYPE_ES = {
+  'bill of lading': 'Bill of Lading',
+  'commercial invoice': 'Factura Comercial',
+  'packing list': 'Packing List',
+  'certificate of origin': 'Certificado de Origen',
+  'phytosanitary certificate': 'Certificado Fitosanitario',
+  'fumigation certificate': 'Certificado de Fumigación',
+  'fumigation treatment certificate': 'Certificado de Tratamiento de Fumigación',
+  'quality certificate': 'Certificado de Calidad',
+  'letter of declaration': 'Carta de Declaración',
+  'declaration letter': 'Carta Declaración',
+  'isf': 'ISF',
+  '3rd party quality report': 'Reporte de Calidad (Tercero)',
+  'import permit': 'Permiso de Importación',
+  'organic certificate': 'Certificado Orgánico (COI)',
+  'organic certificate (coi)': 'Certificado Orgánico (COI)',
+  'coi': 'COI',
+  'shipping notification': 'Notificación de Embarque',
+  'shipping instruction': 'Instrucción de Embarque',
+  'delivery order': 'Orden de Entrega',
+  'customs declaration': 'Declaración Aduanera',
+  'weight certificate': 'Certificado de Peso',
+  'inspection certificate': 'Certificado de Inspección',
+  'health certificate': 'Certificado Sanitario',
+  'insurance certificate': 'Certificado de Seguro',
+  'bank draft': 'Letra de Cambio',
+  'letter of credit': 'Carta de Crédito',
+};
+
+function translateDocType(docType){
+  if(!docType || lang !== 'es') return docType;
+  const key = String(docType).toLowerCase().trim();
+  return DOC_TYPE_ES[key] || docType;
+}
+
+function translateSummary(summary){
+  if(!summary) return summary;
+  if(lang !== 'es') return summary;
+  // Use comprehensive local translator
+  const local = translateSummaryLocal(summary);
+  if(local !== summary) return local;
+  // Fallback: translate known AI fallback messages
+  const known = [
+    ['Analysis completed but response could not be fully processed.', 
+     'Análisis completado pero la respuesta no pudo ser procesada completamente.'],
+    ['Connection error:', 'Error de conexión:'],
+    ['All documents are consistent', 'Todos los documentos son coherentes'],
+    ['No inconsistencies found', 'No se encontraron inconsistencias'],
+    ['All values are consistent', 'Todos los valores son coherentes'],
+    ['The shipment can proceed', 'El embarque puede proceder'],
+    ['Critical discrepancy', 'Discrepancia crítica'],
+    ['mismatch detected', 'discrepancia detectada'],
+    ['does not match', 'no coincide'],
+    ['should be reviewed', 'debe ser revisado'],
+    ['inconsistency found', 'inconsistencia encontrada'],
+    ['values differ', 'los valores difieren'],
+  ];
+  let result = summary;
+  for(const [en, es] of known){
+    result = result.replace(new RegExp(en, 'gi'), es);
+  }
+  return result;
+}
+
+// ══════════════════════════════════════
+// FIELD LABEL HELPER
+// ══════════════════════════════════════
+function FL(key){
+  return tx().FL[key] || key;
+}
+
+// ══════════════════════════════════════
+// BUILD SET VALUES FALLBACK
+// ══════════════════════════════════════
+function normalizeExtractedNumber(val){
+  // Fix OCR number separator confusion
+  // European: "50.094,00" → 50094
+  // American: "50,094.00" → 50094  
+  // Plain decimal: "199824.00" → 199824
+  if(!val) return null;
+  const s = String(val).trim();
+  // European: digits.3digits[,decimal] e.g. "50.094,00"
+  if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)){
+    return parseFloat(s.replace(/\./g,'').replace(',','.'));
+  }
+  // American: digits,3digits[.decimal] e.g. "50,094.00"
+  if(/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)){
+    return parseFloat(s.replace(/,/g,''));
+  }
+  // Plain: "199824.00" or "199824" — just parseFloat
+  const plain = parseFloat(s.replace(/,/g,''));
+  return isNaN(plain) ? NaN : plain;
+}
+function buildSetValuesFromResults(results){
+  // Directly extract and compare values from all docs — used when AI setValues is empty
+  const fieldMap = {
+    containers: r => (r.containerNumbers||[]).join(', '),
+    seals:      r => (r.sealNumbers||[]).join(', '),
+    lots:       r => (r.lotNumbers||[]).join(', '),
+    bags:       r => r.bagCount ? r.bagCount + ' ' + (r.bagUnit||'') : null,
+    netWeight:  r => r.netWeight ? r.netWeight + ' ' + (r.netWeightUnit||'') : null,
+    grossWeight:r => r.grossWeight ? r.grossWeight + ' ' + (r.grossWeightUnit||'') : null,
+    shipper:    r => r.shipper,
+    consignee:  r => r.consigneeName,
+    vessel:     r => r.vesselName,
+    portOfLoading:  r => r.portOfLoading,
+    portOfDischarge:r => r.portOfDischarge,
+    blNumber:   r => r.blNumber,
+  };
+
+  const out = {};
+  for(const [key, getter] of Object.entries(fieldMap)){
+    const values = [];
+    results.forEach(r => {
+      const v = getter(r);
+      if(v && v !== 'null' && v !== 'undefined' && v.trim() !== '') {
+        values.push({ doc: r._filename||r.docType||'?', value: v.trim() });
+      }
+    });
+    if(!values.length) continue;
+    const unique = [...new Set(values.map(v=>v.value))];
+    out[key] = {
+      status: unique.length === 1 ? 'consistent' : values.length > 1 ? 'inconsistent' : 'single_source',
+      values
+    };
+  }
+  return out;
+}
+
+// ══════════════════════════════════════
+// RENDER RESULTS
+// ══════════════════════════════════════
+function renderResults(){
+  try {
+  document.getElementById('results').classList.add('show');
+  const t=tx();
+
+  // ── STEP 1: Filter AI results ──────────────────────────────
+  const smartResult = filterTrivialInconsistencies(coherenceResult);
+  const allIssues = smartResult?.coherenceIssues||[];
+
+  // Pre-filter issues at render time too (double safety)
+  const displayIssues = allIssues.filter(iss => {
+    const vals = (iss.details||[]).map(d=>d.value).filter(Boolean);
+    if(vals.length < 2) return true;
+    for(let i=0; i<vals.length; i++)
+      for(let j=i+1; j<vals.length; j++)
+        if(!isTrivialDifference(vals[i], vals[j])) return true;
+    return false;
+  });
+
+  // ── STEP 2: Build tableData and tableEntries (GROUND TRUTH) ─
+  const perDoc = (() => {
+    let pd = smartResult?.perDocumentStatus || {};
+    const hasMatchingKeys = analysisResults.some(r => pd[r._filename]);
+    if(!hasMatchingKeys && Object.keys(pd).length > 0){
+      const remapped = {};
+      analysisResults.forEach(r => {
+        const match = Object.entries(pd).find(([k,v]) =>
+          k === r._filename ||
+          (v.docType && r.docType && v.docType.toLowerCase().includes(r.docType.toLowerCase().substring(0,6)))
+        );
+        if(match) remapped[r._filename] = match[1];
+      });
+      if(Object.keys(remapped).length > 0) pd = remapped;
+    }
+    if(!analysisResults.some(r => pd[r._filename])){
+      analysisResults.forEach(r => {
+        pd[r._filename] = {
+          status: r._err ? 'warning' : 'approved',
+          docType: translateDocType(r.docType) || r._filename,
+          issues: r._err ? ['Could not fully extract data'] : [],
+          comment: ''
+        };
+      });
+    }
+    return pd;
+  })();
+
+  let tableData = smartResult?.setValues || {};
+  if(!Object.values(tableData).some(d=>d?.values?.length)){
+    tableData = buildSetValuesFromResults(analysisResults);
+  }
+
+  // Build tableEntries — the GROUND TRUTH for errors
+  const tableEntries = Object.entries(tableData).map(([k,d]) => {
+    const uv = [...new Set((d.values||[]).map(v=>v.value).filter(v=>v&&v!=='null'&&v!=='undefined'))];
+    if(uv.length === 0) return null;
+    let allSame = uv.length === 1;
+    if(!allSame){
+      let trivial = true;
+      for(let i=0; i<uv.length && trivial; i++)
+        for(let j=i+1; j<uv.length && trivial; j++)
+          if(!isTrivialDifference(uv[i], uv[j])) trivial = false;
+      if(trivial) allSame = true;
+    }
+    const isErr = !allSame && (d.values||[]).length > 1;
+    const sortKey = isErr ? 0 : !allSame ? 1 : 2;
+    return {k, d, uv, allSame, isErr, sortKey};
+  }).filter(e => e !== null && e.uv.length > 0);
+  tableEntries.sort((a,b) => a.sortKey - b.sortKey);
+
+  // ── STEP 3: Derive counts from ground truth ─────────────────
+  // tableEntries is the single source of truth
+  // All non-trivial inconsistencies are critical — the filter already removed trivial ones
+  // (case, number format, geography, units, dates)
+  const tableErrors   = tableEntries.filter(e => e.isErr).length;
+  const issueErrors   = displayIssues.filter(i=>i.type==='error').length;
+  const issueWarnings = displayIssues.filter(i=>i.type==='warning').length;
+  const finalErrors   = Math.max(tableErrors, issueErrors);
+  const finalWarnings = finalErrors > 0 ? 0 : issueWarnings;
+
+  // ── STEP 4: Render Verdict ──────────────────────────────────
+  const vEl=document.getElementById('verdictEl');
+  const vIcon=document.getElementById('verdictIcon');
+  const vTitle=document.getElementById('verdictTitle');
+  const vDesc=document.getElementById('verdictDesc');
+
+  if(finalErrors > 0){
+    vEl.className='verdict rejected'; vIcon.textContent='✗';
+    vTitle.textContent=t.verdictRejected; vDesc.textContent=t.verdictRejectedDesc(finalErrors);
+  } else if(finalWarnings > 0){
+    vEl.className='verdict warning'; vIcon.textContent='⚠';
+    vTitle.textContent=t.verdictWarning; vDesc.textContent=t.verdictWarningDesc(finalWarnings);
+  } else {
+    vEl.className='verdict approved'; vIcon.textContent='✓';
+    vTitle.textContent=t.verdictApproved; vDesc.textContent=t.verdictApprovedDesc;
+  }
+
+  // ── STEP 5: Stats row ───────────────────────────────────────
+  const docsWithIssues = new Set([
+    ...displayIssues.flatMap(i=>(i.details||[]).map(d=>d.doc)),
+    ...tableEntries.filter(e=>e.isErr).flatMap(e=>(e.d.values||[]).map(v=>v.doc))
+  ]);
+  const okDocs = Math.max(0, analysisResults.length - docsWithIssues.size);
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat"><div class="stat-n stat-total">${analysisResults.length}</div><div class="stat-l">${t.statDocs}</div></div>
+    <div class="stat"><div class="stat-n stat-ok">${okDocs}</div><div class="stat-l">${t.statOk}</div></div>
+    <div class="stat"><div class="stat-n stat-warn">${finalWarnings}</div><div class="stat-l">${t.statWarn}</div></div>
+    <div class="stat"><div class="stat-n stat-err">${finalErrors}</div><div class="stat-l">${t.statErr}</div></div>`;
+
+  // ── STEP 6: Coherence badge ─────────────────────────────────
+  const cb=document.getElementById('coherenceBadge');
+  if(finalErrors>0){cb.className='rst-badge err';cb.textContent=t.cbErr(finalErrors);}
+  else if(finalWarnings>0){cb.className='rst-badge warn';cb.textContent=t.cbWarn;}
+  else{cb.className='rst-badge ok';cb.textContent=t.cbOk;}
+
+  // ── STEP 7: Critical banner ─────────────────────────────────
+  // CRITICAL_FIELDS already defined in Step 3
+  const critBanner = document.getElementById('criticalBanner');
+  if(critBanner){
+    // All non-trivial inconsistencies are critical
+    const critFromTable = tableEntries.filter(e => e.isErr);
+    const critFromIssues = displayIssues.filter(i => i.type==='error');
+    // Merge, dedup by field — group all container issues into ONE
+    const seen = new Set();
+    const allCrit = [];
+
+    // First add from table (ground truth) — one entry per field
+    critFromTable.forEach(e => {
+      const fieldKey = e.k;
+      if(!seen.has(fieldKey)){
+        seen.add(fieldKey);
+        const issueMatch = displayIssues.find(i =>
+          i.field===fieldKey ||
+          (fieldKey==='containers' && i.field==='containerNumbers') ||
+          (fieldKey==='containerNumbers' && i.field==='containers')
+        );
+        allCrit.push({
+          field: fieldKey,
+          message: issueMatch?.message || (lang==='es'
+            ? FL(fieldKey)+': valores diferentes entre documentos'
+            : FL(fieldKey)+': values differ between documents'),
+          details: e.d.values || []
+        });
+      }
+    });
+
+    // Then add from issues only if field not already in banner
+    // Group container-related issues: containerNumbers, containers → same field
+    const containerAliases = new Set(['containers','containerNumbers','container_numbers']);
+    let containerAdded = allCrit.some(c => containerAliases.has(c.field));
+
+    critFromIssues.forEach(i => {
+      // Skip if this is a container alias and we already have a container entry
+      if(containerAliases.has(i.field) && containerAdded) return;
+      if(!seen.has(i.field)){
+        seen.add(i.field);
+        if(containerAliases.has(i.field)) containerAdded = true;
+        allCrit.push(i);
+      }
+    });
+
+    if(allCrit.length > 0){
+      const rows = allCrit.map(iss => {
+        // For container lists: find and highlight only the differing containers
+        let detailsHtml = '';
+        const details = iss.details || [];
+        if(details.length > 0){
+          const isContList = details.some(d => isContainerList(d.value||''));
+          if(isContList){
+            // Find which containers differ
+            const allCodeSets = details.map(d => new Set(splitCodes(d.value||'')));
+            const allCodes = [...new Set(details.flatMap(d => splitCodes(d.value||'')))];
+            const diffCodes = new Set(allCodes.filter(code =>
+              !allCodeSets.every(set => set.has(code))
+            ));
+            detailsHtml = '<div class="critical-details">'
+              + details.map(d => {
+                  const tokens = splitCodes(d.value||'');
+                  const highlighted = tokens.map(t =>
+                    diffCodes.has(t)
+                      ? '<mark class="crit-diff-code">'+t+'</mark>'
+                      : '<span class="crit-same-code">'+t+'</span>'
+                  ).join(' ');
+                  return '<div class="crit-detail-row">'
+                    +'<span class="critical-doc">'+d.doc.replace(/\.[^.]+$/,'')+':</span> '
+                    +highlighted+'</div>';
+                }).join('')
+              +'</div>';
+          } else {
+            detailsHtml = '<div class="critical-details">'
+              + details.map(d=>
+                  '<span class="critical-doc">'+d.doc.replace(/\.[^.]+$/,'')+':</span> '
+                  +'<code class="critical-code">'+d.value+'</code>'
+                ).join(' &nbsp;|&nbsp; ')
+              +'</div>';
+          }
+        }
+        return '<div class="critical-item">'
+          +'<span class="critical-field">'+FL(iss.field)+'</span>'
+          +'<div class="critical-item-body">'
+            +'<span class="critical-msg">'+(iss.message||'')+'</span>'
+            +detailsHtml
+          +'</div>'
+          +'</div>';
+      }).join('');
+      critBanner.innerHTML = '<div class="critical-banner-title">'
+        +(lang==='es'?'Inconsistencias Críticas':'Critical Inconsistencies')
+        +' ('+allCrit.length+')</div>'+rows;
+      critBanner.style.display = 'block';
+    } else {
+      critBanner.style.display = 'none';
+    }
+  }
+
+  // ── STEP 8: Multi-doc notice ────────────────────────────────
+  const mdNotice = document.getElementById('multiDocNotice');
+  if(mdNotice){
+    const docTypes2 = {};
+    analysisResults.forEach(r => {
+      const dt = (r.docType||'Unknown').toLowerCase().trim();
+      if(!docTypes2[dt]) docTypes2[dt] = [];
+      docTypes2[dt].push(r);
+    });
+    const multiGroups = Object.entries(docTypes2).filter(([,d]) => d.length > 1);
+    if(multiGroups.length > 0){
+      const rows = multiGroups.map(([type, docs]) => {
+        const totalBags = docs.reduce((s,r) => s + (parseFloat(r.bagCount)||0), 0);
+        const totalNet  = docs.reduce((s,r) => s + (parseFloat(r.netWeight)||0), 0);
+        const unit = docs.find(r=>r.netWeightUnit)?.netWeightUnit || '';
+        return '<div class="mdoc-row">'
+          +'<span class="mdoc-type">'+(docs[0].docType||type)+'</span>'
+          +'<span>'+docs.length+' '+(lang==='es'?'documentos':'documents')+'</span>'
+          +(totalBags?'<span class="mdoc-sum">Σ '+totalBags+' '+(lang==='es'?'sacos':'bags')+'</span>':'')
+          +(totalNet?'<span class="mdoc-sum">Σ '+totalNet+' '+unit+'</span>':'')
+          +'</div>';
+      }).join('');
+      mdNotice.innerHTML = '<strong>📋 '+(lang==='es'
+        ?'Documentos múltiples detectados — totales sumados automáticamente para validación:'
+        :'Multiple documents detected — totals summed automatically for validation:')
+        +'</strong><br><br>'+rows;
+      mdNotice.style.display = 'block';
+    } else {
+      mdNotice.style.display = 'none';
+    }
+  }
+
+  // ── STEP 9: Render table from pre-computed tableEntries ─────
+  const tbody=document.getElementById('ctbody');
+  tbody.innerHTML='';
+  for(const {k, d, uv, allSame, isErr} of tableEntries){
+    const rowCls = allSame ? 'tr-ok' : isErr ? 'tr-err' : '';
+    const sCls   = allSame ? 'cstatus-ok' : isErr ? 'cstatus-err' : 'cstatus-single';
+    const sTxt   = allSame ? t.badgeOk : isErr ? t.badgeErr : t.badgeSingle;
+    const docs   = (d.values||[]).map(v=>v.doc.replace(/\.[^.]+$/,'')).join(', ');
+    const valCells = isErr ? highlightDiffs(uv, d.values||[]) : uv.join(' / ') || '—';
+    tbody.innerHTML += '<tr class="'+rowCls+'">'
+      + '<td class="td-field">'+FL(k)+'</td>'
+      + '<td class="td-status"><span class="cstatus '+sCls+'">'+sTxt+'</span></td>'
+      + '<td>'+valCells+'</td>'
+      + '<td class="td-docs">'+docs+'</td>'
+      + '</tr>';
+  }
+
+  // ── STEP 10: Inconsistency cards ────────────────────────────
+  const iSec=document.getElementById('inconsSec');
+  iSec.innerHTML='';
+  if(displayIssues.length){
+    let html='<div class="incons-wrap"><div class="incons-section-label">'+t.inconsLabel+'</div>';
+    displayIssues.forEach(iss=>{
+      const isE=iss.type==='error';
+      const details=iss.details||[];
+      const counts={};
+      details.forEach(d=>{if(d.value)counts[d.value]=(counts[d.value]||0)+1;});
+      const maxC=Math.max(0,...Object.values(counts));
+      const maj=Object.keys(counts).find(k=>counts[k]===maxC);
+      const allTokenSets = details.map(d =>
+        new Set(String(d.value||'').split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()))
+      );
+      const firstTokens = String(details[0]?.value||'').split(/[,\s]+/).filter(Boolean);
+      const commonTokens = new Set(firstTokens.filter(t =>
+        allTokenSets.every(ts => ts.has(t.toUpperCase()))
+      ));
+      const rows=details.map(d=>{
+        const rawVal = d.value || t.notFound;
+        const tokens = String(rawVal).split(/,\s*/).filter(Boolean);
+        const highlighted = tokens.map(token => {
+          const isDiff = !commonTokens.has(token.trim().toUpperCase());
+          return isDiff
+            ? '<mark class="ival-diff-token">'+token.trim()+'</mark>'
+            : '<span class="ival-same-token">'+token.trim()+'</span>';
+        }).join('<span class="ival-sep">, </span>');
+        const hasAnyDiff = tokens.some(token => !commonTokens.has(token.trim().toUpperCase()));
+        return '<div class="ival '+(hasAnyDiff?'ival-err':'ival-ok')+'">'
+          +'<span class="ival-doc">'+d.doc+'</span>'
+          +'<span class="ival-val">'+(d.value?highlighted:t.notFound)+'</span>'
+          +'</div>';
+      }).join('');
+      html+='<div class="icard '+(isE?'icard-err':'icard-warn')+'">'
+        +'<div class="icard-head">'
+        +'<span class="icard-field">'+(t.FL[iss.field]||iss.field)+'</span>'
+        +'<span class="itag '+(isE?'itag-err':'itag-warn')+'">'+(isE?t.errCrit:t.errWarn)+'</span>'
+        +'</div>'
+        +'<div class="icard-body">'
+        +'<div class="icard-desc">'+iss.message+'</div>'
+        +(rows?'<div class="ivals">'+rows+'</div>':'')
+        +'</div></div>';
+    });
+    html+='</div>';
+    iSec.innerHTML=html;
+  }
+
+  // ── STEP 11: Per document cards ─────────────────────────────
+  const dc=document.getElementById('docCards');
+  if(!dc){ console.error('docCards not found'); return; }
+  dc.innerHTML='';
+
+  analysisResults.forEach((r, cardIdx)=>{
+    const ds=perDoc[r._filename]||{};
+    const s=ds.status||'warning';
+    const sc=s==='approved'?'ok':s==='warning'?'warn':'err';
+    const lbl=s==='approved'?t.statusOk:s==='warning'?t.statusWarn:t.statusErr;
+    const ftag=isExcel(r._filename)
+      ?'<span class="file-badge badge-excel">Excel</span>'
+      :isWord(r._filename)
+      ?'<span class="file-badge badge-word">Word</span>':'';
+
+    // Build set of inconsistent fields for this doc from tableEntries
+    const inconsFields = new Set();
+    const warnFields = new Set();
+    const fieldMap = {
+      containers:'containerNumbers', seals:'sealNumbers', lots:'lotNumbers',
+      bags:'bagCount', netWeight:'netWeight', grossWeight:'grossWeight',
+      shipper:'shipper', consignee:'consigneeName', vessel:'vesselName',
+      portOfLoading:'portOfLoading', portOfDischarge:'portOfDischarge',
+      blNumber:'blNumber', invoiceNumber:'invoiceNumber'
+    };
+    tableEntries.filter(e=>e.isErr).forEach(e=>{
+      const hasThisDoc = (e.d.values||[]).some(v =>
+        v.doc === r._filename || v.doc === r._filename.replace(/\.[^.]+$/,'')
+      );
+      if(hasThisDoc) inconsFields.add(fieldMap[e.k]||e.k);
+    });
+    (smartResult?.coherenceIssues||[]).forEach(iss => {
+      const hasThisDoc = (iss.details||[]).some(d =>
+        d.doc === r._filename || d.doc === r._filename.replace(/\.[^.]+$/,'')
+      );
+      if(hasThisDoc){
+        if(iss.type==='error') inconsFields.add(fieldMap[iss.field]||iss.field);
+        else warnFields.add(fieldMap[iss.field]||iss.field);
+      }
+    });
+
+    const fHtml=t.DOCFIELDS.map(([l,k])=>{
+      let v=r[k];
+      if(Array.isArray(v)) v=v.filter(Boolean).join(', ');
+      const emp=!v||v==='null'||v==='undefined'||v==='';
+      const isIncons = inconsFields.has(k);
+      const isWarn = !isIncons && warnFields.has(k);
+      const divCls = isIncons ? ' dfield-inconsistent' : isWarn ? ' dfield-warning' : '';
+      const flag = isIncons
+        ? '<span class="dfield-flag">⚠ '+(lang==='es'?'INCONSISTENTE':'MISMATCH')+'</span>'
+        : isWarn
+        ? '<span class="dfield-flag">⚠ '+(lang==='es'?'REVISAR':'REVIEW')+'</span>'
+        : '';
+      return '<div class="dfield'+divCls+'">'
+        +'<div class="dfield-label">'+l+flag+'</div>'
+        +'<div class="dfield-val'+(emp?' empty':'')+'">'+( emp?'—':v)+'</div>'
+        +'</div>';
+    }).join('');
+
+    const issHtml=(ds.issues||[]).map(i=>
+      '<div style="display:flex;gap:0.7rem;padding:0.5rem 0.8rem;margin-bottom:0.3rem;'
+      +'font-size:0.74rem;background:rgba(201,168,130,0.1);border-left:2px solid var(--tan);'
+      +'color:var(--text-mid);">⚠ '+i+'</div>'
+    ).join('');
+
+    const commentHtml=ds.comment
+      ?'<div class="dcard-comment">'
+        +'<div class="dcard-comment-label">'+t.analysisLabel+'</div>'
+        +'<div class="dcard-comment-text">'+ds.comment+'</div>'
+        +'</div>'
+      :'';
+
+    const card = document.createElement('div');
+    card.className = 'dcard';
+    card.id = 'dc'+cardIdx;
+    card.innerHTML =
+      '<div class="dcard-head" onclick="toggleCard('+cardIdx+')">'
+        +'<div class="dcard-stripe '+sc+'"></div>'
+        +'<div class="dcard-info">'
+          +'<div class="dcard-title">'+translateDocType(ds.docType||r.docType||r._filename)+' '+ftag+'</div>'
+          +'<div class="dcard-file">'+r._filename+'</div>'
+        +'</div>'
+        +'<div class="dcard-badge '+sc+'">'+lbl+'</div>'
+        +'<span class="dcard-chevron">▼</span>'
+      +'</div>'
+      +'<div class="dcard-body">'
+        +'<div class="dcard-fields-label">'+t.fieldsLabel+'</div>'
+        +'<div class="dcard-fields">'+fHtml+'</div>'
+        +(issHtml?'<div class="dcard-fields-label">'+t.obsLabel+'</div>'+issHtml:'')
+        +commentHtml
+      +'</div>';
+    dc.appendChild(card);
+  });
+
+  if(coherenceResult?.summary){
+    const s=document.createElement('div');
+    s.className='summary-comment';
+    s.id='summaryComment';
+    s.innerHTML='<div class="summary-comment-label">'+t.summaryLabel+'</div>'
+      +'<div class="summary-comment-text" id="summaryText">'+translateSummary(coherenceResult.summary)+'</div>';
+    dc.appendChild(s);
+  }
+
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+  } catch(err) {
+    console.error('renderResults ERROR:', err.message, err.stack);
+    const dc = document.getElementById('docCards');
+    if(dc) dc.innerHTML = '<div style="padding:2rem;color:red;font-size:0.8rem">Debug error: '+err.message+'</div>';
+  }
+}
+function toggleCard(i){
+  const card = document.getElementById('dc'+i);
+  if(!card) return;
+  const body = card.querySelector('.dcard-body');
+  const chevron = card.querySelector('.dcard-chevron');
+  const isOpen = card.classList.contains('open');
+  if(isOpen){
+    card.classList.remove('open');
+    if(body) body.style.display = 'none';
+    if(chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    card.classList.add('open');
+    if(body){ body.style.display = 'block'; body.style.visibility = 'visible'; }
+    if(chevron) chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
+// ══════════════════════════════════════
+// DOWNLOAD REPORT (FIXED)
+// ══════════════════════════════════════
+function downloadReport(){
+  try{
+    setStep(4);
+    const t=tx();
+    const date=new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
+    const issues=coherenceResult?.coherenceIssues||[];
+    const perDoc=coherenceResult?.perDocumentStatus||{};
+    const fl=t.FL;
+
+    let txt=`${t.rptTitle}\nAI-Powered Export Validation · AI Powered\n${t.rptDate}: ${date}\n${'═'.repeat(64)}\n\n`;
+    txt+=`${t.rptStatus.padEnd(20)}: ${(coherenceResult?.overallStatus||'N/A').toUpperCase()}\n`;
+    txt+=`${t.rptDocs.padEnd(20)}: ${analysisResults.length}\n`;
+    txt+=`${t.rptIncons.padEnd(20)}: ${issues.filter(i=>i.type==='error').length}\n`;
+    txt+=`${t.rptObs.padEnd(20)}: ${issues.filter(i=>i.type==='warning').length}\n`;
+    txt+=`\n${coherenceResult?.summary||''}\n`;
+
+    txt+=`\n${'═'.repeat(64)}\n${t.rptCoherence}\n${'═'.repeat(64)}\n`;
+    for(const[k,d] of Object.entries(coherenceResult?.setValues||{})){
+      if(!d?.values?.length) continue;
+      txt+=`\n${(fl[k]||k).padEnd(22)}: [${d.status}]\n`;
+      d.values.forEach(v=>{txt+=`  · ${v.doc}: ${v.value||'—'}\n`;});
+    }
+    if(issues.length){
+      txt+=`\n${'═'.repeat(64)}\n${t.rptDetailIss}\n${'═'.repeat(64)}\n`;
+      issues.forEach((iss,i)=>{
+        txt+=`\n[${i+1}] ${iss.type.toUpperCase()} — ${fl[iss.field]||iss.field}\n${iss.message}\n`;
+        (iss.details||[]).forEach(d=>{txt+=`  · ${d.doc}: "${d.value||t.rptNotFound}"\n`;});
+      });
+    }
+    txt+=`\n${'═'.repeat(64)}\n${t.rptDetail}\n${'═'.repeat(64)}\n`;
+    analysisResults.forEach((r,i)=>{
+      const ds=perDoc[r._filename]||{};
+      txt+=`\n[${i+1}] ${ds.docType||r.docType||r._filename}${isExcel(r._filename)?' [Excel]':isWord(r._filename)?' [Word]':''}\n`;
+      txt+=`${t.rptFile.padEnd(16)}: ${r._filename}\n`;
+      txt+=`${t.rptStatus.padEnd(16)}: ${(ds.status||'N/A').toUpperCase()}\n`;
+      txt+=`${t.rptShipper.padEnd(16)}: ${r.shipper||'N/A'}\n`;
+      txt+=`${t.rptConsignee.padEnd(16)}: ${r.consigneeName||'N/A'}\n`;
+      txt+=`${t.rptContainers.padEnd(16)}: ${(r.containerNumbers||[]).join(', ')||'N/A'}\n`;
+      txt+=`${t.rptSeals.padEnd(16)}: ${(r.sealNumbers||[]).join(', ')||'N/A'}\n`;
+      txt+=`${t.rptLots.padEnd(16)}: ${(r.lotNumbers||[]).join(', ')||'N/A'}\n`;
+      txt+=`${t.rptBags.padEnd(16)}: ${r.bagCount||'N/A'} ${r.bagUnit||''}\n`;
+      txt+=`${t.rptNet.padEnd(16)}: ${r.netWeight||'N/A'} ${r.netWeightUnit||''}\n`;
+      txt+=`${t.rptGross.padEnd(16)}: ${r.grossWeight||'N/A'} ${r.grossWeightUnit||''}\n`;
+      txt+=`${t.rptVessel.padEnd(16)}: ${r.vesselName||'N/A'}\n`;
+      txt+=`${t.rptPOL.padEnd(16)}: ${r.portOfLoading||'N/A'}\n`;
+      txt+=`${t.rptPOD.padEnd(16)}: ${r.portOfDischarge||'N/A'}\n`;
+      txt+=`${t.rptBL.padEnd(16)}: ${r.blNumber||'N/A'}\n`;
+      txt+=`${t.rptInv.padEnd(16)}: ${r.invoiceNumber||'N/A'}\n`;
+      txt+=`${t.rptComment.padEnd(16)}: ${ds.comment||'N/A'}\n`;
+      txt+=`${'─'.repeat(64)}\n`;
+    });
+    txt+=`\n${t.rptFooter} · ${date}`;
+
+    const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=`cacaous-report-${Date.now()}.txt`;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
+  }catch(e){alert('Error: '+e.message);}
+}
+
+// ══════════════════════════════════════
+// TRACKING
+// ══════════════════════════════════════
+const MAKE_WEBHOOK = 'https://hook.us2.make.com/6c916cohvzywegwgbw5ijbxcvbwts2n9';
+
+// Detect shipping line from BL prefix
+function detectShippingLine(bl){
+  if(!bl) return null;
+  const b = bl.toUpperCase();
+  if(b.startsWith('MAEU')||b.startsWith('MSKU')||b.startsWith('SEAU')) return 'Maersk';
+  if(b.startsWith('CMDU')||b.startsWith('CMDA')||b.startsWith('CMAU')) return 'CMA CGM';
+  if(b.startsWith('MSCU')||b.startsWith('MEDU')) return 'MSC';
+  if(b.startsWith('HLCU')||b.startsWith('HLXU')) return 'Hapag-Lloyd';
+  if(b.startsWith('EGLV')) return 'Evergreen';
+  if(b.startsWith('COSU')||b.startsWith('CBHU')) return 'COSCO';
+  if(b.startsWith('ONEY')) return 'ONE';
+  if(b.startsWith('ZIMU')) return 'ZIM';
+  if(b.startsWith('HDMU')) return 'HMM';
+  return 'Unknown';
+}
+
+async function fetchTracking(blNumber, shippingLine){
+  // Build URL with query params for GET request (avoids CORS preflight)
+  const url = MAKE_WEBHOOK
+    + '?bl_number=' + encodeURIComponent(blNumber)
+    + '&shipping_line=' + encodeURIComponent(shippingLine);
+
+  const resp = await fetch(url, { method: 'GET' });
+  if(!resp.ok) throw new Error('HTTP ' + resp.status);
+  const text = await resp.text();
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Invalid response: ' + text.slice(0,100)); }
+}
+
+function val(data, ...keys){ for(const k of keys){ if(data[k]&&data[k]!==''&&data[k]!=='N/A') return data[k]; } return '—'; }
+
+function checkMatch(trackVal, docVal){
+  if(!trackVal||trackVal==='—'||!docVal||docVal==='null') return null; // can't compare
+  const t=trackVal.toLowerCase().trim();
+  const d=docVal.toLowerCase().trim();
+  return t.includes(d)||d.includes(t)||t===d;
+}
+
+function renderTrackingBox(blNumber, shippingLine, data, docData){
+  const t = tx();
+  const sec = document.getElementById('trackingSection');
+
+  // Extract fields — handle multiple possible JSONCargo response formats
+  const status  = val(data,'status','shipmentStatus','tracking_status','state','shipment_status');
+  const vessel  = val(data,'vessel','vesselName','vessel_name','pod_vessel','vessel_name_actual');
+  const voyage  = val(data,'voyage','voyageNumber','voyage_number','voyage_no');
+  const eta     = val(data,'eta','ETA','estimated_arrival','pod_eta','eta_final','etaFinal');
+  const atd     = val(data,'atd','ATD','actual_departure','pol_atd','atdFinal');
+  const pol     = val(data,'pol','portOfLoading','port_of_loading','origin_port','loadingPort','pol_name');
+  const pod     = val(data,'pod','portOfDischarge','port_of_discharge','dest_port','dischargePort','pod_name');
+  const containers = data.containers||data.container_numbers||data.containerNumbers||[];
+  const blVerified = data.bl_number||data.blNumber||blNumber;
+
+  // ── VALIDATION CHECKS ──
+  const checks = [];
+
+  // BL verified by carrier
+  checks.push({
+    label: lang==='es'?'BL verificado con naviera':'BL verified with carrier',
+    docVal: blNumber,
+    trackVal: blVerified,
+    match: true, // if we got a response, the BL exists
+    critical: true
+  });
+
+  // Vessel
+  const vesselMatch = checkMatch(vessel, docData?.vesselName);
+  if(vessel!=='—') checks.push({
+    label: t.trackingVessel,
+    docVal: docData?.vesselName||'—',
+    trackVal: vessel,
+    match: vesselMatch===null ? true : vesselMatch,
+    critical: false
+  });
+
+  // Port of Loading
+  const polMatch = checkMatch(pol, docData?.portOfLoading);
+  if(pol!=='—') checks.push({
+    label: t.trackingPOL,
+    docVal: docData?.portOfLoading||'—',
+    trackVal: pol,
+    match: polMatch===null ? true : polMatch,
+    critical: false
+  });
+
+  // Port of Discharge
+  const podMatch = checkMatch(pod, docData?.portOfDischarge);
+  if(pod!=='—') checks.push({
+    label: t.trackingPOD,
+    docVal: docData?.portOfDischarge||'—',
+    trackVal: pod,
+    match: podMatch===null ? true : podMatch,
+    critical: false
+  });
+
+  // Containers
+  if(containers.length && docData?.containerNumbers?.length){
+    const docContainers = Array.isArray(docData.containerNumbers) ? docData.containerNumbers : [docData.containerNumbers];
+    const apiContainers = Array.isArray(containers) ? containers : [containers];
+    const containerStr = apiContainers.slice(0,3).join(', ');
+    const docContainerStr = docContainers.slice(0,3).join(', ');
+    const cMatch = docContainers.some(dc => apiContainers.some(ac =>
+      String(ac).toLowerCase().includes(String(dc).toLowerCase()) ||
+      String(dc).toLowerCase().includes(String(ac).toLowerCase())
+    ));
+    checks.push({
+      label: t.trackingContainer,
+      docVal: docContainerStr,
+      trackVal: containerStr,
+      match: cMatch,
+      critical: true
+    });
+  }
+
+  const hasErrors = checks.some(ch => !ch.match && ch.critical);
+  const hasWarnings = checks.some(ch => !ch.match && !ch.critical);
+  const overallStatus = hasErrors ? 'err' : hasWarnings ? 'warn' : 'ok';
+
+  const overallIcon = overallStatus==='ok' ? '✓' : overallStatus==='warn' ? '⚠' : '✗';
+  const overallLabel = overallStatus==='ok'
+    ? (lang==='es'?'Verificado con naviera — Todo coincide':'Verified with carrier — All data matches')
+    : overallStatus==='warn'
+    ? (lang==='es'?'Verificado — Con observaciones':'Verified — With observations')
+    : (lang==='es'?'Verificado — Inconsistencias encontradas':'Verified — Inconsistencies found');
+
+  // Build validation checklist
+  const checklistHtml = checks.map(ch => {
+    const icon = ch.match ? '✓' : (ch.critical ? '✗' : '⚠');
+    const cls  = ch.match ? 'chk-ok' : (ch.critical ? 'chk-err' : 'chk-warn');
+    const diff = !ch.match && ch.docVal && ch.docVal!=='—'
+      ? `<div class="chk-diff">
+          <span class="chk-diff-label">${lang==='es'?'Doc:':'Doc:'}</span> <span class="chk-diff-val">${ch.docVal}</span>
+          <span class="chk-diff-label">${lang==='es'?'Naviera:':'Carrier:'}</span> <span class="chk-diff-val err">${ch.trackVal}</span>
+         </div>` : '';
+    return `<div class="chk-item ${cls}">
+      <span class="chk-icon">${icon}</span>
+      <div class="chk-content">
+        <div class="chk-label">${ch.label}</div>
+        <div class="chk-val">${ch.trackVal}</div>
+        ${diff}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Events timeline
+  const events = data.events||data.milestones||data.tracking_events||[];
+  const eventsHtml = events.length > 0 ? `
+    <div class="tracking-events">
+      <div class="tracking-events-label">${t.trackingEvents}</div>
+      <div class="event-timeline">
+        ${events.slice(0,6).map((ev,i)=>`
+          <div class="event-item ${i===0?'latest':''}">
+            <div class="event-dot"></div>
+            <div class="event-date">${ev.date||ev.timestamp||ev.event_date||'—'}</div>
+            <div class="event-desc">${ev.description||ev.event||ev.status||ev.type||'—'}</div>
+            <div class="event-location">${ev.location||ev.port||ev.place||''}</div>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
+  // Quick stats
+  const statsHtml = `<div class="tracking-grid">
+    <div class="tracking-field"><div class="tracking-field-label">${t.trackingStatus}</div><div class="tracking-field-val highlight">${status}</div></div>
+    <div class="tracking-field"><div class="tracking-field-label">${t.trackingVessel}</div><div class="tracking-field-val">${vessel}</div></div>
+    <div class="tracking-field"><div class="tracking-field-label">${t.trackingETA}</div><div class="tracking-field-val warn">${eta}</div></div>
+    <div class="tracking-field"><div class="tracking-field-label">${t.trackingATD}</div><div class="tracking-field-val">${atd}</div></div>
+    <div class="tracking-field"><div class="tracking-field-label">${t.trackingVoyage}</div><div class="tracking-field-val">${voyage}</div></div>
+    ${containers.length?`<div class="tracking-field"><div class="tracking-field-label">${t.trackingContainer}</div><div class="tracking-field-val">${Array.isArray(containers)?containers.slice(0,2).join(', '):containers}</div></div>`:''}
+  </div>`;
+
+  const box = document.createElement('div');
+  box.className = 'tracking-box';
+  box.id = `track-${blNumber}`;
+  box.innerHTML = `
+    <div class="tracking-box-header">
+      <h4>🚢 ${shippingLine}</h4>
+      <span class="tracking-bl">${blNumber}</span>
+      <span class="tracking-overall ${overallStatus}">${overallIcon} ${overallLabel}</span>
+    </div>
+    <div class="tracking-body">
+      <div class="tracking-validation-title">${lang==='es'?'Validación contra documentos':'Validation against documents'}</div>
+      <div class="tracking-checklist">${checklistHtml}</div>
+      <div class="tracking-data-title">${lang==='es'?'Datos en tiempo real de la naviera':'Real-time carrier data'}</div>
+      ${statsHtml}
+      ${eventsHtml}
+    </div>`;
+
+  sec.appendChild(box);
+}
+
+async function loadTracking(){
+  const t = tx();
+  const sec = document.getElementById('trackingSection');
+  const secTitle = document.getElementById('trackingSectionTitle');
+  const banner = document.getElementById('trackingStatusBanner');
+  const bar = document.getElementById('trackingStatusBar');
+  const icon = document.getElementById('tsbIcon');
+  const title = document.getElementById('tsbTitle');
+  const detail = document.getElementById('tsbDetail');
+  const badge = document.getElementById('tsbBadge');
+
+  // Helper to update banner state
+  const setBanner = (state, titleTxt, detailTxt, badgeTxt) => {
+    if(!banner) return;
+    banner.style.display = 'block';
+    bar.className = 'tracking-status-bar ' + state;
+    badge.className = 'tsb-badge ' + state;
+    title.textContent = titleTxt;
+    detail.innerHTML = detailTxt;
+    badge.textContent = badgeTxt;
+  };
+
+  // Find all BL numbers
+  const blNumbers = [];
+  analysisResults.forEach(r => {
+    if(r.blNumber && r.blNumber !== 'null' && r.blNumber !== 'undefined' && r.blNumber !== 'N/A'){
+      if(!blNumbers.find(b => b.bl === r.blNumber)){
+        blNumbers.push({ bl: r.blNumber, docData: r });
+      }
+    }
+  });
+
+  if(blNumbers.length === 0){
+    setBanner('error',
+      lang==='es'?'Sin número de BL':'No BL Number Found',
+      lang==='es'?'No se encontró número de BL en los documentos del set.':'No BL number was found in the uploaded documents.',
+      lang==='es'?'No disponible':'Not Available'
+    );
+    icon.textContent = '⚠️';
+    return;
+  }
+
+  // Show loading state
+  const blList = blNumbers.map(b=>b.bl).join(', ');
+  setBanner('loading',
+    lang==='es'?'Consultando naviera...':'Querying Carrier...',
+    `<span class="tsb-spinner"></span>${lang==='es'?'Verificando BL':'Verifying BL'}: <strong>${blList}</strong>`,
+    lang==='es'?'En curso...':'In Progress...'
+  );
+  icon.textContent = '🚢';
+
+  // Show tracking section
+  sec.style.display = 'block';
+  secTitle.style.display = 'flex';
+  const h3 = secTitle.querySelector('h3');
+  if(h3) h3.textContent = t.trackingTitle;
+  sec.innerHTML = '';
+
+  let allVerified = true;
+  let anyMismatch = false;
+  let anyError = false;
+  const resultsSummary = [];
+
+  for(const {bl, docData} of blNumbers){
+    const shippingLine = detectShippingLine(bl);
+
+    // Loading box
+    const loadDiv = document.createElement('div');
+    loadDiv.className = 'tracking-box';
+    loadDiv.innerHTML = `
+      <div class="tracking-box-header">
+        <h4>🚢 ${shippingLine}</h4>
+        <span class="tracking-bl">${bl}</span>
+      </div>
+      <div class="tracking-body">
+        <div class="tracking-loading">
+          <div class="tracking-spinner"></div>
+          <span>${t.trackingLoading} ${bl}...</span>
+        </div>
+      </div>`;
+    sec.appendChild(loadDiv);
+
+    try {
+      const data = await fetchTracking(bl, shippingLine);
+      loadDiv.remove();
+      renderTrackingBox(bl, shippingLine, data, docData);
+
+      // Determine match result for this BL
+      const vessel  = data.vessel||data.vesselName||data.vessel_name||'';
+      const pol     = data.pol||data.portOfLoading||data.port_of_loading||'';
+      const pod     = data.pod||data.portOfDischarge||data.port_of_discharge||'';
+      const status  = data.status||data.shipmentStatus||data.tracking_status||'—';
+
+      const vesselMatch = !vessel || !docData?.vesselName || checkMatch(vessel, docData.vesselName) !== false;
+      const polMatch    = !pol || !docData?.portOfLoading || checkMatch(pol, docData.portOfLoading) !== false;
+      const podMatch    = !pod || !docData?.portOfDischarge || checkMatch(pod, docData.portOfDischarge) !== false;
+      const hasIssues   = !vesselMatch || !polMatch || !podMatch;
+      if(hasIssues) anyMismatch = true;
+
+      resultsSummary.push({
+        bl, shippingLine, status,
+        vessel: vessel||'—', pol: pol||'—', pod: pod||'—',
+        ok: !hasIssues
+      });
+
+    } catch(e) {
+      anyError = true;
+      allVerified = false;
+      loadDiv.querySelector('.tracking-body').innerHTML =
+        `<div class="tracking-error">${t.trackingError}<br><small style="opacity:0.7">${e.message}</small></div>`;
+      resultsSummary.push({ bl, shippingLine, error: e.message });
+    }
+  }
+
+  // Update banner with final result
+  if(anyError && resultsSummary.every(r=>r.error)){
+    setBanner('error',
+      lang==='es'?'Error al consultar naviera':'Carrier Query Failed',
+      lang==='es'?'No se pudo conectar con la naviera. Verifica tu configuración de Make.com.':'Could not connect to carrier. Check your Make.com configuration.',
+      lang==='es'?'Error':'Error'
+    );
+    icon.textContent = '❌';
+  } else if(anyMismatch){
+    const issues = resultsSummary.filter(r=>!r.ok&&!r.error).map(r=>
+      `${r.bl} (${r.shippingLine}) — ${lang==='es'?'Estado':'Status'}: ${r.status}`
+    ).join(' · ');
+    setBanner('mismatch',
+      lang==='es'?'Consulta completada — Con observaciones':'Carrier Verified — With Observations',
+      lang==='es'
+        ? `La consulta a la naviera fue exitosa pero se encontraron diferencias con los documentos.<br><strong>${issues}</strong>`
+        : `Carrier query successful but some data differs from documents.<br><strong>${issues}</strong>`,
+      lang==='es'?'⚠ Revisar':'⚠ Review'
+    );
+    icon.textContent = '⚠️';
+  } else {
+    const summary = resultsSummary.filter(r=>!r.error).map(r=>
+      `${r.bl} · ${r.shippingLine} · ${lang==='es'?'Estado':'Status'}: ${r.status}`
+    ).join(' | ');
+    setBanner('verified',
+      lang==='es'?'✓ Verificado con la naviera':'✓ Verified with Carrier',
+      lang==='es'
+        ? `Todos los BL fueron consultados exitosamente y los datos coinciden con los documentos.<br><small>${summary}</small>`
+        : `All BL numbers queried successfully and data matches documents.<br><small>${summary}</small>`,
+      lang==='es'?'✓ Verificado':'✓ Verified'
+    );
+    icon.textContent = '✅';
+  }
+}
+
+
+// ══════════════════════════════════════
+// RESET
+// ══════════════════════════════════════
+function safeEl(id){ return document.getElementById(id); }
+function safeReset(id, prop, val){ const el=safeEl(id); if(el) el[prop]=val; }
+function safeStyle(id, prop, val){ const el=safeEl(id); if(el) el.style[prop]=val; }
+function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[method](cls); }
+
+function resetApp(){
+  uploadedFiles=[];analysisResults=[];coherenceResult=null;
+  safeReset('filesList','innerHTML','');
+  safeStyle('filesCount','display','none');
+  const ab=safeEl('analyzeBtn'); if(ab) ab.disabled=true;
+  safeStyle('uploadSection','display','block');
+  safeClass('results','remove','show');
+  safeReset('loadLog','innerHTML','');
+  safeReset('docProgressList','innerHTML','');
+  safeReset('trackingSection','innerHTML','');
+  safeStyle('trackingSection','display','none');
+  safeStyle('trackingSectionTitle','display','none');
+  safeStyle('trackingStatusBanner','display','none');
+  safeStyle('multiDocNotice','display','none');
+  safeStyle('criticalBanner','display','none');
+  const bar2=safeEl('trackingStatusBar'); if(bar2) bar2.className='tracking-status-bar pending';
+  setStep(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

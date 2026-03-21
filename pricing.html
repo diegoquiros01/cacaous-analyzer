@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — Docs-Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--white:#fff;--offwhite:#f8f6f2;--cream:#f2ede4;--cream2:#e8dfd0;--brown-dark:#2c1a0e;--brown:#4a2c1a;--brown-mid:#7a4e32;--brown-light:#b8866a;--tan:#c9a882;--tan-light:#e0c9aa;--green:#3d5a3e;--text:#1a0f08;--text-mid:#5a3e2c;--text-light:#9a7a60;--border:#d8c8b0;--border-light:#ede4d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);min-height:100vh;}
+header{background:var(--white);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:68px;max-width:1200px;margin:0 auto;}
+.logo-wordmark{font-family:'Raleway',sans-serif;font-size:1.6rem;font-weight:300;letter-spacing:0.18em;color:#1a1a1a;}
+.logo-tagline{font-size:0.6rem;letter-spacing:0.15em;color:#888;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:2rem;}
+nav ul{display:flex;gap:2rem;list-style:none;}
+nav a{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:500;transition:color 0.2s;}
+nav a:hover,nav a.active{color:var(--brown);}
+.lang-switch{display:flex;align-items:center;gap:0.4rem;}
+.lang-btn{background:none;border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;color:var(--text-light);font-family:'Lato',sans-serif;padding:0.2rem 0.3rem;transition:color 0.2s;}
+.lang-btn.active{color:var(--brown);border-bottom:1px solid var(--tan);}
+.lang-sep{color:var(--border);font-size:0.7rem;}
+.hero{text-align:center;padding:5rem 2rem 3rem;background:var(--white);border-bottom:1px solid var(--border-light);}
+.hero-eyebrow{font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--tan);font-weight:500;margin-bottom:1rem;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:400;color:var(--brown-dark);line-height:1.2;margin-bottom:1rem;}
+.hero p{font-size:0.95rem;color:var(--text-mid);max-width:500px;margin:0 auto;line-height:1.7;}
+.billing-toggle{display:flex;align-items:center;justify-content:center;gap:1rem;margin:2.5rem auto 0;}
+.billing-toggle span{font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);}
+.toggle-wrap{position:relative;width:48px;height:26px;background:var(--cream2);border-radius:13px;cursor:pointer;transition:background 0.3s;}
+.toggle-wrap.on{background:var(--brown-mid);}
+.toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle-wrap.on .toggle-knob{transform:translateX(22px);}
+.save-badge{background:var(--green);color:white;font-size:0.6rem;letter-spacing:0.1em;padding:0.2rem 0.5rem;border-radius:20px;text-transform:uppercase;font-weight:600;opacity:0;transition:opacity 0.3s;}
+.save-badge.show{opacity:1;}
+.plans-section{max-width:1100px;margin:0 auto;padding:4rem 2rem 5rem;}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;align-items:stretch;}
+.plan-card{background:var(--white);border:1px solid var(--border);border-radius:4px;padding:2.5rem 2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.2s,box-shadow 0.2s;}
+.plan-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(74,44,26,0.1);}
+.plan-card.featured{border:2px solid var(--tan);background:var(--brown-dark);color:var(--cream);}
+.plan-card.featured:hover{box-shadow:0 12px 40px rgba(44,26,14,0.25);}
+.plan-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--tan);color:var(--brown-dark);font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;padding:0.3rem 1.2rem;border-radius:0 0 4px 4px;}
+.plan-name{font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-light);margin-bottom:1.5rem;}
+.plan-card.featured .plan-name{color:var(--tan-light);}
+.plan-price{margin-bottom:0.3rem;display:flex;align-items:baseline;gap:0.25rem;}
+.price-cur{font-size:1.1rem;color:var(--brown-mid);margin-top:0.4rem;}
+.plan-card.featured .price-cur{color:var(--tan);}
+.price-amt{font-family:'Playfair Display',serif;font-size:3rem;font-weight:400;color:var(--brown-dark);line-height:1;}
+.plan-card.featured .price-amt{color:var(--white);}
+.price-per{font-size:0.75rem;color:var(--text-light);align-self:flex-end;padding-bottom:0.3rem;}
+.plan-card.featured .price-per{color:var(--tan-light);}
+.plan-tag{font-size:0.8rem;color:var(--text-light);margin-bottom:2rem;line-height:1.5;min-height:2.5rem;}
+.plan-card.featured .plan-tag{color:var(--tan-light);}
+.plan-div{height:1px;background:var(--border-light);margin-bottom:1.8rem;}
+.plan-card.featured .plan-div{background:rgba(201,168,130,0.2);}
+.plan-feats{list-style:none;flex:1;display:flex;flex-direction:column;gap:0.8rem;margin-bottom:2.5rem;}
+.plan-feats li{display:flex;align-items:flex-start;gap:0.7rem;font-size:0.82rem;color:var(--text-mid);line-height:1.4;}
+.plan-card.featured .plan-feats li{color:var(--cream2);}
+.feat-icon{width:16px;height:16px;flex-shrink:0;margin-top:0.1rem;}
+.feat-icon.check{color:var(--green);}
+.feat-icon.check-white{color:var(--tan);}
+.feat-icon.dash{color:var(--border);}
+.plan-cta{display:block;text-align:center;padding:0.9rem 1.5rem;font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:all 0.2s;cursor:pointer;border:none;font-family:'Lato',sans-serif;}
+.cta-out{background:transparent;border:1px solid var(--border);color:var(--brown-mid);}
+.cta-out:hover{background:var(--cream);border-color:var(--tan);color:var(--brown);}
+.cta-fill{background:var(--tan);color:var(--brown-dark);border:1px solid var(--tan);}
+.cta-fill:hover{background:var(--brown-light);color:var(--white);}
+.cta-dark{background:var(--tan);color:var(--brown-dark);}
+.cta-dark:hover{background:var(--tan-light);}
+.compare-section{max-width:900px;margin:0 auto;padding:0 2rem 5rem;}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--brown-dark);margin-bottom:2rem;font-weight:400;text-align:center;}
+.compare-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.compare-table th{padding:0.8rem 1rem;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;color:var(--text-light);border-bottom:2px solid var(--border);text-align:left;}
+.compare-table th:not(:first-child){text-align:center;}
+.compare-table td{padding:0.9rem 1rem;border-bottom:1px solid var(--border-light);color:var(--text-mid);}
+.compare-table td:not(:first-child){text-align:center;}
+.compare-table tr:hover td{background:var(--cream);}
+.fn{font-weight:500;color:var(--text);}
+.chk{color:var(--green);font-size:1rem;}
+.dsh{color:var(--border);}
+.fc{background:rgba(201,168,130,0.06);}
+.notes-section{max-width:700px;margin:0 auto;padding:0 2rem 5rem;text-align:center;}
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:left;}
+.note-item h4{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:0.4rem;font-weight:600;}
+.note-item p{font-size:0.8rem;color:var(--text-light);line-height:1.6;}
+@media(max-width:768px){.plans-grid{grid-template-columns:1fr;}.header-top{padding:0 1.5rem;}.notes-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-top">
+    <div>
+      <div class="logo-wordmark">DOCS-ANALYZER</div>
+      <div class="logo-tagline" id="logoTagline"></div>
+    </div>
+    <div class="header-right">
+      <nav><ul>
+        <li><a href="https://docs-analyzer.com" id="navHome"></a></li>
+        <li><a href="#" class="active" id="navPricing"></a></li>
+        <li><a href="https://docs-analyzer.com/contact" id="navContact"></a></li>
+      </ul></nav>
+      <div class="lang-switch">
+        <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+        <span class="lang-sep">|</span>
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow" id="heroEyebrow"></div>
+  <h1 id="heroTitle"></h1>
+  <p id="heroDesc"></p>
+  <div class="billing-toggle">
+    <span id="lblMonthly"></span>
+    <div class="toggle-wrap" id="toggleWrap" onclick="toggleBilling()"><div class="toggle-knob"></div></div>
+    <span id="lblAnnual"></span>
+    <span class="save-badge" id="saveBadge"></span>
+  </div>
+</section>
+
+<section class="plans-section">
+  <div class="plans-grid">
+
+    <div class="plan-card">
+      <div class="plan-name" id="p1name"></div>
+      <div class="plan-price"><span class="price-amt">0</span><span class="price-per" id="p1per"></span></div>
+      <div class="plan-tag" id="p1tag"></div>
+      <div class="plan-div"></div>
+      <ul class="plan-feats">
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_1"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_2"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_3"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_4"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_5"></span></li>
+        <li><svg class="feat-icon dash" viewBox="0 0 16 16" fill="none"><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_6"></span></li>
+        <li><svg class="feat-icon dash" viewBox="0 0 16 16" fill="none"><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_7"></span></li>
+      </ul>
+      <a href="https://docs-analyzer.com/contact" class="plan-cta cta-out" id="cta1"></a>
+    </div>
+
+    <div class="plan-card featured">
+      <div class="plan-badge" id="popularBadge"></div>
+      <div class="plan-name" id="p2name"></div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="proPrice">79</span><span class="price-per" id="p2per"></span></div>
+      <div class="plan-tag" id="p2tag"></div>
+      <div class="plan-div"></div>
+      <ul class="plan-feats">
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_1"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_2"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_3"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_4"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_5"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_6"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_7"></span></li>
+      </ul>
+      <a href="https://docs-analyzer.com/contact" class="plan-cta cta-dark" id="cta2"></a>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-name" id="p3name"></div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="entPrice">149</span><span class="price-per" id="p3per"></span></div>
+      <div class="plan-tag" id="p3tag"></div>
+      <div class="plan-div"></div>
+      <ul class="plan-feats">
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_1"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_2"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_3"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_4"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_5"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_6"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_7"></span></li>
+      </ul>
+      <a href="https://docs-analyzer.com/contact" class="plan-cta cta-fill" id="cta3"></a>
+    </div>
+
+  </div>
+</section>
+
+<section class="compare-section">
+  <div class="sec-title" id="compareTitle"></div>
+  <table class="compare-table">
+    <thead><tr>
+      <th id="thFeat" style="width:40%"></th>
+      <th id="thS"></th>
+      <th class="fc" id="thP" style="color:var(--brown)"></th>
+      <th id="thE"></th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="fn" id="cf1"></td><td>20</td><td class="fc">200</td><td id="cfUnlim"></td></tr>
+      <tr><td class="fn" id="cf2"></td><td id="cfUpTo"></td><td class="fc" id="cfUnlim2"></td><td id="cfUnlim3"></td></tr>
+      <tr><td class="fn" id="cf3"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf4"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf5"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf6"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf7"></td><td><span class="dsh">—</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf8"></td><td><span class="dsh">—</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf9"></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf10"></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf11"></td><td id="cs1"></td><td class="fc" id="cs2"></td><td id="cs3"></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="notes-section">
+  <div class="sec-title" id="faqTitle"></div>
+  <div class="notes-grid">
+    <div class="note-item"><h4 id="faq1q"></h4><p id="faq1a"></p></div>
+    <div class="note-item"><h4 id="faq2q"></h4><p id="faq2a"></p></div>
+    <div class="note-item"><h4 id="faq3q"></h4><p id="faq3a"></p></div>
+    <div class="note-item"><h4 id="faq4q"></h4><p id="faq4a"></p></div>
+  </div>
+</section>
+
+<script>
+let lang='en', isAnnual=false;
+const TX={
+  en:{
+    logoTagline:'docs-analyzer.com',
+    navHome:'Home',navPricing:'Pricing',navContact:'Contact',
+    heroEyebrow:'Simple, transparent pricing',
+    heroTitle:'Validate your shipments<br><em>without the headache</em>',
+    heroDesc:'Choose the plan that fits your export volume. No hidden fees, no setup costs — cancel anytime.',
+    lblMonthly:'Monthly',lblAnnual:'Annual',saveBadge:'Save 20%',
+    popularBadge:'Most Popular',
+    p1name:'Starter',p1tag:'Perfect for getting started and occasional validations.',
+    p2name:'Professional',p2tag:'For active exporters who validate multiple shipments every month.',
+    p3name:'Enterprise',p3tag:'For high-volume operations — up to 1,000 validations per month.',
+    perMonth:'/ month',perMonthAnnual:'/ month, billed annually',
+    cta1:'Get started free',cta2:'Start free trial',cta3:'Contact sales',
+    f1_1:'<strong>20 validations</strong> per month',f1_2:'Up to 15 documents per set',
+    f1_3:'AI extraction &amp; coherence check',f1_4:'PDF, Excel &amp; Word support',
+    f1_5:'English &amp; Spanish interface',f1_6:'Carrier tracking',f1_7:'Priority support',
+    f2_1:'<strong>200 validations</strong> per month — then $0.35 each',f2_2:'Up to 15 documents per set',
+    f2_3:'AI extraction &amp; coherence check',f2_4:'PDF, Excel &amp; Word support',
+    f2_5:'Real-time carrier tracking',f2_6:'Daily summary reports by email',f2_7:'Email support within 24h',
+    f3_1:'<strong>Up to 1,000 validations</strong> per month — then $0.19 each',f3_2:'Up to 15 documents per set',
+    f3_3:'Everything in Professional',f3_4:'API access for integrations',
+    f3_5:'Custom document types',f3_6:'Dedicated account manager',f3_7:'Priority support &lt; 4h',
+    compareTitle:'Full feature comparison',thFeat:'Feature',thS:'Starter',thP:'Professional',thE:'Enterprise',
+    cf1:'Monthly validations',cf2:'Documents per set',cf3:'AI field extraction',
+    cf4:'Coherence analysis',cf5:'PDF, Excel, Word',cf6:'EN &amp; ES interface',
+    cf7:'Carrier tracking',cf8:'Daily email reports',cf9:'API access',
+    cf10:'Custom doc types',cf11:'Support',
+    cfUnlim:'Up to 1,000',cfUpTo:'Up to 15',cfUnlim2:'Up to 15',cfUnlim3:'Up to 15',
+    cs1:'Community',cs2:'Email 24h',cs3:'Priority &lt;4h',
+    faqTitle:'Good to know',
+    faq1q:'What counts as a validation?',
+    faq1a:'Each time you run an AI analysis on a document set counts as one validation, regardless of how many documents are in the set.',
+    faq2q:'Can I upgrade or downgrade?',
+    faq2a:'Yes, you can change your plan at any time. Changes take effect at the start of the next billing cycle.',
+    faq3q:'Is there a free trial?',
+    faq3a:'The Professional plan includes a 14-day free trial. No credit card required to get started.',
+    faq4q:'What payment methods do you accept?',
+    faq4a:'We accept all major credit cards via Stripe. Annual plans can also be paid by bank transfer.',
+  },
+  es:{
+    logoTagline:'docs-analyzer.com',
+    navHome:'Inicio',navPricing:'Precios',navContact:'Contacto',
+    heroEyebrow:'Precios simples y transparentes',
+    heroTitle:'Valida tus embarques<br><em>sin complicaciones</em>',
+    heroDesc:'Elige el plan que se ajuste a tu volumen de exportación. Sin cargos ocultos, sin costos de configuración — cancela cuando quieras.',
+    lblMonthly:'Mensual',lblAnnual:'Anual',saveBadge:'Ahorra 20%',
+    popularBadge:'Más Popular',
+    p1name:'Básico',p1tag:'Ideal para comenzar y validaciones ocasionales.',
+    p2name:'Profesional',p2tag:'Para exportadores activos que validan múltiples embarques al mes.',
+    p3name:'Empresarial',p3tag:'Para operaciones de alto volumen — hasta 1,000 validaciones al mes.',
+    perMonth:'/ mes',perMonthAnnual:'/ mes, facturado anualmente',
+    cta1:'Comenzar gratis',cta2:'Iniciar prueba gratuita',cta3:'Contactar ventas',
+    f1_1:'<strong>20 validaciones</strong> al mes',f1_2:'Hasta 15 documentos por set',
+    f1_3:'Extracción IA y análisis de coherencia',f1_4:'Soporte PDF, Excel y Word',
+    f1_5:'Interfaz en inglés y español',f1_6:'Tracking de naviera',f1_7:'Soporte prioritario',
+    f2_1:'<strong>200 validaciones</strong> al mes — luego $0.35 c/u',f2_2:'Hasta 15 documentos por set',
+    f2_3:'Extracción IA y análisis de coherencia',f2_4:'Soporte PDF, Excel y Word',
+    f2_5:'Tracking de naviera en tiempo real',f2_6:'Reportes diarios por correo',f2_7:'Soporte por correo en 24h',
+    f3_1:'<strong>Hasta 1,000 validaciones</strong> al mes — luego $0.19 c/u',f3_2:'Hasta 15 documentos por set',
+    f3_3:'Todo lo del plan Profesional',f3_4:'Acceso API para integraciones',
+    f3_5:'Tipos de documentos personalizados',f3_6:'Gerente de cuenta dedicado',f3_7:'Soporte prioritario &lt; 4h',
+    compareTitle:'Comparación completa de funciones',thFeat:'Función',thS:'Básico',thP:'Profesional',thE:'Empresarial',
+    cf1:'Validaciones al mes',cf2:'Documentos por set',cf3:'Extracción IA',
+    cf4:'Análisis de coherencia',cf5:'PDF, Excel, Word',cf6:'Interfaz EN y ES',
+    cf7:'Tracking de naviera',cf8:'Reportes diarios',cf9:'Acceso API',
+    cf10:'Tipos doc. personalizados',cf11:'Soporte',
+    cfUnlim:'Hasta 1,000',cfUpTo:'Hasta 15',cfUnlim2:'Hasta 15',cfUnlim3:'Hasta 15',
+    cs1:'Comunidad',cs2:'Correo 24h',cs3:'Prioritario &lt;4h',
+    faqTitle:'Bueno saber',
+    faq1q:'¿Qué cuenta como una validación?',
+    faq1a:'Cada vez que ejecutas un análisis de IA en un set de documentos cuenta como una validación, independientemente de cuántos documentos tenga.',
+    faq2q:'¿Puedo subir o bajar de plan?',
+    faq2a:'Sí, puedes cambiar tu plan en cualquier momento. Los cambios entran en vigencia al inicio del siguiente ciclo de facturación.',
+    faq3q:'¿Hay una prueba gratuita?',
+    faq3a:'El plan Profesional incluye una prueba gratuita de 14 días. No se requiere tarjeta de crédito para comenzar.',
+    faq4q:'¿Qué métodos de pago aceptan?',
+    faq4a:'Aceptamos todas las tarjetas de crédito principales vía Stripe. Los planes anuales también pueden pagarse por transferencia bancaria.',
+  }
+};
+
+function t(k){return TX[lang][k]||TX.en[k]||'';}
+
+function applyLang(){
+  const sh=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+  const st=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  sh('logoTagline',t('logoTagline'));
+  st('navHome',t('navHome'));st('navPricing',t('navPricing'));st('navContact',t('navContact'));
+  sh('heroEyebrow',t('heroEyebrow'));sh('heroTitle',t('heroTitle'));st('heroDesc',t('heroDesc'));
+  st('lblMonthly',t('lblMonthly'));st('lblAnnual',t('lblAnnual'));st('saveBadge',t('saveBadge'));
+  st('popularBadge',t('popularBadge'));
+  st('p1name',t('p1name'));st('p1tag',t('p1tag'));
+  st('p2name',t('p2name'));st('p2tag',t('p2tag'));
+  st('p3name',t('p3name'));st('p3tag',t('p3tag'));
+  const per=isAnnual?t('perMonthAnnual'):t('perMonth');
+  ['p1per','p2per','p3per'].forEach(id=>st(id,per));
+  st('cta1',t('cta1'));st('cta2',t('cta2'));st('cta3',t('cta3'));
+  for(let i=1;i<=7;i++){sh('f1_'+i,t('f1_'+i));sh('f2_'+i,t('f2_'+i));sh('f3_'+i,t('f3_'+i));}
+  sh('compareTitle',t('compareTitle'));st('thFeat',t('thFeat'));
+  st('thS',t('thS'));st('thP',t('thP'));st('thE',t('thE'));
+  for(let i=1;i<=11;i++)sh('cf'+i,t('cf'+i));
+  st('cfUnlim',t('cfUnlim'));st('cfUpTo',t('cfUpTo'));
+  st('cfUnlim2',t('cfUnlim2'));st('cfUnlim3',t('cfUnlim3'));
+  st('cs1',t('cs1'));st('cs2',t('cs2'));st('cs3',t('cs3'));
+  sh('faqTitle',t('faqTitle'));
+  for(let i=1;i<=4;i++){st('faq'+i+'q',t('faq'+i+'q'));st('faq'+i+'a',t('faq'+i+'a'));}
+}
+
+function setLang(l){
+  lang=l;
+  document.getElementById('btnES').classList.toggle('active',l==='es');
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  applyLang();
+}
+
+function toggleBilling(){
+  isAnnual=!isAnnual;
+  document.getElementById('toggleWrap').classList.toggle('on',isAnnual);
+  document.getElementById('saveBadge').classList.toggle('show',isAnnual);
+  document.getElementById('proPrice').textContent=isAnnual?'63':'79';
+  document.getElementById('entPrice').textContent=isAnnual?'119':'149';
+  const per=isAnnual?t('perMonthAnnual'):t('perMonth');
+  ['p1per','p2per','p3per'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=per;});
+}
+
+applyLang();
+</script>
+</body>
+</html>
