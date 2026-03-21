@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DOCS-ANALYZER — AI-Powered Export Validation</title>
+<title>DocsValidate — Export Document Validator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
@@ -36,7 +36,7 @@ html { scroll-behavior: smooth; }
 body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--text); font-weight: 300; }
 
 /* ══════════════════════════════════════
-   HEADER — exact Docs-Analyzer style
+   HEADER — exact DocsValidate style
 ══════════════════════════════════════ */
 .header {
   background: var(--white);
@@ -56,7 +56,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .logo-wordmark {
   font-family: 'Raleway', 'Futura', 'Century Gothic', 'Gill Sans', sans-serif;
   font-size: 1.6rem; font-weight: 300;
-  letter-spacing: 0.18em; color: #1a1a1a;
+  letter-spacing: 0.08em; color: #1a1a1a;
   text-transform: uppercase;
 }
 .logo-tagline {
@@ -77,7 +77,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .lang-btn {
   background: none; border: none;
   font-family: 'Lato', sans-serif;
-  font-size: 0.62rem; letter-spacing: 0.18em; font-weight: 400;
+  font-size: 0.62rem; letter-spacing: 0.08em; font-weight: 400;
   color: var(--text-light); cursor: pointer; padding: 0.2rem;
   transition: color 0.2s;
 }
@@ -86,7 +86,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .lang-sep { color: var(--border); font-size: 0.8rem; }
 
 /* ══════════════════════════════════════
-   HERO — Docs-Analyzer banner style
+   HERO — DocsValidate banner style
 ══════════════════════════════════════ */
 .hero {
   position: relative; min-height: 360px;
@@ -145,7 +145,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .progress-step {
   flex: 1; display: flex; align-items: center; justify-content: center;
   gap: 0.7rem; padding: 0.85rem 1rem;
-  font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: rgba(255,255,255,0.35); font-weight: 400;
   border-right: 1px solid rgba(255,255,255,0.08);
   transition: all 0.3s; cursor: default;
@@ -397,7 +397,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .stat-n {
   font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 400; line-height: 1; margin-bottom: 0.4rem;
 }
-.stat-l { font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-light); }
+.stat-l { font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
 .stat-total { color: var(--tan); }
 .stat-ok { color: var(--green); }
 .stat-warn { color: var(--tan); }
@@ -436,7 +436,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .ctable th {
   text-align: left; padding: 0.6rem 1rem;
   background: var(--offwhite); border-bottom: 1px solid var(--border);
-  font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
+  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--text-light); font-weight: 400;
 }
 .ctable td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
@@ -902,15 +902,15 @@ footer {
   <div class="header-top">
     <div class="logo">
       <div style="display:flex;flex-direction:column;gap:0.1rem;">
-        <div class="logo-wordmark">DOCS-ANALYZER</div>
-        <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;">docs-analyzer.com</div>
+        <div class="logo-wordmark">DocsValidate</div>
+        <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;">DocsValidate.com</div>
       </div>
     </div>
     <div class="header-right">
       <nav><ul class="nav">
-        <li><a href="https://docs-analyzer.com" target="_blank">Home</a></li>
-        <li><a href="https://docs-analyzer.com/pricing" target="_blank">Pricing</a></li>
-        <li><a href="https://docs-analyzer.com/contact" target="_blank">Contact</a></li>
+        <li><a href="https://DocsValidate.com" target="_blank">Home</a></li>
+        <li><a href="https://DocsValidate.com/pricing" target="_blank">Pricing</a></li>
+        <li><a href="https://DocsValidate.com/contact" target="_blank">Contact</a></li>
       </ul></nav>
       <div class="lang-switch">
         <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
@@ -1145,12 +1145,12 @@ footer {
 
 
 <footer>
-  <div class="footer-logo">DOCS-ANALYZER</div>
+  <div class="footer-logo">DocsValidate</div>
   <ul class="footer-links">
-    <li><a href="https://docs-analyzer.com" target="_blank">docs-analyzer.com</a></li>
+    <li><a href="https://DocsValidate.com" target="_blank">DocsValidate.com</a></li>
     <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
   </ul>
-  <div class="footer-copy">© 2025 DOCS-ANALYZER · All Rights Reserved</div>
+  <div class="footer-copy">© 2025 DocsValidate · All Rights Reserved</div>
 </footer>
 
 <script>
@@ -1169,7 +1169,7 @@ let _cachedSummary = null; // for lang switching
 // ══════════════════════════════════════
 const TX = {
   en: {
-    logoTagline:'docs-analyzer.com',
+    logoTagline:'DocsValidate.com',
     heroEyebrow:'Artificial Intelligence · Cacao & Coffee',
     heroTitle:'Validate your shipment documents<br><em>in seconds — not hours</em>',
     heroSub:'Upload your full or partial document set and let AI instantly detect inconsistencies',
@@ -1217,14 +1217,14 @@ const TX = {
     fieldsLabel:'Extracted Fields', obsLabel:'Observations', analysisLabel:'✦ Analysis', summaryLabel:'✦ Set Summary',
     FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',blNumber:'BL Number',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
     DOCFIELDS:[['Type','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Containers','containerNumbers'],['Seals','sealNumbers'],['Lots','lotNumbers'],['Bags','bagCount'],['Net Weight','netWeight'],['Gross Weight','grossWeight'],['Product','productDescription'],['Origin','originCountry'],['Destination','destinationCountry'],['Port of Loading','portOfLoading'],['Port of Discharge','portOfDischarge'],['Vessel','vesselName'],['BL Number','blNumber'],['Invoice No.','invoiceNumber'],['Date','exportDate'],['Lab / Certifier','labName'],['Lab Cert #','labCertNumber'],['Moisture','moistureContent'],['Quality Grade','qualityGrade'],['Test Results','testResults'],['Permit Number','permitNumber'],['Permit Authority','permitAuthority'],['Permit Valid From','permitValidFrom'],['Permit Valid Until','permitValidUntil'],['Importer of Record','importerOfRecord'],['COI Cert. Number','coiCertNumber'],['Certifying Body','coiCertifier'],['Organic Standard','coiStandard'],['COI Operator','coiOperator'],['COI Products','coiProducts'],['COI Valid From','coiValidFrom'],['COI Valid Until','coiValidUntil'],['COI Auth. Quantity','coiAuthorizedQty'],['Transaction Cert. TC#','coiTransactionCert'],['COI Lots','coiLots']],
-    rptTitle:'DOCS-ANALYZER — COHERENCE ANALYSIS REPORT',
+    rptTitle:'DocsValidate — COHERENCE ANALYSIS REPORT',
     rptStatus:'Status',rptDocs:'Documents',rptIncons:'Inconsistencies',rptObs:'Observations',
     rptCoherence:'COHERENCE TABLE',rptDetail:'DETAIL PER DOCUMENT',rptDetailIss:'DETAILED INCONSISTENCIES',
     rptFile:'File',rptShipper:'Shipper',rptConsignee:'Consignee',rptContainers:'Containers',
     rptSeals:'Seals',rptLots:'Lots',rptBags:'Bags',rptNet:'Net Weight',rptGross:'Gross Weight',
     rptVessel:'Vessel',rptPOL:'Port of Loading',rptPOD:'Port of Discharge',rptBL:'BL Number',
     rptInv:'Invoice No.',rptComment:'Comment',rptDate:'Date',
-    rptFooter:'© DOCS-ANALYZER · AI-Powered Export Validation',rptNotFound:'not found',
+    rptFooter:'© DocsValidate · AI-Powered Export Validation',rptNotFound:'not found',
     loadSteps:['Comparing containers, lots, bags, weights...','Verifying shipper, consignee, ports, vessel...','Identifying inconsistencies in detail...','Generating report...'],
     filesCount: n=>`${n} document${n===1?'':'s'} selected`,
     loadTitle:'Analyzing your set',
@@ -1239,7 +1239,7 @@ const TX = {
     inconsistencyDetail:'Inconsistency Detail',
   },
   es: {
-    logoTagline:'docs-analyzer.com',
+    logoTagline:'DocsValidate.com',
     heroEyebrow:'Inteligencia Artificial · Cacao & Café',
     heroTitle:'Valida tus documentos de exportación<br><em>en segundos — no en horas</em>',
     heroSub:'Sube tu set completo o parcial y deja que la IA detecte inconsistencias al instante',
@@ -1287,14 +1287,14 @@ const TX = {
     fieldsLabel:'Campos Extraídos', obsLabel:'Observaciones', analysisLabel:'✦ Análisis', summaryLabel:'✦ Resumen del Set',
     FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',blNumber:'N° de BL',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
     DOCFIELDS:[['Tipo','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Contenedores','containerNumbers'],['Precintos','sealNumbers'],['Lotes','lotNumbers'],['Sacos','bagCount'],['Peso Neto','netWeight'],['Peso Bruto','grossWeight'],['Producto','productDescription'],['Origen','originCountry'],['Destino','destinationCountry'],['Puerto Carga','portOfLoading'],['Puerto Descarga','portOfDischarge'],['Buque','vesselName'],['N° BL','blNumber'],['N° Factura','invoiceNumber'],['Fecha','exportDate'],['Lab / Certificador','labName'],['N° Cert. Lab','labCertNumber'],['Humedad','moistureContent'],['Grado de Calidad','qualityGrade'],['Resultados','testResults'],['N° Permiso Importación','permitNumber'],['Autoridad Emisora','permitAuthority'],['Permiso Válido Desde','permitValidFrom'],['Permiso Válido Hasta','permitValidUntil'],['Importador de Registro','importerOfRecord'],['N° Certificado COI','coiCertNumber'],['Organismo Certificador','coiCertifier'],['Estándar Orgánico','coiStandard'],['Operador Certificado','coiOperator'],['Productos COI','coiProducts'],['COI Válido Desde','coiValidFrom'],['COI Válido Hasta','coiValidUntil'],['Cantidad Autorizada COI','coiAuthorizedQty'],['Cert. Transacción TC#','coiTransactionCert'],['Lotes en COI','coiLots']],
-    rptTitle:'DOCS-ANALYZER — REPORTE DE ANÁLISIS DE COHERENCIA',
+    rptTitle:'DocsValidate — REPORTE DE ANÁLISIS DE COHERENCIA',
     rptStatus:'Estado',rptDocs:'Documentos',rptIncons:'Inconsistencias',rptObs:'Observaciones',
     rptCoherence:'TABLA DE COHERENCIA',rptDetail:'DETALLE POR DOCUMENTO',rptDetailIss:'INCONSISTENCIAS DETALLADAS',
     rptFile:'Archivo',rptShipper:'Shipper',rptConsignee:'Consignee',rptContainers:'Contenedores',
     rptSeals:'Precintos',rptLots:'Lotes',rptBags:'Sacos',rptNet:'Peso Neto',rptGross:'Peso Bruto',
     rptVessel:'Buque',rptPOL:'Puerto Carga',rptPOD:'Puerto Descarga',rptBL:'N° BL',
     rptInv:'N° Factura',rptComment:'Comentario',rptDate:'Fecha',
-    rptFooter:'© DOCS-ANALYZER · Analizador de Documentos',rptNotFound:'no encontrado',
+    rptFooter:'© DocsValidate · Analizador de Documentos',rptNotFound:'no encontrado',
     loadSteps:['Comparando contenedores, lotes, sacos, pesos...','Verificando shipper, consignee, puertos, buque...','Identificando inconsistencias con detalle...','Generando reporte...'],
     filesCount: n=>`${n} documento${n===1?'':'s'} seleccionado${n===1?'':'s'}`,
     loadTitle:'Analizando el set',
