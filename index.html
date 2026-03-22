@@ -932,6 +932,12 @@ footer {
   .progress-step span:not(.step-num){display:none;}
 }
 </style>
+  <!-- Clerk Auth -->
+  <script async crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_a25vd24tYnVsbGRvZy01OS5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://keen-bulldog-59.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript">
+  </script>
 </head>
 <body>
 
@@ -950,6 +956,9 @@ footer {
         <li><a href="pricing.html">Pricing</a></li>
         <li><a href="contact.html">Contact</a></li>
       </ul></nav>
+      <div id="userBadge" style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;min-width:80px;">
+        <button onclick="openClerkSignIn()" style="background:none;border:none;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);cursor:pointer;">Sign in</button>
+      </div>
       <div class="lang-switch">
         <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
         <span class="lang-sep">|</span>
@@ -1197,6 +1206,11 @@ let lang = 'en';
 let uploadedFiles = [];
 let analysisResults = [];
 let coherenceResult = null;
+// ── GUEST USAGE TRACKING ─────────────────────────
+const GUEST_LIMIT = 3; // free analyses without registration
+function getGuestCount(){ return parseInt(localStorage.getItem('dv_guest_count')||'0'); }
+function incGuestCount(){ localStorage.setItem('dv_guest_count', getGuestCount()+1); }
+function isLoggedIn(){ return window.__clerk_user != null; }
 let _cachedSummary = null; // for lang switching
 
 // ══════════════════════════════════════
@@ -1567,6 +1581,29 @@ async function addFiles(files){
 function renderFiles(){
   const list=document.getElementById('filesList');
   const fc=document.getElementById('filesCount');
+  // Show guest counter if not logged in
+  const guestBar = document.getElementById('guestCounterBar');
+  const guestTxt = document.getElementById('guestCounterText');
+  const guestLink = document.getElementById('guestUpgradeLink');
+  if(guestBar && !isLoggedIn()){
+    const used = getGuestCount();
+    const remaining = Math.max(0, GUEST_LIMIT - used);
+    guestBar.style.display = 'block';
+    if(guestTxt){
+      guestTxt.textContent = lang === 'es'
+        ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
+        : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
+    }
+    if(guestLink){
+      guestLink.textContent = lang === 'es' ? 'Mejorar plan →' : 'Upgrade for more →';
+    }
+    // Turn red when 0 remaining
+    guestBar.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
+    guestBar.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
+    if(guestTxt) guestTxt.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
+  } else if(guestBar){
+    guestBar.style.display = 'none';
+  }
   list.innerHTML='';
   uploadedFiles.forEach((f,i)=>{
     const ext=f.name.split('.').pop().toUpperCase();
@@ -1866,6 +1903,33 @@ function setDocStatus(i, status){
 async function startAnalysis(){
   if(uploadedFiles.length === 0) return;
 
+  // ── CHECK AUTH / GUEST LIMIT ───────────────────
+  const loggedIn = isLoggedIn();
+  const guestCount = getGuestCount();
+
+  if(!loggedIn && guestCount >= GUEST_LIMIT){
+    showAuthModal('guest_limit');
+    return;
+  }
+
+  // If logged in, check plan limits
+  if(loggedIn){
+    try {
+      const userId = window.__clerk_user.id;
+      const email = window.__clerk_user.primaryEmailAddress?.emailAddress;
+      const resp = await fetch('/.netlify/functions/user', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'get', clerk_id: userId, email })
+      });
+      const userData = await resp.json();
+      if(!userData.can_analyze){
+        showUpgradeModal(userData.plan, userData.validations_limit);
+        return;
+      }
+    } catch(e){ console.warn('Plan check failed:', e.message); }
+  }
+
   // Hide upload, show loading
   const uploadSec = document.getElementById('uploadSection');
   const loadingSec = document.getElementById('loading');
@@ -1914,6 +1978,18 @@ async function startAnalysis(){
 
     coherenceResult = await analyzeCoherence(extractedDocs);
     _cachedSummary = coherenceResult?.summary || null;
+
+    // Track usage
+    if(isLoggedIn()){
+      const userId = window.__clerk_user.id;
+      const email = window.__clerk_user.primaryEmailAddress?.emailAddress;
+      fetch('/.netlify/functions/user', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'increment', clerk_id: userId, email })
+      }).catch(e => console.warn('Usage increment failed:', e.message));
+    } else {
+      incGuestCount();
+    }
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
 
@@ -3309,6 +3385,119 @@ function resetApp(){
   const bar2=safeEl('trackingStatusBar'); if(bar2) bar2.className='tracking-status-bar pending';
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+
+<!-- ══ AUTH MODAL ══ -->
+<div id="authModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(26,15,8,0.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
+    <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
+    <div style="font-size:2rem;margin-bottom:1rem;">🫘</div>
+    <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">Create your free account</h3>
+    <p id="authModalDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
+    <div id="clerkSignInDiv"></div>
+    <button onclick="openClerkSignIn()" style="width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;">
+      <span id="authModalBtn">Sign up free</span>
+    </button>
+    <p style="font-size:0.72rem;color:var(--text-light);">Already have an account? <a href="#" onclick="openClerkSignIn()" style="color:var(--brown-mid);">Sign in</a></p>
+  </div>
+</div>
+
+<!-- ══ UPGRADE MODAL ══ -->
+<div id="upgradeModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(26,15,8,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
+    <button onclick="closeUpgradeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
+    <div style="font-size:2rem;margin-bottom:1rem;">⚡</div>
+    <h3 id="upgradeTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">You've reached your limit</h3>
+    <p id="upgradeDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
+    <a id="upgradeBtn" href="pricing.html" style="display:block;width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;text-decoration:none;">
+      <span id="upgradeBtnTxt">View plans</span>
+    </a>
+  </div>
+</div>
+
+<!-- ══ USER BADGE (header) ══ -->
+<script>
+// ── CLERK INIT ───────────────────────────────────
+window.addEventListener('load', async () => {
+  try {
+    await window.Clerk?.load();
+    const user = window.Clerk?.user;
+    if(user){
+      window.__clerk_user = user;
+      updateUserBadge(user);
+    }
+  } catch(e){ console.warn('Clerk load error:', e.message); }
+});
+
+function updateUserBadge(user){
+  const badge = document.getElementById('userBadge');
+  if(!badge) return;
+  const name = user.firstName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User';
+  badge.innerHTML = `<span style="font-size:0.65rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
+    <button onclick="signOut()" style="background:none;border:none;font-size:0.6rem;color:var(--text-light);cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;">Sign out</button>`;
+}
+
+async function openClerkSignIn(){
+  try {
+    closeAuthModal();
+    await window.Clerk?.openSignIn({
+      afterSignInUrl: window.location.href,
+      afterSignUpUrl: window.location.href,
+    });
+    // After sign in, update user reference
+    setTimeout(()=>{
+      const user = window.Clerk?.user;
+      if(user){ window.__clerk_user = user; updateUserBadge(user); }
+    }, 1000);
+  } catch(e){ console.warn('Clerk sign in error:', e.message); }
+}
+
+async function signOut(){
+  await window.Clerk?.signOut();
+  window.__clerk_user = null;
+  const badge = document.getElementById('userBadge');
+  if(badge) badge.innerHTML = '<button onclick="openClerkSignIn()" style="background:none;border:none;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);cursor:pointer;">Sign in</button>';
+}
+
+// ── AUTH MODAL ───────────────────────────────────
+function showAuthModal(reason){
+  const modal = document.getElementById('authModal');
+  const title = document.getElementById('authModalTitle');
+  const desc  = document.getElementById('authModalDesc');
+  const btn   = document.getElementById('authModalBtn');
+  const isES  = lang === 'es';
+
+  if(reason === 'guest_limit'){
+    title.textContent = isES ? 'Crea tu cuenta gratuita' : 'Create your free account';
+    desc.textContent  = isES
+      ? 'Has usado tus 3 análisis de prueba. Crea una cuenta gratis para obtener 20 análisis al mes — sin tarjeta de crédito.'
+      : 'You've used your 3 free trial analyses. Sign up for free to get 20 analyses per month — no credit card required.';
+    btn.textContent   = isES ? 'Registrarse gratis' : 'Sign up free';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeAuthModal(){
+  document.getElementById('authModal').style.display = 'none';
+}
+
+// ── UPGRADE MODAL ────────────────────────────────
+function showUpgradeModal(plan, limit){
+  const modal = document.getElementById('upgradeModal');
+  const desc  = document.getElementById('upgradeDesc');
+  const isES  = lang === 'es';
+
+  desc.textContent = isES
+    ? `Has alcanzado el límite de ${limit} validaciones de tu plan ${plan}. Actualiza para continuar.`
+    : `You've reached the ${limit} validation limit on your ${plan} plan. Upgrade to continue.`;
+
+  modal.style.display = 'flex';
+}
+
+function closeUpgradeModal(){
+  document.getElementById('upgradeModal').style.display = 'none';
 }
 </script>
 </body>
