@@ -56,7 +56,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .logo-wordmark {
   font-family: 'Raleway', 'Futura', 'Century Gothic', 'Gill Sans', sans-serif;
   font-size: 1.6rem; font-weight: 300;
-  letter-spacing: 0.08em; color: #1a1a1a;
+  letter-spacing: 0.18em; color: #1a1a1a;
   text-transform: uppercase;
 }
 .logo-tagline {
@@ -77,7 +77,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .lang-btn {
   background: none; border: none;
   font-family: 'Lato', sans-serif;
-  font-size: 0.62rem; letter-spacing: 0.08em; font-weight: 400;
+  font-size: 0.62rem; letter-spacing: 0.18em; font-weight: 400;
   color: var(--text-light); cursor: pointer; padding: 0.2rem;
   transition: color 0.2s;
 }
@@ -145,7 +145,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .progress-step {
   flex: 1; display: flex; align-items: center; justify-content: center;
   gap: 0.7rem; padding: 0.85rem 1rem;
-  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
   color: rgba(255,255,255,0.35); font-weight: 400;
   border-right: 1px solid rgba(255,255,255,0.08);
   transition: all 0.3s; cursor: default;
@@ -193,9 +193,12 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
    DOC TYPE SELECTOR
 ══════════════════════════════════════ */
 .doc-types-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem; margin-bottom: 0.5rem;
 }
+@media (max-width: 900px) { .doc-types-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .doc-types-grid { grid-template-columns: repeat(2, 1fr); } }
 .doc-type-btn {
   padding: 0.7rem 1rem;
   border: 1px solid var(--border);
@@ -213,6 +216,13 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
 .doc-type-btn.active { border-color: var(--brown); background: var(--brown); color: var(--white); }
 .doc-type-btn.active .dt-dot { background: var(--tan-light); }
+.doc-type-btn.ghost {
+  background: var(--cream2); border: 1px dashed var(--tan);
+  color: var(--text-mid); opacity: 0.85; cursor: default;
+  font-style: italic;
+}
+.doc-type-btn.ghost .dt-dot { background: var(--tan); }
+.doc-type-btn.ghost:hover { border-color: var(--tan); color: var(--text-mid); }
 
 /* ══════════════════════════════════════
    UPLOAD ZONE
@@ -282,14 +292,42 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 
 /* ANALYZE BUTTON */
 .analyze-wrap { margin-bottom: 3rem; }
+@keyframes btn-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(201,168,130,0.5); }
+  50%  { box-shadow: 0 0 0 10px rgba(201,168,130,0); }
+  100% { box-shadow: 0 0 0 0 rgba(201,168,130,0); }
+}
+@keyframes btn-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes btn-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-3px); }
+}
+
 .analyze-btn {
   width: 100%; padding: 1.2rem;
   background: var(--brown-dark); border: none;
   color: var(--white);
   font-family: 'Lato', sans-serif;
   font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 700;
-  cursor: pointer; transition: background 0.3s;
+  cursor: pointer; transition: background 0.4s, transform 0.2s, box-shadow 0.3s;
   display: flex; align-items: center; justify-content: center; gap: 1rem;
+}
+.analyze-btn.ready {
+  background: linear-gradient(135deg, var(--brown) 0%, var(--brown-mid) 50%, var(--brown) 100%);
+  background-size: 200% auto;
+  animation: btn-pulse 2s ease-in-out infinite, btn-shimmer 3s linear infinite;
+  cursor: pointer;
+}
+.analyze-btn.ready:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(74,44,26,0.35);
+  animation: btn-shimmer 1.5s linear infinite;
+}
+.analyze-btn.ready .btn-icon {
+  animation: btn-bounce 1.5s ease-in-out infinite;
 }
 .analyze-btn:hover:not(:disabled) { background: var(--brown); }
 .analyze-btn:disabled { background: var(--cream2); color: var(--text-light); cursor: not-allowed; }
@@ -397,7 +435,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .stat-n {
   font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 400; line-height: 1; margin-bottom: 0.4rem;
 }
-.stat-l { font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+.stat-l { font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-light); }
 .stat-total { color: var(--tan); }
 .stat-ok { color: var(--green); }
 .stat-warn { color: var(--tan); }
@@ -436,7 +474,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .ctable th {
   text-align: left; padding: 0.6rem 1rem;
   background: var(--offwhite); border-bottom: 1px solid var(--border);
-  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--text-light); font-weight: 400;
 }
 .ctable td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
@@ -908,9 +946,9 @@ footer {
     </div>
     <div class="header-right">
       <nav><ul class="nav">
-        <li><a href="https://DocsValidate.com" target="_blank">Home</a></li>
-        <li><a href="https://DocsValidate.com/pricing" target="_blank">Pricing</a></li>
-        <li><a href="https://DocsValidate.com/contact" target="_blank">Contact</a></li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
+        <li><a href="contact.html">Contact</a></li>
       </ul></nav>
       <div class="lang-switch">
         <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
@@ -1131,9 +1169,6 @@ footer {
       <button class="btn-dl" id="btnDl" onclick="downloadReport()">
         ↓ <span id="dlTxt">Download Report</span>
       </button>
-      <button class="btn-track" id="btnTrack" onclick="loadTracking()">
-        🚢 <span id="trackTxt">Track Shipment</span>
-      </button>
       <button class="btn-reset" id="btnReset" onclick="resetApp()">
         ↺ <span id="resetTxt">New Analysis</span>
       </button>
@@ -1147,7 +1182,7 @@ footer {
 <footer>
   <div class="footer-logo">DocsValidate</div>
   <ul class="footer-links">
-    <li><a href="https://DocsValidate.com" target="_blank">DocsValidate.com</a></li>
+    <li><a href="index.html">DocsValidate.com</a></li>
     <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
   </ul>
   <div class="footer-copy">© 2025 DocsValidate · All Rights Reserved</div>
@@ -1420,9 +1455,38 @@ function applyLang(){
       } catch(e) { console.warn('Lang re-render error:', e.message); }
     }, 10);
   }
+  // Refresh ghost button labels
+  document.querySelectorAll('.ghost-label').forEach(el => {
+    el.textContent = lang === 'es' ? 'Otro documento' : 'Any other docs';
+  });
+  if(typeof fillGhostButtons === 'function') fillGhostButtons();
 }
 // Initialize
 applyLang();
+
+// Fill doc-type grid with ghost buttons to complete rows
+function fillGhostButtons(){
+  const grid = document.getElementById('docTypesGrid');
+  if(!grid) return;
+  // Remove existing ghosts
+  grid.querySelectorAll('.ghost').forEach(el => el.remove());
+  // Get columns count from computed style
+  const cols = window.getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+  const total = grid.children.length;
+  const remainder = total % cols;
+  const needed = remainder === 0 ? 0 : cols - remainder;
+  const ghostLabel = lang === 'es' ? 'Otro documento' : 'Any other docs';
+  for(let i = 0; i < needed; i++){
+    const btn = document.createElement('button');
+    btn.className = 'doc-type-btn ghost';
+    btn.innerHTML = '<span class="dt-dot"></span><span class="dt-label ghost-label">' + ghostLabel + '</span>';
+    btn.setAttribute('data-ghost', 'true');
+    grid.appendChild(btn);
+  }
+}
+
+window.addEventListener('resize', fillGhostButtons);
+fillGhostButtons();
 
 // ══════════════════════════════════════
 // DOC TYPE TOGGLES
@@ -1521,6 +1585,8 @@ function renderFiles(){
   if(n>0){fc.style.display='block';fc.textContent=tx().filesCount(n);}
   else{fc.style.display='none';}
   document.getElementById('analyzeBtn').disabled=n===0;
+  const ab = document.getElementById('analyzeBtn');
+  if(ab) ab.classList.toggle('ready', n > 0);
 }
 
 function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
@@ -1675,6 +1741,44 @@ CRITICAL inconsistencies that MUST be flagged:
 
 Fields to check: containerNumbers, sealNumbers, lotNumbers, bagCount, netWeight, grossWeight, shipper, consigneeName, vesselName, portOfLoading, portOfDischarge, blNumber, invoiceNumber, coiCertNumber, coiCertifier, coiStandard, coiOperator, coiAuthorizedQty, coiTransactionCert, coiLots
 For COI: coiLots must match lotNumbers in BL/invoice, coiAuthorizedQty must match total bagCount/netWeight (sum if multiple), coiOperator must match shipper
+
+SEVERITY CLASSIFICATION — assign type "error" or "warning" strictly as follows:
+
+type "error" — CRITICAL, shown in RED, must be resolved before shipment:
+- Container numbers mismatch
+- Seal numbers mismatch
+- BL number mismatch
+- Lot numbers mismatch
+- Invoice number mismatch
+- Bag count mismatch (e.g. 726 vs 500)
+- Net weight mismatch (more than 0.5% difference)
+- Gross weight mismatch (more than 0.5% difference)
+- Shipper name is a different company (not just formatting/case)
+- Consignee name is a different company
+- Port of loading mismatch
+- Port of discharge mismatch
+- Vessel name mismatch
+- Bag type mismatch (jute vs plastic vs polypropylene — different material = error)
+- Bank account details differ between documents (account number, swift, beneficiary)
+- Product description is substantively different between documents
+
+type "warning" — OBSERVATION, shown in YELLOW, review recommended:
+- Date discrepancies between documents (loading date, issue date, expiry date)
+- Gap between document dates greater than 7 days
+- Quality grade present in one document but missing in another
+- Minor destination city differences that may refer to the same area
+
+NOT an inconsistency — do NOT flag:
+- Case differences: "SAN JOSE" = "San Jose"
+- Unit synonyms: kg = KGS = kilogramos, bags = sacos = sacks = bolsas
+- Same material different language: "sacos de yute" = "jute bags", "sacos de plastico" = "plastic bags"
+- Number formatting: 199,824.00 = 199824 = 199.824,00
+- Company suffix: Corp = Corporation, Inc = Incorporated
+- Geographic equivalents: "New York USA" = "New York, United States"
+- Port prefixes: "Puerto de Guayaquil" = "Guayaquil"
+- Trailing zeros: 199824.00 = 199824
+
+LANGUAGE INSTRUCTION: Write ALL text fields in the language specified in the user message.
 
 Respond ONLY in valid JSON without markdown:
 {"overallStatus":"approved|warning|rejected","summary":"2-3 sentence executive summary","setValues":{"containers":{"status":"consistent|inconsistent|single_source","values":[{"doc":"file.pdf","value":"MSCU123"}]},"seals":{"status":"...","values":[...]},"lots":{"status":"...","values":[...]},"bags":{"status":"...","values":[...]},"netWeight":{"status":"...","values":[...]},"grossWeight":{"status":"...","values":[...]},"shipper":{"status":"...","values":[...]},"consignee":{"status":"...","values":[...]},"vessel":{"status":"...","values":[...]},"portOfLoading":{"status":"...","values":[...]},"portOfDischarge":{"status":"...","values":[...]},"blNumber":{"status":"...","values":[...]},"coiCertNumber":{"status":"...","values":[...]},"coiCertifier":{"status":"...","values":[...]},"coiStandard":{"status":"...","values":[...]},"coiAuthorizedQty":{"status":"...","values":[...]},"coiTransactionCert":{"status":"...","values":[...]},"coiLots":{"status":"...","values":[...]}}},"coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"clear description of the inconsistency","details":[{"doc":"file.pdf","value":"exact value in this document"}]}],"perDocumentStatus":{"file.pdf":{"status":"approved|warning|rejected","docType":"type","issues":["issue if any"],"comment":"brief comment"}}}`;
@@ -1847,24 +1951,65 @@ function normalizeValue(v){
        .replace(/\bkgs\b/g, 'kg').replace(/\bkilos?\b/g, 'kg');
   // Normalize metric tons
   s = s.replace(/\btoneladas?\s*m[eé]tricas?\b/g, 'mt').replace(/\bmetric\s*ton+e?s?\b/g, 'mt');
-  // Normalize country names
+
+  // ── BAG / SACK UNITS ──────────────────────────────────────────
+  // Rules:
+  // 1. Bare unit words (no type) → normalize to "bags"
+  //    "saco", "sacos", "bag", "bags", "sack", "sacks", "bolsa" → "bags"
+  // 2. WITH a material/type qualifier → normalize the word but KEEP the type
+  //    "sacos de yute" → "bags yute"  (type preserved for comparison)
+  //    "plastic bags"  → "bags plastic"
+  //    "jute bags"     → "bags jute"
+  //    "sacos de plastico" → "bags plastico"
+  // This way: "sacos de yute" vs "jute bags" → same ✓
+  //           "sacos de yute" vs "plastic bags" → DIFFERENT ✗ (flagged as observation)
+
+  // Material types to watch for
+  const bagMaterials = [
+    'yute','jute','plastic','plástico','plastico','polipropileno','polypropylene',
+    'pp','burlap','arpillera','tela','woven','tejido','paper','papel','mesh','malla'
+  ];
+  const bagMaterialPattern = bagMaterials.join('|');
+
+  // "sacos de yute" / "saco de plastico" → "bags yute" / "bags plastico"
+  s = s.replace(new RegExp('\\b(?:sacos?|bolsas?|sacks?|bags?)\\s+(?:de\\s+)?(' + bagMaterialPattern + ')\\b', 'gi'), 'bags $1');
+  // "jute bags" / "plastic bags" → "bags jute" / "bags plastic"
+  s = s.replace(new RegExp('\\b(' + bagMaterialPattern + ')\\s+(?:sacos?|bolsas?|sacks?|bags?)\\b', 'gi'), 'bags $1');
+
+  // Normalize material name variants (yute=jute, plastico=plastic, etc.)
+  s = s.replace(/\bplástico\b/g, 'plastic').replace(/\bplastico\b/g, 'plastic');
+  s = s.replace(/\byute\b/g, 'jute');
+  s = s.replace(/\barpillera\b/g, 'jute').replace(/\bburlap\b/g, 'jute');
+  s = s.replace(/\bpolipropileno\b/g, 'pp').replace(/\bpolypropylene\b/g, 'pp');
+
+  // Bare bag words (no material) → "bags"
+  s = s.replace(/\bsacos?\b/g, 'bags');
+  s = s.replace(/\bbolsas?\b/g, 'bags');
+  s = s.replace(/\bsacks?\b/g, 'bags');
+  s = s.replace(/\bsacs?\b/g, 'bags');
+  s = s.replace(/\bbags?\b/g, 'bags');
+  // "JT" = jute bags in some certificates
+  s = s.replace(/\bjt\b/g, 'bags jute');
+
+  // ── COUNTRY NAMES ─────────────────────────────────────────────
   s = s.replace(/\bunited\s*states\s*of\s*america\b/g, 'usa')
-       .replace(/\bunited\s*states\b/g, 'usa').replace(/\bu\.s\.a\.?\b/g, 'usa');
-  // Normalize NY variants: "new york-united states" → "new york usa"
+       .replace(/\bunited\s*states\b/g, 'usa').replace(/\bu\.s\.a\.?\b/g, 'usa')
+       .replace(/\bestados\s*unidos\b/g, 'usa');
+
+  // ── PORT NORMALIZATION ────────────────────────────────────────
   s = s.replace(/new\s*york[\s\-]+united\s*states\b/g, 'new york usa');
   s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york usa');
   s = s.replace(/\bnueva\s*york\b/g, 'new york');
-  // Remove port prefixes
   s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of)\s+/g, '');
-  // Remove trailing geographic qualifiers
   s = s.replace(/,?\s*(ecuador|colombia|venezuela|peru|usa|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom)\b.*/g, '');
   s = s.replace(/,?\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '');
-  // Normalize company suffixes
-  s = s.replace(/corporation/g, 'corp').replace(/incorporated/g, 'inc')
-       .replace(/limited/g, 'ltd').replace(/company/g, 'co');
-  // Remove punctuation that doesn't affect meaning: periods, commas at end
+
+  // ── COMPANY SUFFIXES ──────────────────────────────────────────
+  s = s.replace(/\bcorporation\b/g, 'corp').replace(/\bincorporated\b/g, 'inc')
+       .replace(/\blimited\b/g, 'ltd').replace(/\bcompany\b/g, 'co');
+
+  // ── PUNCTUATION ───────────────────────────────────────────────
   s = s.replace(/[.,;]+$/g, '').replace(/\.(?=\s|$)/g, '');
-  // Collapse spaces/hyphens
   s = s.replace(/[\s\-]+/g, ' ').trim();
   return s;
 }
@@ -1919,9 +2064,13 @@ function isTrivialDifference(a, b){
   const na = normalizeValue(sa), nb = normalizeValue(sb);
   if(na === nb) return true;
 
-  // 5. Containment — only for plain text (cities, names), not codes
+  // 5. Containment — only for plain text (cities, names), not codes, not bag-type values
   const looksLikeCode = s => /^[A-Z0-9\-]{6,}$/i.test(s.replace(/[\s,]/g,''));
-  if(!looksLikeCode(na) && !looksLikeCode(nb)){
+  // If either value contains "bags" followed by a material, skip containment entirely
+  // because "726 bags jute" must NOT match "726 bags plastic" via containment
+  const hasBagWord = s => /\bbags\b/.test(s);
+  // Only use containment for pure text without bag units
+  if(!looksLikeCode(na) && !looksLikeCode(nb) && !hasBagWord(na) && !hasBagWord(nb)){
     if(na && nb && (na.includes(nb) || nb.includes(na))) return true;
   }
   // 5b. After stripping company legal suffixes, check if core name matches
@@ -1932,17 +2081,24 @@ function isTrivialDifference(a, b){
   const ca = stripSuffix(na), cb = stripSuffix(nb);
   if(ca && cb && ca.length > 3 && ca === cb) return true;
 
-  // 6. Numeric comparison — handle European and American number formats
-  const n1 = extractNum(sa), n2 = extractNum(sb);
-  if(!isNaN(n1) && !isNaN(n2) && n1 > 0 && Math.abs(n1-n2) < 0.01) return true;
-
-  // 7. Numeric after normalization (handles 199824.00 KGS vs 199824 kg)
-  const nn1 = extractNum(na), nn2 = extractNum(nb);
-  if(!isNaN(nn1) && !isNaN(nn2) && nn1 > 0 && Math.abs(nn1-nn2) < 0.01) return true;
+  // 6. Numeric comparison — only for values that are purely numeric/weight
+  // Skip if values have bag material qualifiers (726 bags jute ≠ 726 bags plastic)
+  const hasBagMaterial = s => /\bbags\s+\w+\b/.test(s) || /\bbag\s+\w+\b/.test(s);
+  const skipNumeric = hasBagMaterial(na) || hasBagMaterial(nb);
+  if(!skipNumeric){
+    const n1 = extractNum(sa), n2 = extractNum(sb);
+    if(!isNaN(n1) && !isNaN(n2) && n1 > 0 && Math.abs(n1-n2) < 0.01) return true;
+    // Numeric after normalization (handles 199824.00 KGS vs 199824 kg)
+    const nn1 = extractNum(na), nn2 = extractNum(nb);
+    if(!isNaN(nn1) && !isNaN(nn2) && nn1 > 0 && Math.abs(nn1-nn2) < 0.01) return true;
+  }
 
   // 8. European vs American format (50.094 vs 50,094 vs 50094)
-  const en1 = normalizeExtractedNumber(sa), en2 = normalizeExtractedNumber(sb);
-  if(en1 && en2 && !isNaN(en1) && !isNaN(en2) && en1 > 0 && Math.abs(en1-en2) < 0.01) return true;
+  // Skip if values have bag material qualifiers (same guard as step 6)
+  if(!skipNumeric){
+    const en1 = normalizeExtractedNumber(sa), en2 = normalizeExtractedNumber(sb);
+    if(en1 && en2 && !isNaN(en1) && !isNaN(en2) && en1 > 0 && Math.abs(en1-en2) < 0.01) return true;
+  }
 
   // 8. Both look like dates
   const isDate = s => /\d{1,2}[\/\-\.]\d{1,2}|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ene|abr|ago)/i.test(s);
@@ -3139,7 +3295,7 @@ function resetApp(){
   uploadedFiles=[];analysisResults=[];coherenceResult=null;
   safeReset('filesList','innerHTML','');
   safeStyle('filesCount','display','none');
-  const ab=safeEl('analyzeBtn'); if(ab) ab.disabled=true;
+  const ab=safeEl('analyzeBtn'); if(ab){ ab.disabled=true; ab.classList.remove('ready'); }
   safeStyle('uploadSection','display','block');
   safeClass('results','remove','show');
   safeReset('loadLog','innerHTML','');

@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact — DocsValidate</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("_AX5FHPE2A2qFduJQ");</script>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
 :root{--white:#fff;--offwhite:#f8f6f2;--cream:#f2ede4;--cream2:#e8dfd0;--brown-dark:#2c1a0e;--brown:#4a2c1a;--brown-mid:#7a4e32;--brown-light:#b8866a;--tan:#c9a882;--tan-light:#e0c9aa;--green:#3d5a3e;--green-light:#5a8c5c;--text:#1a0f08;--text-mid:#5a3e2c;--text-light:#9a7a60;--border:#d8c8b0;--border-light:#ede4d4;}
@@ -113,6 +116,7 @@ input.err,select.err,textarea.err{border-color:#b04030;}
   .form-row{grid-template-columns:1fr;}
 }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -124,8 +128,8 @@ input.err,select.err,textarea.err{border-color:#b04030;}
     </div>
     <div class="header-right">
       <nav><ul>
-        <li><a href="https://DocsValidate.com" id="navHome">Home</a></li>
-        <li><a href="pricing.html" id="navPricing">Pricing</a></li>
+        <li><a href="index.html" id="navHome">Home</a></li>
+        <li><a href="pricing.html">Pricing</a></li>
         <li><a href="#" class="active" id="navContact">Contact</a></li>
       </ul></nav>
       <div class="lang-switch">
@@ -524,20 +528,58 @@ function validate(){
   return ok;
 }
 
-function submitForm(){
+// ── EmailJS config ──────────────────────────────────────────
+// Sign up free at emailjs.com, connect your Gmail, then paste your IDs here:
+const 'service_flmm6b4'  = 'YOUR_SERVICE_ID';   // e.g. 'service_abc123'
+const 'template_mssso99' = 'YOUR_TEMPLATE_ID';  // e.g. 'template_xyz789'
+const '_AX5FHPE2A2qFduJQ'  = 'YOUR_PUBLIC_KEY';   // e.g. 'AbCdEfGhIjKlMnOp'
+
+async function submitForm(){
   if(!validate()) return;
   const btn = document.getElementById('btnSubmit');
+  const btnTxt = document.getElementById('btnSubmitTxt');
   btn.disabled = true;
   btn.style.opacity = '0.6';
-  // Simulate sending
-  setTimeout(()=>{
-    document.getElementById('formWrap').style.display='none';
-    const sb = document.getElementById('successBox');
-    sb.style.display='block';
-    const ref = 'CAC-'+Date.now().toString(36).toUpperCase().slice(-6);
-    document.getElementById('ticketRef').textContent = lang==='es' ? 'Referencia: '+ref : 'Reference: '+ref;
-    btn.disabled=false; btn.style.opacity='1';
-  }, 900);
+  btnTxt.textContent = lang==='es' ? 'Enviando...' : 'Sending...';
+
+  const isSupport = currentType === 'support';
+  const ref = 'DV-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+  const typeLabels = {
+    general: lang==='es' ? 'Consulta General'       : 'General Inquiry',
+    trial:   lang==='es' ? 'Solicitud de Prueba'     : 'Trial Request',
+    support: lang==='es' ? 'Soporte para Suscriptor' : 'Subscriber Support',
+    demo:    lang==='es' ? 'Solicitud de Demo'        : 'Demo Request',
+  };
+  const priorityLabels = { low:'Low / Baja', med:'Medium / Media', high:'High / Alta' };
+
+  const templateParams = {
+    ref,
+    type:       typeLabels[currentType] || currentType,
+    from_name:  document.getElementById('fName').value.trim(),
+    from_email: document.getElementById('fEmail').value.trim(),
+    company:    document.getElementById('fCompany').value.trim() || '—',
+    country:    document.getElementById('fCountry').value.trim() || '—',
+    plan:       isSupport ? document.getElementById('fPlanCurrent').value : document.getElementById('fPlan').value || '—',
+    ticket_type: isSupport ? document.getElementById('fTicketType').value : '—',
+    priority:    isSupport ? (priorityLabels[priority] || priority) : '—',
+    message:     isSupport ? document.getElementById('fIssue').value.trim() : document.getElementById('fMsg').value.trim(),
+    to_email:   'hello@docsvalidate.com',
+  };
+
+  try {
+    
+    await emailjs.send('service_flmm6b4', 'template_mssso99', templateParams);
+  } catch(e) {
+    console.warn('EmailJS error:', e);
+  }
+
+  // Show success screen
+  document.getElementById('formWrap').style.display='none';
+  document.getElementById('successBox').style.display='block';
+  document.getElementById('ticketRef').textContent = lang==='es' ? 'Referencia: '+ref : 'Reference: '+ref;
+  btn.disabled=false; btn.style.opacity='1';
+  btnTxt.textContent = t('btnSubmitTxt');
 }
 
 function resetForm(){
