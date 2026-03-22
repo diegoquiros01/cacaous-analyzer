@@ -1243,10 +1243,10 @@ let _cachedSummary = null; // for lang switching
 const TX = {
   en: {
     logoTagline:'DocsValidate.com',
-    heroEyebrow:'AI-Powered Export Compliance',
+    heroEyebrow:'AI-Powered Documents Validation',
     heroTitle:'Validate your shipment documents<br><em>in seconds — not hours</em>',
-    heroSub:'Upload your full or partial document set and let AI instantly detect inconsistencies',
-    heroBullets:['✓ Eliminate manual checking','✓ Catch discrepancies before they become claims','✓ Ensure full document consistency'],
+    heroSub:'AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.',
+    heroBullets:['✓ Containers & seals verified','✓ Weights & quantities matched','✓ All parties cross-checked'],
     heroQuote:'',
     ps1:'Select Documents', ps2:'AI Analysis', ps3:'Review Results', ps4:'Download Report',
     s1title:'Document Types', s1sub:'Select the types included in this shipment set',
@@ -1313,7 +1313,7 @@ const TX = {
   },
   es: {
     logoTagline:'DocsValidate.com',
-    heroEyebrow:'Cumplimiento de Exportación con IA',
+    heroEyebrow:'Validación de Documentos con IA',
     heroTitle:'Valida tus documentos de embarque<br><em>en segundos — no en horas.</em>',
     heroSub:'La IA detecta inconsistencias en contenedores, pesos, sellos, lotes y partes antes de que causen demoras.',
     heroBullets:['✓ Contenedores y sellos verificados','✓ Pesos y cantidades comparados','✓ Todas las partes cruzadas'],
@@ -1731,7 +1731,31 @@ function safeJSON(text){
 // STEP 1: EXTRACT
 // ══════════════════════════════════════
 async function extractDoc(entry){
-  const system=`You are an expert in cacao and coffee export documents. Extract ALL visible data. Respond with docType and all field values. The docType field should be in ${lang==='es'?'Spanish':'English'}.
+  const system=`You are an expert in cacao and coffee export documents. 
+
+CRITICAL: A single uploaded file may contain MULTIPLE documents bundled together (e.g., a transmittal letter + packing list + certificate of origin + fumigation certificate all in one PDF). 
+
+Your first task is to IDENTIFY all distinct document types present in the file, then extract data from EACH one separately.
+
+DOCUMENT DETECTION RULES:
+- Look for document headers, titles, letterheads, and section breaks
+- Common bundles: transmittal letter with attachments, multi-doc PDFs from exporters
+- Each distinct document type should be extracted as a separate entry
+- If only ONE document type is present, return a single-item array
+
+RESPONSE FORMAT: Return a JSON ARRAY where each element is one document:
+[
+  { "docType": "Bill of Lading", "blNumber": "...", ... },
+  { "docType": "Packing List", "bagCount": "...", ... },
+  { "docType": "Certificate of Origin", ... }
+]
+
+If only one document, still return an array: [{ "docType": "...", ... }]
+
+DOCUMENT TYPES TO DETECT:
+Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, Phytosanitary Certificate, Quality Certificate, ISF, Declaration Letter, 3rd Party Quality Report, Import Permit, Organic Certificate (COI), Fumigation Certificate (also known as: Gas Clearance Certificate, Quarantine Treatment Certificate — all are the same type: Fumigation Certificate), Sample Test Results, Transmittal Letter
+
+The docType field should be in \${lang==='es'?'Spanish':'English'}.
 
 CRITICAL NUMBER EXTRACTION RULES:
 - Many documents use EUROPEAN format: period as thousands separator, comma as decimal → "50.094,00" means 50094 kg
@@ -1742,12 +1766,14 @@ CRITICAL NUMBER EXTRACTION RULES:
 - For weights: "50.094,00 KG" → extract "50094" (remove separators, keep all digits)
 - For bag counts: "726 sacos" or "726 bags" → extract "726"
 - Double-check: if a weight seems unusually small compared to bag count (e.g. 726 bags but only 50004 kg), you have likely misread a separator
-Respond ONLY in valid JSON without markdown:
-{"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"quality grade or null","testResults":"key test results if quality report or null","permitNumber":"import permit number or null","permitAuthority":"issuing authority or null","permitValidFrom":"permit start date or null","permitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiAuthorizedQty":"authorized quantity in COI or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null"}`;
+
+FOR EACH DOCUMENT IN THE ARRAY, extract all applicable fields (use null if not present):
+{"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"grade/classification or null","phytoCertNumber":"phyto cert number or null","phytoInspectionDate":"inspection date or null","phytoIssueDate":"issue date or null","importPermitNumber":"import permit number or null","importPermitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null"}
+
 
   let content;
   if(entry.textContent){
-    content=`Extract all data from this cacao/coffee export document:\n\n${entry.textContent}`;
+    content='Extract all data from this cacao/coffee export document:\n\n' + entry.textContent;
   } else {
     const b64=await toBase64(entry.file);
     const mt=mediaType(entry.file);
@@ -1757,22 +1783,36 @@ Respond ONLY in valid JSON without markdown:
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,1500);
-    const p=safeJSON(t);
-    if(!p) return {docType:entry.name,_err:true};
-    // Validate extracted numbers — fix common OCR errors with separators
-    // e.g. "50004" when document clearly shows "50094" or "50.094"
-    const fixNumber = (val) => {
-      if(!val) return val;
-      const s = String(val).replace(/\s/g,'');
-      // If it looks like a weight (4-6 digits), return as-is
-      return s;
-    };
-    if(p.netWeight) p.netWeight = fixNumber(p.netWeight);
-    if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
-    return p;
+    const t=await callClaude(system,content,3000);
+    // Parse — could be array (multi-doc) or single object
+    let raw = t.trim();
+    // Strip markdown fences
+    // Strip markdown fences
+    raw = raw.replace(/^\u0060{3}json\s*/,'').replace(/^\u0060{3}\s*/,'').replace(/\s*\u0060{3}$/,'').trim();
+    let parsed;
+    try{ parsed = JSON.parse(raw); }
+    catch(e){
+      // Try to extract array or object
+      const arrMatch = raw.match(/(\[.*\])/s);
+      const objMatch = raw.match(/(\{.*\})/s);
+      if(arrMatch) try{ parsed = JSON.parse(arrMatch[1]); }catch(e2){}
+      if(!parsed && objMatch) try{ parsed = JSON.parse(objMatch[1]); }catch(e2){}
+    }
+    if(!parsed) return [{docType:entry.name,_err:true,_filename:entry.name}];
+
+    // Normalize to array
+    const docs = Array.isArray(parsed) ? parsed : [parsed];
+
+    // Fix numbers and tag each doc with source filename
+    const fixNumber = (val) => { if(!val) return val; return String(val).replace(/\s/g,''); };
+    return docs.map(p => {
+      if(p.netWeight)   p.netWeight   = fixNumber(p.netWeight);
+      if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
+      p._filename = entry.name;
+      return p;
+    });
   }
-  catch(e){return{docType:entry.name,_err:true,_msg:e.message};}
+  catch(e){return [{docType:entry.name,_err:true,_msg:e.message,_filename:entry.name}];}
 }
 
 // ══════════════════════════════════════
@@ -2004,11 +2044,14 @@ async function startAnalysis(){
       setSub(`${lang==='es'?'Leyendo':'Reading'}: ${e.name} (${i+1}/${uploadedFiles.length})`);
       setProgress(Math.round((i/total)*100), lang==='es'?`Documento ${i+1} de ${uploadedFiles.length}...`:`Document ${i+1} of ${uploadedFiles.length}...`);
 
-      const x = await extractDoc(e);
-      x._filename = e.name;
-      extractedDocs[e.name] = x;
-      analysisResults.push(x);
-      setDocStatus(i, 'done');
+      const docs = await extractDoc(e);
+      // docs is now always an array (may contain multiple sub-documents)
+      const docsArr = Array.isArray(docs) ? docs : [docs];
+      extractedDocs[e.name] = docsArr;
+      docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
+      // Show sub-doc count in status if multiple found
+      const subCount = docsArr.filter(d => !d._err).length;
+      setDocStatus(i, 'done', subCount > 1 ? subCount : null);
       tick(lang==='es'?`${i+1}/${uploadedFiles.length} listos`:`${i+1}/${uploadedFiles.length} done`);
     }
 
@@ -2152,6 +2195,21 @@ function isContainerList(s){
   // A value is a container list if it contains at least one container-format code
   const tokens = splitCodes(s);
   return tokens.some(t => /^[A-Z]{4}\d{6,7}$/.test(t));
+}
+
+function normalizeDocType(dt){
+  if(!dt) return '';
+  const s = dt.toLowerCase().trim();
+  if(s.indexOf('gas clearance')>=0||s.indexOf('quarantine treatment')>=0||
+     s.indexOf('tratamiento cuarentenario')>=0||s.indexOf('fumig')>=0) return 'fumigation certificate';
+  if(s.indexOf('packing')>=0) return 'packing list';
+  if(s.indexOf('bill of lading')>=0||s.indexOf('conocimiento')>=0) return 'bill of lading';
+  if(s.indexOf('phytosanitary')>=0||s.indexOf('fitosanitario')>=0) return 'phytosanitary certificate';
+  if(s.indexOf('certificate of origin')>=0||s.indexOf('certificado de origen')>=0) return 'certificate of origin';
+  if(s.indexOf('commercial invoice')>=0||s.indexOf('factura comercial')>=0) return 'commercial invoice';
+  if(s.indexOf('declaration letter')>=0) return 'declaration letter';
+  if(s.indexOf('sample test')>=0||s.indexOf('quality cert')>=0) return 'quality certificate';
+  return s;
 }
 
 function isTrivialDifference(a, b){
