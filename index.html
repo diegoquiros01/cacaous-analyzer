@@ -998,11 +998,11 @@ footer {
   <div class="hero-content">
     <div class="hero-eyebrow" id="heroEyebrow">Artificial Intelligence · Cacao & Coffee</div>
     <h1 id="heroTitle">Validate your shipment documents<br><em>in seconds — not hours</em></h1>
-    <div class="hero-sub" id="heroSub">Upload your full or partial document set and let AI instantly detect inconsistencies</div>
+    <div class="hero-sub" id="heroSub">AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.</div>
     <div class="hero-bullets" id="heroBullets">
-      <span>✓ Eliminate manual checking</span>
-      <span>✓ Catch discrepancies before they become claims</span>
-      <span>✓ Ensure full document consistency</span>
+      <span>✓ Containers & seals verified</span>
+      <span>✓ Weights &amp; quantities matched</span>
+      <span>✓ All parties cross-checked</span>
     </div>
   </div>
 </div>
@@ -1524,9 +1524,12 @@ function fillGhostButtons(){
   if(!grid) return;
   // Remove existing ghosts
   grid.querySelectorAll('.ghost').forEach(el => el.remove());
-  // Get columns count from computed style
-  const cols = window.getComputedStyle(grid).gridTemplateColumns.split(' ').length;
-  const total = grid.children.length;
+  // Determine columns from screen width (matches CSS breakpoints)
+  const w = window.innerWidth;
+  const cols = w <= 600 ? 2 : w <= 900 ? 3 : 5;
+  // Count only real (non-ghost) buttons
+  const realBtns = Array.from(grid.children).filter(el => !el.classList.contains('ghost'));
+  const total = realBtns.length;
   const remainder = total % cols;
   const needed = remainder === 0 ? 0 : cols - remainder;
   const ghostLabel = lang === 'es' ? 'Otro documento' : 'Any other docs';
@@ -1535,12 +1538,18 @@ function fillGhostButtons(){
     btn.className = 'doc-type-btn ghost';
     btn.innerHTML = '<span class="dt-dot"></span><span class="dt-label ghost-label">' + ghostLabel + '</span>';
     btn.setAttribute('data-ghost', 'true');
+    btn.setAttribute('disabled', 'true');
     grid.appendChild(btn);
   }
 }
 
 window.addEventListener('resize', fillGhostButtons);
-fillGhostButtons();
+// Run after layout is complete
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', ()=>setTimeout(fillGhostButtons, 50));
+} else {
+  setTimeout(fillGhostButtons, 50);
+}
 
 // ══════════════════════════════════════
 // DOC TYPE TOGGLES
