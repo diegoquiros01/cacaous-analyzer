@@ -3508,7 +3508,17 @@ function resetApp(){
     <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">Create your free account</h3>
     <p id="authModalDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
     <div id="clerkSignInDiv"></div>
-    <button onclick="openClerkSignIn()" style="width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;">
+    <!-- Terms checkbox -->
+    <label id="termsLabel" style="display:flex;align-items:flex-start;gap:10px;text-align:left;margin-bottom:1.2rem;cursor:pointer;">
+      <input type="checkbox" id="termsCheck" style="margin-top:3px;min-width:15px;height:15px;accent-color:var(--brown-dark);cursor:pointer;"/>
+      <span style="font-size:0.78rem;color:var(--text-mid);line-height:1.5;">
+        I have read and agree to the
+        <a href="/terms.html" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">Terms of Service</a>
+      </span>
+    </label>
+    <p id="termsError" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.8rem;text-align:left;">Please accept the Terms of Service to continue.</p>
+
+    <button id="signupBtn" onclick="handleSignupClick()" style="width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;opacity:0.5;transition:opacity 0.2s;">
       <span id="authModalBtn">Sign up free</span>
     </button>
     <p style="font-size:0.72rem;color:var(--text-light);">Already have an account? <a href="#" onclick="openClerkSignIn()" style="color:var(--brown-mid);">Sign in</a></p>
@@ -3548,6 +3558,30 @@ function updateUserBadge(user){
   const name = user.firstName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User';
   badge.innerHTML = `<span style="font-size:0.65rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
     <button onclick="signOut()" style="background:none;border:none;font-size:0.6rem;color:var(--text-light);cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;">Sign out</button>`;
+}
+
+// ── TERMS CHECKBOX LOGIC ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const check = document.getElementById('termsCheck');
+  const btn   = document.getElementById('signupBtn');
+  if(check && btn){
+    check.addEventListener('change', () => {
+      btn.style.opacity = check.checked ? '1' : '0.5';
+    });
+  }
+});
+
+function handleSignupClick(){
+  const check = document.getElementById('termsCheck');
+  const err   = document.getElementById('termsError');
+  if(check && !check.checked){
+    if(err) err.style.display = 'block';
+    if(check) check.parentElement.style.outline = '1px solid #c0392b';
+    return;
+  }
+  if(err) err.style.display = 'none';
+  if(check) check.parentElement.style.outline = '';
+  openClerkSignIn();
 }
 
 async function openClerkSignIn(){

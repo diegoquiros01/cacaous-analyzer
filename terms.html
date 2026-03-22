@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Terms of Service — DocsValidate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --cream:#f5f0e8;
+      --cream2:#ede8df;
+      --brown-dark:#2c1a0e;
+      --brown:#5c3d1e;
+      --brown-mid:#7a5230;
+      --gold:#c8a46e;
+      --gold-light:#d4b483;
+      --text:#3a2410;
+      --text-light:#6b4c2a;
+      --border:#d4c4a8;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      background:var(--cream);
+      color:var(--text);
+      font-family:'Lora',serif;
+      font-size:16px;
+      line-height:1.8;
+    }
+
+    /* NAV */
+    nav{
+      background:var(--brown-dark);
+      padding:18px 40px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .nav-logo{
+      font-family:'Raleway',sans-serif;
+      font-weight:300;
+      font-size:1.1rem;
+      letter-spacing:0.08em;
+      color:#fff;
+      text-decoration:none;
+    }
+    .nav-logo span{
+      display:block;
+      font-size:0.65rem;
+      letter-spacing:0.12em;
+      opacity:0.5;
+      margin-top:1px;
+    }
+    .nav-back{
+      font-family:'Raleway',sans-serif;
+      font-size:0.78rem;
+      letter-spacing:0.06em;
+      color:var(--gold);
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:opacity 0.2s;
+    }
+    .nav-back:hover{opacity:0.7;}
+
+    /* HERO */
+    .hero{
+      background:var(--brown-dark);
+      padding:60px 40px 50px;
+      text-align:center;
+      border-bottom:2px solid var(--gold);
+    }
+    .hero-label{
+      font-family:'Raleway',sans-serif;
+      font-size:0.7rem;
+      letter-spacing:0.2em;
+      color:var(--gold);
+      text-transform:uppercase;
+      margin-bottom:16px;
+    }
+    .hero h1{
+      font-family:'Lora',serif;
+      font-size:2.4rem;
+      font-weight:400;
+      color:#fff;
+      margin-bottom:12px;
+      line-height:1.2;
+    }
+    .hero-meta{
+      font-family:'Raleway',sans-serif;
+      font-size:0.8rem;
+      color:rgba(255,255,255,0.45);
+      letter-spacing:0.05em;
+    }
+
+    /* LAYOUT */
+    .page{
+      max-width:800px;
+      margin:0 auto;
+      padding:60px 40px 100px;
+    }
+
+    /* TOC */
+    .toc{
+      background:var(--cream2);
+      border:1px solid var(--border);
+      border-left:3px solid var(--gold);
+      padding:28px 32px;
+      margin-bottom:52px;
+      border-radius:2px;
+    }
+    .toc-title{
+      font-family:'Raleway',sans-serif;
+      font-size:0.7rem;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:var(--brown-mid);
+      margin-bottom:16px;
+    }
+    .toc ol{
+      padding-left:18px;
+    }
+    .toc li{
+      margin-bottom:6px;
+    }
+    .toc a{
+      font-family:'Raleway',sans-serif;
+      font-size:0.85rem;
+      color:var(--brown);
+      text-decoration:none;
+      letter-spacing:0.02em;
+      transition:color 0.2s;
+    }
+    .toc a:hover{color:var(--gold);}
+
+    /* CRITICAL BOX */
+    .critical-box{
+      background:#fff8f0;
+      border:1px solid #e8c88a;
+      border-left:4px solid var(--gold);
+      padding:24px 28px;
+      margin-bottom:48px;
+      border-radius:2px;
+    }
+    .critical-box .cb-label{
+      font-family:'Raleway',sans-serif;
+      font-size:0.68rem;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:var(--brown-mid);
+      margin-bottom:10px;
+    }
+    .critical-box p{
+      font-size:0.95rem;
+      line-height:1.7;
+      color:var(--brown-dark);
+    }
+
+    /* SECTIONS */
+    section{
+      margin-bottom:52px;
+      scroll-margin-top:20px;
+    }
+    section h2{
+      font-family:'Raleway',sans-serif;
+      font-weight:500;
+      font-size:0.72rem;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:var(--gold);
+      margin-bottom:8px;
+    }
+    section h3{
+      font-family:'Lora',serif;
+      font-size:1.35rem;
+      font-weight:400;
+      color:var(--brown-dark);
+      margin-bottom:20px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--border);
+    }
+    section p{
+      margin-bottom:14px;
+      color:var(--text);
+      font-size:0.95rem;
+    }
+    section ul, section ol{
+      padding-left:22px;
+      margin-bottom:14px;
+    }
+    section li{
+      margin-bottom:8px;
+      font-size:0.95rem;
+      color:var(--text);
+    }
+    section li strong{
+      color:var(--brown-dark);
+      font-weight:500;
+    }
+
+    /* HIGHLIGHT BOX */
+    .highlight{
+      background:var(--cream2);
+      border:1px solid var(--border);
+      padding:20px 24px;
+      margin:20px 0;
+      border-radius:2px;
+    }
+    .highlight p{
+      margin-bottom:0;
+      font-size:0.92rem;
+    }
+
+    /* DIVIDER */
+    hr{
+      border:none;
+      border-top:1px solid var(--border);
+      margin:52px 0;
+    }
+
+    /* FOOTER */
+    footer{
+      background:var(--brown-dark);
+      padding:32px 40px;
+      text-align:center;
+    }
+    footer p{
+      font-family:'Raleway',sans-serif;
+      font-size:0.75rem;
+      color:rgba(255,255,255,0.35);
+      letter-spacing:0.05em;
+    }
+    footer a{
+      color:var(--gold);
+      text-decoration:none;
+    }
+
+    @media(max-width:600px){
+      .page{padding:40px 24px 80px;}
+      .hero h1{font-size:1.8rem;}
+      nav{padding:16px 20px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">
+    DOCSVALIDATE
+    <span>DOCSVALIDATE.COM</span>
+  </a>
+  <a href="/" class="nav-back">← Back to App</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-label">Legal</p>
+  <h1>Terms of Service</h1>
+  <p class="hero-meta">Effective Date: March 22, 2026 &nbsp;·&nbsp; DocsValidate</p>
+</div>
+
+<!-- CONTENT -->
+<div class="page">
+
+  <!-- SUMMARY BOX -->
+  <div class="critical-box">
+    <p class="cb-label">Plain-Language Summary</p>
+    <p>DocsValidate is an AI-assisted tool that helps you review export documents for potential inconsistencies. It is <strong>not a customs broker, freight forwarder, legal advisor, or compliance officer.</strong> Our analysis is a starting point — always verify critical information with qualified professionals before acting on it. By using this service, you agree to these terms in full.</p>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <p class="toc-title">Contents</p>
+    <ol>
+      <li><a href="#acceptance">Acceptance of Terms</a></li>
+      <li><a href="#service">Description of Service</a></li>
+      <li><a href="#disclaimer">Validation Disclaimer & Limitation of Liability</a></li>
+      <li><a href="#accounts">Accounts & Subscriptions</a></li>
+      <li><a href="#data">Your Data & Privacy</a></li>
+      <li><a href="#acceptable-use">Acceptable Use</a></li>
+      <li><a href="#ip">Intellectual Property</a></li>
+      <li><a href="#payments">Payments & Refunds</a></li>
+      <li><a href="#termination">Termination</a></li>
+      <li><a href="#warranties">Disclaimers of Warranties</a></li>
+      <li><a href="#liability">Limitation of Liability</a></li>
+      <li><a href="#indemnification">Indemnification</a></li>
+      <li><a href="#governing-law">Governing Law</a></li>
+      <li><a href="#changes">Changes to Terms</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <!-- 1 -->
+  <section id="acceptance">
+    <h2>01</h2>
+    <h3>Acceptance of Terms</h3>
+    <p>By creating an account, clicking "I agree," or otherwise accessing or using DocsValidate (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you are using the Service on behalf of a company or other legal entity, you represent that you have authority to bind that entity to these Terms.</p>
+    <p>If you do not agree to these Terms, do not use the Service.</p>
+  </section>
+
+  <!-- 2 -->
+  <section id="service">
+    <h2>02</h2>
+    <h3>Description of Service</h3>
+    <p>DocsValidate provides an AI-powered document review platform that analyzes sets of export and trade documents — including but not limited to Bills of Lading, Commercial Invoices, Packing Lists, Phytosanitary Certificates, and Certificates of Origin — and flags potential inconsistencies across them.</p>
+    <p>The Service operates by:</p>
+    <ul>
+      <li>Accepting document uploads in PDF, image, Excel, and Word formats</li>
+      <li>Using AI models to extract structured data from each document</li>
+      <li>Comparing extracted data across documents to identify potential mismatches</li>
+      <li>Generating a validation report with a list of observations and potential errors</li>
+    </ul>
+    <div class="highlight">
+      <p><strong>The Service is a validation aid, not a definitive compliance determination.</strong> It does not constitute legal, customs, trade compliance, or financial advice.</p>
+    </div>
+  </section>
+
+  <!-- 3 — THE CORE SECTION -->
+  <section id="disclaimer">
+    <h2>03</h2>
+    <h3>Validation Disclaimer & Limitation of Liability</h3>
+    <p>This section is critical. Please read it carefully.</p>
+
+    <p><strong>3.1 Nature of the Analysis.</strong> The validation output produced by DocsValidate is generated by artificial intelligence models that analyze the text and data extracted from your uploaded documents. This output is inherently probabilistic, not deterministic. It may contain errors, omissions, or misinterpretations.</p>
+
+    <p><strong>3.2 Document Quality Limitations.</strong> The accuracy of our analysis depends entirely on the quality, legibility, and completeness of the documents you upload. We cannot be responsible for errors in the analysis that result from:</p>
+    <ul>
+      <li>Low-resolution, blurry, or poorly scanned documents</li>
+      <li>Documents with handwritten content that is difficult to interpret</li>
+      <li>Partially visible, cropped, or redacted documents</li>
+      <li>Documents in languages or formats that reduce extraction accuracy</li>
+      <li>Incorrect, incomplete, or fraudulent source documents</li>
+      <li>Uploading the wrong documents or an incomplete document set</li>
+    </ul>
+
+    <p><strong>3.3 No Guarantee of Accuracy.</strong> DocsValidate does not guarantee that:</p>
+    <ul>
+      <li>All inconsistencies in your documents will be detected</li>
+      <li>Items flagged as inconsistencies are in fact errors</li>
+      <li>A "clean" validation report means your documents are compliant with any applicable law, regulation, or contractual requirement</li>
+      <li>The AI's interpretation of any document field matches the interpretation of customs authorities, banks, carriers, or other parties</li>
+    </ul>
+
+    <p><strong>3.4 No Professional Advice.</strong> Nothing in our validation output constitutes legal, customs, trade compliance, logistics, financial, or professional advice of any kind. You should always consult qualified customs brokers, freight forwarders, trade attorneys, or other relevant professionals before making decisions based on your export documents.</p>
+
+    <p><strong>3.5 User Responsibility.</strong> You acknowledge and agree that:</p>
+    <ul>
+      <li>You are solely responsible for verifying the accuracy and completeness of your export documents</li>
+      <li>You are solely responsible for any actions, decisions, or omissions based on the DocsValidate output</li>
+      <li>Any financial loss, cargo delay, regulatory penalty, customs hold, or other consequence arising from document errors is your responsibility, regardless of whether DocsValidate reviewed those documents</li>
+      <li>The Service is a tool to assist your review process, not a replacement for it</li>
+    </ul>
+
+    <p><strong>3.6 No Liability for Downstream Consequences.</strong> DocsValidate, its owners, operators, employees, contractors, and technology providers shall have no liability whatsoever for any:</p>
+    <ul>
+      <li>Cargo delays, demurrage charges, or detention fees</li>
+      <li>Customs seizures, fines, or regulatory penalties</li>
+      <li>Rejection of documents by banks, carriers, customs authorities, or buyers</li>
+      <li>Commercial losses, lost contracts, or loss of business</li>
+      <li>Consequential, incidental, indirect, or punitive damages of any kind</li>
+    </ul>
+    <p>that arise from your use of, or reliance on, the Service — even if DocsValidate has been advised of the possibility of such damages.</p>
+  </section>
+
+  <!-- 4 -->
+  <section id="accounts">
+    <h2>04</h2>
+    <h3>Accounts & Subscriptions</h3>
+    <p>You may use up to 3 validations without registration. To access additional validations, you must create a free account. Paid subscription plans ("Professional" and "Enterprise") unlock higher monthly validation limits and additional features.</p>
+    <p>You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a> if you suspect unauthorized access to your account.</p>
+    <p>Subscription limits reset monthly. Unused validations do not roll over to the next billing period.</p>
+  </section>
+
+  <!-- 5 -->
+  <section id="data">
+    <h2>05</h2>
+    <h3>Your Data & Privacy</h3>
+    <p>When you upload documents, they are transmitted to our servers and to our AI processing providers for analysis. We do not permanently store the content of your documents beyond what is necessary to produce the analysis report during your session.</p>
+    <p>By uploading documents, you confirm that you have the right to share them and that doing so does not violate any confidentiality obligations, applicable law, or third-party rights.</p>
+    <p>Do not upload documents containing sensitive personal data (such as passport numbers, national IDs, or financial account details) beyond what is strictly required for the trade document itself.</p>
+    <p>Our full Privacy Policy is available at <a href="/privacy">docsvalidate.com/privacy</a>.</p>
+  </section>
+
+  <!-- 6 -->
+  <section id="acceptable-use">
+    <h2>06</h2>
+    <h3>Acceptable Use</h3>
+    <p>You agree not to use the Service to:</p>
+    <ul>
+      <li>Upload fraudulent, forged, or falsified documents</li>
+      <li>Attempt to circumvent customs regulations or trade sanctions</li>
+      <li>Reverse-engineer, scrape, or extract our AI models or data processing logic</li>
+      <li>Share your account credentials with others or resell access to the Service</li>
+      <li>Submit automated requests that exceed normal usage patterns</li>
+      <li>Upload content that violates applicable law or infringes third-party rights</li>
+    </ul>
+    <p>We reserve the right to suspend or terminate accounts that violate these rules without notice or refund.</p>
+  </section>
+
+  <!-- 7 -->
+  <section id="ip">
+    <h2>07</h2>
+    <h3>Intellectual Property</h3>
+    <p>DocsValidate and all its underlying technology, design, software, prompts, and content are the intellectual property of DocsValidate and its licensors. You are granted a limited, non-exclusive, non-transferable license to use the Service for your own internal business purposes.</p>
+    <p>You retain ownership of the documents you upload and the data within them. By uploading documents, you grant us a limited license to process them for the purpose of delivering the Service.</p>
+  </section>
+
+  <!-- 8 -->
+  <section id="payments">
+    <h2>08</h2>
+    <h3>Payments & Refunds</h3>
+    <p>Paid plans are billed monthly or annually (where applicable) via Stripe. All fees are in US Dollars and are non-refundable except as required by applicable law, or at our sole discretion in cases of service outages attributable to DocsValidate.</p>
+    <p>You may cancel your subscription at any time. Cancellation takes effect at the end of your current billing period; you retain access until then.</p>
+    <p>We reserve the right to change our pricing with 30 days' notice to active subscribers via email.</p>
+  </section>
+
+  <!-- 9 -->
+  <section id="termination">
+    <h2>09</h2>
+    <h3>Termination</h3>
+    <p>You may delete your account at any time by contacting <a href="mailto:support@docsvalidate.com">support@docsvalidate.com</a>.</p>
+    <p>We reserve the right to suspend or terminate your access to the Service at any time for violation of these Terms, non-payment, or any other reason at our discretion. In cases of termination for cause, no refund will be issued for unused subscription time.</p>
+  </section>
+
+  <!-- 10 -->
+  <section id="warranties">
+    <h2>10</h2>
+    <h3>Disclaimers of Warranties</h3>
+    <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+    <p>WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT DEFECTS WILL BE CORRECTED. WE DO NOT WARRANT THE ACCURACY, COMPLETENESS, OR RELIABILITY OF ANY ANALYSIS OUTPUT.</p>
+  </section>
+
+  <!-- 11 -->
+  <section id="liability">
+    <h2>11</h2>
+    <h3>Limitation of Liability</h3>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DOCSVALIDATE'S TOTAL CUMULATIVE LIABILITY TO YOU FOR ANY CLAIMS ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID TO DOCSVALIDATE IN THE THREE (3) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED US DOLLARS (USD $100).</p>
+    <p>IN NO EVENT SHALL DOCSVALIDATE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+  </section>
+
+  <!-- 12 -->
+  <section id="indemnification">
+    <h2>12</h2>
+    <h3>Indemnification</h3>
+    <p>You agree to indemnify, defend, and hold harmless DocsValidate and its owners, operators, employees, and contractors from any claims, damages, losses, liabilities, costs, and expenses (including reasonable legal fees) arising from:</p>
+    <ul>
+      <li>Your use of the Service</li>
+      <li>Your violation of these Terms</li>
+      <li>Your violation of any applicable law or regulation</li>
+      <li>Any third-party claim arising from documents you uploaded or actions you took based on the Service's output</li>
+    </ul>
+  </section>
+
+  <!-- 13 -->
+  <section id="governing-law">
+    <h2>13</h2>
+    <h3>Governing Law</h3>
+    <p>These Terms shall be governed by and construed in accordance with the laws of the United States. Any dispute arising from these Terms or your use of the Service shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association, except that either party may seek injunctive relief in a court of competent jurisdiction.</p>
+    <p>If any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full force and effect.</p>
+  </section>
+
+  <!-- 14 -->
+  <section id="changes">
+    <h2>14</h2>
+    <h3>Changes to Terms</h3>
+    <p>We reserve the right to modify these Terms at any time. If we make material changes, we will notify you by email or by a prominent notice in the Service at least 14 days before the changes take effect. Your continued use of the Service after changes become effective constitutes acceptance of the new Terms.</p>
+  </section>
+
+  <!-- 15 -->
+  <section id="contact">
+    <h2>15</h2>
+    <h3>Contact</h3>
+    <p>If you have questions about these Terms, please contact us at:</p>
+    <div class="highlight">
+      <p>
+        <strong>DocsValidate</strong><br/>
+        Email: <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a><br/>
+        Website: <a href="https://docsvalidate.com">docsvalidate.com</a>
+      </p>
+    </div>
+  </section>
+
+  <hr/>
+  <p style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:var(--text-light);text-align:center;letter-spacing:0.03em;">
+    By creating a DocsValidate account, you confirm that you have read, understood, and agreed to these Terms of Service.
+  </p>
+
+</div>
+
+<footer>
+  <p>© 2026 DocsValidate &nbsp;·&nbsp; <a href="/terms">Terms of Service</a> &nbsp;·&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/contact">Contact</a></p>
+</footer>
+
+</body>
+</html>
