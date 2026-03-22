@@ -3622,11 +3622,21 @@ function showAuthModal(reason){
     btn.textContent   = isES ? 'Registrarse gratis' : 'Sign up free';
   }
 
+  // Reset checkbox state every time modal opens
+  const check = document.getElementById('termsCheck');
+  const err   = document.getElementById('termsError');
+  const signupBtn = document.getElementById('signupBtn');
+  if(check){ check.checked = false; }
+  if(err){ err.style.display = 'none'; }
+  if(signupBtn){ signupBtn.style.opacity = '0.5'; }
+
   modal.style.display = 'flex';
 }
 
 function closeAuthModal(){
   document.getElementById('authModal').style.display = 'none';
+  const err = document.getElementById('termsError');
+  if(err) err.style.display = 'none';
 }
 
 // ── UPGRADE MODAL ────────────────────────────────
