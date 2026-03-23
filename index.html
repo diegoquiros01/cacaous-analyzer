@@ -1987,6 +1987,9 @@ SMART COMPARISON RULES — these are NOT inconsistencies:
 - GEOGRAPHY VARIANTS: "New York USA" vs "New York-United States" vs "New York, NY" vs "Nueva York" — ALL SAME → NOT inconsistent
 - GEOGRAPHY SUFFIXES: "Guayaquil" vs "Guayaquil, Ecuador" vs "Puerto de Guayaquil" — SAME → NOT inconsistent
 - COUNTRY NAMES: "United States" vs "USA" vs "United States of America" vs "US" — SAME → NOT inconsistent
+- PORT METRO AREA: "New York, USA" vs "Jersey City" vs "Newark" vs "New York-United States" — ALL refer to the same New York/New Jersey port area → NOT inconsistent
+- VESSEL vs TRANSPORT MODE: If one document says "CMA CGM BEIRA" (vessel name) and another says "Marítimo" or "Maritime" (transport mode/method), this is NOT a vessel mismatch — they are describing different things. Do NOT flag as inconsistency
+- SHIPPER WITH ADDRESS: "AROMACACAO S.A." vs "AROMACACAO S.A., AV FRANCISCO DE ORELLANA..." — same company, one includes address → NOT inconsistent. Compare only the company name, ignore address
 - DATES: "March 16" vs "16/03" vs "03-16-2025" — SAME → NOT inconsistent. Dates 1-2 days apart → NOT inconsistent
 - ABBREVIATIONS: "Corp" vs "Corporation", "Inc" vs "Incorporated" — SAME → NOT inconsistent
 
@@ -1994,6 +1997,8 @@ CRITICAL inconsistencies that MUST be flagged:
 - Container numbers that don't match exactly (MSCU123 vs MSCU456 = critical error)
 - Seal numbers that differ
 - Lot numbers that differ (unless multi-doc summing applies)
+- WRONG DOCUMENT DETECTION: If most documents reference lot "24-2026" but one document references "25-2026" or "26-2026", that document does NOT belong to this shipment set. Your error message MUST say: "The [document name] references lot [X] but all other documents reference lot [Y]. This document likely belongs to a different shipment and must be replaced with the correct document for lot [Y]."
+- Apply the same logic for bag count and weight mismatches caused by a wrong document: identify WHICH document is the outlier and state explicitly that it needs to be replaced.
 - Bag counts that differ after summing multi-docs
 - Shipper name completely different (not just format)
 - BL number different across docs
@@ -2340,13 +2345,31 @@ function normalizeValue(v){
        .replace(/\bunited\s*states\b/g, 'usa').replace(/\bu\.s\.a\.?\b/g, 'usa')
        .replace(/\bestados\s*unidos\b/g, 'usa');
 
+  // ── VESSEL / TRANSPORT MODE ─────────────────────────────────────
+  // "Marítimo" / "Maritimo" / "Maritime" = transport mode, not a vessel name
+  // If the value is just a transport mode word, blank it out so it doesn't match vessel names
+  const transportModeWords = ['maritimo','marítimo','maritime','maritima','air','airfreight','road','truck','rail','sea'];
+  if(transportModeWords.includes(s.trim())) return '__transport_mode__';
+
   // ── PORT NORMALIZATION ────────────────────────────────────────
-  s = s.replace(/new\s*york[\s\-]+united\s*states\b/g, 'new york usa');
+  // Jersey City, Newark, Elizabeth, Bayonne = New York/NJ port area
+  s = s.replace(/\bjersey\s*city\b/g, 'new york area');
+  s = s.replace(/\bnewark\b/g, 'new york area');
+  s = s.replace(/new\s*york[\s\-]+united\s*states\b/g, 'new york area');
+  s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york area');
+  s = s.replace(/\bnew\s*york\b/g, 'new york area');
   s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york usa');
   s = s.replace(/\bnueva\s*york\b/g, 'new york');
   s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of)\s+/g, '');
   s = s.replace(/,?\s*(ecuador|colombia|venezuela|peru|usa|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom)\b.*/g, '');
   s = s.replace(/,?\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '');
+
+  // ── STRIP ADDRESS FROM COMPANY NAME ─────────────────────────────
+  // "COMPANY NAME AV FRANCISCO DE ORELLANA..." → "COMPANY NAME"
+  // Remove everything after common address indicators
+  s = s.replace(/\s+(av\s|avenida\s|calle\s|street\s|st\s|blvd\s|road\s|ave\s|c\/\s|carrera\s|km\s|#\s*\d).*$/i, '');
+  // Remove city/country after company name (comma + word)
+  s = s.replace(/,\s*[a-z]{3,}.*$/i, '');
 
   // ── COMPANY SUFFIXES ──────────────────────────────────────────
   s = s.replace(/\bcorporation\b/g, 'corp').replace(/\bincorporated\b/g, 'inc')
@@ -2980,6 +3003,8 @@ function renderResults(){
     let containerAdded = allCrit.some(c => containerAliases.has(c.field));
 
     critFromIssues.forEach(i => {
+      // Skip system/internal errors and document_processing
+      if(i.field === 'system' || i.field === 'document_processing' || i.field === 'documentProcessing') return;
       // Skip if this is a container alias and we already have a container entry
       if(containerAliases.has(i.field) && containerAdded) return;
       if(!seen.has(i.field)){
@@ -3229,13 +3254,45 @@ function renderResults(){
         cardMessage = iss.message;
       }
 
+      // For lot/bag/weight: detect outlier doc and generate clear "replace this document" message
+      let enhancedMessage = cardMessage;
+      if(!isDocProc && !isSameProd && details.length >= 2){
+        const isLotField = iss.field === 'lotNumbers' || iss.field === 'lots';
+        const isBagField = iss.field === 'bagCount' || iss.field === 'bags';
+        const isWeightField = iss.field === 'netWeight' || iss.field === 'grossWeight';
+        if(isLotField || isBagField || isWeightField){
+          const valCount = {};
+          details.forEach(d => { const v=(d.value||'').trim(); if(v) valCount[v]=(valCount[v]||0)+1; });
+          const sorted = Object.entries(valCount).sort((a,b)=>b[1]-a[1]);
+          if(sorted.length >= 2){
+            const majorityVal = sorted[0][0];
+            const majorityCount = sorted[0][1];
+            const outliers = details.filter(d=>(d.value||'').trim()!==majorityVal);
+            if(outliers.length>0 && outliers.length<details.length){
+              const outlierDocs = outliers.map(d=>d.doc.replace(/\.[^.]+$/,'')).join(', ');
+              const outlierVals = [...new Set(outliers.map(d=>d.value))].join(', ');
+              const isES3 = lang==='es';
+              if(isLotField){
+                enhancedMessage = isES3
+                  ? `El documento <strong>${outlierDocs}</strong> referencia el lote <strong>${outlierVals}</strong>, pero todos los demás documentos referencian el lote <strong>${majorityVal}</strong>. Este documento pertenece a otro embarque y debe ser reemplazado por el documento correcto del lote <strong>${majorityVal}</strong>.`
+                  : `<strong>${outlierDocs}</strong> references lot <strong>${outlierVals}</strong>, but all other documents reference lot <strong>${majorityVal}</strong>. This document belongs to a different shipment and must be replaced with the correct document for lot <strong>${majorityVal}</strong>.`;
+              } else {
+                enhancedMessage = isES3
+                  ? `<strong>${outlierDocs}</strong> indica <strong>${outlierVals}</strong>, pero ${majorityCount} documento(s) indican <strong>${majorityVal}</strong>. Verificar si el documento pertenece al embarque correcto.`
+                  : `<strong>${outlierDocs}</strong> shows <strong>${outlierVals}</strong>, but ${majorityCount} document(s) show <strong>${majorityVal}</strong>. Verify if this document belongs to the correct shipment.`;
+              }
+            }
+          }
+        }
+      }
+
       html+='<div class="icard '+cardClass+'">'
         +'<div class="icard-head">'
         +'<span class="icard-field">'+(t.FL[iss.field]||iss.field)+'</span>'
         +'<span class="itag '+tagClass+'">'+tagLabel+'</span>'
         +'</div>'
         +'<div class="icard-body">'
-        +'<div class="icard-desc">'+cardMessage+'</div>'
+        +'<div class="icard-desc">'+enhancedMessage+'</div>'
         +(rows?'<div class="ivals">'+rows+'</div>':'')
         +'</div></div>';
     });
