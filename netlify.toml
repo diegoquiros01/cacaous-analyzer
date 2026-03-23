@@ -1,7 +1,77 @@
-[build]
-  functions = "netlify/functions"
+# ══════════════════════════════════════════════════════
+# DocsValidate — Netlify Configuration
+# ══════════════════════════════════════════════════════
 
+[build]
+  publish = "."   # change to "dist" or "public" if you have a build step
+
+# ── COMPRESSION ────────────────────────────────────────
+# Netlify compresses automatically but this makes it explicit
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.css]
+  bundle = false
+  minify = true
+
+[build.processing.js]
+  bundle = false
+  minify = true
+
+[build.processing.images]
+  compress = true
+
+# ── HEADERS ────────────────────────────────────────────
+# The single biggest win: tell browsers to cache assets aggressively
+
+# HTML — short cache, always revalidate (so deploys go live immediately)
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Hero images — cache for 1 year (they rarely change)
+[[headers]]
+  for = "/hero-*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Any other images / icons
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Netlify functions — no cache (dynamic)
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
+# ── REDIRECTS ──────────────────────────────────────────
+# SPA fallback — required if you have client-side routing
 [[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
+  from   = "/*"
+  to     = "/index.html"
   status = 200

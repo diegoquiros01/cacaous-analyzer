@@ -4,11 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DocsValidate — Export Document Validator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+<!-- Fonts: non-blocking load -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap"></noscript>
+
+<!-- pdf.js, xlsx, mammoth loaded on demand via loadHeavyLibs() — NOT at page open -->
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap');
+/* fonts fallback stack */
 
 :root {
   --white: #ffffff;
@@ -999,15 +1005,14 @@ footer {
   .progress-step span:not(.step-num){display:none;}
 }
 </style>
-  <!-- Clerk Auth -->
-  <script async crossorigin="anonymous"
+  <!-- Clerk Auth — async, does not block render -->
+  <script async defer crossorigin="anonymous"
     data-clerk-publishable-key="pk_test_a25vd24tYnVsbGRvZy01OS5jbGVyay5hY2NvdW50cy5kZXYk"
     src="https://keen-bulldog-59.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
     type="text/javascript">
   </script>
+  <!-- Hero image preload (deduplicated) -->
   <link rel="preload" href="/hero-1.jpg" as="image"/>
-  <link rel="preload" href="/hero-2.jpg" as="image"/>
-  <link rel="preload" href="/hero-2.jpg" as="image"/>
 </head>
 <body>
 
@@ -1197,19 +1202,10 @@ footer {
     <!-- ② SET SUMMARY STATS — moved up right after verdict -->
     <div class="stats-row" id="statsRow" style="margin-bottom:2rem;"></div>
 
-    <!-- ③ ACTION REQUIRED — only shown when there are issues -->
-    <div id="actionRequired" style="display:none;" class="action-required-panel">
-      <div class="ar-header">
-        <span class="ar-header-icon">⚠</span>
-        <span id="arTitle">Action Required</span>
-      </div>
-      <div id="arBody" class="ar-body"></div>
-    </div>
+    <!-- ③ MULTI-DOC NOTICE -->
+    <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
 
-    <!-- ④ ISSUES LIST (plain language) -->
-    <div id="issuesList" style="display:none; margin-bottom:2rem;"></div>
-
-    <!-- ⑤ CONSISTENCY TABLE — all fields, no filter bar -->
+    <!-- ④ CONSISTENCY TABLE — right after multi-doc notice -->
     <div class="result-section-title">
       <h3 id="coherenceTitle">Consistency Table</h3>
       <span id="coherenceBadge" class="rst-badge ok">—</span>
@@ -1233,6 +1229,15 @@ footer {
       </div>
     </div>
 
+    <!-- ⑤ ACTION REQUIRED — after consistency table -->
+    <div id="actionRequired" style="display:none;" class="action-required-panel">
+      <div class="ar-header">
+        <span class="ar-header-icon">⚠</span>
+        <span id="arTitle">Action Required</span>
+      </div>
+      <div id="arBody" class="ar-body"></div>
+    </div>
+
     <!-- ⑥ TRACKING — contextual, below table -->
     <div id="trackingStatusBanner" style="display:none;margin-bottom:2rem;">
       <div class="tracking-status-bar" id="trackingStatusBar">
@@ -1249,17 +1254,11 @@ footer {
     </div>
     <div id="trackingSection" style="display:none;margin-bottom:2.5rem;"></div>
 
-    <!-- ⑦ MULTI-DOC NOTICE — informational -->
-    <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
-
-    <!-- ⑧ PER DOCUMENT — collapsed as original -->
-    <details style="margin-top:2rem;">
-      <summary style="cursor:pointer;font-family:'Raleway',sans-serif;font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--brown-mid);padding:1rem 0;list-style:none;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);">
-        <span class="details-toggle-icon">▶</span>
-        <span id="perDocTitle">Per Document Detail</span>
-      </summary>
-      <div class="doc-cards" id="docCards" style="margin-top:1rem;"></div>
-    </details>
+    <!-- ⑧ PER DOCUMENT — always open -->
+    <div class="result-section-title" style="margin-top:2rem;">
+      <h3 id="perDocTitle">Per Document Detail</h3>
+    </div>
+    <div class="doc-cards" id="docCards" style="margin-top:1rem;"></div>
 
     <!-- ⑨ ACTIONS -->
     <div class="actions">
@@ -1722,6 +1721,9 @@ async function splitPdfToPages(file){
 }
 
 async function addFiles(files){
+  // Start preloading heavy libs as soon as files are added — ready by the time user clicks Analyze
+  loadHeavyLibs().catch(()=>{});
+
   for(const f of files){
     if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
 
@@ -2120,8 +2122,45 @@ function setDocStatus(i, status){
   }
 }
 
+// ══════════════════════════════════════
+// LAZY-LOAD HEAVY LIBS (pdf.js, xlsx, mammoth)
+// Called once on first analysis — not at page load
+// ══════════════════════════════════════
+let _heavyLibsLoaded = false;
+let _heavyLibsLoading = null;
+
+function loadHeavyLibs() {
+  if(_heavyLibsLoaded) return Promise.resolve();
+  if(_heavyLibsLoading) return _heavyLibsLoading;
+  _heavyLibsLoading = new Promise((resolve, reject) => {
+    const libs = [
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js'
+    ];
+    let loaded = 0;
+    libs.forEach(src => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => { loaded++; if(loaded === libs.length){ _heavyLibsLoaded = true; resolve(); } };
+      s.onerror = () => reject(new Error('Failed to load: ' + src));
+      document.head.appendChild(s);
+    });
+  });
+  return _heavyLibsLoading;
+}
+
 async function startAnalysis(){
   if(uploadedFiles.length === 0) return;
+
+  // ── LOAD HEAVY LIBS ON FIRST USE ───────────────
+  try {
+    await loadHeavyLibs();
+  } catch(e) {
+    console.error('Library load failed:', e.message);
+    alert('Failed to load required libraries. Please check your connection and try again.');
+    return;
+  }
 
   // ── CHECK AUTH / GUEST LIMIT ───────────────────
   const loggedIn = isLoggedIn();
@@ -2866,96 +2905,6 @@ function renderResults(){
 
 
   // ── STEP 6b: Plain-language issues list ────────────────────
-  const issuesList = document.getElementById('issuesList');
-  if(issuesList){
-    const isES = lang === 'es';
-
-    // Field label map — human readable
-    const fieldLabels = {
-      containerNumbers:'Container numbers', containers:'Container numbers',
-      sealNumbers:'Seal numbers', seals:'Seal numbers',
-      lotNumbers:'Lot numbers', bagCount:'Bag count',
-      netWeight:'Net weight', grossWeight:'Gross weight',
-      shipper:'Shipper', consigneeName:'Consignee',
-      vesselName:'Vessel', portOfLoading:'Port of loading',
-      portOfDischarge:'Port of discharge',
-      destinationCountry:'Destination country',
-      blNumber:'BL number', invoiceNumber:'Invoice number',
-      coiCertNumber:'COI cert number',
-    };
-    const FL2 = k => fieldLabels[k] || k.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());
-
-    // Build plain issues from tableEntries (errors) + displayIssues
-    const plainIssues = [];
-    const seenFields = new Set();
-
-    // From table entries (ground truth diffs)
-    tableEntries.filter(e => e.isErr).forEach(e => {
-      if(seenFields.has(e.k)) return;
-      seenFields.add(e.k);
-      const vals = e.d.values || [];
-      // Group by value to show "Doc A, Doc B say X — Doc C says Y"
-      const groups = {};
-      vals.forEach(v => {
-        const key = (v.value||'—').trim();
-        if(!groups[key]) groups[key] = [];
-        groups[key].push(v.doc.replace(/\.[^.]+$/,'').replace(/_page\d+/,' p.$&').replace('_p. p.',', p.'));
-      });
-      const groupEntries = Object.entries(groups);
-      let msg = '';
-      if(groupEntries.length >= 2){
-        const parts = groupEntries.map(([val, docs]) =>
-          `<strong>${docs.join(', ')}</strong> ${isES?'dice':'says'} <code style="background:#f0ebe0;padding:2px 6px;border-radius:3px;font-size:0.9em;">${val}</code>`
-        );
-        msg = parts.join(isES ? ' — pero ' : ' — but ');
-      } else {
-        msg = isES ? 'Valores distintos entre documentos' : 'Different values across documents';
-      }
-      plainIssues.push({
-        type: 'error',
-        field: FL2(e.k),
-        msg
-      });
-    });
-
-    // From displayIssues — warnings not already covered
-    displayIssues.filter(i => i.type === 'warning').forEach(i => {
-      if(seenFields.has(i.field)) return;
-      seenFields.add(i.field);
-      plainIssues.push({
-        type: 'warning',
-        field: FL2(i.field),
-        msg: i.message || (isES ? 'Observación menor' : 'Minor observation')
-      });
-    });
-
-    if(plainIssues.length > 0){
-      const title = isES
-        ? (finalErrors > 0 ? `${finalErrors} inconsistencia(s) encontrada(s)` : `${finalWarnings} observación(es)`)
-        : (finalErrors > 0 ? `${finalErrors} inconsistenc${finalErrors===1?'y':'ies'} found` : `${finalWarnings} observation(s)`);
-
-      const rows = plainIssues.map(iss => {
-        const icon = iss.type === 'error' ? '🔴' : '🟡';
-        const border = iss.type === 'error' ? '#c0392b' : '#c8a46e';
-        const bg = iss.type === 'error' ? '#fff5f5' : '#fffbf0';
-        return `<div style="border-left:3px solid ${border};background:${bg};padding:14px 18px;margin-bottom:10px;border-radius:0 4px 4px 0;">
-          <div style="font-family:'Raleway',sans-serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:5px;">${icon} ${iss.field}</div>
-          <div style="font-size:0.92rem;color:#2c1a0e;line-height:1.6;">${iss.msg}</div>
-        </div>`;
-      }).join('');
-
-      issuesList.innerHTML = `
-        <div style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:14px;">${title}</div>
-        ${rows}`;
-      issuesList.style.display = 'block';
-
-      // Toggle icon for table
-      const toggleIcon = document.getElementById('tableToggleIcon');
-      if(toggleIcon) toggleIcon.textContent = '▶';
-    } else {
-      issuesList.style.display = 'none';
-    }
-  }
 
   // ── details toggle icons ────────────────────────────────────
   document.querySelectorAll('details').forEach(det => {
@@ -3217,8 +3166,8 @@ function renderResults(){
         new Set(String(d.value||'').split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()))
       );
       const firstTokens = String(details[0]?.value||'').split(/[,\s]+/).filter(Boolean);
-      const commonTokens = new Set(firstTokens.filter(t =>
-        allTokenSets.every(ts => ts.has(t.toUpperCase()))
+      const commonTokens = new Set(firstTokens.filter(tok =>
+        allTokenSets.every(ts => ts.has(tok.toUpperCase()))
       ));
       const rows=details.map(d=>{
         const rawVal = d.value || t.notFound;
