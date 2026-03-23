@@ -57,14 +57,10 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .logo {
   display: flex; align-items: center; gap: 1rem;
 }
-.logo img {
-  height: 32px;
-}
-.logo-wordmark {
-  font-family: 'Raleway', 'Futura', 'Century Gothic', 'Gill Sans', sans-serif;
-  font-size: 1.6rem; font-weight: 300;
-  letter-spacing: 0.18em; color: #1a1a1a;
-  text-transform: uppercase;
+.logo-img {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 .logo-tagline {
   font-size: 0.52rem; letter-spacing: 0.3em;
@@ -1026,10 +1022,10 @@ footer {
 <header class="header">
   <div class="header-top">
     <div class="logo">
-      <div style="display:flex;flex-direction:column;gap:0.1rem;">
-        <div class="logo-wordmark">DocsValidate</div>
-        <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;">DocsValidate.com</div>
-      </div>
+      <a href="/" style="display:flex;align-items:center;text-decoration:none;">
+        <img src="/logo.png" alt="DocsValidate" class="logo-img">
+      </a>
+      <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">DocsValidate.com</div>
     </div>
     <div class="header-right">
       <nav><ul class="nav">
@@ -1282,7 +1278,7 @@ footer {
 
 
 <footer>
-  <div class="footer-logo">DocsValidate</div>
+  <div class="footer-logo"><img src="/logo.png" alt="DocsValidate" style="height:28px;filter:brightness(0) invert(1);opacity:0.85;"></div>
   <ul class="footer-links">
     <li><a href="/">DocsValidate.com</a></li>
     <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
@@ -2499,6 +2495,9 @@ function filterTrivialInconsistencies(coherenceResult){
   const filtered_issues = [];
 
   for(const iss of (f.coherenceIssues||[])){
+    // Skip internal system errors — not a real doc inconsistency
+    if(iss.field === 'system') continue;
+
     // Deduplicate container issues — keep only the first one
     if(containerFields.has(iss.field)){
       if(containerIssueAdded) continue; // skip duplicates
@@ -3082,7 +3081,7 @@ function renderResults(){
   // ── NEW TABLE DESIGN ──────────────────────────────────────
   // 1. ERROR rows first — full expanded with per-doc breakdown
   // 2. OK rows collapsed into a single "X fields verified" row
-  const errEntries  = tableEntries.filter(e => e.isErr);
+  const errEntries  = tableEntries.filter(e => e.isErr && e.k !== 'system');
   const okEntries   = tableEntries.filter(e => e.allSame);
   const warnEntries = tableEntries.filter(e => !e.isErr && !e.allSame);
 
@@ -3154,26 +3153,17 @@ function renderResults(){
       </tr>`
     ).join('');
 
-    tbody.innerHTML += `<tr style="background:#f2faf2;cursor:pointer;" onclick="
-      var rows=document.querySelectorAll('.ok-detail-row-${okId}');
-      var icon=document.getElementById('ok-toggle-${okId}');
-      var showing=rows[0]&&rows[0].style.display!=='none';
-      rows.forEach(r=>r.style.display=showing?'none':'table-row');
-      icon.textContent=showing?'▶':'▼';
-    ">
-      <td colspan="2" style="padding:12px 16px;border-top:2px solid #d4e8d4;">
+    tbody.innerHTML += `<tr style="background:#f2faf2;">
+      <td colspan="2" style="padding:10px 16px;border-top:2px solid #d4e8d4;">
         <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#5a8a5a;">
-          <span id="ok-toggle-${okId}">▶</span>
-          &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent — click to expand
+          ✓ &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent
         </span>
       </td>
     </tr>
     ${okList}`;
 
-    // Hide ok rows by default
-    setTimeout(() => {
-      document.querySelectorAll('.ok-detail-row-' + okId).forEach(r => r.style.display = 'none');
-    }, 0);
+
+    // OK rows shown by default — no hiding
   }
 
   // Remove old table headers (4 cols → 2 cols now)
