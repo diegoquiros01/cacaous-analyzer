@@ -535,6 +535,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .icard { border: 1px solid; margin-bottom: 0.8rem; overflow: hidden; }
 .icard-err { border-color: rgba(176,64,48,0.3); }
 .icard-warn { border-color: rgba(201,168,130,0.5); }
+.icard-info { border-color: rgba(100,120,180,0.35); }
+.icard-ok   { border-color: rgba(61,90,62,0.35); }
 .icard-head {
   padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem;
   border-bottom: 1px solid rgba(0,0,0,0.06);
@@ -542,12 +544,16 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .icard-err .icard-head { background: rgba(122,46,34,0.05); }
 .icard-warn .icard-head { background: rgba(201,168,130,0.08); }
 .icard-field { font-weight: 700; color: var(--brown-dark); font-size: 0.78rem; flex: 1; }
+.icard-info .icard-head { background: rgba(100,120,180,0.07); }
+.icard-ok   .icard-head { background: rgba(61,90,62,0.06); }
 .itag {
   font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase;
   padding: 0.2rem 0.65rem; border: 1px solid; flex-shrink: 0;
 }
 .itag-err { border-color: var(--red); color: var(--red); }
 .itag-warn { border-color: var(--tan); color: var(--brown-mid); }
+.itag-info { border-color: rgba(100,120,180,0.7); color: rgba(60,80,160,1); }
+.itag-ok   { border-color: var(--green); color: var(--green); background: rgba(61,90,62,0.07); }
 .icard-body { padding: 1rem 1.2rem; }
 .icard-desc { font-size: 0.78rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 0.8rem; }
 .ivals { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -1351,7 +1357,7 @@ const TX = {
     notFound:'— (not found)',
     inconsLabel:'Inconsistency detail',
     fieldsLabel:'Extracted Fields', obsLabel:'Observations', analysisLabel:'✦ Analysis', summaryLabel:'✦ Set Summary',
-    FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',blNumber:'BL Number',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
+    FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',destinationCountry:'Destination Country',blNumber:'BL Number',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
     DOCFIELDS:[['Type','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Containers','containerNumbers'],['Seals','sealNumbers'],['Lots','lotNumbers'],['Bags','bagCount'],['Net Weight','netWeight'],['Gross Weight','grossWeight'],['Product','productDescription'],['Origin','originCountry'],['Destination','destinationCountry'],['Port of Loading','portOfLoading'],['Port of Discharge','portOfDischarge'],['Vessel','vesselName'],['BL Number','blNumber'],['Invoice No.','invoiceNumber'],['Date','exportDate'],['Lab / Certifier','labName'],['Lab Cert #','labCertNumber'],['Moisture','moistureContent'],['Quality Grade','qualityGrade'],['Test Results','testResults'],['Permit Number','permitNumber'],['Permit Authority','permitAuthority'],['Permit Valid From','permitValidFrom'],['Permit Valid Until','permitValidUntil'],['Importer of Record','importerOfRecord'],['COI Cert. Number','coiCertNumber'],['Certifying Body','coiCertifier'],['Organic Standard','coiStandard'],['COI Operator','coiOperator'],['COI Products','coiProducts'],['COI Valid From','coiValidFrom'],['COI Valid Until','coiValidUntil'],['COI Auth. Quantity','coiAuthorizedQty'],['Transaction Cert. TC#','coiTransactionCert'],['COI Lots','coiLots']],
     rptTitle:'DocsValidate — COHERENCE ANALYSIS REPORT',
     rptStatus:'Status',rptDocs:'Documents',rptIncons:'Inconsistencies',rptObs:'Observations',
@@ -1421,7 +1427,7 @@ const TX = {
     notFound:'— (no encontrado)',
     inconsLabel:'Detalle de inconsistencias encontradas',
     fieldsLabel:'Campos Extraídos', obsLabel:'Observaciones', analysisLabel:'✦ Análisis', summaryLabel:'✦ Resumen del Set',
-    FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',blNumber:'N° de BL',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
+    FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',destinationCountry:'País de Destino',blNumber:'N° de BL',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
     DOCFIELDS:[['Tipo','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Contenedores','containerNumbers'],['Precintos','sealNumbers'],['Lotes','lotNumbers'],['Sacos','bagCount'],['Peso Neto','netWeight'],['Peso Bruto','grossWeight'],['Producto','productDescription'],['Origen','originCountry'],['Destino','destinationCountry'],['Puerto Carga','portOfLoading'],['Puerto Descarga','portOfDischarge'],['Buque','vesselName'],['N° BL','blNumber'],['N° Factura','invoiceNumber'],['Fecha','exportDate'],['Lab / Certificador','labName'],['N° Cert. Lab','labCertNumber'],['Humedad','moistureContent'],['Grado de Calidad','qualityGrade'],['Resultados','testResults'],['N° Permiso Importación','permitNumber'],['Autoridad Emisora','permitAuthority'],['Permiso Válido Desde','permitValidFrom'],['Permiso Válido Hasta','permitValidUntil'],['Importador de Registro','importerOfRecord'],['N° Certificado COI','coiCertNumber'],['Organismo Certificador','coiCertifier'],['Estándar Orgánico','coiStandard'],['Operador Certificado','coiOperator'],['Productos COI','coiProducts'],['COI Válido Desde','coiValidFrom'],['COI Válido Hasta','coiValidUntil'],['Cantidad Autorizada COI','coiAuthorizedQty'],['Cert. Transacción TC#','coiTransactionCert'],['Lotes en COI','coiLots']],
     rptTitle:'DocsValidate — REPORTE DE ANÁLISIS DE COHERENCIA',
     rptStatus:'Estado',rptDocs:'Documentos',rptIncons:'Inconsistencias',rptObs:'Observaciones',
@@ -1997,8 +2003,9 @@ CRITICAL inconsistencies that MUST be flagged:
 - BL number different across docs
 - Port of Loading/Discharge completely different cities
 - Destination country completely different across documents (e.g. one says MALAYSIA, another says INDONESIA → CRITICAL ERROR)
+- SPECIAL ATTENTION: Gas Clearance Certificates and Fumigation Certificates contain a "Country/city of destination" or "Destino" field — this MUST match the destination country in the BL and Phytosanitary Certificate. A mismatch here (e.g. Gas Clearance says MALAYSIA but BL says INDONESIA) is a CRITICAL ERROR that MUST be flagged under field "destinationCountry"
 
-Fields to check: containerNumbers, sealNumbers, lotNumbers, bagCount, netWeight, grossWeight, shipper, consigneeName, vesselName, portOfLoading, portOfDischarge, blNumber, invoiceNumber, coiCertNumber, coiCertifier, coiStandard, coiOperator, coiAuthorizedQty, coiTransactionCert, coiLots
+Fields to check: containerNumbers, sealNumbers, lotNumbers, bagCount, netWeight, grossWeight, shipper, consigneeName, vesselName, portOfLoading, portOfDischarge, destinationCountry, blNumber, invoiceNumber, coiCertNumber, coiCertifier, coiStandard, coiOperator, coiAuthorizedQty, coiTransactionCert, coiLots
 For COI: coiLots must match lotNumbers in BL/invoice, coiAuthorizedQty must match total bagCount/netWeight (sum if multiple), coiOperator must match shipper
 
 SEVERITY CLASSIFICATION — assign type "error" or "warning" strictly as follows:
@@ -2016,6 +2023,7 @@ type "error" — CRITICAL, shown in RED, must be resolved before shipment:
 - Consignee name is a different company
 - Port of loading mismatch
 - Port of discharge mismatch
+- Destination country mismatch (e.g. one document says MALAYSIA, another says INDONESIA)
 - Vessel name mismatch
 - Bag type mismatch (jute vs plastic vs polypropylene — different material = error)
 - Bank account details differ between documents (account number, swift, beneficiary)
@@ -2036,11 +2044,13 @@ NOT an inconsistency — do NOT flag:
 - Geographic equivalents: "New York USA" = "New York, United States"
 - Port prefixes: "Puerto de Guayaquil" = "Guayaquil"
 - Trailing zeros: 199824.00 = 199824
+- Product description in different languages referring to the same commodity: "COCOA BEAN FROM GUATEMALA" = "Grano de Cacao - Theobroma cacao" = "Cacao en Grano" = "Cocoa Beans" = "Theobroma cacao" — these are ALL the same product. Commercial name = botanical name = translated name → NOT inconsistent
+- Document processing errors (field: document_processing) — these are extraction failures, NOT document inconsistencies. Do NOT include them in coherenceIssues
 
 LANGUAGE INSTRUCTION: Write ALL text fields in the language specified in the user message.
 
 Respond ONLY in valid JSON without markdown:
-{"overallStatus":"approved|warning|rejected","summary":"2-3 sentence executive summary","setValues":{"containers":{"status":"consistent|inconsistent|single_source","values":[{"doc":"file.pdf","value":"MSCU123"}]},"seals":{"status":"...","values":[...]},"lots":{"status":"...","values":[...]},"bags":{"status":"...","values":[...]},"netWeight":{"status":"...","values":[...]},"grossWeight":{"status":"...","values":[...]},"shipper":{"status":"...","values":[...]},"consignee":{"status":"...","values":[...]},"vessel":{"status":"...","values":[...]},"portOfLoading":{"status":"...","values":[...]},"portOfDischarge":{"status":"...","values":[...]},"blNumber":{"status":"...","values":[...]},"coiCertNumber":{"status":"...","values":[...]},"coiCertifier":{"status":"...","values":[...]},"coiStandard":{"status":"...","values":[...]},"coiAuthorizedQty":{"status":"...","values":[...]},"coiTransactionCert":{"status":"...","values":[...]},"coiLots":{"status":"...","values":[...]}}},"coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"clear description of the inconsistency","details":[{"doc":"file.pdf","value":"exact value in this document"}]}],"perDocumentStatus":{"file.pdf":{"status":"approved|warning|rejected","docType":"type","issues":["issue if any"],"comment":"brief comment"}}}`;
+{"overallStatus":"approved|warning|rejected","summary":"2-3 sentence executive summary","setValues":{"containers":{"status":"consistent|inconsistent|single_source","values":[{"doc":"file.pdf","value":"MSCU123"}]},"seals":{"status":"...","values":[...]},"lots":{"status":"...","values":[...]},"bags":{"status":"...","values":[...]},"netWeight":{"status":"...","values":[...]},"grossWeight":{"status":"...","values":[...]},"shipper":{"status":"...","values":[...]},"consignee":{"status":"...","values":[...]},"vessel":{"status":"...","values":[...]},"portOfLoading":{"status":"...","values":[...]},"portOfDischarge":{"status":"...","values":[...]},"destinationCountry":{"status":"...","values":[...]},"blNumber":{"status":"...","values":[...]},"coiCertNumber":{"status":"...","values":[...]},"coiCertifier":{"status":"...","values":[...]},"coiStandard":{"status":"...","values":[...]},"coiAuthorizedQty":{"status":"...","values":[...]},"coiTransactionCert":{"status":"...","values":[...]},"coiLots":{"status":"...","values":[...]}}},"coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"clear description of the inconsistency","details":[{"doc":"file.pdf","value":"exact value in this document"}]}],"perDocumentStatus":{"file.pdf":{"status":"approved|warning|rejected","docType":"type","issues":["issue if any"],"comment":"brief comment"}}}`;
 
   // Pre-process: identify multi-doc groups
   const docTypes = {};
@@ -2391,12 +2401,32 @@ function normalizeDocType(dt){
   return s;
 }
 
+// Known cocoa/coffee product description synonyms — same commodity, different language/format
+const PRODUCT_SYNONYMS = [
+  ['cocoa bean','cacao en grano','grano de cacao','theobroma cacao','cocoa beans','cacao beans','cocoa bean from','granos de cacao'],
+  ['coffee bean','cafe en grano','grano de cafe','coffea arabica','coffee beans','green coffee'],
+];
+function isSameProduct(a, b){
+  const norm = s => String(s||'').toLowerCase().replace(/[^a-z\s]/g,'').trim();
+  const na = norm(a), nb = norm(b);
+  for(const group of PRODUCT_SYNONYMS){
+    const inA = group.some(syn => na.includes(syn));
+    const inB = group.some(syn => nb.includes(syn));
+    if(inA && inB) return true;
+  }
+  return false;
+}
+
 function isTrivialDifference(a, b){
   if(!a || !b) return false;
   const sa = String(a).trim(), sb = String(b).trim();
 
   // 1. Case-insensitive exact match
   if(sa.toLowerCase() === sb.toLowerCase()) return true;
+
+  // 0b. Same product — commercial vs botanical vs translated name
+  if(isSameProduct(sa, sb)) return true;
+
 
   // 2. CONTAINER LISTS — compare element by element
   // If both values contain container-format codes, compare the sets
@@ -3184,13 +3214,38 @@ function renderResults(){
           +'<span class="ival-val">'+(d.value?highlighted:t.notFound)+'</span>'
           +'</div>';
       }).join('');
-      html+='<div class="icard '+(isE?'icard-err':'icard-warn')+'">'
+      // Determine card type and label
+      const isDocProc = iss.field === 'document_processing' || iss.field === 'documentProcessing';
+      const isSameProd = (iss.field === 'productDescription' || iss.field === 'product_description') &&
+        details.length >= 2 && isSameProduct(details[0]?.value||'', details[1]?.value||'');
+
+      let cardClass, tagClass, tagLabel, cardMessage;
+      if(isDocProc){
+        cardClass = 'icard-info';
+        tagClass  = 'itag-info';
+        tagLabel  = lang === 'es' ? 'Error de lectura' : 'Read Error';
+        cardMessage = lang === 'es'
+          ? 'No se pudo leer el archivo correctamente. Verifica que el PDF no esté protegido o dañado.'
+          : 'Could not read the file. Make sure the PDF is not password-protected or corrupted.';
+      } else if(isSameProd){
+        cardClass = 'icard-ok';
+        tagClass  = 'itag-ok';
+        tagLabel  = lang === 'es' ? 'Esperado — mismo producto' : 'Expected — same product';
+        cardMessage = iss.message;
+      } else {
+        cardClass = isE ? 'icard-err' : 'icard-warn';
+        tagClass  = isE ? 'itag-err'  : 'itag-warn';
+        tagLabel  = isE ? t.errCrit : t.errWarn;
+        cardMessage = iss.message;
+      }
+
+      html+='<div class="icard '+cardClass+'">'
         +'<div class="icard-head">'
         +'<span class="icard-field">'+(t.FL[iss.field]||iss.field)+'</span>'
-        +'<span class="itag '+(isE?'itag-err':'itag-warn')+'">'+(isE?t.errCrit:t.errWarn)+'</span>'
+        +'<span class="itag '+tagClass+'">'+tagLabel+'</span>'
         +'</div>'
         +'<div class="icard-body">'
-        +'<div class="icard-desc">'+iss.message+'</div>'
+        +'<div class="icard-desc">'+cardMessage+'</div>'
         +(rows?'<div class="ivals">'+rows+'</div>':'')
         +'</div></div>';
     });
