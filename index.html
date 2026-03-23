@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DocsValidate — Export Document Validator</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap');
@@ -1624,9 +1625,59 @@ zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
 zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');addFiles([...e.dataTransfer.files]);});
 document.getElementById('fileInput').addEventListener('change',e=>{addFiles([...e.target.files]);e.target.value='';});
 
+// ── PDF PAGE SPLITTER ─────────────────────────────────────
+async function splitPdfToPages(file){
+  // Returns array of {file, name, size} — one per page as JPEG blob
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    const numPages = pdf.numPages;
+
+    // If only 1 page, return as-is (no split needed)
+    if(numPages <= 1) return null;
+
+    const pages = [];
+    for(let i = 1; i <= numPages; i++){
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({scale: 2.0}); // high-res for OCR
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({canvasContext: ctx, viewport}).promise;
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+      const pageName = file.name.replace(/\.pdf$/i,'') + `_page${i}.jpg`;
+      pages.push({file: new File([blob], pageName, {type:'image/jpeg'}), name: pageName, size: blob.size, _pdfPage: i, _pdfSource: file.name});
+    }
+    return pages;
+  } catch(e){
+    console.warn('PDF split error:', e.message);
+    return null;
+  }
+}
+
 async function addFiles(files){
   for(const f of files){
     if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
+
+    // Try to split multi-page PDFs
+    if(f.name.toLowerCase().endsWith('.pdf')){
+      const pages = await splitPdfToPages(f);
+      if(pages && pages.length > 1){
+        // Show a notice and add each page as separate entry
+        console.log(`Split ${f.name} into ${pages.length} pages`);
+        for(const pageEntry of pages){
+          if(!uploadedFiles.find(u=>u.name===pageEntry.name)) {
+            uploadedFiles.push(pageEntry);
+          }
+        }
+        renderFiles();
+        continue;
+      }
+    }
+
     const entry={file:f,name:f.name,size:f.size};
     if(isExcel(f.name)){try{entry.textContent=await excelToText(f);}catch(e){entry.textContent=`[Error: ${e.message}]`;}}
     else if(isWord(f.name)){try{entry.textContent=await wordToText(f);}catch(e){entry.textContent=`[Error: ${e.message}]`;}}
@@ -1665,13 +1716,15 @@ function renderFiles(){
   uploadedFiles.forEach((f,i)=>{
     const ext=f.name.split('.').pop().toUpperCase();
     const size=f.size<1048576?(f.size/1024).toFixed(1)+' KB':(f.size/1048576).toFixed(1)+' MB';
+    const pdfBadge = f._pdfPage ? `<span style="font-size:0.65rem;background:#e8d9c0;color:#7a5230;padding:2px 7px;border-radius:10px;letter-spacing:0.05em;">p.${f._pdfPage}</span>` : '';
+    const displayName = f._pdfSource ? `${f._pdfSource} <span style="opacity:0.5">· p.${f._pdfPage}</span>` : f.name;
     list.innerHTML+=`<div class="file-item">
       <div class="file-icon">${getIcon(f.name)}</div>
       <div class="file-info">
-        <div class="file-name">${f.name}</div>
+        <div class="file-name">${displayName}</div>
         <div class="file-size">${ext} · ${size}</div>
       </div>
-      ${getBadge(f.name)}
+      ${getBadge(f.name)}${pdfBadge}
       <button class="file-del" onclick="removeFile(${i})">✕</button>
     </div>`;
   });
