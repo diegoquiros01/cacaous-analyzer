@@ -1151,7 +1151,6 @@ footer {
       </div>
     </div>
 
-    <div class="stats-row" id="statsRow"></div>
 
     <!-- Multi-doc notice — shown when same doc type appears multiple times -->
     <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
@@ -1174,12 +1173,14 @@ footer {
     </div>
     <div id="trackingSection" style="display:none;margin-bottom:2.5rem;"></div>
 
-    <!-- Coherence comparison -->
+    <!-- ── ISSUES LIST (plain language) ── -->
+    <div id="issuesList" style="display:none; margin-bottom:2rem;"></div>
+
+    <!-- ── CONSISTENCY TABLE (expanded) ── -->
     <div class="result-section-title">
       <h3 id="coherenceTitle">Consistency Table</h3>
       <span id="coherenceBadge" class="rst-badge ok">—</span>
     </div>
-
     <div id="criticalBanner" style="display:none;" class="critical-banner"></div>
     <div class="coherence-box">
       <div class="coherence-box-header">
@@ -1199,14 +1200,22 @@ footer {
       </div>
     </div>
 
-    <!-- Per document -->
-    <div class="result-section-title" style="margin-top:2.5rem;">
-      <h3 id="perDocTitle">Per Document Detail</h3>
+    <!-- ── PER DOCUMENT (collapsed) ── -->
+    <details style="margin-top:2rem;">
+      <summary style="cursor:pointer;font-family:'Raleway',sans-serif;font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--brown-mid);padding:1rem 0;list-style:none;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);">
+        <span class="details-toggle-icon">▶</span>
+        <span id="perDocTitle">Per Document Detail</span>
+      </summary>
+      <div class="doc-cards" id="docCards" style="margin-top:1rem;"></div>
+    </details>
+
+    <!-- ── SET SUMMARY ── -->
+    <div style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem;">
+      <div style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:1rem;" id="setSummaryTitle">Set Summary</div>
+      <div class="stats-row" id="statsRow"></div>
     </div>
 
-    <div class="doc-cards" id="docCards"></div>
-
-    <div class="actions">
+        <div class="actions">
       <button class="btn-dl" id="btnDl" onclick="downloadReport()">
         ↓ <span id="dlTxt">Download Report</span>
       </button>
@@ -1572,7 +1581,14 @@ document.querySelectorAll('.doc-type-btn').forEach(btn=>{
 // ══════════════════════════════════════
 const isExcel=n=>/\.(xlsx|xls)$/i.test(n);
 const isWord=n=>/\.(docx|doc)$/i.test(n);
-const getIcon=n=>isExcel(n)?'📊':isWord(n)?'📝':/\.pdf$/i.test(n)?'📋':'🖼';
+const getIcon=(n,isPdfPage)=>{
+  const badge=(txt,color)=>`<span style="font-size:0.6rem;font-family:'Raleway',sans-serif;font-weight:600;letter-spacing:0.08em;background:${color};color:#fff;padding:3px 6px;border-radius:3px;">${txt}</span>`;
+  if(isPdfPage||/\.pdf$/i.test(n)) return badge('PDF','#7a5230');
+  if(isExcel(n)) return badge('XLS','#217346');
+  if(isWord(n))  return badge('DOC','#2b579a');
+  if(/\.(jpg|jpeg|png)$/i.test(n)) return badge('IMG','#888');
+  return badge('FILE','#999');
+};
 const getBadge=n=>isExcel(n)?'<span class="file-badge badge-excel">Excel</span>':isWord(n)?'<span class="file-badge badge-word">Word</span>':'';
 
 async function excelToText(f){
@@ -1716,15 +1732,21 @@ function renderFiles(){
   uploadedFiles.forEach((f,i)=>{
     const ext=f.name.split('.').pop().toUpperCase();
     const size=f.size<1048576?(f.size/1024).toFixed(1)+' KB':(f.size/1048576).toFixed(1)+' MB';
-    const pdfBadge = f._pdfPage ? `<span style="font-size:0.65rem;background:#e8d9c0;color:#7a5230;padding:2px 7px;border-radius:10px;letter-spacing:0.05em;">p.${f._pdfPage}</span>` : '';
-    const displayName = f._pdfSource ? `${f._pdfSource} <span style="opacity:0.5">· p.${f._pdfPage}</span>` : f.name;
+    const isPdfPage = !!f._pdfPage;
+    const displayName = f._pdfSource
+      ? f._pdfSource
+      : f.name;
+    const pageLabel = f._pdfPage
+      ? `<span style="font-size:0.68rem;background:#e8d9c0;color:#7a5230;padding:2px 8px;border-radius:10px;letter-spacing:0.04em;font-family:'Raleway',sans-serif;">p.${f._pdfPage}</span>`
+      : '';
+    const displayExt = isPdfPage ? 'PDF' : ext;
     list.innerHTML+=`<div class="file-item">
-      <div class="file-icon">${getIcon(f.name)}</div>
+      <div class="file-icon">${getIcon(f.name, isPdfPage)}</div>
       <div class="file-info">
-        <div class="file-name">${displayName}</div>
-        <div class="file-size">${ext} · ${size}</div>
+        <div class="file-name">${displayName}${f._pdfPage ? ` · <em style="opacity:0.5;font-size:0.85em;">page ${f._pdfPage}</em>` : ''}</div>
+        <div class="file-size">${displayExt} · ${size}</div>
       </div>
-      ${getBadge(f.name)}${pdfBadge}
+      ${getBadge(f.name)}${pageLabel}
       <button class="file-del" onclick="removeFile(${i})">✕</button>
     </div>`;
   });
@@ -1925,6 +1947,7 @@ CRITICAL inconsistencies that MUST be flagged:
 - Shipper name completely different (not just format)
 - BL number different across docs
 - Port of Loading/Discharge completely different cities
+- Destination country completely different across documents (e.g. one says MALAYSIA, another says INDONESIA → CRITICAL ERROR)
 
 Fields to check: containerNumbers, sealNumbers, lotNumbers, bagCount, netWeight, grossWeight, shipper, consigneeName, vesselName, portOfLoading, portOfDischarge, blNumber, invoiceNumber, coiCertNumber, coiCertifier, coiStandard, coiOperator, coiAuthorizedQty, coiTransactionCert, coiLots
 For COI: coiLots must match lotNumbers in BL/invoice, coiAuthorizedQty must match total bagCount/netWeight (sum if multiple), coiOperator must match shipper
@@ -2794,6 +2817,107 @@ function renderResults(){
   else if(finalWarnings>0){cb.className='rst-badge warn';cb.textContent=t.cbWarn;}
   else{cb.className='rst-badge ok';cb.textContent=t.cbOk;}
 
+
+  // ── STEP 6b: Plain-language issues list ────────────────────
+  const issuesList = document.getElementById('issuesList');
+  if(issuesList){
+    const isES = lang === 'es';
+
+    // Field label map — human readable
+    const fieldLabels = {
+      containerNumbers:'Container numbers', containers:'Container numbers',
+      sealNumbers:'Seal numbers', seals:'Seal numbers',
+      lotNumbers:'Lot numbers', bagCount:'Bag count',
+      netWeight:'Net weight', grossWeight:'Gross weight',
+      shipper:'Shipper', consigneeName:'Consignee',
+      vesselName:'Vessel', portOfLoading:'Port of loading',
+      portOfDischarge:'Port of discharge',
+      destinationCountry:'Destination country',
+      blNumber:'BL number', invoiceNumber:'Invoice number',
+      coiCertNumber:'COI cert number',
+    };
+    const FL2 = k => fieldLabels[k] || k.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());
+
+    // Build plain issues from tableEntries (errors) + displayIssues
+    const plainIssues = [];
+    const seenFields = new Set();
+
+    // From table entries (ground truth diffs)
+    tableEntries.filter(e => e.isErr).forEach(e => {
+      if(seenFields.has(e.k)) return;
+      seenFields.add(e.k);
+      const vals = e.d.values || [];
+      // Group by value to show "Doc A, Doc B say X — Doc C says Y"
+      const groups = {};
+      vals.forEach(v => {
+        const key = (v.value||'—').trim();
+        if(!groups[key]) groups[key] = [];
+        groups[key].push(v.doc.replace(/\.[^.]+$/,'').replace(/_page\d+/,' p.$&').replace('_p. p.',', p.'));
+      });
+      const groupEntries = Object.entries(groups);
+      let msg = '';
+      if(groupEntries.length >= 2){
+        const parts = groupEntries.map(([val, docs]) =>
+          `<strong>${docs.join(', ')}</strong> ${isES?'dice':'says'} <code style="background:#f0ebe0;padding:2px 6px;border-radius:3px;font-size:0.9em;">${val}</code>`
+        );
+        msg = parts.join(isES ? ' — pero ' : ' — but ');
+      } else {
+        msg = isES ? 'Valores distintos entre documentos' : 'Different values across documents';
+      }
+      plainIssues.push({
+        type: 'error',
+        field: FL2(e.k),
+        msg
+      });
+    });
+
+    // From displayIssues — warnings not already covered
+    displayIssues.filter(i => i.type === 'warning').forEach(i => {
+      if(seenFields.has(i.field)) return;
+      seenFields.add(i.field);
+      plainIssues.push({
+        type: 'warning',
+        field: FL2(i.field),
+        msg: i.message || (isES ? 'Observación menor' : 'Minor observation')
+      });
+    });
+
+    if(plainIssues.length > 0){
+      const title = isES
+        ? (finalErrors > 0 ? `${finalErrors} inconsistencia(s) encontrada(s)` : `${finalWarnings} observación(es)`)
+        : (finalErrors > 0 ? `${finalErrors} inconsistenc${finalErrors===1?'y':'ies'} found` : `${finalWarnings} observation(s)`);
+
+      const rows = plainIssues.map(iss => {
+        const icon = iss.type === 'error' ? '🔴' : '🟡';
+        const border = iss.type === 'error' ? '#c0392b' : '#c8a46e';
+        const bg = iss.type === 'error' ? '#fff5f5' : '#fffbf0';
+        return `<div style="border-left:3px solid ${border};background:${bg};padding:14px 18px;margin-bottom:10px;border-radius:0 4px 4px 0;">
+          <div style="font-family:'Raleway',sans-serif;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:5px;">${icon} ${iss.field}</div>
+          <div style="font-size:0.92rem;color:#2c1a0e;line-height:1.6;">${iss.msg}</div>
+        </div>`;
+      }).join('');
+
+      issuesList.innerHTML = `
+        <div style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:14px;">${title}</div>
+        ${rows}`;
+      issuesList.style.display = 'block';
+
+      // Toggle icon for table
+      const toggleIcon = document.getElementById('tableToggleIcon');
+      if(toggleIcon) toggleIcon.textContent = '▶';
+    } else {
+      issuesList.style.display = 'none';
+    }
+  }
+
+  // ── details toggle icons ────────────────────────────────────
+  document.querySelectorAll('details').forEach(det => {
+    det.addEventListener('toggle', () => {
+      const icon = det.querySelector('.details-toggle-icon');
+      if(icon) icon.textContent = det.open ? '▼' : '▶';
+    });
+  });
+
   // ── STEP 7: Critical banner ─────────────────────────────────
   // CRITICAL_FIELDS already defined in Step 3
   const critBanner = document.getElementById('criticalBanner');
@@ -2928,19 +3052,107 @@ function renderResults(){
   // ── STEP 9: Render table from pre-computed tableEntries ─────
   const tbody=document.getElementById('ctbody');
   tbody.innerHTML='';
-  for(const {k, d, uv, allSame, isErr} of tableEntries){
-    const rowCls = allSame ? 'tr-ok' : isErr ? 'tr-err' : '';
-    const sCls   = allSame ? 'cstatus-ok' : isErr ? 'cstatus-err' : 'cstatus-single';
-    const sTxt   = allSame ? t.badgeOk : isErr ? t.badgeErr : t.badgeSingle;
-    const docs   = (d.values||[]).map(v=>v.doc.replace(/\.[^.]+$/,'')).join(', ');
-    const valCells = isErr ? highlightDiffs(uv, d.values||[]) : uv.join(' / ') || '—';
-    tbody.innerHTML += '<tr class="'+rowCls+'">'
-      + '<td class="td-field">'+FL(k)+'</td>'
-      + '<td class="td-status"><span class="cstatus '+sCls+'">'+sTxt+'</span></td>'
-      + '<td>'+valCells+'</td>'
-      + '<td class="td-docs">'+docs+'</td>'
-      + '</tr>';
+
+  // ── NEW TABLE DESIGN ──────────────────────────────────────
+  // 1. ERROR rows first — full expanded with per-doc breakdown
+  // 2. OK rows collapsed into a single "X fields verified" row
+  const errEntries  = tableEntries.filter(e => e.isErr);
+  const okEntries   = tableEntries.filter(e => e.allSame);
+  const warnEntries = tableEntries.filter(e => !e.isErr && !e.allSame);
+
+  // Helper: clean doc name
+  const cleanDoc = s => s.replace(/\.[^.]+$/, '').replace(/_page(\d+)/, ' p.$1');
+
+  // Render ERROR rows
+  errEntries.forEach(({k, d}) => {
+    const vals = d.values || [];
+    // Group by value to find the outlier
+    const groups = {};
+    vals.forEach(v => {
+      const key = (v.value||'—').trim();
+      if(!groups[key]) groups[key] = [];
+      groups[key].push(cleanDoc(v.doc));
+    });
+    const groupArr = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
+    // majority = most docs agree; minority = outlier
+    const majority = groupArr[0];
+    const outliers = groupArr.slice(1);
+
+    // Build per-doc rows
+    let docRows = '';
+    groupArr.forEach(([val, docs], gi) => {
+      const isOutlier = gi > 0;
+      const style = isOutlier
+        ? 'background:#fff0ee;border-left:3px solid #c0392b;'
+        : 'background:#f8faf8;border-left:3px solid #6aaa6a;';
+      const icon = isOutlier ? '✗' : '✓';
+      const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
+      docRows += `<div style="${style}padding:8px 12px;margin-bottom:3px;border-radius:0 3px 3px 0;display:flex;align-items:flex-start;gap:10px;">
+        <span style="color:${iconColor};font-weight:700;margin-top:1px;">${icon}</span>
+        <div>
+          <div style="font-size:0.78rem;color:#2c1a0e;font-weight:500;">${val}</div>
+          <div style="font-size:0.65rem;color:#888;margin-top:2px;">${docs.join(' · ')}</div>
+        </div>
+      </div>`;
+    });
+
+    tbody.innerHTML += `<tr style="background:#fff8f7;">
+      <td style="padding:14px 16px;vertical-align:top;border-bottom:2px solid #f0d0cc;">
+        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">🔴 Error</div>
+        <div style="font-weight:600;color:#2c1a0e;font-size:0.82rem;">${FL(k)}</div>
+      </td>
+      <td style="padding:14px 16px;border-bottom:2px solid #f0d0cc;">${docRows}</td>
+    </tr>`;
+  });
+
+  // Render WARNING rows
+  warnEntries.forEach(({k, d, uv}) => {
+    const vals = d.values || [];
+    const docList = vals.map(v => `<span style="color:#888;font-size:0.72rem;">${cleanDoc(v.doc)}:</span> <code style="background:#f5f0e8;padding:1px 5px;border-radius:3px;font-size:0.78rem;">${v.value||'—'}</code>`).join('<br>');
+    tbody.innerHTML += `<tr style="background:#fffdf5;">
+      <td style="padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--border);">
+        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">🟡 Observation</div>
+        <div style="font-weight:600;color:#2c1a0e;font-size:0.82rem;">${FL(k)}</div>
+      </td>
+      <td style="padding:12px 16px;border-bottom:1px solid var(--border);">${docList}</td>
+    </tr>`;
+  });
+
+  // Render OK rows — collapsed into one expandable row
+  if(okEntries.length > 0){
+    const okId = 'ok-rows-' + Date.now();
+    const okList = okEntries.map(({k, uv}) =>
+      `<tr style="background:#f8faf8;" class="ok-detail-row-${okId}">
+        <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.78rem;">✓ ${FL(k)}</td>
+        <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.78rem;color:#555;">${uv.join(' / ')}</td>
+      </tr>`
+    ).join('');
+
+    tbody.innerHTML += `<tr style="background:#f2faf2;cursor:pointer;" onclick="
+      var rows=document.querySelectorAll('.ok-detail-row-${okId}');
+      var icon=document.getElementById('ok-toggle-${okId}');
+      var showing=rows[0]&&rows[0].style.display!=='none';
+      rows.forEach(r=>r.style.display=showing?'none':'table-row');
+      icon.textContent=showing?'▶':'▼';
+    ">
+      <td colspan="2" style="padding:12px 16px;border-top:2px solid #d4e8d4;">
+        <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#5a8a5a;">
+          <span id="ok-toggle-${okId}">▶</span>
+          &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent — click to expand
+        </span>
+      </td>
+    </tr>
+    ${okList}`;
+
+    // Hide ok rows by default
+    setTimeout(() => {
+      document.querySelectorAll('.ok-detail-row-' + okId).forEach(r => r.style.display = 'none');
+    }, 0);
   }
+
+  // Remove old table headers (4 cols → 2 cols now)
+  const thead = document.querySelector('.ctable thead tr');
+  if(thead) thead.innerHTML = '<th style="width:30%">Field</th><th>Values by Document</th>';
 
   // ── STEP 10: Inconsistency cards ────────────────────────────
   const iSec=document.getElementById('inconsSec');
