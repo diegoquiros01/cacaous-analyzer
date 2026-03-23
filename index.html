@@ -921,6 +921,48 @@ mark.diff-mark {
 .multidoc-notice .mdoc-type { color: var(--brown); font-weight: 600; min-width: 160px; }
 .multidoc-notice .mdoc-sum { color: var(--green); font-weight: 700; }
 
+/* ══════════════════════════════════════
+   ACTION REQUIRED PANEL
+══════════════════════════════════════ */
+.action-required-panel {
+  border: 1px solid rgba(176,64,48,0.35);
+  border-left: 5px solid var(--red);
+  background: rgba(176,64,48,0.04);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+.ar-header {
+  display: flex; align-items: center; gap: 0.9rem;
+  background: rgba(176,64,48,0.09);
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid rgba(176,64,48,0.15);
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--red);
+}
+.ar-header-icon { font-size: 1rem; }
+.ar-body { padding: 1rem 1.4rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.ar-item {
+  display: flex; align-items: flex-start; gap: 0.9rem;
+  padding: 0.7rem 1rem; background: var(--white);
+  border: 1px solid rgba(176,64,48,0.15);
+  border-left: 3px solid var(--red);
+  font-size: 0.78rem; line-height: 1.55; color: var(--text-mid);
+}
+.ar-item-warn {
+  border-left-color: var(--tan);
+  border-color: rgba(201,168,130,0.3);
+}
+.ar-doc {
+  font-size: 0.57rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--white); background: var(--red);
+  padding: 0.15rem 0.5rem; border-radius: 2px;
+  flex-shrink: 0; margin-top: 0.18rem; white-space: nowrap;
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis;
+}
+.ar-doc-warn { background: var(--tan); }
+.ar-field { font-weight: 700; color: var(--brown-dark); margin-right: 0.3rem; }
+.ar-msg { color: var(--text-mid); }
+
 /* Partial tip */
 .partial-tip {
   display: flex; align-items: flex-start; gap: 0.8rem;
@@ -1143,6 +1185,7 @@ footer {
       </div>
     </div>
 
+    <!-- ① VERDICT -->
     <div id="verdictEl" class="verdict approved">
       <div class="verdict-icon" id="verdictIcon">✓</div>
       <div>
@@ -1151,32 +1194,22 @@ footer {
       </div>
     </div>
 
+    <!-- ② SET SUMMARY STATS — moved up right after verdict -->
+    <div class="stats-row" id="statsRow" style="margin-bottom:2rem;"></div>
 
-    <!-- Multi-doc notice — shown when same doc type appears multiple times -->
-    <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
-
-    <!-- Tracking status banner — shown after loadTracking() is called -->
-    <div id="trackingStatusBanner" style="display:none;margin-bottom:2rem;">
-      <div class="tracking-status-bar" id="trackingStatusBar">
-        <div class="tsb-icon" id="tsbIcon">🚢</div>
-        <div class="tsb-content">
-          <div class="tsb-title" id="tsbTitle">Carrier Verification</div>
-          <div class="tsb-detail" id="tsbDetail">Not yet queried</div>
-        </div>
-        <div class="tsb-badge" id="tsbBadge">—</div>
+    <!-- ③ ACTION REQUIRED — only shown when there are issues -->
+    <div id="actionRequired" style="display:none;" class="action-required-panel">
+      <div class="ar-header">
+        <span class="ar-header-icon">⚠</span>
+        <span id="arTitle">Action Required</span>
       </div>
+      <div id="arBody" class="ar-body"></div>
     </div>
 
-    <!-- ══ TRACKING SECTION ══ -->
-    <div class="result-section-title" id="trackingSectionTitle" style="display:none;">
-      <h3 id="trackingTitle">Shipment Tracking</h3>
-    </div>
-    <div id="trackingSection" style="display:none;margin-bottom:2.5rem;"></div>
-
-    <!-- ── ISSUES LIST (plain language) ── -->
+    <!-- ④ ISSUES LIST (plain language) -->
     <div id="issuesList" style="display:none; margin-bottom:2rem;"></div>
 
-    <!-- ── CONSISTENCY TABLE (expanded) ── -->
+    <!-- ⑤ CONSISTENCY TABLE — all fields, no filter bar -->
     <div class="result-section-title">
       <h3 id="coherenceTitle">Consistency Table</h3>
       <span id="coherenceBadge" class="rst-badge ok">—</span>
@@ -1200,7 +1233,26 @@ footer {
       </div>
     </div>
 
-    <!-- ── PER DOCUMENT (collapsed) ── -->
+    <!-- ⑥ TRACKING — contextual, below table -->
+    <div id="trackingStatusBanner" style="display:none;margin-bottom:2rem;">
+      <div class="tracking-status-bar" id="trackingStatusBar">
+        <div class="tsb-icon" id="tsbIcon">🚢</div>
+        <div class="tsb-content">
+          <div class="tsb-title" id="tsbTitle">Carrier Verification</div>
+          <div class="tsb-detail" id="tsbDetail">Not yet queried</div>
+        </div>
+        <div class="tsb-badge" id="tsbBadge">—</div>
+      </div>
+    </div>
+    <div class="result-section-title" id="trackingSectionTitle" style="display:none;">
+      <h3 id="trackingTitle">Shipment Tracking</h3>
+    </div>
+    <div id="trackingSection" style="display:none;margin-bottom:2.5rem;"></div>
+
+    <!-- ⑦ MULTI-DOC NOTICE — informational -->
+    <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
+
+    <!-- ⑧ PER DOCUMENT — collapsed as original -->
     <details style="margin-top:2rem;">
       <summary style="cursor:pointer;font-family:'Raleway',sans-serif;font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--brown-mid);padding:1rem 0;list-style:none;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);">
         <span class="details-toggle-icon">▶</span>
@@ -1209,13 +1261,8 @@ footer {
       <div class="doc-cards" id="docCards" style="margin-top:1rem;"></div>
     </details>
 
-    <!-- ── SET SUMMARY ── -->
-    <div style="margin-top:2rem;border-top:1px solid var(--border);padding-top:1.5rem;">
-      <div style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:1rem;" id="setSummaryTitle">Set Summary</div>
-      <div class="stats-row" id="statsRow"></div>
-    </div>
-
-        <div class="actions">
+    <!-- ⑨ ACTIONS -->
+    <div class="actions">
       <button class="btn-dl" id="btnDl" onclick="downloadReport()">
         ↓ <span id="dlTxt">Download Report</span>
       </button>
@@ -3305,6 +3352,56 @@ function renderResults(){
     dc.appendChild(s);
   }
 
+  // ── ACTION REQUIRED PANEL ───────────────────────────────────
+  const arPanel = document.getElementById('actionRequired');
+  const arBody  = document.getElementById('arBody');
+  const arTitle = document.getElementById('arTitle');
+  if(arPanel && arBody){
+    const isES2 = lang === 'es';
+    const arIssues = [];
+
+    // Collect errors from ground-truth tableEntries
+    tableEntries.filter(e => e.isErr).forEach(e => {
+      const fieldLabel = (t.FL && t.FL[e.k]) || e.k;
+      const uv = e.uv;
+      const srcs = [...new Set((e.d.values||[]).map(v=>v.doc).filter(Boolean))];
+      const msg = isES2
+        ? `Valores distintos encontrados: ${uv.slice(0,3).join(' / ')}${uv.length>3?'…':''}`
+        : `Different values found: ${uv.slice(0,3).join(' / ')}${uv.length>3?'…':''}`;
+      arIssues.push({ type:'err', field: fieldLabel, msg, docs: srcs });
+    });
+
+    // Collect warnings from displayIssues (not already covered)
+    displayIssues.filter(i => i.type==='warning').forEach(iss => {
+      const fl2 = (t.FL && t.FL[iss.field]) || iss.field || '';
+      const already = arIssues.find(a => a.field.toLowerCase() === fl2.toLowerCase());
+      if(!already && fl2){
+        const srcs = [...new Set((iss.details||[]).map(d=>d.doc).filter(Boolean))];
+        arIssues.push({ type:'warn', field: fl2, msg: iss.message || '', docs: srcs });
+      }
+    });
+
+    if(arIssues.length === 0){
+      arPanel.style.display = 'none';
+    } else {
+      if(arTitle) arTitle.textContent = isES2
+        ? `Acción Requerida — ${arIssues.length} problema(s) encontrado(s)`
+        : `Action Required — ${arIssues.length} issue(s) found`;
+
+      arBody.innerHTML = arIssues.map(issue => {
+        const docNames = (issue.docs||[]).slice(0,2).join(', ');
+        const docBadge = docNames
+          ? `<span class="ar-doc${issue.type==='warn'?' ar-doc-warn':''}" title="${docNames}">${docNames}</span>`
+          : '';
+        return `<div class="ar-item${issue.type==='warn'?' ar-item-warn':''}">
+          ${docBadge}
+          <div><span class="ar-field">${issue.field}:</span> <span class="ar-msg">${issue.msg}</span></div>
+        </div>`;
+      }).join('');
+      arPanel.style.display = 'block';
+    }
+  }
+
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
   } catch(err) {
     console.error('renderResults ERROR:', err.message, err.stack);
@@ -3762,6 +3859,8 @@ function resetApp(){
   safeStyle('trackingStatusBanner','display','none');
   safeStyle('multiDocNotice','display','none');
   safeStyle('criticalBanner','display','none');
+  safeStyle('actionRequired','display','none');
+  safeReset('arBody','innerHTML','');
   const bar2=safeEl('trackingStatusBar'); if(bar2) bar2.className='tracking-status-bar pending';
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
