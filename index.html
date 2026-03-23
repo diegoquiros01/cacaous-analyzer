@@ -1723,8 +1723,8 @@ async function splitPdfToPages(file){
 }
 
 async function addFiles(files){
-  // Start preloading heavy libs as soon as files are added — ready by the time user clicks Analyze
-  loadHeavyLibs().catch(()=>{});
+  // Ensure heavy libs are loaded before processing any file
+  try { await loadHeavyLibs(); } catch(e){ console.warn('Lib load warning:', e.message); }
 
   for(const f of files){
     if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
