@@ -2180,22 +2180,27 @@ async function startAnalysis(){
     setLbl(lang==='es'?'Extrayendo documentos':'Extracting documents');
 
     const extractedDocs = {};
-    for(let i = 0; i < uploadedFiles.length; i++){
-      const e = uploadedFiles[i];
-      setDocStatus(i, 'active');
-      setSub(`${lang==='es'?'Leyendo':'Reading'}: ${e.name} (${i+1}/${uploadedFiles.length})`);
-      setProgress(Math.round((i/total)*100), lang==='es'?`Documento ${i+1} de ${uploadedFiles.length}...`:`Document ${i+1} of ${uploadedFiles.length}...`);
+    // Extract all documents in parallel — much faster than sequential
+    uploadedFiles.forEach((_, i) => setDocStatus(i, 'active'));
+    setSub(lang==='es'?'Leyendo todos los documentos en paralelo...':'Reading all documents in parallel...');
+    setProgress(10, lang==='es'?'Extrayendo...':'Extracting...');
 
-      const docs = await extractDoc(e);
-      // docs is now always an array (may contain multiple sub-documents)
-      const docsArr = Array.isArray(docs) ? docs : [docs];
-      extractedDocs[e.name] = docsArr;
-      docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
-      // Show sub-doc count in status if multiple found
-      const subCount = docsArr.filter(d => !d._err).length;
-      setDocStatus(i, 'done', subCount > 1 ? subCount : null);
-      tick(lang==='es'?`${i+1}/${uploadedFiles.length} listos`:`${i+1}/${uploadedFiles.length} done`);
-    }
+    const extractPromises = uploadedFiles.map((e, i) =>
+      extractDoc(e).then(docs => {
+        const docsArr = Array.isArray(docs) ? docs : [docs];
+        extractedDocs[e.name] = docsArr;
+        docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
+        // TEMP DEBUG
+        console.log('[EXTRACTED]', e.name, '->', docsArr.map(d => ({type:d.docType, dest:d.destinationCountry, lots:d.lotNumbers})));
+        setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
+        const done = Object.keys(extractedDocs).length;
+        setProgress(10 + Math.round((done/uploadedFiles.length)*60), `${done}/${uploadedFiles.length} ${lang==='es'?'listos':'done'}`);
+      }).catch(err => {
+        extractedDocs[e.name] = [{docType:e.name,_err:true,_filename:e.name}];
+        setDocStatus(i, 'done');
+      })
+    );
+    await Promise.all(extractPromises);
 
     setLbl(lang==='es'?'Verificando coherencia':'Verifying coherence');
     setSub(lang==='es'?'Comparando valores entre documentos...':'Cross-checking values across documents...');
