@@ -424,8 +424,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 .verdict.approved {
   border-color: var(--green);
-  background: linear-gradient(135deg, #eaf2ff 0%, #f4f8ff 100%);
-  box-shadow: 0 2px 16px rgba(74,111,165,0.12);
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  box-shadow: 0 2px 16px rgba(26,107,58,0.08);
 }
 .verdict.warning { border-color: var(--tan); background: #fdf8f0; }
 .verdict.rejected { border-color: var(--red); background: #fdf2f0; }
@@ -3042,7 +3042,7 @@ function renderResults(){
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
                 const isOutlier = (d.value||'').trim() !== majVal;
-                const bg = isOutlier ? '#fff8f7' : '#f4f8ff';
+                const bg = isOutlier ? '#fff8f7' : '#fafafa';
                 const border = isOutlier ? '#c0392b' : '#2e9455';
                 const icon = isOutlier ? '✗' : '✓';
                 const iconColor = isOutlier ? '#c0392b' : '#2e9455';
@@ -3172,7 +3172,7 @@ function renderResults(){
     groupArr.forEach(([val, docs], gi) => {
       const isOutlier = gi > 0;
       const borderColor = isOutlier ? '#c0392b' : '#2e9455';
-      const bg = isOutlier ? '#fff8f7' : '#f4f8ff';
+      const bg = isOutlier ? '#fff8f7' : '#fafafa';
       const icon = isOutlier ? '✗' : '✓';
       const iconColor = isOutlier ? '#c0392b' : '#2e9455';
       docRows += `<div style="background:${bg};border-left:3px solid ${borderColor};padding:10px 12px;margin-bottom:4px;border-radius:0 4px 4px 0;">
@@ -3210,15 +3210,15 @@ function renderResults(){
   if(okEntries.length > 0){
     const okId = 'ok-rows-' + Date.now();
     const okList = okEntries.map(({k, uv}) =>
-      `<tr style="background:#f4f8ff;" class="ok-detail-row-${okId}">
-        <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.78rem;">✓ ${FL(k)}</td>
-        <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.78rem;color:#555;">${uv.join(' / ')}</td>
+      `<tr style="background:#fafafa;" class="ok-detail-row-${okId}">
+        <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.82rem;">✓ ${FL(k)}</td>
+        <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.82rem;color:#333;">${uv.join(' / ')}</td>
       </tr>`
     ).join('');
 
-    tbody.innerHTML += `<tr style="background:#eef4ff;">
-      <td colspan="2" style="padding:10px 16px;border-top:2px solid #c0d4f0;">
-        <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#2a5090;">
+    tbody.innerHTML += `<tr style="background:#f5f6f8;">
+      <td colspan="2" style="padding:10px 16px;border-top:1px solid #e0e4ec;">
+        <span style="font-family:'Lato',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:#555;">
           ✓ &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent
         </span>
       </td>
@@ -3278,7 +3278,7 @@ function renderResults(){
       const rows=details.map(d=>{
         const val = d.value || t.notFound;
         const isRowOutlier = (d.value||'').trim() !== rowMaj;
-        const rowBg = isRowOutlier ? '#fff8f7' : '#f4f8ff';
+        const rowBg = isRowOutlier ? '#fff8f7' : '#fafafa';
         const rowBorder = isRowOutlier ? '#c0392b' : '#2e9455';
         const rowIcon = isRowOutlier ? '✗' : '✓';
         const rowIconColor = isRowOutlier ? '#c0392b' : '#2e9455';
