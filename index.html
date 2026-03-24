@@ -1723,27 +1723,13 @@ async function splitPdfToPages(file){
 }
 
 async function addFiles(files){
-  // Ensure heavy libs are loaded before processing any file
-  try { await loadHeavyLibs(); } catch(e){ console.warn('Lib load warning:', e.message); }
+  // xlsx and mammoth loaded on demand in startAnalysis
 
   for(const f of files){
     if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
 
-    // Try to split multi-page PDFs
-    if(f.name.toLowerCase().endsWith('.pdf')){
-      const pages = await splitPdfToPages(f);
-      if(pages && pages.length > 1){
-        // Show a notice and add each page as separate entry
-        console.log(`Split ${f.name} into ${pages.length} pages`);
-        for(const pageEntry of pages){
-          if(!uploadedFiles.find(u=>u.name===pageEntry.name)) {
-            uploadedFiles.push(pageEntry);
-          }
-        }
-        renderFiles();
-        continue;
-      }
-    }
+    // PDFs are sent as-is to Claude (supports multi-page natively)
+    // No splitting needed — Claude reads the full PDF
 
     const entry={file:f,name:f.name,size:f.size};
     if(isExcel(f.name)){try{entry.textContent=await excelToText(f);}catch(e){entry.textContent=`[Error: ${e.message}]`;}}
@@ -2324,7 +2310,6 @@ function loadHeavyLibs() {
   if(_heavyLibsLoading) return _heavyLibsLoading;
   _heavyLibsLoading = new Promise((resolve, reject) => {
     const libs = [
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js'
     ];
