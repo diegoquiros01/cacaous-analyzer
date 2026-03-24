@@ -1878,17 +1878,20 @@ Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, Phytosa
 
 The docType field should be in \${lang==='es'?'Spanish':'English'}.
 
-SPECIAL FIELD MAPPING FOR GAS CLEARANCE CERTIFICATE / FUMIGATION CERTIFICATE:
-These documents use non-standard field names. Map them as follows:
-- "Country / city of destination" or "Destino" → extract as destinationCountry
-- "Bl/Cont." or "Container" (when it contains a BL-format number like 266461945) → extract as blNumber
-- "Number of batch" or "Lote" or "Número del Lote" → extract as lotNumbers
-- "Number of fumigated bags" → extract as bagCount
-- "Treated weight" or "Peso tratado" → extract as netWeight
-- "Vessel name" or "Nombre del vapor" → extract as vesselName
-- "Export Company" or "Razón social del exportador" → extract as shipper
-- "Consignee" or "Comprador" → extract as consigneeName
-IMPORTANT: The "Country / city of destination" field in Gas Clearance Certificates is CRITICAL — always extract it into destinationCountry, even if it says MALAYSIA or INDONESIA or any country name.
+CRITICAL: CONTAINER NUMBER FORMAT
+A container number is ALWAYS 4 letters + 6-7 digits: e.g. MRSU4826790, CAAU9018479, TCKU7300166.
+A pure number like "266461945" is NEVER a container — it is a BL number. Never put pure digit strings into containerNumbers.
+
+SPECIAL FIELD MAPPING FOR FUMIGATION / GAS CLEARANCE / QUARANTINE CERTIFICATES:
+- "Country / city of destination" or "Destino" → destinationCountry (CRITICAL — extract exact country name, even if MALAYSIA or INDONESIA)
+- "Bl/Cont." field → if value is pure digits (e.g. 266461945) → blNumber NOT containerNumbers
+- "Number of batch" / "Lote No." / "LOTE NO." → lotNumbers array
+- "Number of fumigated bags" → bagCount
+- "Treated weight" / "Peso tratado" → netWeight
+- "Vessel name" / "Nombre del vapor" → vesselName
+- "Export Company" / "Razón social del exportador" → shipper
+- "Consignee" / "Comprador" → consigneeName
+- "Trip No." / "No. de viaje" → voyageNumber
 
 CRITICAL NUMBER EXTRACTION RULES:
 - Many documents use EUROPEAN format: period as thousands separator, comma as decimal → "50.094,00" means 50094 kg
@@ -1903,20 +1906,7 @@ CRITICAL NUMBER EXTRACTION RULES:
 FOR EACH DOCUMENT IN THE ARRAY, extract all applicable fields (use null if not present):
 Also include an "extraFields" object for any fields present in the document that don't fit the standard schema — for example: contract numbers, DAE numbers, purchase order numbers, letter of credit numbers, permit numbers, or any other reference numbers. Format: {"extraFields": {"Contract Number": "ARC-26-E003", "DAE": "028-2026-40-00398796"}}
 
-CRITICAL RULES FOR GAS CLEARANCE CERTIFICATES (also called Fumigation Certificate, Quarantine Treatment Certificate):
-These documents have non-standard field names. You MUST map them as follows:
-- Field "Country / city of destination" → ALWAYS extract into "destinationCountry". This is CRITICAL. Even if it says MALAYSIA, INDONESIA, USA — always extract it.
-- Field "Bl/Cont." or "Container" when it contains a number like 266461945 → extract into "blNumber"  
-- Field "Number of batch" or "Lote No." → extract into "lotNumbers" as an array
-- Field "Number of fumigated bags" → extract into "bagCount"
-- Field "Treated weight" or "Peso tratado" → extract into "netWeight"
-- Field "Vessel name" or "Nombre del vapor" → extract into "vesselName"
-- Field "Export Company" or "Razón social del exportador" → extract into "shipper"
-- Field "Consignee" or "Comprador" → extract into "consigneeName"
-- Field "Trip No." or "No. de viaje" → extract into "voyageNumber"
 
-Example: If Gas Clearance says "Country / city of destination: MALAYSIA" → set destinationCountry: "MALAYSIA"
-Even if the consignee is in Indonesia, the destination field value must be extracted exactly as written.
 
 {"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"grade/classification or null","phytoCertNumber":"phyto cert number or null","phytoInspectionDate":"inspection date or null","phytoIssueDate":"issue date or null","importPermitNumber":"import permit number or null","importPermitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null"}`;
 
@@ -2017,12 +2007,15 @@ CRITICAL errors to flag:
 - Net weight mismatch after summing multi-docs (more than 0.5% difference)
 - Container numbers differ between BL and packing list
 - BL number differs between documents
-- Destination country is completely different: "MALAYSIA" vs "INDONESIA" = CRITICAL ERROR
+- Destination country: scan ALL documents for destinationCountry. If ANY document says a different country than the majority (e.g. one says "MALAYSIA" while others say "INDONESIA") → CRITICAL ERROR. Name the exact document and field.
 - Shipper is a completely different company
 - Vessel is a completely different ship name (not just transport mode vs ship name)
 
+DESTINATION COUNTRY CHECK — THIS IS MANDATORY:
+Go through every document's destinationCountry field. List them all. If any one differs from the rest, flag it as a critical error specifying which document has the wrong country and what it says vs what it should say.
+
 For lot mismatches: say exactly which document has the wrong lot and what it should be replaced with.
-For destination country mismatches: say exactly which document has the wrong country.
+For destination country mismatches: say exactly which document has the wrong country and what it says.
 
 Write all messages in ${isES ? 'Spanish' : 'English'}.
 
@@ -2209,7 +2202,7 @@ async function startAnalysis(){
         const docsArr = Array.isArray(docs) ? docs : [docs];
         extractedDocs[e.name] = docsArr;
         docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
-        docsArr.forEach((d,i) => console.log('[DBG]', e.name, i, d.docType, '| dest:', d.destinationCountry, '| bl:', d.blNumber, '| containers:', JSON.stringify(d.containerNumbers)));
+
 
         setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
         const done = Object.keys(extractedDocs).length;
