@@ -493,7 +493,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   display: flex; align-items: center; justify-content: space-between;
 }
 .coherence-box-header h4 {
-  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; letter-spacing: 0.05em;
+  font-family: 'Lato', sans-serif; font-size: 0.85rem; font-weight: 400; letter-spacing: 0.08em;
 }
 .coherence-body { padding: 0; }
 
@@ -843,7 +843,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   margin-bottom: 1.2rem;
 }
 .critical-banner-title {
-  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--red); font-weight: 700; margin-bottom: 0.8rem;
   display: flex; align-items: center; gap: 0.6rem;
 }
@@ -3036,12 +3037,12 @@ function renderResults(){
           const tTotal = details.length;
           // Determine majority value for row border coloring
           const valCounts = {};
-          details.forEach(d => { const v=(d.value||'').trim(); valCounts[v]=(valCounts[v]||0)+1; });
+          details.forEach(d => { const v=(d.value||'').trim().toLowerCase(); valCounts[v]=(valCounts[v]||0)+1; });
           const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
 
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
-                const isOutlier = (d.value||'').trim() !== majVal;
+                const isOutlier = (d.value||'').trim().toLowerCase() !== majVal;
                 const bg = isOutlier ? '#fff8f7' : '#fafafa';
                 const border = isOutlier ? '#c0392b' : '#2e9455';
                 const icon = isOutlier ? '✗' : '✓';
@@ -3271,13 +3272,13 @@ function renderResults(){
 
       // Determine if row is majority or outlier
       const rowCounts = {};
-      details.forEach(d => { const v=(d.value||'').trim(); rowCounts[v]=(rowCounts[v]||0)+1; });
+      details.forEach(d => { const v=(d.value||'').trim().toLowerCase(); rowCounts[v]=(rowCounts[v]||0)+1; });
       const rowMaxC = Math.max(0,...Object.values(rowCounts));
       const rowMaj = Object.keys(rowCounts).find(k=>rowCounts[k]===rowMaxC)||'';
 
       const rows=details.map(d=>{
         const val = d.value || t.notFound;
-        const isRowOutlier = (d.value||'').trim() !== rowMaj;
+        const isRowOutlier = (d.value||'').trim().toLowerCase() !== rowMaj;
         const rowBg = isRowOutlier ? '#fff8f7' : '#fafafa';
         const rowBorder = isRowOutlier ? '#c0392b' : '#2e9455';
         const rowIcon = isRowOutlier ? '✗' : '✓';
