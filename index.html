@@ -1802,6 +1802,22 @@ function setStep(n){
   }
 }
 
+async function callClaudeHaiku(system,content,maxTokens=2000){
+  // Uses Haiku — 3x faster than Sonnet, ideal for coherence comparison
+  const resp=await fetch('/.netlify/functions/claude',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
+  });
+  const text = await resp.text();
+  if(!resp.ok || text.trim().startsWith('<')){
+    throw new Error(resp.status === 504 ? 'Request timeout — document may be too large' : `Server error ${resp.status}`);
+  }
+  let data;
+  try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server'); }
+  if(data.error) throw new Error(data.error.message||'API error');
+  return (data.content?.map(b=>b.text||'').join('')||'').replace(/```json|```/g,'').trim();
+}
+
 async function callClaude(system,content,maxTokens=2000){
   const resp=await fetch('/.netlify/functions/claude',{
     method:'POST',headers:{'Content-Type':'application/json'},
@@ -1983,98 +1999,78 @@ function fixGasClearanceFields(doc, textContent) {
 async function analyzeCoherence(docs){
   const isES = lang === 'es';
 
-  const system = `You are an expert validator of cacao and coffee export documents.
-
-Analyze the extracted data from this document set and find ALL inconsistencies.
-
-RULES — these are NOT inconsistencies, ignore them:
-- Case differences: "PT. Asia Cocoa Indonesia" = "PT. ASIA COCOA INDONESIA"
-- Number formatting: "50,094.00" = "50094" = "50.094,00"
-- Unit synonyms: kg = KGS = kilogramos
-- Company suffix variants: Corp = Corporation, S.A. = Sociedad Anonima
-- Company name with address vs without: "AROMACACAO S.A. AV FRANCISCO..." = "AROMACACAO S.A."
-- Transport mode vs vessel name: "Marítimo" or "Maritime" in vessel field ≠ mismatch with "CMA CGM BEIRA"
-- Port area equivalents: "New York" = "Jersey City" = "Newark" = "New York USA"
-- Port prefixes: "Puerto Quetzal" = "Quetzal", "Batam Island" = "BATAM ISLAND" = "Batam"
-- Country synonyms: "USA" = "United States" = "Estados Unidos"
-- Trailing zeros: 150480.00 = 150480
-- Multi-document sets: if multiple fumigation certs or packing lists exist, SUM their bags/weights before comparing to BL total
-- Missing fields: if a field is null/missing in one doc, that is NOT an inconsistency
-
-CRITICAL errors to flag:
-- Lot number in one doc differs from all others (e.g. cert says lot 25-2026 but all others say 24-2026 → WRONG DOCUMENT)
-- Bag count mismatch after summing multi-docs (more than 0.5% difference)
-- Net weight mismatch after summing multi-docs (more than 0.5% difference)
-- Container numbers differ between BL and packing list
-- BL number differs between documents
-- Destination country: scan ALL documents for destinationCountry. If ANY document says a different country than the majority (e.g. one says "MALAYSIA" while others say "INDONESIA") → CRITICAL ERROR. Name the exact document and field.
-- Shipper is a completely different company
-- Vessel is a completely different ship name (not just transport mode vs ship name)
-
-DESTINATION COUNTRY CHECK — THIS IS MANDATORY:
-Go through every document's destinationCountry field. List them all. If any one differs from the rest, flag it as a critical error specifying which document has the wrong country and what it says vs what it should say.
-
-For lot mismatches: say exactly which document has the wrong lot and what it should be replaced with.
-For destination country mismatches: say exactly which document has the wrong country and what it says.
-
-Write all messages in ${isES ? 'Spanish' : 'English'}.
-
-Respond ONLY with valid JSON, no markdown:
-{
-  "overallStatus": "approved|warning|rejected",
-  "coherenceIssues": [
-    {"type": "error|warning", "field": "fieldName", "message": "specific actionable message", "details": [{"doc": "filename.pdf", "value": "exact value"}]}
-  ],
-  "setValues": {
-    "lots": {"status": "consistent|inconsistent", "values": [{"doc": "filename.pdf", "value": "002-2026"}]},
-    "bags": {"status": "consistent|inconsistent", "values": [...]},
-    "netWeight": {"status": "consistent|inconsistent", "values": [...]},
-    "grossWeight": {"status": "consistent|inconsistent", "values": [...]},
-    "containers": {"status": "consistent|inconsistent", "values": [...]},
-    "seals": {"status": "consistent|inconsistent", "values": [...]},
-    "blNumber": {"status": "consistent|inconsistent", "values": [...]},
-    "shipper": {"status": "consistent|inconsistent", "values": [...]},
-    "consignee": {"status": "consistent|inconsistent", "values": [...]},
-    "vessel": {"status": "consistent|inconsistent", "values": [...]},
-    "portOfLoading": {"status": "consistent|inconsistent", "values": [...]},
-    "portOfDischarge": {"status": "consistent|inconsistent", "values": [...]},
-    "destinationCountry": {"status": "consistent|inconsistent", "values": [...]},
-    "invoiceNumber": {"status": "consistent|inconsistent", "values": [...]}
-  },
-  "perDocumentStatus": {
-    "filename.pdf": {"status": "approved|warning|rejected", "docType": "Bill of Lading", "issues": [], "comment": ""}
-  }
-}`;
-
-  // Send only fields relevant to coherence — not lab results, dates, addresses etc.
+  // Slim down to relevant fields only
   const relevantFields = ['docType','lotNumbers','bagCount','netWeight','grossWeight',
     'containerNumbers','sealNumbers','blNumber','invoiceNumber','shipper','consigneeName',
     'consigneeAddress','notify','vesselName','portOfLoading','portOfDischarge',
     'destinationCountry','originCountry','voyageNumber','qualityGrade'];
+
   const slim = {};
   Object.entries(docs).forEach(([fn, arr]) => {
     (Array.isArray(arr) ? arr : [arr]).forEach((d, i) => {
-      const key = arr.length > 1 ? fn + '_doc' + i : fn;
+      const key = (Array.isArray(arr) && arr.length > 1) ? fn + '_doc' + i : fn;
       const s = {};
-      relevantFields.forEach(f => { if(d[f] != null) s[f] = d[f]; });
-      slim[key] = s;
+      relevantFields.forEach(f => { if(d[f] != null && d[f] !== '' && d[f] !== 'null') s[f] = d[f]; });
+      if(Object.keys(s).length > 1) slim[key] = s; // skip empty docs
     });
   });
 
-  const msg = `Analyze this export document set for inconsistencies.
+  const system = `You are an expert validator of cacao and coffee export documents.
+Analyze the extracted fields from this document set and find ALL inconsistencies.
 
-Documents and their key fields:
-${JSON.stringify(slim, null, 2)}`;
+IGNORE these — they are NOT errors:
+- Case differences: "Indonesia" = "INDONESIA"
+- Number formatting: "150,480.00" = "150480"
+- Unit synonyms: kg = KGS = kilogramos
+- Company name + address vs name alone
+- Transport mode vs vessel name: "Marítimo" ≠ mismatch with "MAERSK GLACIER"
+- Port area: "New York" = "Jersey City" = "Newark"
+- Country synonyms: "USA" = "United States"
+- Missing/null fields in some documents
+
+FLAG these as CRITICAL errors (type: "error"):
+- destinationCountry: if ANY document has a different country than the majority — this is CRITICAL. "MALAYSIA" vs "INDONESIA" is a critical error. List every document's destinationCountry value.
+- lotNumbers: if any document references a different lot than the majority — wrong document
+- bagCount: mismatch after summing multi-docs of same type
+- netWeight/grossWeight: mismatch > 0.5%
+- containerNumbers: differ between BL and packing list
+- blNumber: differs between documents
+- shipper/consignee: completely different company
+
+DESTINATION COUNTRY IS MANDATORY: You MUST check every single document's destinationCountry. If any one says a different country (e.g. "MALAYSIA" while others say "INDONESIA"), flag it as a critical error.
+
+Write messages in ${isES ? 'Spanish' : 'English'}. Be specific about which document has the wrong value.
+
+Return ONLY valid JSON:
+{"overallStatus":"approved|warning|rejected","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"specific message","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":""}}}`;
+
+  const msg = `Documents and their fields:\n${JSON.stringify(slim, null, 2)}`;
+  // DEBUG: show what we send to coherence AI
+  console.log('[COHERENCE INPUT] destinationCountry values:');
+  Object.entries(slim).forEach(([k,v]) => { if(v.destinationCountry) console.log(' ', k, '->', v.destinationCountry); });
 
   try {
-    const raw = await callClaude(system, msg, 4000);
+    const raw = await callClaudeHaiku(system, msg, 3000);
     const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-    const parsed = JSON.parse(cleaned);
-    if(parsed && parsed.setValues) return parsed;
+    // Try to parse, if truncated try to salvage
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch(e) {
+      // Try to extract just coherenceIssues from truncated JSON
+      const issMatch = cleaned.match(/"coherenceIssues"\s*:\s*(\[.*?\])/s);
+      if(issMatch) {
+        try {
+          const issues = JSON.parse(issMatch[1]);
+          parsed = { overallStatus: issues.some(i=>i.type==='error') ? 'rejected' : 'warning', coherenceIssues: issues, setValues: {}, perDocumentStatus: {} };
+        } catch(e2) {}
+      }
+    }
+    if(parsed && (parsed.setValues || parsed.coherenceIssues)) return parsed;
     return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[], perDocumentStatus:{} };
   } catch(e) {
     console.error('analyzeCoherence error:', e.message);
-    return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[{type:'error',field:'system',message:e.message,details:[]}], perDocumentStatus:{} };
+    return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[{type:'warning',field:'system',message:'Analysis timeout — results may be incomplete. Try with fewer documents.',details:[]}], perDocumentStatus:{} };
   }
 }
 
