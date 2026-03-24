@@ -18,24 +18,24 @@
 
 :root {
   --white: #ffffff;
-  --offwhite: #f8f6f2;
-  --cream: #f2ede4;
-  --cream2: #e8dfd0;
-  --brown-dark: #2c1a0e;
-  --brown: #4a2c1a;
-  --brown-mid: #7a4e32;
-  --brown-light: #b8866a;
-  --tan: #c9a882;
-  --tan-light: #e0c9aa;
-  --green: #3d5a3e;
-  --green-light: #5a8c5c;
-  --red: #7a2e22;
-  --red-light: #b04030;
-  --text: #1a0f08;
-  --text-mid: #5a3e2c;
-  --text-light: #9a7a60;
-  --border: #d8c8b0;
-  --border-light: #ede4d4;
+  --offwhite: #f7f8fa;
+  --cream: #f0f2f5;
+  --cream2: #e4e8ee;
+  --brown-dark: #0f1117;
+  --brown: #1c2230;
+  --brown-mid: #3a4660;
+  --brown-light: #6b7a99;
+  --tan: #4a6fa5;
+  --tan-light: #7da4d4;
+  --green: #1a6b3a;
+  --green-light: #2e9455;
+  --red: #b82020;
+  --red-light: #d94040;
+  --text: #0f1117;
+  --text-mid: #3a4255;
+  --text-light: #7a8499;
+  --border: #d0d6e2;
+  --border-light: #e8edf5;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -85,7 +85,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
   transition: color 0.2s;
 }
 .lang-btn:hover { color: var(--brown); }
-.lang-btn.active { color: var(--brown); font-weight: 700; border-bottom: 1.5px solid var(--tan); }
+.lang-btn.active { color: #1c2230; font-weight: 700; border-bottom: 1.5px solid #4a6fa5; }
 .lang-sep { color: var(--border); font-size: 0.8rem; }
 
 /* ══════════════════════════════════════
@@ -109,7 +109,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .hero-content { position: relative; z-index: 1; color: var(--white); max-width: 860px; padding: 4rem 2rem; }
 .hero-eyebrow {
   font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase;
-  color: #f5dfa0; margin-bottom: 1.4rem;
+  color: #a8c4e8; margin-bottom: 1.4rem;
   display: flex; align-items: center; justify-content: center; gap: 1.2rem;
   font-weight: 600;
   /* pill backdrop for small text */
@@ -128,7 +128,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
   text-shadow: 0 2px 24px rgba(0,0,0,1), 0 1px 4px rgba(0,0,0,0.9);
   color: #ffffff;
 }
-.hero h1 em { font-style: italic; font-weight: 400; color: #f5dfa0; }
+.hero h1 em { font-style: italic; font-weight: 400; color: #a8c4e8; }
 .hero-sub {
   font-size: 0.92rem; letter-spacing: 0.03em;
   color: rgba(255,255,255,0.96); line-height: 1.75;
@@ -151,7 +151,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
   background: rgba(0,0,0,0.35); backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   padding: 0.3rem 0.8rem; border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.25);
 }
 .hero-quote-unused {
   margin-top: 1.5rem;
@@ -164,7 +164,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
    PROGRESS STEPS — visual guide
 ══════════════════════════════════════ */
 .progress-bar {
-  background: var(--brown-dark);
+  background: #0f1117;
   padding: 0;
   display: flex;
   position: sticky; top: 68px; z-index: 100;
@@ -241,7 +241,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   background: var(--border); flex-shrink: 0; transition: background 0.2s;
 }
 .doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
-.doc-type-btn.active { border-color: var(--brown); background: var(--brown); color: var(--white); }
+.doc-type-btn.active { border-color: #1c2230; background: #1c2230; color: var(--white); }
 .doc-type-btn.active .dt-dot { background: var(--tan-light); }
 .doc-type-btn.ghost {
   background: var(--cream2); border: 1px dashed var(--tan);
@@ -262,10 +262,10 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   position: relative; margin-bottom: 1rem;
 }
 .upload-area:hover, .upload-area.drag-over {
-  border-color: var(--tan); background: var(--cream);
+  border-color: #4a6fa5; background: var(--cream);
 }
 .upload-area input[type="file"] { display: none; }
-.upload-icon { font-size: 2.2rem; margin-bottom: 1rem; color: var(--tan); }
+.upload-icon { font-size: 2.2rem; margin-bottom: 1rem; color: #4a6fa5; }
 .upload-area h3 {
   font-family: 'Playfair Display', serif;
   font-size: 1.4rem; font-weight: 400; color: var(--brown-dark);
@@ -276,7 +276,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .upload-cta {
   display: inline-block; margin-top: 1.5rem;
   padding: 0.7rem 2.2rem;
-  background: var(--brown-dark); color: var(--white);
+  background: #0f1117; color: var(--white);
   font-family: 'Lato', sans-serif;
   font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
   border: none; cursor: pointer; transition: background 0.2s;
@@ -291,7 +291,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   background: var(--white); border: 1px solid var(--border-light);
   border-bottom: none; transition: background 0.15s;
 }
-.file-item:first-child { border-top: 2px solid var(--tan); }
+.file-item:first-child { border-top: 2px solid #4a6fa5; }
 .file-item:last-child { border-bottom: 1px solid var(--border-light); }
 .file-item:hover { background: var(--offwhite); }
 .file-icon { font-size: 1.1rem; flex-shrink: 0; }
@@ -320,8 +320,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 /* ANALYZE BUTTON */
 .analyze-wrap { margin-bottom: 3rem; }
 @keyframes btn-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(201,168,130,0.5); }
-  50%  { box-shadow: 0 0 0 10px rgba(201,168,130,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(74,111,165,0.5); }
+  50%  { box-shadow: 0 0 0 10px rgba(74,111,165,0); }
   100% { box-shadow: 0 0 0 0 rgba(201,168,130,0); }
 }
 @keyframes btn-shimmer {
@@ -335,7 +335,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 
 .analyze-btn {
   width: 100%; padding: 1.2rem;
-  background: var(--brown-dark); border: none;
+  background: #0f1117; border: none;
   color: var(--white);
   font-family: 'Lato', sans-serif;
   font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 700;
@@ -343,7 +343,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   display: flex; align-items: center; justify-content: center; gap: 1rem;
 }
 .analyze-btn.ready {
-  background: linear-gradient(135deg, var(--brown) 0%, var(--brown-mid) 50%, var(--brown) 100%);
+  background: linear-gradient(135deg, #1c2230 0%, #3a4660 50%, #1c2230 100%);
   background-size: 200% auto;
   animation: btn-pulse 2s ease-in-out infinite, btn-shimmer 3s linear infinite;
   cursor: pointer;
@@ -373,12 +373,12 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .cacao-loader .ring {
   position: absolute; inset: 0; border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: var(--tan);
+  border-top-color: #4a6fa5;
   animation: spin-ring 1.2s linear infinite;
 }
 .cacao-loader .ring2 {
   inset: 8px;
-  border-top-color: var(--brown-mid);
+  border-top-color: #3a4660;
   animation: spin-ring 1.8s linear infinite reverse;
 }
 .cacao-loader .bean {
@@ -396,9 +396,9 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .progress-pct { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--brown-dark); line-height: 1; }
 .progress-pct span { font-size: 0.75rem; color: var(--text-light); font-family: 'Lato', sans-serif; }
 .progress-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.9rem; }
-.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--brown-mid), var(--tan)); transition: width 0.5s ease; width: 0%; }
+.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #3a4660, #4a6fa5); transition: width 0.5s ease; width: 0%; }
 .progress-phase { font-size: 0.7rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; }
-.progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--tan); flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
+.progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4a6fa5; flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
 @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 .doc-progress-list { display: flex; flex-direction: column; gap: 0.4rem; }
 .doc-progress-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.55rem 0.8rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
@@ -424,8 +424,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 .verdict.approved {
   border-color: var(--green);
-  background: linear-gradient(135deg, #eaf5ea 0%, #f5fbf5 100%);
-  box-shadow: 0 2px 16px rgba(61,90,62,0.10);
+  background: linear-gradient(135deg, #eaf2ff 0%, #f4f8ff 100%);
+  box-shadow: 0 2px 16px rgba(74,111,165,0.12);
 }
 .verdict.warning { border-color: var(--tan); background: #fdf8f0; }
 .verdict.rejected { border-color: var(--red); background: #fdf2f0; }
@@ -436,8 +436,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   transition: all 0.3s;
 }
 .verdict.approved .verdict-icon {
-  background: var(--green); color: var(--white);
-  box-shadow: 0 4px 16px rgba(61,90,62,0.25);
+  background: #1a6b3a; color: var(--white);
+  box-shadow: 0 4px 16px rgba(26,107,58,0.25);
   font-size: 2.2rem;
 }
 .verdict.warning .verdict-icon { background: var(--tan); color: var(--white); }
@@ -508,7 +508,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .ctable tr:last-child td { border-bottom: none; }
 .ctable tr.tr-ok td { background: rgba(61,90,62,0.03); }
 .ctable tr.tr-err td { background: rgba(122,46,34,0.04); }
-.ctable .td-field { font-weight: 700; color: var(--brown); font-size: 0.78rem; }
+.ctable .td-field { font-weight: 700; color: var(--brown); font-size: 0.72rem; }
 .ctable .td-status { text-align: center; }
 .cstatus {
   font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
@@ -590,7 +590,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .dcard.open .dcard-body { display: block !important; }
 .dcard-fields-label {
   font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
+  color: #4a6fa5; margin-bottom: 0.8rem; font-weight: 700;
 }
 .dcard-fields {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr));
@@ -635,7 +635,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 /* Summary AI comment */
 .summary-comment {
   background: var(--cream); border: 1px solid var(--border);
-  border-top: 3px solid var(--tan);
+  border-top: 3px solid #4a6fa5;
   padding: 1.5rem 2rem; margin-top: 1.5rem;
 }
 .summary-comment-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tan); margin-bottom: 0.6rem; font-weight: 700; }
@@ -729,7 +729,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .tracking-bl {
   font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--tan-light); background: rgba(255,255,255,0.1);
-  padding: 0.2rem 0.7rem; border: 1px solid rgba(255,255,255,0.2);
+  padding: 0.2rem 0.7rem; border: 1px solid rgba(255,255,255,0.25);
 }
 .tracking-body { padding: 1.5rem; }
 .tracking-loading {
@@ -766,7 +766,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .tracking-events { margin-top: 1rem; }
 .tracking-events-label {
   font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
+  color: #4a6fa5; margin-bottom: 0.8rem; font-weight: 700;
 }
 .event-timeline { display: flex; flex-direction: column; gap: 0; }
 .event-item {
@@ -830,7 +830,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   padding: 0.7rem 1rem; margin-bottom: 1rem;
   font-size: 0.75rem; font-weight: 700; border-left: 3px solid;
 }
-.tracking-match-banner.ok { background: rgba(61,90,62,0.06); border-color: var(--green); color: var(--green); }
+.tracking-match-banner.ok { background: rgba(74,111,165,0.06); border-color: #4a6fa5; color: #2a5090; }
 .tracking-match-banner.warn { background: rgba(201,168,130,0.1); border-color: var(--tan); color: var(--brown-mid); }
 .tracking-match-banner.err { background: rgba(122,46,34,0.06); border-color: var(--red); color: var(--red); }
 
@@ -860,7 +860,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 .critical-msg { color: var(--text-mid); line-height: 1.5; }
 .critical-item-body { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
-.critical-details { font-size: 0.76rem; color: var(--text-light); }
+.critical-details { font-size: 0.72rem; color: var(--text-light); }
 .critical-doc { font-weight: 600; color: var(--text-mid); }
 .crit-detail-row { margin-bottom: 0.3rem; font-size: 0.72rem; line-height: 1.6; }
 .crit-same-code { color: var(--text-mid); font-family: monospace; font-size: 0.75rem; }
@@ -904,7 +904,7 @@ mark.diff-mark {
 .multidoc-notice .mdoc-row {
   display: flex; gap: 1rem; align-items: baseline;
   padding: 0.3rem 0; border-bottom: 1px solid var(--border-light);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
 }
 .multidoc-notice .mdoc-row:last-child { border-bottom: none; }
 .multidoc-notice .mdoc-type { color: var(--brown); font-weight: 600; min-width: 160px; }
@@ -3015,11 +3015,11 @@ function renderResults(){
           const t = tok.trim();
           const freq = tokenFreq[t.toUpperCase()]||0;
           if(freq > totalDocs/2)
-            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.84rem;margin:1px;">'+t+'</span>';
+            return '<span style="display:inline-block;background:#eaf0f8;color:#2a5090;border:1px solid #aac4e8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
           else if(freq === 1)
-            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.84rem;font-weight:700;margin:1px;">⚠ '+t+'</span>';
+            return '<span style="display:inline-block;background:#fde8e8;color:#b82020;border:1px solid #e8a0a0;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t+'</span>';
           else
-            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.84rem;margin:1px;">'+t+'</span>';
+            return '<span style="display:inline-block;background:#f0f4ff;color:#3a4660;border:1px solid #b0bcd8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
         }).join(' ');
       };
 
@@ -3036,20 +3036,20 @@ function renderResults(){
           const tTotal = details.length;
           // Determine majority value for row border coloring
           const valCounts = {};
-          details.forEach(d => { const v=(d.value||'').trim().toLowerCase(); valCounts[v]=(valCounts[v]||0)+1; });
+          details.forEach(d => { const v=(d.value||'').trim(); valCounts[v]=(valCounts[v]||0)+1; });
           const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
 
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
-                const isOutlier = (d.value||'').trim().toLowerCase() !== majVal;
-                const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
-                const border = isOutlier ? '#c0392b' : '#6aaa6a';
+                const isOutlier = (d.value||'').trim() !== majVal;
+                const bg = isOutlier ? '#fff8f7' : '#f4f8ff';
+                const border = isOutlier ? '#c0392b' : '#2e9455';
                 const icon = isOutlier ? '✗' : '✓';
-                const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
+                const iconColor = isOutlier ? '#c0392b' : '#2e9455';
                 return '<div style="background:'+bg+';border-left:3px solid '+border+';padding:6px 10px;border-radius:0 4px 4px 0;">'
                   +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
                   +'<span style="color:'+iconColor+';font-weight:700;">'+icon+'</span>'
-                  +'<span style="font-size:0.72rem;color:#666;font-family:\'Lato\',sans-serif;font-weight:400;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
+                  +'<span style="font-size:0.65rem;color:#888;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
                   +'</div>'
                   +'<div style="line-height:1.8;">'+critRenderTokens(d.value, tFreq, tTotal)+'</div>'
                   +'</div>';
@@ -3151,18 +3151,18 @@ function renderResults(){
       const tokens = String(val).split(/,\s*|\s+/).filter(Boolean);
       if(tokens.length <= 1) {
         // Single value — just show it, styling handled by row border
-        return `<span style="font-size:0.82rem;font-weight:500;color:#2c1a0e;">${val}</span>`;
+        return `<span style="font-size:0.82rem;font-weight:500;color:#0f1117;">${val}</span>`;
       }
       return tokens.map(tok => {
         const t = tok.trim();
         if(isMajorityToken(t)) {
           // Appears in most docs — show as confirmed/grey
-          return `<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.84rem;margin:1px;">${t}</span>`;
+          return `<span style="display:inline-block;background:#eaf0f8;color:#2a5090;border:1px solid #aac4e8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
         } else if(isUniqueToken(t)) {
           // Only in this doc — highlight as problem
-          return `<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.84rem;font-weight:700;margin:1px;">⚠ ${t}</span>`;
+          return `<span style="display:inline-block;background:#fde8e8;color:#b82020;border:1px solid #e8a0a0;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ ${t}</span>`;
         } else {
-          return `<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.84rem;margin:1px;">${t}</span>`;
+          return `<span style="display:inline-block;background:#f0f4ff;color:#3a4660;border:1px solid #b0bcd8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
         }
       }).join(' ');
     };
@@ -3171,23 +3171,23 @@ function renderResults(){
     let docRows = '';
     groupArr.forEach(([val, docs], gi) => {
       const isOutlier = gi > 0;
-      const borderColor = isOutlier ? '#c0392b' : '#6aaa6a';
-      const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
+      const borderColor = isOutlier ? '#c0392b' : '#2e9455';
+      const bg = isOutlier ? '#fff8f7' : '#f4f8ff';
       const icon = isOutlier ? '✗' : '✓';
-      const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
+      const iconColor = isOutlier ? '#c0392b' : '#2e9455';
       docRows += `<div style="background:${bg};border-left:3px solid ${borderColor};padding:10px 12px;margin-bottom:4px;border-radius:0 4px 4px 0;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
           <span style="color:${iconColor};font-weight:700;font-size:0.85rem;">${icon}</span>
-          <span style="font-size:0.72rem;color:#666;font-family:'Lato',sans-serif;font-weight:400;letter-spacing:0.01em;">${docs.join(' · ')}</span>
+          <span style="font-size:0.65rem;color:#888;font-family:'Raleway',sans-serif;letter-spacing:0.05em;">${docs.join(' · ')}</span>
         </div>
         <div style="line-height:1.8;">${renderTokens(val)}</div>
       </div>`;
     });
 
-    tbody.innerHTML += `<tr style="background:#fff8f7;">
+    tbody.innerHTML += `<tr style="background:#fff5f5;">
       <td style="padding:14px 16px;vertical-align:top;border-bottom:2px solid #f0d0cc;">
         <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">🔴 Error</div>
-        <div style="font-weight:600;color:#2c1a0e;font-size:0.82rem;">${FL(k)}</div>
+        <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
       </td>
       <td style="padding:14px 16px;border-bottom:2px solid #f0d0cc;">${docRows}</td>
     </tr>`;
@@ -3196,11 +3196,11 @@ function renderResults(){
   // Render WARNING rows
   warnEntries.forEach(({k, d, uv}) => {
     const vals = d.values || [];
-    const docList = vals.map(v => `<span style="color:#888;font-size:0.78rem;">${cleanDoc(v.doc)}:</span> <code style="background:#f5f0e8;padding:1px 5px;border-radius:3px;font-size:0.84rem;">${v.value||'—'}</code>`).join('<br>');
+    const docList = vals.map(v => `<span style="color:#888;font-size:0.72rem;">${cleanDoc(v.doc)}:</span> <code style="background:#f5f0e8;padding:1px 5px;border-radius:3px;font-size:0.78rem;">${v.value||'—'}</code>`).join('<br>');
     tbody.innerHTML += `<tr style="background:#fffdf5;">
       <td style="padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--border);">
         <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">🟡 Observation</div>
-        <div style="font-weight:600;color:#2c1a0e;font-size:0.82rem;">${FL(k)}</div>
+        <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
       </td>
       <td style="padding:12px 16px;border-bottom:1px solid var(--border);">${docList}</td>
     </tr>`;
@@ -3210,15 +3210,15 @@ function renderResults(){
   if(okEntries.length > 0){
     const okId = 'ok-rows-' + Date.now();
     const okList = okEntries.map(({k, uv}) =>
-      `<tr style="background:#f8faf8;" class="ok-detail-row-${okId}">
+      `<tr style="background:#f4f8ff;" class="ok-detail-row-${okId}">
         <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.78rem;">✓ ${FL(k)}</td>
         <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.78rem;color:#555;">${uv.join(' / ')}</td>
       </tr>`
     ).join('');
 
-    tbody.innerHTML += `<tr style="background:#f2faf2;">
-      <td colspan="2" style="padding:10px 16px;border-top:2px solid #d4e8d4;">
-        <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#5a8a5a;">
+    tbody.innerHTML += `<tr style="background:#eef4ff;">
+      <td colspan="2" style="padding:10px 16px;border-top:2px solid #c0d4f0;">
+        <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#2a5090;">
           ✓ &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent
         </span>
       </td>
@@ -3261,31 +3261,31 @@ function renderResults(){
         return tokens.map(tok => {
           const t2 = tok.trim();
           if(cardIsMaj(t2))
-            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.84rem;margin:1px;">'+t2+'</span>';
+            return '<span style="display:inline-block;background:#eaf0f8;color:#2a5090;border:1px solid #aac4e8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
           else if(cardIsUniq(t2))
-            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.84rem;font-weight:700;margin:1px;">⚠ '+t2+'</span>';
+            return '<span style="display:inline-block;background:#fde8e8;color:#b82020;border:1px solid #e8a0a0;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t2+'</span>';
           else
-            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.84rem;margin:1px;">'+t2+'</span>';
+            return '<span style="display:inline-block;background:#f0f4ff;color:#3a4660;border:1px solid #b0bcd8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
         }).join(' ');
       };
 
       // Determine if row is majority or outlier
       const rowCounts = {};
-      details.forEach(d => { const v=(d.value||'').trim().toLowerCase(); rowCounts[v]=(rowCounts[v]||0)+1; });
+      details.forEach(d => { const v=(d.value||'').trim(); rowCounts[v]=(rowCounts[v]||0)+1; });
       const rowMaxC = Math.max(0,...Object.values(rowCounts));
       const rowMaj = Object.keys(rowCounts).find(k=>rowCounts[k]===rowMaxC)||'';
 
       const rows=details.map(d=>{
         const val = d.value || t.notFound;
-        const isRowOutlier = (d.value||'').trim().toLowerCase() !== rowMaj;
-        const rowBg = isRowOutlier ? '#fff8f7' : '#f8fdf8';
-        const rowBorder = isRowOutlier ? '#c0392b' : '#6aaa6a';
+        const isRowOutlier = (d.value||'').trim() !== rowMaj;
+        const rowBg = isRowOutlier ? '#fff8f7' : '#f4f8ff';
+        const rowBorder = isRowOutlier ? '#c0392b' : '#2e9455';
         const rowIcon = isRowOutlier ? '✗' : '✓';
-        const rowIconColor = isRowOutlier ? '#c0392b' : '#6aaa6a';
+        const rowIconColor = isRowOutlier ? '#c0392b' : '#2e9455';
         return '<div style="background:'+rowBg+';border-left:3px solid '+rowBorder+';padding:8px 10px;margin-bottom:3px;border-radius:0 4px 4px 0;">'
           +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
           +'<span style="color:'+rowIconColor+';font-weight:700;font-size:0.85rem;">'+rowIcon+'</span>'
-          +'<span style="font-size:0.72rem;color:#666;font-family:\'Lato\',sans-serif;font-weight:400;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
+          +'<span style="font-size:0.65rem;color:#888;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
           +'</div>'
           +'<div style="line-height:1.8;">'+renderCardTokens(val)+'</div>'
           +'</div>';
