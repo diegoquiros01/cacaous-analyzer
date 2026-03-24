@@ -2155,10 +2155,18 @@ If no issues: []`;
   const aiSetValues = {};
   Object.entries(textFields).forEach(([key, getter]) => {
     const vals = allVals(getter);
-    if(vals.length >= 2){
-      aiFieldData[key] = vals;
-      aiSetValues[key] = { values: vals, status: 'pending' };
+    if(vals.length < 2) return;
+    // Pre-filter: skip if all values are the same after case/whitespace normalization
+    const normBasic = s => String(s||'').toLowerCase().replace(/\s+/g,' ').trim();
+    const normVals = vals.map(v => normBasic(v.value));
+    const uniq = new Set(normVals);
+    if(uniq.size === 1) {
+      // All same after normalization — mark consistent, skip AI
+      aiSetValues[key] = { values: vals, status: 'consistent' };
+      return;
     }
+    aiFieldData[key] = vals;
+    aiSetValues[key] = { values: vals, status: 'pending' };
   });
 
   // Merge into setValues for display
