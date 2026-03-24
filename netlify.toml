@@ -3,7 +3,8 @@
 # ══════════════════════════════════════════════════════
 
 [build]
-  publish = "."   # change to "dist" or "public" if you have a build step
+  publish = "."
+  functions = "netlify/functions"
 
 # ── COMPRESSION ────────────────────────────────────────
 # Netlify compresses automatically but this makes it explicit
@@ -71,6 +72,12 @@
 
 # ── REDIRECTS ──────────────────────────────────────────
 # SPA fallback — required if you have client-side routing
+# Functions must be excluded from the catch-all redirect
+[[redirects]]
+  from   = "/.netlify/functions/*"
+  to     = "/.netlify/functions/:splat"
+  status = 200
+
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
