@@ -3007,40 +3007,54 @@ function renderResults(){
     });
 
     if(allCrit.length > 0){
+      // Shared token renderer — same logic as consistency table
+      const critRenderTokens = (val, tokenFreq, totalDocs) => {
+        const tokens = String(val||'').split(/,\s*|\s+/).filter(Boolean);
+        if(tokens.length <= 1) return '<span style="font-weight:500;">'+val+'</span>';
+        return tokens.map(tok => {
+          const t = tok.trim();
+          const freq = tokenFreq[t.toUpperCase()]||0;
+          if(freq > totalDocs/2)
+            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
+          else if(freq === 1)
+            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t+'</span>';
+          else
+            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
+        }).join(' ');
+      };
+
       const rows = allCrit.map(iss => {
-        // For container lists: find and highlight only the differing containers
-        let detailsHtml = '';
         const details = iss.details || [];
+        let detailsHtml = '';
         if(details.length > 0){
-          const isContList = details.some(d => isContainerList(d.value||''));
-          if(isContList){
-            // Find which containers differ
-            const allCodeSets = details.map(d => new Set(splitCodes(d.value||'')));
-            const allCodes = [...new Set(details.flatMap(d => splitCodes(d.value||'')))];
-            const diffCodes = new Set(allCodes.filter(code =>
-              !allCodeSets.every(set => set.has(code))
-            ));
-            detailsHtml = '<div class="critical-details">'
-              + details.map(d => {
-                  const tokens = splitCodes(d.value||'');
-                  const highlighted = tokens.map(t =>
-                    diffCodes.has(t)
-                      ? '<mark class="crit-diff-code">'+t+'</mark>'
-                      : '<span class="crit-same-code">'+t+'</span>'
-                  ).join(' ');
-                  return '<div class="crit-detail-row">'
-                    +'<span class="critical-doc">'+d.doc.replace(/\.[^.]+$/,'')+':</span> '
-                    +highlighted+'</div>';
-                }).join('')
-              +'</div>';
-          } else {
-            detailsHtml = '<div class="critical-details">'
-              + details.map(d=>
-                  '<span class="critical-doc">'+d.doc.replace(/\.[^.]+$/,'')+':</span> '
-                  +'<code class="critical-code">'+d.value+'</code>'
-                ).join(' &nbsp;|&nbsp; ')
-              +'</div>';
-          }
+          // Build token frequency from all doc values
+          const tFreq = {};
+          details.forEach(d => {
+            new Set(String(d.value||'').split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()))
+              .forEach(tok => { tFreq[tok] = (tFreq[tok]||0)+1; });
+          });
+          const tTotal = details.length;
+          // Determine majority value for row border coloring
+          const valCounts = {};
+          details.forEach(d => { const v=(d.value||'').trim(); valCounts[v]=(valCounts[v]||0)+1; });
+          const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+
+          detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
+            + details.map(d => {
+                const isOutlier = (d.value||'').trim() !== majVal;
+                const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
+                const border = isOutlier ? '#c0392b' : '#6aaa6a';
+                const icon = isOutlier ? '✗' : '✓';
+                const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
+                return '<div style="background:'+bg+';border-left:3px solid '+border+';padding:6px 10px;border-radius:0 4px 4px 0;">'
+                  +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
+                  +'<span style="color:'+iconColor+';font-weight:700;">'+icon+'</span>'
+                  +'<span style="font-size:0.65rem;color:#888;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
+                  +'</div>'
+                  +'<div style="line-height:1.8;">'+critRenderTokens(d.value, tFreq, tTotal)+'</div>'
+                  +'</div>';
+              }).join('')
+            +'</div>';
         }
         return '<div class="critical-item">'
           +'<span class="critical-field">'+FL(iss.field)+'</span>'
