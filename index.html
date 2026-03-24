@@ -3108,21 +3108,21 @@ function renderResults(){
   // Render ERROR rows
   errEntries.forEach(({k, d}) => {
     const vals = d.values || [];
-    // Group by value to find the outlier
+    // Normalize values for grouping — lowercase, strip units for comparison only
+    const normForGroup = s => String(s||'').toLowerCase().replace(/\s*(kg|kgs|bags|sacos|sacks|jt|kn|kb|kgm)\b.*/i,'').trim();
+    // Group by normalized value to find outlier
     const groups = {};
     vals.forEach(v => {
-      const key = (v.value||'—').trim();
-      if(!groups[key]) groups[key] = [];
-      groups[key].push(cleanDoc(v.doc));
+      const key = normForGroup(v.value||'—');
+      if(!groups[key]) groups[key] = {displayVal: v.value||'—', docs: []};
+      groups[key].docs.push(cleanDoc(v.doc));
     });
-    const groupArr = Object.entries(groups).sort((a,b) => b[1].length - a[1].length);
-    // majority = most docs agree; minority = outlier
-    const majority = groupArr[0];
-    const outliers = groupArr.slice(1);
+    const groupArr = Object.entries(groups)
+      .map(([norm, {displayVal, docs}]) => [displayVal, docs, norm])
+      .sort((a,b) => b[1].length - a[1].length);
 
-    // Build a universal token frequency map across ALL docs
-    // tokens appearing in MOST docs = correct; tokens appearing in only 1 = suspect
-    const allValues = groupArr.map(([val]) => val);
+    // Build token frequency map using per-doc values (not grouped)
+    const allValues = vals.map(v => v.value||'');
     const tokenFreq = {}; // token → how many docs have it
     allValues.forEach(val => {
       const tokens = new Set(String(val).split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()));
