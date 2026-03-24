@@ -1353,7 +1353,7 @@ const TX = {
     notFound:'— (not found)',
     inconsLabel:'Inconsistency detail',
     fieldsLabel:'Extracted Fields', obsLabel:'Observations', analysisLabel:'✦ Analysis', summaryLabel:'✦ Set Summary',
-    FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',destinationCountry:'Destination Country',blNumber:'BL Number',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
+    FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',destinationCountry:'Destination Country',originCountry:'Country of Origin',blNumber:'BL Number',invoiceNumber:'Invoice Number',voyageNumber:'Voyage Number',hsCode:'HS Code',qualityGrade:'Quality Grade',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
     DOCFIELDS:[['Type','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Containers','containerNumbers'],['Seals','sealNumbers'],['Lots','lotNumbers'],['Bags','bagCount'],['Net Weight','netWeight'],['Gross Weight','grossWeight'],['Product','productDescription'],['Origin','originCountry'],['Destination','destinationCountry'],['Port of Loading','portOfLoading'],['Port of Discharge','portOfDischarge'],['Vessel','vesselName'],['BL Number','blNumber'],['Invoice No.','invoiceNumber'],['Date','exportDate'],['Lab / Certifier','labName'],['Lab Cert #','labCertNumber'],['Moisture','moistureContent'],['Quality Grade','qualityGrade'],['Test Results','testResults'],['Permit Number','permitNumber'],['Permit Authority','permitAuthority'],['Permit Valid From','permitValidFrom'],['Permit Valid Until','permitValidUntil'],['Importer of Record','importerOfRecord'],['COI Cert. Number','coiCertNumber'],['Certifying Body','coiCertifier'],['Organic Standard','coiStandard'],['COI Operator','coiOperator'],['COI Products','coiProducts'],['COI Valid From','coiValidFrom'],['COI Valid Until','coiValidUntil'],['COI Auth. Quantity','coiAuthorizedQty'],['Transaction Cert. TC#','coiTransactionCert'],['COI Lots','coiLots']],
     rptTitle:'DocsValidate — COHERENCE ANALYSIS REPORT',
     rptStatus:'Status',rptDocs:'Documents',rptIncons:'Inconsistencies',rptObs:'Observations',
@@ -1423,7 +1423,7 @@ const TX = {
     notFound:'— (no encontrado)',
     inconsLabel:'Detalle de inconsistencias encontradas',
     fieldsLabel:'Campos Extraídos', obsLabel:'Observaciones', analysisLabel:'✦ Análisis', summaryLabel:'✦ Resumen del Set',
-    FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',destinationCountry:'País de Destino',blNumber:'N° de BL',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
+    FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',destinationCountry:'País de Destino',originCountry:'País de Origen',blNumber:'N° de BL',invoiceNumber:'N° de Factura',voyageNumber:'N° de Viaje',hsCode:'Código HS',qualityGrade:'Grado de Calidad',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
     DOCFIELDS:[['Tipo','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Contenedores','containerNumbers'],['Precintos','sealNumbers'],['Lotes','lotNumbers'],['Sacos','bagCount'],['Peso Neto','netWeight'],['Peso Bruto','grossWeight'],['Producto','productDescription'],['Origen','originCountry'],['Destino','destinationCountry'],['Puerto Carga','portOfLoading'],['Puerto Descarga','portOfDischarge'],['Buque','vesselName'],['N° BL','blNumber'],['N° Factura','invoiceNumber'],['Fecha','exportDate'],['Lab / Certificador','labName'],['N° Cert. Lab','labCertNumber'],['Humedad','moistureContent'],['Grado de Calidad','qualityGrade'],['Resultados','testResults'],['N° Permiso Importación','permitNumber'],['Autoridad Emisora','permitAuthority'],['Permiso Válido Desde','permitValidFrom'],['Permiso Válido Hasta','permitValidUntil'],['Importador de Registro','importerOfRecord'],['N° Certificado COI','coiCertNumber'],['Organismo Certificador','coiCertifier'],['Estándar Orgánico','coiStandard'],['Operador Certificado','coiOperator'],['Productos COI','coiProducts'],['COI Válido Desde','coiValidFrom'],['COI Válido Hasta','coiValidUntil'],['Cantidad Autorizada COI','coiAuthorizedQty'],['Cert. Transacción TC#','coiTransactionCert'],['Lotes en COI','coiLots']],
     rptTitle:'DocsValidate — REPORTE DE ANÁLISIS DE COHERENCIA',
     rptStatus:'Estado',rptDocs:'Documentos',rptIncons:'Inconsistencias',rptObs:'Observaciones',
@@ -1900,6 +1900,18 @@ Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, Phytosa
 
 The docType field should be in \${lang==='es'?'Spanish':'English'}.
 
+SPECIAL FIELD MAPPING FOR GAS CLEARANCE CERTIFICATE / FUMIGATION CERTIFICATE:
+These documents use non-standard field names. Map them as follows:
+- "Country / city of destination" or "Destino" → extract as destinationCountry
+- "Bl/Cont." or "Container" (when it contains a BL-format number like 266461945) → extract as blNumber
+- "Number of batch" or "Lote" or "Número del Lote" → extract as lotNumbers
+- "Number of fumigated bags" → extract as bagCount
+- "Treated weight" or "Peso tratado" → extract as netWeight
+- "Vessel name" or "Nombre del vapor" → extract as vesselName
+- "Export Company" or "Razón social del exportador" → extract as shipper
+- "Consignee" or "Comprador" → extract as consigneeName
+IMPORTANT: The "Country / city of destination" field in Gas Clearance Certificates is CRITICAL — always extract it into destinationCountry, even if it says MALAYSIA or INDONESIA or any country name.
+
 CRITICAL NUMBER EXTRACTION RULES:
 - Many documents use EUROPEAN format: period as thousands separator, comma as decimal → "50.094,00" means 50094 kg
 - Many documents use AMERICAN format: comma as thousands separator, period as decimal → "50,094.00" means 50094 kg
@@ -1911,6 +1923,8 @@ CRITICAL NUMBER EXTRACTION RULES:
 - Double-check: if a weight seems unusually small compared to bag count (e.g. 726 bags but only 50004 kg), you have likely misread a separator
 
 FOR EACH DOCUMENT IN THE ARRAY, extract all applicable fields (use null if not present):
+Also include an "extraFields" object for any fields present in the document that don't fit the standard schema — for example: contract numbers, DAE numbers, purchase order numbers, letter of credit numbers, permit numbers, or any other reference numbers. Format: {"extraFields": {"Contract Number": "ARC-26-E003", "DAE": "028-2026-40-00398796"}}
+
 {"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"grade/classification or null","phytoCertNumber":"phyto cert number or null","phytoInspectionDate":"inspection date or null","phytoIssueDate":"issue date or null","importPermitNumber":"import permit number or null","importPermitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null"}`;
 
 
@@ -1952,10 +1966,37 @@ FOR EACH DOCUMENT IN THE ARRAY, extract all applicable fields (use null if not p
       if(p.netWeight)   p.netWeight   = fixNumber(p.netWeight);
       if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
       p._filename = entry.name;
+      // Fix Gas Clearance Certificate field mapping from text content
+      if(entry.textContent) fixGasClearanceFields(p, entry.textContent);
       return p;
     });
   }
   catch(e){return [{docType:entry.name,_err:true,_msg:e.message,_filename:entry.name}];}
+}
+
+// ── POST-PROCESS: fix Gas Clearance Certificate field mapping from text ──
+function fixGasClearanceFields(doc, textContent) {
+  if(!textContent) return;
+  const t = textContent;
+  const dt = (doc.docType||'').toLowerCase();
+  if(!dt.includes('fumig') && !dt.includes('gas clearance') && !dt.includes('clearance') && !dt.includes('quarantine')) return;
+
+  // Extract destinationCountry from "Country / city of destination: MALAYSIA"
+  if(!doc.destinationCountry){
+    const m = t.match(/country\s*[\/\]\s*city\s*of\s*destination[:\s]+([A-Z][A-Za-z\s]+)/i)
+           || t.match(/destino[:\s]+([A-Z][A-Za-z\s]+)/i)
+           || t.match(/destination[:\s]+([A-Z][A-Za-z]+)/i);
+    if(m) doc.destinationCountry = m[1].trim().split(/[
+
+]/)[0].trim();
+  }
+
+  // Extract blNumber from "Bl/Cont.: 266461945" — only if it looks like a BL (pure digits, 9+)
+  if(!doc.blNumber){
+    const m = t.match(/bl\s*[\/\]\s*cont\.?\s*[:\s]+([A-Z0-9]{6,})/i)
+           || t.match(/container\s*[:\s]+([0-9]{8,})/i);
+    if(m && /^\d{8,}$/.test(m[1].trim())) doc.blNumber = m[1].trim();
+  }
 }
 
 // ══════════════════════════════════════
@@ -2023,7 +2064,7 @@ async function analyzeCoherence(docs){
       } else {
         // Multi-doc: each doc contributes individually for lot/container/seal
         // For bags/weights: use the sum as a single virtual value
-        if(['bags','netWeight','grossWeight'].includes(field)){
+        if(['bags','netWeight','grossWeight','coiAuthorizedQty'].includes(field)){
           const sum = entries.reduce((acc,e) => {
             const n = normNum(getter(e.d));
             return acc + (n||0);
@@ -2052,20 +2093,40 @@ async function analyzeCoherence(docs){
 
   // ── FIELD DEFINITIONS ─────────────────────────────────────────
   const fields = {
-    lots:        { getter: d => (d.lotNumbers||[]).join(','), compare: 'lot' },
+    // Core shipment identifiers
+    lots:            { getter: d => (d.lotNumbers||[]).join(','), compare: 'lot' },
+    blNumber:        { getter: d => d.blNumber, compare: 'exact' },
+    invoiceNumber:   { getter: d => d.invoiceNumber, compare: 'exact' },
+    voyageNumber:    { getter: d => d.voyageNumber, compare: 'exact' },
+
+    // Quantities
     bags:        { getter: d => d.bagCount, compare: 'num' },
     netWeight:   { getter: d => d.netWeight, compare: 'num' },
     grossWeight: { getter: d => d.grossWeight, compare: 'num' },
+
+    // Container / seal (exact match required)
     containers:  { getter: d => (d.containerNumbers||[]).sort().join(','), compare: 'exact' },
     seals:       { getter: d => (d.sealNumbers||[]).sort().join(','), compare: 'exact' },
-    blNumber:    { getter: d => d.blNumber, compare: 'exact' },
+
+    // Parties
     shipper:     { getter: d => d.shipper, compare: 'text' },
     consignee:   { getter: d => d.consigneeName, compare: 'text' },
-    vessel:      { getter: d => d.vesselName, compare: 'text' },
+
+    // Routing
+    vessel:          { getter: d => d.vesselName, compare: 'text' },
     portOfLoading:   { getter: d => d.portOfLoading, compare: 'text' },
     portOfDischarge: { getter: d => d.portOfDischarge, compare: 'text' },
     destinationCountry: { getter: d => d.destinationCountry, compare: 'text' },
-    invoiceNumber: { getter: d => d.invoiceNumber, compare: 'exact' },
+    originCountry:   { getter: d => d.originCountry, compare: 'text' },
+
+    // Product
+    hsCode:          { getter: d => d.hsCode, compare: 'exact' },
+    qualityGrade:    { getter: d => d.qualityGrade, compare: 'text' },
+
+    // COI fields (organic certificates)
+    coiLots:         { getter: d => d.coiLots, compare: 'lot' },
+    coiCertNumber:   { getter: d => d.coiCertNumber, compare: 'exact' },
+    coiAuthorizedQty:{ getter: d => d.coiAuthorizedQty, compare: 'num' },
   };
 
   // ── RUN COMPARISONS ───────────────────────────────────────────
@@ -2148,6 +2209,31 @@ async function analyzeCoherence(docs){
     }
   }
 
+  // ── EXTRA FIELDS: compare unknown fields across docs ──────────
+  // Collect all extraFields keys that appear in 2+ docs
+  const extraKeyDocs = {}; // key → [{doc, value}]
+  Object.entries(docs).forEach(([fn, d]) => {
+    const ef = d.extraFields || {};
+    Object.entries(ef).forEach(([k, v]) => {
+      if(!v) return;
+      if(!extraKeyDocs[k]) extraKeyDocs[k] = [];
+      extraKeyDocs[k].push({ doc: fn, value: String(v).trim() });
+    });
+  });
+
+  Object.entries(extraKeyDocs).forEach(([k, vals]) => {
+    if(vals.length < 2) return; // only compare if in 2+ docs
+    const uniq = new Set(vals.map(v => normText(v.value)));
+    if(uniq.size > 1) {
+      // Values differ — add as warning
+      const counts = {};
+      vals.forEach(v => { const n = normText(v.value); counts[n] = (counts[n]||0)+1; });
+      const majorityNorm = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+      const outliers = vals.filter(v => normText(v.value) !== majorityNorm).map(v => v.doc);
+      jsIssues.push({ field: 'extra_' + k, outlierDocs: outliers, allVals: vals, isWarning: true, label: k });
+    }
+  });
+
   // ── BUILD ISSUE MESSAGES via AI ───────────────────────────────
   // AI only writes human-readable messages for the issues JS already found
   const coherenceIssues = [];
@@ -2181,7 +2267,7 @@ Return JSON array: [{"field":"fieldName","message":"your message","type":"error"
         parsed.forEach(m => {
           const iss = jsIssues.find(i => i.field === m.field);
           coherenceIssues.push({
-            type: 'error',
+            type: iss?.isWarning ? 'warning' : 'error',
             field: m.field,
             message: m.message,
             details: iss ? iss.allVals : []
@@ -2209,7 +2295,7 @@ Return JSON array: [{"field":"fieldName","message":"your message","type":"error"
             ? `${outliers} indica ${outlierVals}, pero los demás documentos indican ${majorityVal}. Verificar y corregir.`
             : `${outliers} shows ${outlierVals}, but other documents show ${majorityVal}. Please verify and correct.`);
 
-        coherenceIssues.push({ type: 'error', field: iss.field, message: msg, details: iss.allVals });
+        coherenceIssues.push({ type: iss.isWarning ? 'warning' : 'error', field: iss.field, message: msg, details: iss.allVals });
       });
     }
   }
@@ -2916,6 +3002,9 @@ function translateSummary(summary){
 // FIELD LABEL HELPER
 // ══════════════════════════════════════
 function FL(key){
+  if(!key) return key;
+  // Extra fields have prefix 'extra_FieldName' — show the original field name
+  if(key.startsWith('extra_')) return key.replace('extra_', '');
   return tx().FL[key] || key;
 }
 
