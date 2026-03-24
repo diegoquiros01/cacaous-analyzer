@@ -3139,46 +3139,53 @@ function renderResults(){
     const majority = groupArr[0];
     const outliers = groupArr.slice(1);
 
-    // Build token sets for highlighting differing items within a value
-    // e.g. for containers: highlight only the ones that don't appear in other docs
-    const allTokenSets = groupArr.map(([val]) =>
-      new Set(String(val).split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()))
-    );
-    const majorityTokens = allTokenSets[0] || new Set();
+    // Build a universal token frequency map across ALL docs
+    // tokens appearing in MOST docs = correct; tokens appearing in only 1 = suspect
+    const allValues = groupArr.map(([val]) => val);
+    const tokenFreq = {}; // token → how many docs have it
+    allValues.forEach(val => {
+      const tokens = new Set(String(val).split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()));
+      tokens.forEach(tok => { tokenFreq[tok] = (tokenFreq[tok]||0)+1; });
+    });
+    const totalDocs = allValues.length;
+    // A token is "majority" if it appears in more than half the docs
+    const isMajorityToken = tok => (tokenFreq[tok.toUpperCase()]||0) > totalDocs/2;
+    const isUniqueToken = tok => (tokenFreq[tok.toUpperCase()]||0) === 1;
 
-    const highlightVal = (val, isOutlier) => {
-      const tokens = String(val).split(/,\s*/).filter(Boolean);
-      if(tokens.length <= 1) return `<span style="font-size:0.78rem;color:#2c1a0e;font-weight:500;">${val}</span>`;
-      // For multi-token values (containers, seals), highlight tokens that differ
-      const allOtherTokens = new Set(
-        groupArr.flatMap(([v]) => String(v).split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()))
-      );
-      const commonTokens = new Set(
-        tokens.filter(tok => allTokenSets.every(ts => ts.has(tok.toUpperCase())))
-      );
+    const renderTokens = (val) => {
+      const tokens = String(val).split(/,\s*|\s+/).filter(Boolean);
+      if(tokens.length <= 1) {
+        // Single value — just show it, styling handled by row border
+        return `<span style="font-size:0.82rem;font-weight:500;color:#2c1a0e;">${val}</span>`;
+      }
       return tokens.map(tok => {
-        const isDiff = !commonTokens.has(tok.trim().toUpperCase());
-        return isDiff
-          ? `<mark style="background:#ffd4cc;color:#c0392b;padding:1px 4px;border-radius:3px;font-weight:700;">${tok.trim()}</mark>`
-          : `<span style="color:#888;font-size:0.78rem;">${tok.trim()}</span>`;
-      }).join('<span style="color:#ccc;"> · </span>');
+        const t = tok.trim();
+        if(isMajorityToken(t)) {
+          // Appears in most docs — show as confirmed/grey
+          return `<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
+        } else if(isUniqueToken(t)) {
+          // Only in this doc — highlight as problem
+          return `<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ ${t}</span>`;
+        } else {
+          return `<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
+        }
+      }).join(' ');
     };
 
     // Build per-doc rows
     let docRows = '';
     groupArr.forEach(([val, docs], gi) => {
       const isOutlier = gi > 0;
-      const style = isOutlier
-        ? 'background:#fff0ee;border-left:3px solid #c0392b;'
-        : 'background:#f4faf4;border-left:3px solid #6aaa6a;';
+      const borderColor = isOutlier ? '#c0392b' : '#6aaa6a';
+      const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
       const icon = isOutlier ? '✗' : '✓';
       const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
-      docRows += `<div style="${style}padding:8px 12px;margin-bottom:3px;border-radius:0 3px 3px 0;display:flex;align-items:flex-start;gap:10px;">
-        <span style="color:${iconColor};font-weight:700;margin-top:2px;flex-shrink:0;">${icon}</span>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:0.78rem;line-height:1.5;">${highlightVal(val, isOutlier)}</div>
-          <div style="font-size:0.65rem;color:#888;margin-top:3px;">${docs.join(' · ')}</div>
+      docRows += `<div style="background:${bg};border-left:3px solid ${borderColor};padding:10px 12px;margin-bottom:4px;border-radius:0 4px 4px 0;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+          <span style="color:${iconColor};font-weight:700;font-size:0.85rem;">${icon}</span>
+          <span style="font-size:0.65rem;color:#888;font-family:'Raleway',sans-serif;letter-spacing:0.05em;">${docs.join(' · ')}</span>
         </div>
+        <div style="line-height:1.8;">${renderTokens(val)}</div>
       </div>`;
     });
 
