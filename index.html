@@ -2046,13 +2046,28 @@ Respond ONLY with valid JSON, no markdown:
   }
 }`;
 
+  // Send only fields relevant to coherence — not lab results, dates, addresses etc.
+  const relevantFields = ['docType','lotNumbers','bagCount','netWeight','grossWeight',
+    'containerNumbers','sealNumbers','blNumber','invoiceNumber','shipper','consigneeName',
+    'consigneeAddress','notify','vesselName','portOfLoading','portOfDischarge',
+    'destinationCountry','originCountry','voyageNumber','qualityGrade'];
+  const slim = {};
+  Object.entries(docs).forEach(([fn, arr]) => {
+    (Array.isArray(arr) ? arr : [arr]).forEach((d, i) => {
+      const key = arr.length > 1 ? fn + '_doc' + i : fn;
+      const s = {};
+      relevantFields.forEach(f => { if(d[f] != null) s[f] = d[f]; });
+      slim[key] = s;
+    });
+  });
+
   const msg = `Analyze this export document set for inconsistencies.
 
-Extracted data per document:
-${JSON.stringify(docs, null, 2)}`;
+Documents and their key fields:
+${JSON.stringify(slim, null, 2)}`;
 
   try {
-    const raw = await callClaude(system, msg, 3000);
+    const raw = await callClaude(system, msg, 4000);
     const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
     const parsed = JSON.parse(cleaned);
     if(parsed && parsed.setValues) return parsed;
