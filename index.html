@@ -1978,24 +1978,22 @@ Also include an "extraFields" object for any fields present in the document that
 function fixGasClearanceFields(doc, textContent) {
   if(!textContent) return;
   const t = textContent;
-  const dt = (doc.docType||'').toLowerCase();
-  if(!dt.includes('fumig') && !dt.includes('gas clearance') && !dt.includes('clearance') && !dt.includes('quarantine')) return;
+  const dt = (doc.docType||"").toLowerCase();
+  if(!dt.includes("fumig") && !dt.includes("gas clearance") && !dt.includes("clearance") && !dt.includes("quarantine")) return;
 
   // Extract destinationCountry from "Country / city of destination: MALAYSIA"
   if(!doc.destinationCountry){
-    const m = t.match(/country\s*[\/\]\s*city\s*of\s*destination[:\s]+([A-Z][A-Za-z\s]+)/i)
-           || t.match(/destino[:\s]+([A-Z][A-Za-z\s]+)/i)
-           || t.match(/destination[:\s]+([A-Z][A-Za-z]+)/i);
-    if(m) doc.destinationCountry = m[1].trim().split(/[
-
-]/)[0].trim();
+    const m = t.match(/country[^:]*destination[^:]*:[ \t]*([A-Za-z][A-Za-z ]{2,20})/i)
+           || t.match(/destino[ \t]*:[ \t]*([A-Za-z][A-Za-z ]{2,20})/i)
+           || t.match(/Destination[ \t]*:[ \t]*([A-Z]{3,})/);
+    if(m) doc.destinationCountry = m[1].trim().replace(/[\r\n].*/,"").trim();
   }
 
-  // Extract blNumber from "Bl/Cont.: 266461945" — only if it looks like a BL (pure digits, 9+)
+  // Extract blNumber from "Bl/Cont.: 266461945"
   if(!doc.blNumber){
-    const m = t.match(/bl\s*[\/\]\s*cont\.?\s*[:\s]+([A-Z0-9]{6,})/i)
-           || t.match(/container\s*[:\s]+([0-9]{8,})/i);
-    if(m && /^\d{8,}$/.test(m[1].trim())) doc.blNumber = m[1].trim();
+    const m = t.match(/Bl[^:]*Cont[^:]*:[ \t]*([0-9]{8,})/i)
+           || t.match(/Container[ \t]*:[ \t]*([0-9]{8,})/i);
+    if(m) doc.blNumber = m[1].trim();
   }
 }
 
