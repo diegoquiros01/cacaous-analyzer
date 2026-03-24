@@ -2209,6 +2209,7 @@ async function startAnalysis(){
         const docsArr = Array.isArray(docs) ? docs : [docs];
         extractedDocs[e.name] = docsArr;
         docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
+        docsArr.forEach((d,i) => console.log('[DBG]', e.name, i, d.docType, '| dest:', d.destinationCountry, '| bl:', d.blNumber, '| containers:', JSON.stringify(d.containerNumbers)));
 
         setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
         const done = Object.keys(extractedDocs).length;
