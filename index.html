@@ -3025,7 +3025,6 @@ function renderResults(){
 
       const rows = allCrit.map(iss => {
         const details = iss.details || [];
-        console.log('[BANNER]', iss.field, 'details:', details.length, details.slice(0,2));
         let detailsHtml = '';
         if(details.length > 0){
           // Build token frequency from all doc values
