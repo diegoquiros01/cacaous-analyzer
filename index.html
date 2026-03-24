@@ -2044,10 +2044,55 @@ Write messages in ${isES ? 'Spanish' : 'English'}. Be specific about which docum
 Return ONLY valid JSON:
 {"overallStatus":"approved|warning|rejected","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"specific message","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":""}}}`;
 
+  // ── JS PRE-CHECK: detect critical mismatches deterministically ──
+  const jsPreErrors = [];
+
+  // Check destinationCountry — catches MALAYSIA vs INDONESIA
+  const destVals = Object.entries(slim)
+    .filter(([,v]) => v.destinationCountry)
+    .map(([k,v]) => ({ doc: k, value: String(v.destinationCountry).trim() }));
+  if(destVals.length >= 2) {
+    const normD = s => s.toLowerCase().replace(/[^a-z]/g,'');
+    const dcounts = {}; destVals.forEach(v => { const n=normD(v.value); dcounts[n]=(dcounts[n]||0)+1; });
+    const dsorted = Object.entries(dcounts).sort((a,b)=>b[1]-a[1]);
+    if(dsorted.length > 1) {
+      const majNorm = dsorted[0][0];
+      const majVal = destVals.find(v=>normD(v.value)===majNorm)?.value || dsorted[0][0];
+      destVals.filter(v=>normD(v.value)!==majNorm).forEach(o => {
+        jsPreErrors.push({ type:'error', field:'destinationCountry',
+          message: isES
+            ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" indica destino "'+o.value+'" pero los demás documentos indican "'+majVal+'". Error crítico — corregir el certificado.'
+            : '"'+o.doc.replace(/\.[^.]+$/,'')+'" shows destination "'+o.value+'" but all other documents show "'+majVal+'". Critical error — the certificate must be corrected.',
+          details: destVals.map(v=>({doc:v.doc, value:v.value}))
+        });
+      });
+    }
+  }
+
+  // Check lotNumbers — catches wrong document in set
+  const lotVals = Object.entries(slim)
+    .filter(([,v]) => v.lotNumbers && v.lotNumbers.length > 0)
+    .map(([k,v]) => ({ doc: k, value: String(v.lotNumbers).trim() }));
+  if(lotVals.length >= 2) {
+    const normL = s => s.toLowerCase().replace(/\s+/g,'').replace(/lote?[-:]/i,'');
+    const lcounts = {}; lotVals.forEach(v => { const n=normL(v.value); lcounts[n]=(lcounts[n]||0)+1; });
+    const lsorted = Object.entries(lcounts).sort((a,b)=>b[1]-a[1]);
+    if(lsorted.length > 1) {
+      const majNorm = lsorted[0][0];
+      const majVal = lotVals.find(v=>normL(v.value)===majNorm)?.value || lsorted[0][0];
+      lotVals.filter(v=>normL(v.value)!==majNorm).forEach(o => {
+        jsPreErrors.push({ type:'error', field:'lots',
+          message: isES
+            ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" referencia lote "'+o.value+'" pero los demás documentos referencian "'+majVal+'". Este documento pertenece a otro embarque y debe reemplazarse.'
+            : '"'+o.doc.replace(/\.[^.]+$/,'')+'" references lot "'+o.value+'" but other documents reference "'+majVal+'". This document belongs to a different shipment and must be replaced.',
+          details: lotVals.map(v=>({doc:v.doc, value:v.value}))
+        });
+      });
+    }
+  }
+
   const msg = `Documents and their fields:\n${JSON.stringify(slim, null, 2)}`;
-  // DEBUG: show what we send to coherence AI
-  console.log('[COHERENCE INPUT] destinationCountry values:');
-  Object.entries(slim).forEach(([k,v]) => { if(v.destinationCountry) console.log(' ', k, '->', v.destinationCountry); });
+
 
   try {
     const raw = await callClaudeHaiku(system, msg, 3000);
@@ -2066,10 +2111,26 @@ Return ONLY valid JSON:
         } catch(e2) {}
       }
     }
-    if(parsed && (parsed.setValues || parsed.coherenceIssues)) return parsed;
+    if(parsed && (parsed.setValues || parsed.coherenceIssues)) {
+      // Merge JS pre-errors with AI results — JS errors take priority
+      const aiIssues = (parsed.coherenceIssues||[]).filter(i =>
+        !jsPreErrors.some(j => j.field === i.field) // don't duplicate
+      );
+      parsed.coherenceIssues = [...jsPreErrors, ...aiIssues];
+      if(jsPreErrors.some(e=>e.type==='error')) parsed.overallStatus = 'rejected';
+      return parsed;
+    }
+    // If AI failed but we have JS errors, still return them
+    if(jsPreErrors.length > 0) {
+      return { overallStatus:'rejected', summary:'', setValues:{}, coherenceIssues:jsPreErrors, perDocumentStatus:{} };
+    }
     return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[], perDocumentStatus:{} };
   } catch(e) {
     console.error('analyzeCoherence error:', e.message);
+    // Even on timeout, return JS pre-errors if we have them
+    if(jsPreErrors.length > 0) {
+      return { overallStatus:'rejected', summary:'', setValues:{}, coherenceIssues:jsPreErrors, perDocumentStatus:{} };
+    }
     return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[{type:'warning',field:'system',message:'Analysis timeout — results may be incomplete. Try with fewer documents.',details:[]}], perDocumentStatus:{} };
   }
 }
