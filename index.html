@@ -1915,7 +1915,7 @@ Even if the consignee is in Indonesia, the destination field value must be extra
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,1500);
+    const t=await callClaude(system,content,4000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
@@ -2190,8 +2190,7 @@ async function startAnalysis(){
         const docsArr = Array.isArray(docs) ? docs : [docs];
         extractedDocs[e.name] = docsArr;
         docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
-        // TEMP DEBUG
-        console.log('[EXTRACTED]', e.name, '->', docsArr.map(d => ({type:d.docType, dest:d.destinationCountry, lots:d.lotNumbers})));
+
         setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
         const done = Object.keys(extractedDocs).length;
         setProgress(10 + Math.round((done/uploadedFiles.length)*60), `${done}/${uploadedFiles.length} ${lang==='es'?'listos':'done'}`);
