@@ -6,6 +6,12 @@
   publish = "."
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
+[functions."claude"]
+  timeout = 26
+
 # ── COMPRESSION ────────────────────────────────────────
 # Netlify compresses automatically but this makes it explicit
 [build.processing]

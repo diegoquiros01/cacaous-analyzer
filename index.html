@@ -8,8 +8,8 @@
 <!-- Fonts: non-blocking load -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&display=swap" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&display=swap"></noscript>
 
 <!-- pdf.js, xlsx, mammoth loaded on demand via loadHeavyLibs() — NOT at page open -->
 
@@ -1013,8 +1013,7 @@ footer {
     src="https://keen-bulldog-59.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
     type="text/javascript">
   </script>
-  <!-- Hero image preload (deduplicated) -->
-  <link rel="preload" href="/hero-1.jpg" as="image"/>
+  <!-- Hero images loaded on demand -->
 </head>
 <body>
 
@@ -1287,9 +1286,6 @@ footer {
 </footer>
 
 <script>
-// ══════════════════════════════════════
-// STATE
-// ══════════════════════════════════════
 let lang = 'en';
 
 let uploadedFiles = [];
@@ -1302,9 +1298,6 @@ function incGuestCount(){ localStorage.setItem('dv_guest_count', getGuestCount()
 function isLoggedIn(){ return window.__clerk_user != null; }
 let _cachedSummary = null; // for lang switching
 
-// ══════════════════════════════════════
-// TRANSLATIONS
-// ══════════════════════════════════════
 const TX = {
   en: {
     logoTagline:'DocsValidate.com',
@@ -1617,16 +1610,10 @@ if(document.readyState === 'loading'){
   setTimeout(fillGhostButtons, 50);
 }
 
-// ══════════════════════════════════════
-// DOC TYPE TOGGLES
-// ══════════════════════════════════════
 document.querySelectorAll('.doc-type-btn').forEach(btn=>{
   btn.addEventListener('click',()=>btn.classList.toggle('active'));
 });
 
-// ══════════════════════════════════════
-// FILE HELPERS
-// ══════════════════════════════════════
 const isExcel=n=>/\.(xlsx|xls)$/i.test(n);
 const isWord=n=>/\.(docx|doc)$/i.test(n);
 const getIcon=(n,isPdfPage)=>{
@@ -1680,9 +1667,6 @@ function mediaType(f){
   return e==='pdf'?'application/pdf':['jpg','jpeg'].includes(e)?'image/jpeg':'image/jpeg';
 }
 
-// ══════════════════════════════════════
-// UPLOAD
-// ══════════════════════════════════════
 const zone=document.getElementById('uploadZone');
 zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
 zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
@@ -1693,8 +1677,7 @@ document.getElementById('fileInput').addEventListener('change',e=>{addFiles([...
 async function splitPdfToPages(file){
   // Returns array of {file, name, size} — one per page as JPEG blob
   try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    // pdf.js not used — PDFs sent directly to Claude API
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
@@ -1797,9 +1780,6 @@ function renderFiles(){
 
 function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
 
-// ══════════════════════════════════════
-// PROGRESS STEPS
-// ══════════════════════════════════════
 function setStep(n){
   for(let i=1;i<=4;i++){
     const el=document.getElementById(`ps${i}`);
@@ -1810,9 +1790,6 @@ function setStep(n){
   }
 }
 
-// ══════════════════════════════════════
-// API
-// ══════════════════════════════════════
 async function callClaude(system,content,maxTokens=2000){
   const resp=await fetch('/.netlify/functions/claude',{
     method:'POST',headers:{'Content-Type':'application/json'},
@@ -1856,9 +1833,6 @@ function safeJSON(text){
   return null;
 }
 
-// ══════════════════════════════════════
-// STEP 1: EXTRACT
-// ══════════════════════════════════════
 async function extractDoc(entry){
   const system=`You are an expert in cacao and coffee export documents. 
 
@@ -1941,7 +1915,7 @@ Even if the consignee is in Indonesia, the destination field value must be extra
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,3000);
+    const t=await callClaude(system,content,1500);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
@@ -1998,9 +1972,6 @@ function fixGasClearanceFields(doc, textContent) {
   }
 }
 
-// ══════════════════════════════════════
-// STEP 2: COHERENCE — JS for exact fields, AI for text/context fields
-// ══════════════════════════════════════
 async function analyzeCoherence(docs){
 
   // ── NORMALIZE HELPERS ─────────────────────────────────────────
@@ -2195,9 +2166,10 @@ If no issues: []`;
 
   let aiErrors = [];
   if(Object.keys(aiFieldData).length > 0){
-    const aiMsg = `Document set field values:\n${JSON.stringify(aiFieldData, null, 2)}`;
+    // Send only the field values to AI — not the full doc data
+  const aiMsg = `Compare these field values across documents and identify inconsistencies:\n${JSON.stringify(aiFieldData, null, 2)}`;
     try {
-      const raw = await callClaude(aiSystem, aiMsg, 2000);
+      const raw = await callClaude(aiSystem, aiMsg, 800);
       const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
       const parsed = JSON.parse(cleaned);
       if(Array.isArray(parsed)){
@@ -2261,9 +2233,6 @@ If no issues: []`;
   return { overallStatus, summary: '', setValues, coherenceIssues, perDocumentStatus };
 }
 
-// ══════════════════════════════════════
-// MAIN ANALYSIS FLOW
-// ══════════════════════════════════════
 // Progress helpers
 function setProgress(pct, phase){
   document.getElementById('progressFill').style.width = pct+'%';
@@ -2448,9 +2417,6 @@ async function startAnalysis(){
   }
 }
 
-// ══════════════════════════════════════
-// SMART INCONSISTENCY FILTER
-// ══════════════════════════════════════
 function normalizeValue(v){
   if(!v) return '';
   let s = String(v).toLowerCase().trim();
@@ -2724,9 +2690,6 @@ function filterTrivialInconsistencies(coherenceResult){
   return f;
 }
 
-// ══════════════════════════════════════
-// DIFF HIGHLIGHTER
-// ══════════════════════════════════════
 function highlightDiffs(uniqueVals, allValues){
   if(!uniqueVals || uniqueVals.length <= 1) return (uniqueVals||[])[0] || '—';
   function tokenize(s){ return String(s||'').split(/[\s,\/\-]+/).filter(Boolean); }
@@ -2745,9 +2708,6 @@ function highlightDiffs(uniqueVals, allValues){
   return '<div class="diff-block">'+rows.join('')+'</div>';
 }
 
-// ══════════════════════════════════════
-// AI TRANSLATION CACHE
-// ══════════════════════════════════════
 const _translationCache = {}; // cache to avoid re-translating same text
 
 async function translateWithAI(text, targetLang){
@@ -2868,9 +2828,6 @@ function translateSummaryLocal(text){
   return result;
 }
 
-// ══════════════════════════════════════
-// DOCUMENT TYPE TRANSLATOR
-// ══════════════════════════════════════
 const DOC_TYPE_ES = {
   'bill of lading': 'Bill of Lading',
   'commercial invoice': 'Factura Comercial',
@@ -2935,9 +2892,6 @@ function translateSummary(summary){
   return result;
 }
 
-// ══════════════════════════════════════
-// FIELD LABEL HELPER
-// ══════════════════════════════════════
 function FL(key){
   if(!key) return key;
   // Extra fields have prefix 'extra_FieldName' — show the original field name
@@ -2945,9 +2899,6 @@ function FL(key){
   return tx().FL[key] || key;
 }
 
-// ══════════════════════════════════════
-// BUILD SET VALUES FALLBACK
-// ══════════════════════════════════════
 function normalizeExtractedNumber(val){
   // Fix OCR number separator confusion
   // European: "50.094,00" → 50094
@@ -3003,9 +2954,6 @@ function buildSetValuesFromResults(results){
   return out;
 }
 
-// ══════════════════════════════════════
-// RENDER RESULTS
-// ══════════════════════════════════════
 function renderResults(){
   try {
   document.getElementById('results').classList.add('show');
@@ -3632,9 +3580,6 @@ function toggleCard(i){
   }
 }
 
-// ══════════════════════════════════════
-// DOWNLOAD REPORT (FIXED)
-// ══════════════════════════════════════
 function downloadReport(){
   try{
     setStep(4);
@@ -3697,9 +3642,6 @@ function downloadReport(){
   }catch(e){alert('Error: '+e.message);}
 }
 
-// ══════════════════════════════════════
-// TRACKING
-// ══════════════════════════════════════
 const MAKE_WEBHOOK = 'https://hook.us2.make.com/6c916cohvzywegwgbw5ijbxcvbwts2n9';
 
 // Detect shipping line from BL prefix
@@ -4042,9 +3984,6 @@ async function loadTracking(){
 }
 
 
-// ══════════════════════════════════════
-// RESET
-// ══════════════════════════════════════
 function safeEl(id){ return document.getElementById(id); }
 function safeReset(id, prop, val){ const el=safeEl(id); if(el) el[prop]=val; }
 function safeStyle(id, prop, val){ const el=safeEl(id); if(el) el.style[prop]=val; }
