@@ -1675,26 +1675,28 @@ document.getElementById('fileInput').addEventListener('change',e=>{addFiles([...
 
 // ── PDF PAGE SPLITTER ─────────────────────────────────────
 async function splitPdfToPages(file){
-  // Returns array of {file, name, size} — one per page as JPEG blob
+  // Split PDFs with >2 pages into 2-page chunks for faster processing
   try {
-    // pdf.js not used — PDFs sent directly to Claude API
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
 
-    // If only 1 page, return as-is (no split needed)
-    if(numPages <= 1) return null;
+    // 1-2 pages: send as-is to Claude (fast enough)
+    if(numPages <= 2) return null;
 
+    // >2 pages: split into individual page images (lower res = faster)
     const pages = [];
     for(let i = 1; i <= numPages; i++){
       const page = await pdf.getPage(i);
-      const viewport = page.getViewport({scale: 2.0}); // high-res for OCR
+      const viewport = page.getViewport({scale: 1.2}); // low res = small payload = fast
       const canvas = document.createElement('canvas');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       const ctx = canvas.getContext('2d');
       await page.render({canvasContext: ctx, viewport}).promise;
-      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.65));
       const pageName = file.name.replace(/\.pdf$/i,'') + `_page${i}.jpg`;
       pages.push({file: new File([blob], pageName, {type:'image/jpeg'}), name: pageName, size: blob.size, _pdfPage: i, _pdfSource: file.name});
     }
@@ -1706,13 +1708,23 @@ async function splitPdfToPages(file){
 }
 
 async function addFiles(files){
-  // xlsx and mammoth loaded on demand in startAnalysis
+  try { await loadHeavyLibs(); } catch(e){ console.warn('Lib load:', e.message); }
 
   for(const f of files){
     if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
 
-    // PDFs are sent as-is to Claude (supports multi-page natively)
-    // No splitting needed — Claude reads the full PDF
+    // Split large PDFs (>2 pages) into individual page images for faster processing
+    if(f.name.toLowerCase().endsWith('.pdf')){
+      const pages = await splitPdfToPages(f);
+      if(pages && pages.length > 1){
+        console.log(`Split ${f.name} into ${pages.length} pages`);
+        for(const pageEntry of pages){
+          if(!uploadedFiles.find(u=>u.name===pageEntry.name)) uploadedFiles.push(pageEntry);
+        }
+        renderFiles();
+        continue;
+      }
+    }
 
     const entry={file:f,name:f.name,size:f.size};
     if(isExcel(f.name)){try{entry.textContent=await excelToText(f);}catch(e){entry.textContent=`[Error: ${e.message}]`;}}
@@ -1795,7 +1807,13 @@ async function callClaude(system,content,maxTokens=2000){
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
   });
-  const data=await resp.json();
+  // Handle non-JSON responses (504 timeout returns HTML)
+  const text = await resp.text();
+  if(!resp.ok || text.trim().startsWith('<')){
+    throw new Error(resp.status === 504 ? 'Request timeout — document may be too large' : `Server error ${resp.status}`);
+  }
+  let data;
+  try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server'); }
   if(data.error) throw new Error(data.error.message||'API error');
   return (data.content?.map(b=>b.text||'').join('')||'').replace(/```json|```/g,'').trim();
 }
@@ -1915,7 +1933,7 @@ Even if the consignee is in Indonesia, the destination field value must be extra
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,4000);
+    const t=await callClaude(system,content,2000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
@@ -2098,6 +2116,7 @@ function loadHeavyLibs() {
   if(_heavyLibsLoading) return _heavyLibsLoading;
   _heavyLibsLoading = new Promise((resolve, reject) => {
     const libs = [
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
       'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js'
     ];
