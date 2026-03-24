@@ -3250,26 +3250,49 @@ function renderResults(){
       details.forEach(d=>{if(d.value)counts[d.value]=(counts[d.value]||0)+1;});
       const maxC=Math.max(0,...Object.values(counts));
       const maj=Object.keys(counts).find(k=>counts[k]===maxC);
-      const allTokenSets = details.map(d =>
-        new Set(String(d.value||'').split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()))
-      );
-      const firstTokens = String(details[0]?.value||'').split(/[,\s]+/).filter(Boolean);
-      const commonTokens = new Set(firstTokens.filter(tok =>
-        allTokenSets.every(ts => ts.has(tok.toUpperCase()))
-      ));
+      // Build token frequency map — same logic as consistency table
+      const cardTokenFreq = {};
+      details.forEach(d => {
+        const toks = new Set(String(d.value||'').split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()));
+        toks.forEach(tok => { cardTokenFreq[tok] = (cardTokenFreq[tok]||0)+1; });
+      });
+      const cardTotalDocs = details.length;
+      const cardIsMaj = tok => (cardTokenFreq[tok.toUpperCase()]||0) > cardTotalDocs/2;
+      const cardIsUniq = tok => (cardTokenFreq[tok.toUpperCase()]||0) === 1;
+
+      const renderCardTokens = (val) => {
+        const tokens = String(val).split(/,\s*|\s+/).filter(Boolean);
+        if(tokens.length <= 1) return '<span style="font-weight:500;">'+val+'</span>';
+        return tokens.map(tok => {
+          const t2 = tok.trim();
+          if(cardIsMaj(t2))
+            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
+          else if(cardIsUniq(t2))
+            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t2+'</span>';
+          else
+            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
+        }).join(' ');
+      };
+
+      // Determine if row is majority or outlier
+      const rowCounts = {};
+      details.forEach(d => { const v=(d.value||'').trim(); rowCounts[v]=(rowCounts[v]||0)+1; });
+      const rowMaxC = Math.max(0,...Object.values(rowCounts));
+      const rowMaj = Object.keys(rowCounts).find(k=>rowCounts[k]===rowMaxC)||'';
+
       const rows=details.map(d=>{
-        const rawVal = d.value || t.notFound;
-        const tokens = String(rawVal).split(/,\s*/).filter(Boolean);
-        const highlighted = tokens.map(token => {
-          const isDiff = !commonTokens.has(token.trim().toUpperCase());
-          return isDiff
-            ? '<mark class="ival-diff-token">'+token.trim()+'</mark>'
-            : '<span class="ival-same-token">'+token.trim()+'</span>';
-        }).join('<span class="ival-sep">, </span>');
-        const hasAnyDiff = tokens.some(token => !commonTokens.has(token.trim().toUpperCase()));
-        return '<div class="ival '+(hasAnyDiff?'ival-err':'ival-ok')+'">'
-          +'<span class="ival-doc">'+d.doc+'</span>'
-          +'<span class="ival-val">'+(d.value?highlighted:t.notFound)+'</span>'
+        const val = d.value || t.notFound;
+        const isRowOutlier = (d.value||'').trim() !== rowMaj;
+        const rowBg = isRowOutlier ? '#fff8f7' : '#f8fdf8';
+        const rowBorder = isRowOutlier ? '#c0392b' : '#6aaa6a';
+        const rowIcon = isRowOutlier ? '✗' : '✓';
+        const rowIconColor = isRowOutlier ? '#c0392b' : '#6aaa6a';
+        return '<div style="background:'+rowBg+';border-left:3px solid '+rowBorder+';padding:8px 10px;margin-bottom:3px;border-radius:0 4px 4px 0;">'
+          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
+          +'<span style="color:'+rowIconColor+';font-weight:700;font-size:0.85rem;">'+rowIcon+'</span>'
+          +'<span style="font-size:0.65rem;color:#888;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
+          +'</div>'
+          +'<div style="line-height:1.8;">'+renderCardTokens(val)+'</div>'
           +'</div>';
       }).join('');
       // Determine card type and label
