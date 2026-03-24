@@ -1973,272 +1973,83 @@ function fixGasClearanceFields(doc, textContent) {
 }
 
 async function analyzeCoherence(docs){
-
-  // ── NORMALIZE HELPERS ─────────────────────────────────────────
-  const normNum = s => {
-    if(!s) return null;
-    let v = String(s).trim();
-    if(/\d\.\d{3}[,\d]/.test(v)) v = v.replace(/\./g,'').replace(',','.');
-    else v = v.replace(/,/g,'');
-    const n = parseFloat(v.replace(/[^\d.]/g,''));
-    return isNaN(n) ? null : n;
-  };
-
-  const normLot = s => s ? String(s).toLowerCase().replace(/\s+/g,'').replace(/lote?[-:]?/i,'') : '';
-
-  const WEIGHT_TOL = 0.005; // 0.5%
-
-  // ── MULTI-DOC GROUPING ────────────────────────────────────────
-  const docTypeGroups = {};
-  Object.entries(docs).forEach(([fn, d]) => {
-    const dt = normalizeDocType(d.docType||'');
-    if(!docTypeGroups[dt]) docTypeGroups[dt] = [];
-    docTypeGroups[dt].push({fn, d});
-  });
-
-  // Collect values per field — sum bags/weights for multi-doc types
-  const collectVals = (getter, sumIfMulti) => {
-    const out = [];
-    Object.entries(docTypeGroups).forEach(([dt, entries]) => {
-      if(entries.length === 1){
-        const v = getter(entries[0].d);
-        if(v != null && String(v).trim() !== '') out.push({doc: entries[0].fn, value: String(v).trim()});
-      } else if(sumIfMulti) {
-        const sum = entries.reduce((acc,e) => { const n=normNum(getter(e.d)); return acc+(n||0); }, 0);
-        if(sum > 0) out.push({doc: entries.map(e=>e.fn).join('+'), value: String(sum), isSum:true});
-      } else {
-        entries.forEach(e => {
-          const v = getter(e.d);
-          if(v != null && String(v).trim() !== '') out.push({doc: e.fn, value: String(v).trim()});
-        });
-      }
-    });
-    return out;
-  };
-
-  const allVals = (getter) => {
-    const out = [];
-    Object.entries(docs).forEach(([fn, d]) => {
-      const v = getter(d);
-      if(v != null && String(v).trim() !== '') out.push({doc: fn, value: String(v).trim()});
-    });
-    return out;
-  };
-
-  // ── JS EXACT COMPARISONS ──────────────────────────────────────
-  // These fields have unambiguous values — JS compares them deterministically
-  const jsFields = {
-    lots:        { getter: d => (d.lotNumbers||[]).join(','), mode: 'lot',  sum: false },
-    bags:        { getter: d => d.bagCount,                  mode: 'num',  sum: true  },
-    netWeight:   { getter: d => d.netWeight,                 mode: 'num',  sum: true  },
-    grossWeight: { getter: d => d.grossWeight,               mode: 'num',  sum: true  },
-    containers:  { getter: d => (d.containerNumbers||[]).sort().join(','), mode: 'exact', sum: false },
-    seals:       { getter: d => (d.sealNumbers||[]).sort().join(','),      mode: 'exact', sum: false },
-    blNumber:    { getter: d => d.blNumber,                  mode: 'exact', sum: false },
-    invoiceNumber:{ getter: d => d.invoiceNumber,            mode: 'exact', sum: false },
-  };
-
-  const setValues = {};
-  const jsErrors = []; // critical errors found by JS
-
-  for(const [key, def] of Object.entries(jsFields)){
-    const vals = collectVals(def.getter, def.sum);
-    const displayVals = allVals(def.getter);
-    if(!displayVals.length) continue;
-    setValues[key] = { values: displayVals };
-
-    if(vals.length < 2){ setValues[key].status = 'single_source'; continue; }
-
-    let inconsistent = false, outlierDocs = [];
-
-    if(def.mode === 'num'){
-      const nums = vals.map(v => ({...v, n: normNum(v.value)})).filter(v => v.n !== null);
-      if(nums.length >= 2){
-        const max = Math.max(...nums.map(v=>v.n));
-        const min = Math.min(...nums.map(v=>v.n));
-        if(max > 0 && (max-min)/max > WEIGHT_TOL){
-          inconsistent = true;
-          const counts = {}; nums.forEach(v => { counts[v.n]=(counts[v.n]||0)+1; });
-          const maj = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
-          outlierDocs = nums.filter(v => String(v.n) !== String(maj)).map(v => v.doc);
-        }
-      }
-    } else if(def.mode === 'lot'){
-      const normed = vals.map(v => ({...v, n: normLot(v.value)})).filter(v => v.n);
-      if(normed.length >= 2){
-        const counts = {}; normed.forEach(v => { counts[v.n]=(counts[v.n]||0)+1; });
-        if(Object.keys(counts).length > 1){
-          inconsistent = true;
-          const maj = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
-          outlierDocs = normed.filter(v => v.n !== maj).map(v => v.doc);
-        }
-      }
-    } else { // exact
-      const normed = vals.map(v => ({...v, n: v.value.toUpperCase().trim()}));
-      if(new Set(normed.map(v=>v.n)).size > 1){
-        inconsistent = true;
-        const counts = {}; normed.forEach(v => { counts[v.n]=(counts[v.n]||0)+1; });
-        const maj = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
-        outlierDocs = normed.filter(v => v.n !== maj).map(v => v.doc);
-      }
-    }
-
-    setValues[key].status = inconsistent ? 'inconsistent' : 'consistent';
-    if(inconsistent){
-      // Build clear message without AI
-      const counts = {}; 
-      displayVals.forEach(v => { counts[v.value]=(counts[v.value]||0)+1; });
-      const majorityVal = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
-      const outlierVals = [...new Set(outlierDocs.map(od => displayVals.find(v=>v.doc===od)?.value).filter(Boolean))].join(', ');
-      const outlierNames = outlierDocs.map(d => d.replace(/\.[^.]+$/,'')).join(', ');
-      const isES = lang === 'es';
-      let msg;
-      if(def.mode === 'lot'){
-        msg = isES
-          ? `${outlierNames} referencia el lote ${outlierVals}, pero los demás documentos referencian ${majorityVal}. Este documento pertenece a otro embarque y debe ser reemplazado.`
-          : `${outlierNames} references lot ${outlierVals}, but all other documents reference ${majorityVal}. This document belongs to a different shipment and must be replaced.`;
-      } else {
-        msg = isES
-          ? `${outlierNames} indica ${outlierVals}, pero los demás documentos indican ${majorityVal}.`
-          : `${outlierNames} shows ${outlierVals}, but other documents show ${majorityVal}.`;
-      }
-      jsErrors.push({ type:'error', field:key, message:msg, details:displayVals });
-    }
-  }
-
-  // ── AI CONTEXT COMPARISONS ────────────────────────────────────
-  // These fields need judgment — AI understands context, synonyms, transport mode vs vessel name, etc.
   const isES = lang === 'es';
-  const aiSystem = `You are an expert in cacao and coffee export document validation. 
-Analyze ONLY the text/context fields below for inconsistencies across documents.
 
-RULES — these are NOT inconsistencies:
-- Case differences: "SAN JOSE" = "San Jose"
-- Company suffixes: "Corp" = "Corporation", "S.A." = "Sociedad Anonima"  
-- Company name + address vs company name alone: "AROMACACAO S.A. AV FRANCISCO..." = "AROMACACAO S.A."
-- Transport mode vs vessel name: "Marítimo" or "Maritime" in a vessel field is NOT a mismatch with a vessel name like "CMA CGM BEIRA" — they describe different things
-- Port metro area: "New York" = "Jersey City" = "Newark" = "New York, USA" = "New York-United States"
-- Port prefixes: "Puerto Quetzal" = "Quetzal", "Port of Batam" = "Batam"
-- Country synonyms: "USA" = "United States" = "United States of America" = "Estados Unidos"
-- Same company different format: ignore address, legal suffixes, accents
+  const system = `You are an expert validator of cacao and coffee export documents.
+
+Analyze the extracted data from this document set and find ALL inconsistencies.
+
+RULES — these are NOT inconsistencies, ignore them:
+- Case differences: "PT. Asia Cocoa Indonesia" = "PT. ASIA COCOA INDONESIA"
+- Number formatting: "50,094.00" = "50094" = "50.094,00"
+- Unit synonyms: kg = KGS = kilogramos
+- Company suffix variants: Corp = Corporation, S.A. = Sociedad Anonima
+- Company name with address vs without: "AROMACACAO S.A. AV FRANCISCO..." = "AROMACACAO S.A."
+- Transport mode vs vessel name: "Marítimo" or "Maritime" in vessel field ≠ mismatch with "CMA CGM BEIRA"
+- Port area equivalents: "New York" = "Jersey City" = "Newark" = "New York USA"
+- Port prefixes: "Puerto Quetzal" = "Quetzal", "Batam Island" = "BATAM ISLAND" = "Batam"
+- Country synonyms: "USA" = "United States" = "Estados Unidos"
+- Trailing zeros: 150480.00 = 150480
+- Multi-document sets: if multiple fumigation certs or packing lists exist, SUM their bags/weights before comparing to BL total
+- Missing fields: if a field is null/missing in one doc, that is NOT an inconsistency
 
 CRITICAL errors to flag:
-- Destination country is a COMPLETELY DIFFERENT country: "MALAYSIA" vs "INDONESIA" = CRITICAL ERROR
-- Shipper is a completely different company (not just formatting)
-- Vessel name is a completely different ship (not just transport mode vs name)
-- Port of loading/discharge is a completely different city
-- Origin country is completely different
+- Lot number in one doc differs from all others (e.g. cert says lot 25-2026 but all others say 24-2026 → WRONG DOCUMENT)
+- Bag count mismatch after summing multi-docs (more than 0.5% difference)
+- Net weight mismatch after summing multi-docs (more than 0.5% difference)
+- Container numbers differ between BL and packing list
+- BL number differs between documents
+- Destination country is completely different: "MALAYSIA" vs "INDONESIA" = CRITICAL ERROR
+- Shipper is a completely different company
+- Vessel is a completely different ship name (not just transport mode vs ship name)
 
-For each real inconsistency found, return type "error".
-If no inconsistencies in text fields, return empty array.
+For lot mismatches: say exactly which document has the wrong lot and what it should be replaced with.
+For destination country mismatches: say exactly which document has the wrong country.
 
-Write messages in ${isES ? 'Spanish' : 'English'}. Be specific: name the document, state what it says, state what it should say.
+Write all messages in ${isES ? 'Spanish' : 'English'}.
 
-Return ONLY valid JSON array (no markdown):
-[{"type":"error","field":"fieldName","message":"clear message","details":[{"doc":"filename","value":"value"}]}]
-If no issues: []`;
-
-  // Collect text field values for AI
-  const textFields = {
-    destinationCountry: d => d.destinationCountry,
-    originCountry:      d => d.originCountry,
-    shipper:            d => d.shipper,
-    consignee:          d => d.consigneeName,
-    vessel:             d => d.vesselName,
-    portOfLoading:      d => d.portOfLoading,
-    portOfDischarge:    d => d.portOfDischarge,
-    voyageNumber:       d => d.voyageNumber,
-    qualityGrade:       d => d.qualityGrade,
-  };
-
-  const aiFieldData = {};
-  const aiSetValues = {};
-  Object.entries(textFields).forEach(([key, getter]) => {
-    const vals = allVals(getter);
-    if(vals.length < 2) return;
-    // Pre-filter: skip if all values are the same after case/whitespace normalization
-    const normBasic = s => String(s||'').toLowerCase().replace(/\s+/g,' ').trim();
-    const normVals = vals.map(v => normBasic(v.value));
-    const uniq = new Set(normVals);
-    if(uniq.size === 1) {
-      // All same after normalization — mark consistent, skip AI
-      aiSetValues[key] = { values: vals, status: 'consistent' };
-      return;
-    }
-    aiFieldData[key] = vals;
-    aiSetValues[key] = { values: vals, status: 'pending' };
-  });
-
-  // Merge into setValues for display
-  Object.assign(setValues, aiSetValues);
-
-  let aiErrors = [];
-  if(Object.keys(aiFieldData).length > 0){
-    // Send only the field values to AI — not the full doc data
-  const aiMsg = `Compare these field values across documents and identify inconsistencies:\n${JSON.stringify(aiFieldData, null, 2)}`;
-    try {
-      const raw = await callClaude(aiSystem, aiMsg, 800);
-      const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
-      const parsed = JSON.parse(cleaned);
-      if(Array.isArray(parsed)){
-        aiErrors = parsed.filter(e => e.field && e.message);
-        // Update setValues status for AI fields
-        aiErrors.forEach(e => {
-          if(setValues[e.field]) setValues[e.field].status = 'inconsistent';
-        });
-        // Mark remaining AI fields as consistent
-        Object.keys(aiSetValues).forEach(k => {
-          if(setValues[k] && setValues[k].status === 'pending') setValues[k].status = 'consistent';
-        });
-      }
-    } catch(e) {
-      console.warn('AI comparison error:', e.message);
-      // Mark all AI fields as single_source on failure
-      Object.keys(aiSetValues).forEach(k => { if(setValues[k]) setValues[k].status = 'single_source'; });
-    }
+Respond ONLY with valid JSON, no markdown:
+{
+  "overallStatus": "approved|warning|rejected",
+  "coherenceIssues": [
+    {"type": "error|warning", "field": "fieldName", "message": "specific actionable message", "details": [{"doc": "filename.pdf", "value": "exact value"}]}
+  ],
+  "setValues": {
+    "lots": {"status": "consistent|inconsistent", "values": [{"doc": "filename.pdf", "value": "002-2026"}]},
+    "bags": {"status": "consistent|inconsistent", "values": [...]},
+    "netWeight": {"status": "consistent|inconsistent", "values": [...]},
+    "grossWeight": {"status": "consistent|inconsistent", "values": [...]},
+    "containers": {"status": "consistent|inconsistent", "values": [...]},
+    "seals": {"status": "consistent|inconsistent", "values": [...]},
+    "blNumber": {"status": "consistent|inconsistent", "values": [...]},
+    "shipper": {"status": "consistent|inconsistent", "values": [...]},
+    "consignee": {"status": "consistent|inconsistent", "values": [...]},
+    "vessel": {"status": "consistent|inconsistent", "values": [...]},
+    "portOfLoading": {"status": "consistent|inconsistent", "values": [...]},
+    "portOfDischarge": {"status": "consistent|inconsistent", "values": [...]},
+    "destinationCountry": {"status": "consistent|inconsistent", "values": [...]},
+    "invoiceNumber": {"status": "consistent|inconsistent", "values": [...]}
+  },
+  "perDocumentStatus": {
+    "filename.pdf": {"status": "approved|warning|rejected", "docType": "Bill of Lading", "issues": [], "comment": ""}
   }
+}`;
 
-  // ── EXTRA FIELDS (unknown fields across docs) ─────────────────
-  const extraKeyDocs = {};
-  Object.entries(docs).forEach(([fn, d]) => {
-    Object.entries(d.extraFields||{}).forEach(([k, v]) => {
-      if(!v) return;
-      if(!extraKeyDocs[k]) extraKeyDocs[k] = [];
-      extraKeyDocs[k].push({doc: fn, value: String(v).trim()});
-    });
-  });
-  const extraWarnings = [];
-  Object.entries(extraKeyDocs).forEach(([k, vals]) => {
-    if(vals.length < 2) return;
-    const uniq = new Set(vals.map(v => v.value.toLowerCase().trim()));
-    if(uniq.size > 1){
-      extraWarnings.push({
-        type: 'warning',
-        field: 'extra_' + k,
-        message: (lang==='es' ? `Campo "${k}" difiere entre documentos` : `Field "${k}" differs between documents`),
-        details: vals
-      });
-    }
-  });
+  const msg = `Analyze this export document set for inconsistencies.
 
-  // ── COMBINE ALL ISSUES ────────────────────────────────────────
-  const coherenceIssues = [...jsErrors, ...aiErrors, ...extraWarnings];
-  const errCount = coherenceIssues.filter(i=>i.type==='error').length;
-  const overallStatus = errCount > 0 ? 'rejected' : coherenceIssues.length > 0 ? 'warning' : 'approved';
+Extracted data per document:
+${JSON.stringify(docs, null, 2)}`;
 
-  // Build perDocumentStatus
-  const perDocumentStatus = {};
-  Object.entries(docs).forEach(([fn, d]) => {
-    const docIssues = coherenceIssues.filter(iss => (iss.details||[]).some(det => det.doc===fn || det.doc.includes(fn)));
-    perDocumentStatus[fn] = {
-      status: docIssues.some(i=>i.type==='error') ? 'rejected' : docIssues.length > 0 ? 'warning' : 'approved',
-      docType: d.docType || fn,
-      issues: docIssues.map(i=>i.message),
-      comment: ''
-    };
-  });
-
-  return { overallStatus, summary: '', setValues, coherenceIssues, perDocumentStatus };
+  try {
+    const raw = await callClaude(system, msg, 3000);
+    const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+    const parsed = JSON.parse(cleaned);
+    if(parsed && parsed.setValues) return parsed;
+    return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[], perDocumentStatus:{} };
+  } catch(e) {
+    console.error('analyzeCoherence error:', e.message);
+    return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[{type:'error',field:'system',message:e.message,details:[]}], perDocumentStatus:{} };
+  }
 }
 
 // Progress helpers
