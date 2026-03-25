@@ -1657,7 +1657,7 @@ document.querySelectorAll('.doc-type-btn').forEach(btn=>{
 const isExcel=n=>/\.(xlsx|xls)$/i.test(n);
 const isWord=n=>/\.(docx|doc)$/i.test(n);
 const getIcon=(n,isPdfPage)=>{
-  const badge=(txt,color)=>`<span style="font-size:0.6rem;font-family:'Raleway',sans-serif;font-weight:600;letter-spacing:0.08em;background:${color};color:#fff;padding:3px 6px;border-radius:3px;">${txt}</span>`;
+  const badge=(txt,color)=>`<span style="font-size:0.6rem;font-family:'Raleway',sans-serif;font-weight:600;letter-spacing:0.08em;background:${color};color:#fff;padding:3px 8px;border-radius:3px;margin-right:0.8rem;">${txt}</span>`;
   if(isPdfPage||/\.pdf$/i.test(n)) return badge('PDF','#7a5230');
   if(isExcel(n)) return badge('XLS','#217346');
   if(isWord(n))  return badge('DOC','#2b579a');
