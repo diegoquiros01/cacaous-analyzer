@@ -457,6 +457,9 @@ function setLang(l){
   applyLang();
 }
 
+// Initialize on load
+applyLang();
+
 function selectType(type){
   currentType = type;
   ['general','trial','support','demo'].forEach(k=>{
