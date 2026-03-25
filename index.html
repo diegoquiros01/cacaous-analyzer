@@ -1185,6 +1185,9 @@ footer {
     <!-- ② SET SUMMARY STATS — moved up right after verdict -->
     <div class="stats-row" id="statsRow" style="margin-bottom:2rem;"></div>
 
+    <!-- ② b RESULTS INTRO NOTE -->
+    <div id="resultsIntroNote" style="display:none;font-size:0.82rem;color:var(--text-mid);line-height:1.7;padding:1rem 1.4rem;background:var(--offwhite);border-left:3px solid var(--border);margin-bottom:1.5rem;"></div>
+
     <!-- ③ MULTI-DOC NOTICE -->
     <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
 
@@ -1386,6 +1389,9 @@ const TX = {
     docStatusPending:'Pending',
     docStatusAnalyzing:'Analyzing...',
     docStatusDone:'Done ✓',
+    resultsIntroNote: (n) => n > 0
+      ? `The AI reviewed all uploaded documents and found <strong>${n} field(s) with discrepancies</strong> — these are highlighted below in the Consistency Table. Fields marked in green were consistent across all documents. Scroll down to review each document in detail.`
+      : `The AI reviewed all uploaded documents and found <strong>no discrepancies</strong>. All fields are consistent across documents. Scroll down to review each document in detail.`,
   },
   es: {
     logoTagline:'AI-Validation',
@@ -1464,6 +1470,9 @@ const TX = {
     docStatusPending:'Pendiente',
     docStatusAnalyzing:'Analizando...',
     docStatusDone:'Listo ✓',
+    resultsIntroNote: (n) => n > 0
+      ? `La IA revisó todos los documentos cargados y encontró <strong>${n} campo(s) con discrepancias</strong> — estos se destacan a continuación en la Tabla de Consistencia. Los campos marcados en verde son consistentes en todos los documentos. Desplázate hacia abajo para revisar cada documento en detalle.`
+      : `La IA revisó todos los documentos cargados y <strong>no encontró discrepancias</strong>. Todos los campos son consistentes entre los documentos. Desplázate hacia abajo para revisar cada documento en detalle.`,
   }
 };
 
@@ -3006,6 +3015,15 @@ function renderResults(){
     <div class="stat"><div class="stat-n stat-warn">${finalWarnings}</div><div class="stat-l">${t.statWarn}</div></div>
     <div class="stat"><div class="stat-n stat-err">${finalErrors}</div><div class="stat-l">${t.statErr}</div></div>`;
 
+  // ── RESULTS INTRO NOTE ──────────────────────────────────────
+  const introNote = document.getElementById('resultsIntroNote');
+  if(introNote){
+    introNote.innerHTML = t.resultsIntroNote(finalErrors + finalWarnings);
+    introNote.style.display = 'block';
+    // Color border based on verdict
+    introNote.style.borderLeftColor = finalErrors > 0 ? 'var(--red)' : finalWarnings > 0 ? 'var(--tan)' : 'var(--green)';
+  }
+
   // ── STEP 6: Coherence badge ─────────────────────────────────
   const cb=document.getElementById('coherenceBadge');
   if(finalErrors>0){cb.className='rst-badge err';cb.textContent=t.cbErr(finalErrors);}
@@ -3565,7 +3583,16 @@ function renderResults(){
         ? `Acción Requerida — ${arIssues.length} problema(s) encontrado(s)`
         : `Action Required — ${arIssues.length} issue(s) found`;
 
-      arBody.innerHTML = arIssues.map(issue => {
+      const fieldsChecked = isES2
+        ? 'Contenedores · Precintos · Lotes · Sacos · Peso Neto · Peso Bruto · Shipper · Consignee · Buque · Puerto de Carga · Puerto de Descarga · N° BL · N° Factura'
+        : 'Containers · Seals · Lots · Bags · Net Weight · Gross Weight · Shipper · Consignee · Vessel · Port of Loading · Port of Discharge · BL Number · Invoice Number';
+
+      const arNote = isES2
+        ? `Esta sección solo considera los campos: <strong>${fieldsChecked}</strong>. Para cualquier otra observación potencial, por favor revisa las secciones anteriores.`
+        : `This section only considers the following fields: <strong>${fieldsChecked}</strong>. For any other potential issues, please review the sections above.`;
+
+      arBody.innerHTML = `<div style="font-size:0.76rem;color:var(--text-light);line-height:1.6;padding:0.6rem 0 0.8rem;border-bottom:1px solid rgba(176,64,48,0.1);margin-bottom:0.8rem;">${arNote}</div>`
+        + arIssues.map(issue => {
         const docNames = (issue.docs||[]).slice(0,2).join(', ');
         const docBadge = docNames
           ? `<span class="ar-doc${issue.type==='warn'?' ar-doc-warn':''}" title="${docNames}">${docNames}</span>`
