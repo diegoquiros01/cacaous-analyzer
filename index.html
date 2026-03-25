@@ -1946,7 +1946,7 @@ Also include an "extraFields" object for any fields present in the document that
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,2000);
+    const t=await callClaude(system,content,3000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
@@ -2116,12 +2116,33 @@ Return ONLY valid JSON:
     }
   }
 
+  // Check blNumber — catches wrong BL number in set
+  const blVals = Object.entries(slim)
+    .filter(([,v]) => v.blNumber)
+    .map(([k,v]) => ({ doc: k, value: String(v.blNumber).trim().toUpperCase() }));
+  if(blVals.length >= 2) {
+    const blCounts = {};
+    blVals.forEach(v => { blCounts[v.value]=(blCounts[v.value]||0)+1; });
+    const blSorted = Object.entries(blCounts).sort((a,b)=>b[1]-a[1]);
+    if(blSorted.length > 1) {
+      const majBL = blSorted[0][0];
+      blVals.filter(v => v.value !== majBL).forEach(o => {
+        jsPreErrors.push({ type:'error', field:'blNumber',
+          message: isES
+            ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" indica BL "'+o.value+'" pero los demás documentos indican "'+majBL+'". Verificar y corregir.'
+            : '"'+o.doc.replace(/\.[^.]+$/,'')+'" shows BL "'+o.value+'" but other documents show "'+majBL+'". Please verify and correct.',
+          details: blVals.map(v=>({doc:v.doc, value:v.value}))
+        });
+      });
+    }
+  }
+
   // Check lotNumbers — catches wrong document in set
   const lotVals = Object.entries(slim)
     .filter(([,v]) => v.lotNumbers && v.lotNumbers.length > 0)
     .map(([k,v]) => ({ doc: k, value: String(v.lotNumbers).trim() }));
   if(lotVals.length >= 2) {
-    const normL = s => s.toLowerCase().replace(/\s+/g,'').replace(/lote?[-:]/i,'');
+    const normL = s => s.toLowerCase().replace(/\s+/g,'').replace(/^lote?\s*[-:\s]*/i,'').replace(/^lot\s*[-:\s]*/i,'').trim();
     const lcounts = {}; lotVals.forEach(v => { const n=normL(v.value); lcounts[n]=(lcounts[n]||0)+1; });
     const lsorted = Object.entries(lcounts).sort((a,b)=>b[1]-a[1]);
     if(lsorted.length > 1) {
@@ -2338,7 +2359,13 @@ async function startAnalysis(){
     setSub(lang==='es'?'Comparando valores entre documentos...':'Cross-checking values across documents...');
     setProgress(Math.round((uploadedFiles.length/total)*100), lang==='es'?'Analizando coherencia...':'Analyzing coherence...');
 
-    coherenceResult = await analyzeCoherence(extractedDocs);
+    // Filter out failed extractions before coherence
+  const cleanDocs = {};
+  Object.entries(extractedDocs).forEach(([fn, arr]) => {
+    const good = (Array.isArray(arr) ? arr : [arr]).filter(d => !d._err);
+    if(good.length > 0) cleanDocs[fn] = good;
+  });
+  coherenceResult = await analyzeCoherence(cleanDocs);
     _cachedSummary = coherenceResult?.summary || null;
 
     // Track usage
