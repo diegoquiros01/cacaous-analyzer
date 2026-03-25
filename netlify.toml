@@ -12,6 +12,9 @@
 [functions."claude"]
   timeout = 26
 
+[functions."rate-limit"]
+  timeout = 10
+
 # ── COMPRESSION ────────────────────────────────────────
 # Netlify compresses automatically but this makes it explicit
 [build.processing]

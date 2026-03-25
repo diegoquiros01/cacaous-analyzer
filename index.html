@@ -1006,7 +1006,7 @@ footer {
       <a href="/" style="display:flex;align-items:center;text-decoration:none;">
         <img src="/logo.png" alt="DocsValidate" class="logo-img">
       </a>
-      <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">DocsValidate.com</div>
+      <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">AI-Validation</div>
     </div>
     <div class="header-right">
       <nav><ul class="nav">
@@ -1259,10 +1259,11 @@ footer {
 
 
 <footer>
-  <div class="footer-logo"><img src="/logo.png" alt="DocsValidate" style="height:28px;filter:brightness(0) invert(1);opacity:0.85;"></div>
+  <div class="footer-logo"><img src="/logo.png" alt="DocsValidate" style="height:28px;opacity:0.90;"></div>
   <ul class="footer-links">
     <li><a href="/">DocsValidate.com</a></li>
-    <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
+    <li><a href="https://www.instagram.com/docsvalidate/" target="_blank">Instagram</a></li>
+    <li><a href="https://www.tiktok.com/@docsvalidate" target="_blank">TikTok</a></li>
   </ul>
   <div class="footer-copy">© 2025 DocsValidate · All Rights Reserved</div>
 </footer>
@@ -1274,15 +1275,42 @@ let uploadedFiles = [];
 let analysisResults = [];
 let coherenceResult = null;
 // ── GUEST USAGE TRACKING ─────────────────────────
-const GUEST_LIMIT = 3; // free analyses without registration
-function getGuestCount(){ return parseInt(localStorage.getItem('dv_guest_count')||'0'); }
-function incGuestCount(){ localStorage.setItem('dv_guest_count', getGuestCount()+1); }
+const GUEST_LIMIT = 3; // free analyses without registration — enforced server-side by IP
+
+// ── SERVER-SIDE RATE LIMIT (IP-based, works in incognito) ─────────────
+async function checkGuestLimit(){
+  try {
+    const resp = await fetch('/.netlify/functions/rate-limit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'check' })
+    });
+    if(!resp.ok) return { allowed: true, remaining: 1 }; // fail open
+    return await resp.json();
+  } catch(e) {
+    return { allowed: true, remaining: 1 }; // fail open on network error
+  }
+}
+
+async function incGuestLimit(){
+  try {
+    const resp = await fetch('/.netlify/functions/rate-limit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'increment' })
+    });
+    if(!resp.ok) return { allowed: false, remaining: 0 };
+    return await resp.json();
+  } catch(e) {
+    return { allowed: true, remaining: 0 };
+  }
+}
 function isLoggedIn(){ return window.__clerk_user != null; }
 let _cachedSummary = null; // for lang switching
 
 const TX = {
   en: {
-    logoTagline:'DocsValidate.com',
+    logoTagline:'AI-Validation',
     heroEyebrow:'AI-Powered Documents Validation',
     heroTitle:'Validate your shipment documents<br><em>in seconds — not hours</em>',
     heroSub:'AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.',
@@ -1350,9 +1378,17 @@ const TX = {
     verdictDescInit:'All values are consistent.',
     coherenceBoxTitle:'Field-by-field comparison across all documents',
     inconsistencyDetail:'Inconsistency Detail',
+    tableFieldHeader:'Field',
+    tableValuesHeader:'Values by Document',
+    fieldsVerified: n=>`✓ ${n} field${n===1?'':'s'} verified consistent`,
+    labelError:'Error',
+    labelObservation:'Observation',
+    docStatusPending:'Pending',
+    docStatusAnalyzing:'Analyzing...',
+    docStatusDone:'Done ✓',
   },
   es: {
-    logoTagline:'DocsValidate.com',
+    logoTagline:'AI-Validation',
     heroEyebrow:'Validación de Documentos con IA',
     heroTitle:'Valida tus documentos de embarque<br><em>en segundos — no en horas.</em>',
     heroSub:'La IA detecta inconsistencias en contenedores, pesos, sellos, lotes y partes antes de que causen demoras.',
@@ -1420,6 +1456,14 @@ const TX = {
     verdictDescInit:'Todos los valores son consistentes.',
     coherenceBoxTitle:'Comparación campo por campo entre todos los documentos',
     inconsistencyDetail:'Detalle de Inconsistencias',
+    tableFieldHeader:'Campo',
+    tableValuesHeader:'Valores por Documento',
+    fieldsVerified: n=>`✓ ${n} campo${n===1?'':'s'} verificado${n===1?'':'s'}`,
+    labelError:'Error',
+    labelObservation:'Observación',
+    docStatusPending:'Pendiente',
+    docStatusAnalyzing:'Analizando...',
+    docStatusDone:'Listo ✓',
   }
 };
 
@@ -1495,6 +1539,11 @@ function applyLang(){
   st('ctableTitle', t.ctableTitle);
   st('th1', t.th1); st('th2', t.th2); st('th3', t.th3); st('th4', t.th4);
   st('perDocTitle', t.perDocTitle);
+  // Update consistency table header if already rendered
+  const thead2 = document.querySelector('.ctable thead tr');
+  if(thead2 && thead2.children.length === 2){
+    thead2.innerHTML = `<th style="width:30%">${t.tableFieldHeader}</th><th>${t.tableValuesHeader}</th>`;
+  }
 
   // ── Action buttons ─────────────────────────────
   st('dlTxt', t.dlTxt);
@@ -1720,25 +1769,24 @@ function renderFiles(){
   const list=document.getElementById('filesList');
   const fc=document.getElementById('filesCount');
   // Show guest counter if not logged in
+  // Guest counter now server-side — update async if bar exists
   const guestBar = document.getElementById('guestCounterBar');
   const guestTxt = document.getElementById('guestCounterText');
   const guestLink = document.getElementById('guestUpgradeLink');
   if(guestBar && !isLoggedIn()){
-    const used = getGuestCount();
-    const remaining = Math.max(0, GUEST_LIMIT - used);
     guestBar.style.display = 'block';
-    if(guestTxt){
-      guestTxt.textContent = lang === 'es'
-        ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
-        : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
-    }
-    if(guestLink){
-      guestLink.textContent = lang === 'es' ? 'Mejorar plan →' : 'Upgrade for more →';
-    }
-    // Turn red when 0 remaining
-    guestBar.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
-    guestBar.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
-    if(guestTxt) guestTxt.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
+    checkGuestLimit().then(data => {
+      const remaining = data.remaining ?? 1;
+      if(guestTxt){
+        guestTxt.textContent = lang === 'es'
+          ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
+          : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
+      }
+      if(guestLink) guestLink.textContent = lang === 'es' ? 'Mejorar plan →' : 'Upgrade for more →';
+      guestBar.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
+      guestBar.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
+      if(guestTxt) guestTxt.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
+    });
   } else if(guestBar){
     guestBar.style.display = 'none';
   }
@@ -2132,7 +2180,7 @@ function buildDocList(){
     list.innerHTML += `<div class="doc-progress-item" id="dpi${i}">
       <span class="doc-pi-icon">${getIcon(f.name)}</span>
       <span class="doc-pi-name">${f.name} ${tag}</span>
-      <span class="doc-pi-status" id="dps${i}">${lang==='es'?'Pendiente':'Pending'}</span>
+      <span class="doc-pi-status" id="dps${i}">${tx().docStatusPending}</span>
     </div>`;
   });
 }
@@ -2144,10 +2192,10 @@ function setDocStatus(i, status){
   item.classList.remove('active','done');
   if(status==='active'){
     item.classList.add('active');
-    lbl.textContent = lang==='es'?'Analizando...':'Analyzing...';
+    lbl.textContent = tx().docStatusAnalyzing;
   } else if(status==='done'){
     item.classList.add('done');
-    lbl.textContent = lang==='es'?'Listo ✓':'Done ✓';
+    lbl.textContent = tx().docStatusDone;
   }
 }
 
@@ -2191,13 +2239,15 @@ async function startAnalysis(){
     return;
   }
 
-  // ── CHECK AUTH / GUEST LIMIT ───────────────────
+  // ── CHECK AUTH / GUEST LIMIT (server-side, IP-based) ───────────────
   const loggedIn = isLoggedIn();
-  const guestCount = getGuestCount();
 
-  if(!loggedIn && guestCount >= GUEST_LIMIT){
-    showAuthModal('guest_limit');
-    return;
+  if(!loggedIn){
+    const limitData = await checkGuestLimit();
+    if(!limitData.allowed){
+      showAuthModal('guest_limit');
+      return;
+    }
   }
 
   // If logged in, check plan limits
@@ -2284,7 +2334,21 @@ async function startAnalysis(){
         body: JSON.stringify({ action:'increment', clerk_id: userId, email })
       }).catch(e => console.warn('Usage increment failed:', e.message));
     } else {
-      incGuestCount();
+      await incGuestLimit();
+      // Refresh guest counter display
+      const guestBar2 = document.getElementById('guestCounterBar');
+      const guestTxt2 = document.getElementById('guestCounterText');
+      if(guestBar2 && guestTxt2 && !isLoggedIn()){
+        checkGuestLimit().then(data => {
+          const remaining = data.remaining ?? 0;
+          guestTxt2.textContent = lang === 'es'
+            ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
+            : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
+          guestBar2.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
+          guestBar2.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
+          guestTxt2.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
+        });
+      }
     }
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
@@ -3179,7 +3243,7 @@ function renderResults(){
       docRows += `<div style="background:${bg};border-left:3px solid ${borderColor};padding:10px 12px;margin-bottom:4px;border-radius:0 4px 4px 0;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
           <span style="color:${iconColor};font-weight:700;font-size:0.85rem;">${icon}</span>
-          <span style="font-size:0.65rem;color:#888;font-family:'Raleway',sans-serif;letter-spacing:0.05em;">${docs.join(' · ')}</span>
+          <span style="font-size:0.74rem;color:#555;font-family:'Lato',sans-serif;font-weight:400;letter-spacing:0.01em;">${docs.join(' · ')}</span>
         </div>
         <div style="line-height:1.8;">${renderTokens(val)}</div>
       </div>`;
@@ -3187,7 +3251,7 @@ function renderResults(){
 
     tbody.innerHTML += `<tr style="background:#fff5f5;">
       <td style="padding:14px 16px;vertical-align:top;border-bottom:2px solid #f0d0cc;">
-        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">🔴 Error</div>
+        <div style="font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">${tx().labelError}</div>
         <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
       </td>
       <td style="padding:14px 16px;border-bottom:2px solid #f0d0cc;">${docRows}</td>
@@ -3200,7 +3264,7 @@ function renderResults(){
     const docList = vals.map(v => `<span style="color:#888;font-size:0.72rem;">${cleanDoc(v.doc)}:</span> <code style="background:#f5f0e8;padding:1px 5px;border-radius:3px;font-size:0.78rem;">${v.value||'—'}</code>`).join('<br>');
     tbody.innerHTML += `<tr style="background:#fffdf5;">
       <td style="padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--border);">
-        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">🟡 Observation</div>
+        <div style="font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">${tx().labelObservation}</div>
         <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
       </td>
       <td style="padding:12px 16px;border-bottom:1px solid var(--border);">${docList}</td>
@@ -3220,7 +3284,7 @@ function renderResults(){
     tbody.innerHTML += `<tr style="background:#f5f6f8;">
       <td colspan="2" style="padding:10px 16px;border-top:1px solid #e0e4ec;">
         <span style="font-family:'Lato',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:#555;">
-          ✓ &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent
+          ${tx().fieldsVerified(okEntries.length)}
         </span>
       </td>
     </tr>
@@ -3232,7 +3296,7 @@ function renderResults(){
 
   // Remove old table headers (4 cols → 2 cols now)
   const thead = document.querySelector('.ctable thead tr');
-  if(thead) thead.innerHTML = '<th style="width:30%">Field</th><th>Values by Document</th>';
+  if(thead) thead.innerHTML = `<th style="width:30%">${tx().tableFieldHeader}</th><th>${tx().tableValuesHeader}</th>`;
 
   // ── STEP 10: Inconsistency cards ────────────────────────────
   const iSec=document.getElementById('inconsSec');
