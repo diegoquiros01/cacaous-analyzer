@@ -6,7 +6,7 @@
 <title>Pricing — DocsValidate</title>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root{--white:#fff;--offwhite:#f8f6f2;--cream:#f2ede4;--cream2:#e8dfd0;--brown-dark:#2c1a0e;--brown:#4a2c1a;--brown-mid:#7a4e32;--brown-light:#b8866a;--tan:#c9a882;--tan-light:#e0c9aa;--green:#3d5a3e;--text:#1a0f08;--text-mid:#5a3e2c;--text-light:#9a7a60;--border:#d8c8b0;--border-light:#ede4d4;}
+:root{--white:#fff;--offwhite:#f7f8fa;--cream:#f0f2f5;--cream2:#e4e8ee;--brown-dark:#0f1117;--brown:#1c2230;--brown-mid:#3a4660;--brown-light:#6b7a99;--tan:#4a6fa5;--tan-light:#7da4d4;--green:#1a6b3a;--green-light:#2e9455;--text:#0f1117;--text-mid:#3a4255;--text-light:#7a8499;--border:#d0d6e2;--border-light:#e8edf5;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);min-height:100vh;}
 header{background:var(--white);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;}
@@ -16,10 +16,10 @@ header{background:var(--white);border-bottom:1px solid var(--border-light);posit
 .header-right{display:flex;align-items:center;gap:2rem;}
 nav ul{display:flex;gap:2rem;list-style:none;}
 nav a{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:500;transition:color 0.2s;}
-nav a:hover,nav a.active{color:var(--brown);}
+nav a:hover,nav a.active{color:#0f1117;font-weight:600;}
 .lang-switch{display:flex;align-items:center;gap:0.4rem;}
 .lang-btn{background:none;border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;color:var(--text-light);font-family:'Lato',sans-serif;padding:0.2rem 0.3rem;transition:color 0.2s;}
-.lang-btn.active{color:var(--brown);border-bottom:1px solid var(--tan);}
+.lang-btn.active{color:#1c2230;font-weight:700;border-bottom:1.5px solid #4a6fa5;}
 .lang-sep{color:var(--border);font-size:0.7rem;}
 .hero{text-align:center;padding:5rem 2rem 3rem;background:var(--white);border-bottom:1px solid var(--border-light);}
 .hero-eyebrow{font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--tan);font-weight:500;margin-bottom:1rem;}
@@ -28,7 +28,7 @@ nav a:hover,nav a.active{color:var(--brown);}
 .billing-toggle{display:flex;align-items:center;justify-content:center;gap:1rem;margin:2.5rem auto 0;}
 .billing-toggle span{font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);}
 .toggle-wrap{position:relative;width:48px;height:26px;background:var(--cream2);border-radius:13px;cursor:pointer;transition:background 0.3s;}
-.toggle-wrap.on{background:var(--brown-mid);}
+.toggle-wrap.on{background:#4a6fa5;}
 .toggle-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
 .toggle-wrap.on .toggle-knob{transform:translateX(22px);}
 .save-badge{background:var(--green);color:white;font-size:0.6rem;letter-spacing:0.1em;padding:0.2rem 0.5rem;border-radius:20px;text-transform:uppercase;font-weight:600;opacity:0;transition:opacity 0.3s;}
@@ -36,10 +36,10 @@ nav a:hover,nav a.active{color:var(--brown);}
 .plans-section{max-width:1100px;margin:0 auto;padding:4rem 2rem 5rem;}
 .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;align-items:stretch;}
 .plan-card{background:var(--white);border:1px solid var(--border);border-radius:4px;padding:2.5rem 2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.2s,box-shadow 0.2s;}
-.plan-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(74,44,26,0.1);}
-.plan-card.featured{border:2px solid var(--tan);background:var(--brown-dark);color:var(--cream);}
-.plan-card.featured:hover{box-shadow:0 12px 40px rgba(44,26,14,0.25);}
-.plan-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--tan);color:var(--brown-dark);font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;padding:0.3rem 1.2rem;border-radius:0 0 4px 4px;}
+.plan-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(74,111,165,0.12);}
+.plan-card.featured{border:2px solid #4a6fa5;background:#0f1117;color:#e8edf5;}
+.plan-card.featured:hover{box-shadow:0 12px 40px rgba(15,17,23,0.3);}
+.plan-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:#4a6fa5;color:#ffffff;font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;padding:0.3rem 1.2rem;border-radius:0 0 4px 4px;}
 .plan-name{font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-light);margin-bottom:1.5rem;}
 .plan-card.featured .plan-name{color:var(--tan-light);}
 .plan-price{margin-bottom:0.3rem;display:flex;align-items:baseline;gap:0.25rem;}
@@ -63,10 +63,10 @@ nav a:hover,nav a.active{color:var(--brown);}
 .plan-cta{display:block;text-align:center;padding:0.9rem 1.5rem;font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:all 0.2s;cursor:pointer;border:none;font-family:'Lato',sans-serif;}
 .cta-out{background:transparent;border:1px solid var(--border);color:var(--brown-mid);}
 .cta-out:hover{background:var(--cream);border-color:var(--tan);color:var(--brown);}
-.cta-fill{background:var(--tan);color:var(--brown-dark);border:1px solid var(--tan);}
-.cta-fill:hover{background:var(--brown-light);color:var(--white);}
-.cta-dark{background:var(--tan);color:var(--brown-dark);}
-.cta-dark:hover{background:var(--tan-light);}
+.cta-fill{background:#4a6fa5;color:#ffffff;border:1px solid #4a6fa5;}
+.cta-fill:hover{background:#3a5a8a;color:#ffffff;}
+.cta-dark{background:#4a6fa5;color:#ffffff;}
+.cta-dark:hover{background:#3a5a8a;}
 .compare-section{max-width:900px;margin:0 auto;padding:0 2rem 5rem;}
 .sec-title{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--brown-dark);margin-bottom:2rem;font-weight:400;text-align:center;}
 .compare-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
@@ -74,11 +74,11 @@ nav a:hover,nav a.active{color:var(--brown);}
 .compare-table th:not(:first-child){text-align:center;}
 .compare-table td{padding:0.9rem 1rem;border-bottom:1px solid var(--border-light);color:var(--text-mid);}
 .compare-table td:not(:first-child){text-align:center;}
-.compare-table tr:hover td{background:var(--cream);}
+.compare-table tr:hover td{background:#f0f2f5;}
 .fn{font-weight:500;color:var(--text);}
 .chk{color:var(--green);font-size:1rem;}
 .dsh{color:var(--border);}
-.fc{background:rgba(201,168,130,0.06);}
+.fc{background:rgba(74,111,165,0.05);}
 .notes-section{max-width:700px;margin:0 auto;padding:0 2rem 5rem;text-align:center;}
 .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:left;}
 .note-item h4{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--brown-mid);margin-bottom:0.4rem;font-weight:600;}
@@ -95,8 +95,7 @@ nav a:hover,nav a.active{color:var(--brown);}
 <header>
   <div class="header-top">
     <div>
-      <div class="logo-wordmark">DocsValidate</div>
-      <div class="logo-tagline" id="logoTagline"></div>
+      <a href="/" style="display:flex;align-items:center;text-decoration:none;"><img src="/logo.png" alt="DocsValidate" style="height:34px;width:auto;display:block;"></a>
     </div>
     <div class="header-right">
       <nav><ul>
@@ -222,7 +221,7 @@ nav a:hover,nav a.active{color:var(--brown);}
 let lang='en', isAnnual=false;
 const TX={
   en:{
-    logoTagline:'DocsValidate.com',
+    logoTagline:'AI-Validation',
     navHome:'Home',navPricing:'Pricing',navContact:'Contact',
     heroEyebrow:'Simple, transparent pricing',
     heroTitle:'Validate your shipments<br><em>without the headache</em>',
@@ -261,7 +260,7 @@ const TX={
     faq4a:'We accept all major credit cards via Stripe. Annual plans can also be paid by bank transfer.',
   },
   es:{
-    logoTagline:'DocsValidate.com',
+    logoTagline:'AI-Validation',
     navHome:'Inicio',navPricing:'Precios',navContact:'Contacto',
     heroEyebrow:'Precios simples y transparentes',
     heroTitle:'Valida tus embarques<br><em>sin complicaciones</em>',
@@ -413,24 +412,24 @@ async function proceedWithClerk() {
 </script>
 
 <!-- ══ AUTH MODAL ══ -->
-<div id="authModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(26,15,8,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+<div id="authModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,17,23,0.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
   <div style="background:#fff;border-radius:4px;padding:2.5rem;max-width:400px;width:90%;position:relative;text-align:center;">
     <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888;">✕</button>
     <div style="font-size:2rem;margin-bottom:1rem;">🫘</div>
-    <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#2c1a0e;margin-bottom:0.8rem;font-weight:400;">Create your free account first</h3>
-    <p style="font-size:0.84rem;color:#6b4c2a;line-height:1.6;margin-bottom:1.4rem;">Sign up for free, then you'll be redirected to complete your subscription.</p>
+    <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#0f1117;margin-bottom:0.8rem;font-weight:400;">Create your free account first</h3>
+    <p style="font-size:0.84rem;color:#3a4255;line-height:1.6;margin-bottom:1.4rem;">Sign up for free, then you'll be redirected to complete your subscription.</p>
     <label style="display:flex;align-items:flex-start;gap:10px;text-align:left;margin-bottom:1rem;cursor:pointer;">
-      <input type="checkbox" id="termsCheck" style="margin-top:3px;min-width:15px;height:15px;accent-color:#2c1a0e;cursor:pointer;"/>
-      <span style="font-size:0.78rem;color:#6b4c2a;line-height:1.5;">
+      <input type="checkbox" id="termsCheck" style="margin-top:3px;min-width:15px;height:15px;accent-color:#4a6fa5;cursor:pointer;"/>
+      <span style="font-size:0.78rem;color:#3a4255;line-height:1.5;">
         I have read and agree to the
-        <a href="/terms.html" target="_blank" style="color:#7a5230;text-decoration:underline;">Terms of Service</a>
+        <a href="/terms.html" target="_blank" style="color:#4a6fa5;text-decoration:underline;">Terms of Service</a>
       </span>
     </label>
     <p id="termsError" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.6rem;text-align:left;">Please accept the Terms of Service to continue.</p>
-    <button id="signupBtn" onclick="handleSignupClick()" style="width:100%;padding:0.9rem;background:#2c1a0e;color:#f5f0e8;border:none;border-radius:2px;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;opacity:0.5;transition:opacity 0.2s;">
+    <button id="signupBtn" onclick="handleSignupClick()" style="width:100%;padding:0.9rem;background:#0f1117;color:#e8edf5;border:none;border-radius:2px;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;opacity:0.5;transition:opacity 0.2s;">
       Sign up free
     </button>
-    <p style="margin-top:0.8rem;font-size:0.72rem;color:#888;">Already have an account? <a href="#" onclick="proceedWithClerk(); return false;" style="color:#7a5230;">Sign in</a></p>
+    <p style="margin-top:0.8rem;font-size:0.72rem;color:#888;">Already have an account? <a href="#" onclick="proceedWithClerk(); return false;" style="color:#4a6fa5;">Sign in</a></p>
   </div>
 </div>
 
