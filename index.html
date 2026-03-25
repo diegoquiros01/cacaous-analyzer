@@ -18,24 +18,24 @@
 
 :root {
   --white: #ffffff;
-  --offwhite: #f7f8fa;
-  --cream: #f0f2f5;
-  --cream2: #e4e8ee;
-  --brown-dark: #0f1117;
-  --brown: #1c2230;
-  --brown-mid: #3a4660;
-  --brown-light: #6b7a99;
-  --tan: #4a6fa5;
-  --tan-light: #7da4d4;
-  --green: #1a6b3a;
-  --green-light: #2e9455;
-  --red: #b82020;
-  --red-light: #d94040;
-  --text: #0f1117;
-  --text-mid: #3a4255;
-  --text-light: #7a8499;
-  --border: #d0d6e2;
-  --border-light: #e8edf5;
+  --offwhite: #f8f6f2;
+  --cream: #f2ede4;
+  --cream2: #e8dfd0;
+  --brown-dark: #2c1a0e;
+  --brown: #4a2c1a;
+  --brown-mid: #7a4e32;
+  --brown-light: #b8866a;
+  --tan: #c9a882;
+  --tan-light: #e0c9aa;
+  --green: #3d5a3e;
+  --green-light: #5a8c5c;
+  --red: #7a2e22;
+  --red-light: #b04030;
+  --text: #1a0f08;
+  --text-mid: #5a3e2c;
+  --text-light: #9a7a60;
+  --border: #d8c8b0;
+  --border-light: #ede4d4;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -85,7 +85,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
   transition: color 0.2s;
 }
 .lang-btn:hover { color: var(--brown); }
-.lang-btn.active { color: #1c2230; font-weight: 700; border-bottom: 1.5px solid #4a6fa5; }
+.lang-btn.active { color: var(--brown); font-weight: 700; border-bottom: 1.5px solid var(--tan); }
 .lang-sep { color: var(--border); font-size: 0.8rem; }
 
 /* ══════════════════════════════════════
@@ -109,7 +109,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .hero-content { position: relative; z-index: 1; color: var(--white); max-width: 860px; padding: 4rem 2rem; }
 .hero-eyebrow {
   font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase;
-  color: #a8c4e8; margin-bottom: 1.4rem;
+  color: #f5dfa0; margin-bottom: 1.4rem;
   display: flex; align-items: center; justify-content: center; gap: 1.2rem;
   font-weight: 600;
   /* pill backdrop for small text */
@@ -128,7 +128,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
   text-shadow: 0 2px 24px rgba(0,0,0,1), 0 1px 4px rgba(0,0,0,0.9);
   color: #ffffff;
 }
-.hero h1 em { font-style: italic; font-weight: 400; color: #a8c4e8; }
+.hero h1 em { font-style: italic; font-weight: 400; color: #f5dfa0; }
 .hero-sub {
   font-size: 0.92rem; letter-spacing: 0.03em;
   color: rgba(255,255,255,0.96); line-height: 1.75;
@@ -151,7 +151,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
   background: rgba(0,0,0,0.35); backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   padding: 0.3rem 0.8rem; border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 .hero-quote-unused {
   margin-top: 1.5rem;
@@ -164,7 +164,7 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
    PROGRESS STEPS — visual guide
 ══════════════════════════════════════ */
 .progress-bar {
-  background: #0f1117;
+  background: var(--brown-dark);
   padding: 0;
   display: flex;
   position: sticky; top: 68px; z-index: 100;
@@ -241,7 +241,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   background: var(--border); flex-shrink: 0; transition: background 0.2s;
 }
 .doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
-.doc-type-btn.active { border-color: #1c2230; background: #1c2230; color: var(--white); }
+.doc-type-btn.active { border-color: var(--brown); background: var(--brown); color: var(--white); }
 .doc-type-btn.active .dt-dot { background: var(--tan-light); }
 .doc-type-btn.ghost {
   background: var(--cream2); border: 1px dashed var(--tan);
@@ -262,10 +262,10 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   position: relative; margin-bottom: 1rem;
 }
 .upload-area:hover, .upload-area.drag-over {
-  border-color: #4a6fa5; background: var(--cream);
+  border-color: var(--tan); background: var(--cream);
 }
 .upload-area input[type="file"] { display: none; }
-.upload-icon { font-size: 2.2rem; margin-bottom: 1rem; color: #4a6fa5; }
+.upload-icon { font-size: 2.2rem; margin-bottom: 1rem; color: var(--tan); }
 .upload-area h3 {
   font-family: 'Playfair Display', serif;
   font-size: 1.4rem; font-weight: 400; color: var(--brown-dark);
@@ -276,7 +276,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .upload-cta {
   display: inline-block; margin-top: 1.5rem;
   padding: 0.7rem 2.2rem;
-  background: #0f1117; color: var(--white);
+  background: var(--brown-dark); color: var(--white);
   font-family: 'Lato', sans-serif;
   font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
   border: none; cursor: pointer; transition: background 0.2s;
@@ -286,12 +286,12 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 /* FILES LIST */
 .files-list { margin-bottom: 0.5rem; }
 .file-item {
-  display: flex; align-items: center; gap: 1.4rem;
+  display: flex; align-items: center; gap: 1rem;
   padding: 0.85rem 1.2rem;
   background: var(--white); border: 1px solid var(--border-light);
   border-bottom: none; transition: background 0.15s;
 }
-.file-item:first-child { border-top: 2px solid #4a6fa5; }
+.file-item:first-child { border-top: 2px solid var(--tan); }
 .file-item:last-child { border-bottom: 1px solid var(--border-light); }
 .file-item:hover { background: var(--offwhite); }
 .file-icon { font-size: 1.1rem; flex-shrink: 0; }
@@ -320,8 +320,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 /* ANALYZE BUTTON */
 .analyze-wrap { margin-bottom: 3rem; }
 @keyframes btn-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(74,111,165,0.5); }
-  50%  { box-shadow: 0 0 0 10px rgba(74,111,165,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(201,168,130,0.5); }
+  50%  { box-shadow: 0 0 0 10px rgba(201,168,130,0); }
   100% { box-shadow: 0 0 0 0 rgba(201,168,130,0); }
 }
 @keyframes btn-shimmer {
@@ -335,7 +335,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 
 .analyze-btn {
   width: 100%; padding: 1.2rem;
-  background: #0f1117; border: none;
+  background: var(--brown-dark); border: none;
   color: var(--white);
   font-family: 'Lato', sans-serif;
   font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 700;
@@ -343,7 +343,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   display: flex; align-items: center; justify-content: center; gap: 1rem;
 }
 .analyze-btn.ready {
-  background: linear-gradient(135deg, #1c2230 0%, #3a4660 50%, #1c2230 100%);
+  background: linear-gradient(135deg, var(--brown) 0%, var(--brown-mid) 50%, var(--brown) 100%);
   background-size: 200% auto;
   animation: btn-pulse 2s ease-in-out infinite, btn-shimmer 3s linear infinite;
   cursor: pointer;
@@ -373,12 +373,12 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .cacao-loader .ring {
   position: absolute; inset: 0; border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: #4a6fa5;
+  border-top-color: var(--tan);
   animation: spin-ring 1.2s linear infinite;
 }
 .cacao-loader .ring2 {
   inset: 8px;
-  border-top-color: #3a4660;
+  border-top-color: var(--brown-mid);
   animation: spin-ring 1.8s linear infinite reverse;
 }
 .cacao-loader .bean {
@@ -396,15 +396,15 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .progress-pct { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--brown-dark); line-height: 1; }
 .progress-pct span { font-size: 0.75rem; color: var(--text-light); font-family: 'Lato', sans-serif; }
 .progress-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.9rem; }
-.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #3a4660, #4a6fa5); transition: width 0.5s ease; width: 0%; }
+.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--brown-mid), var(--tan)); transition: width 0.5s ease; width: 0%; }
 .progress-phase { font-size: 0.7rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; }
-.progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4a6fa5; flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
+.progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--tan); flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
 @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 .doc-progress-list { display: flex; flex-direction: column; gap: 0.4rem; }
-.doc-progress-item { display: flex; align-items: center; gap: 1.8rem; padding: 0.55rem 0.8rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
+.doc-progress-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.55rem 0.8rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
 .doc-progress-item.done { background: rgba(61,90,62,0.05); border-color: rgba(61,90,62,0.2); }
 .doc-progress-item.active { background: rgba(201,168,130,0.1); border-color: var(--tan); }
-.doc-pi-icon { font-size: 0.9rem; flex-shrink: 0; width: 48px; text-align: center; }
+.doc-pi-icon { font-size: 0.9rem; flex-shrink: 0; width: 20px; text-align: center; }
 .doc-pi-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .doc-pi-status { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; flex-shrink: 0; color: var(--text-light); }
 .doc-progress-item.done .doc-pi-status { color: var(--green); }
@@ -424,8 +424,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 .verdict.approved {
   border-color: var(--green);
-  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
-  box-shadow: 0 2px 16px rgba(26,107,58,0.08);
+  background: linear-gradient(135deg, #eaf5ea 0%, #f5fbf5 100%);
+  box-shadow: 0 2px 16px rgba(61,90,62,0.10);
 }
 .verdict.warning { border-color: var(--tan); background: #fdf8f0; }
 .verdict.rejected { border-color: var(--red); background: #fdf2f0; }
@@ -436,8 +436,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   transition: all 0.3s;
 }
 .verdict.approved .verdict-icon {
-  background: #1a6b3a; color: var(--white);
-  box-shadow: 0 4px 16px rgba(26,107,58,0.25);
+  background: var(--green); color: var(--white);
+  box-shadow: 0 4px 16px rgba(61,90,62,0.25);
   font-size: 2.2rem;
 }
 .verdict.warning .verdict-icon { background: var(--tan); color: var(--white); }
@@ -493,7 +493,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   display: flex; align-items: center; justify-content: space-between;
 }
 .coherence-box-header h4 {
-  font-family: 'Lato', sans-serif; font-size: 0.85rem; font-weight: 400; letter-spacing: 0.08em;
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; letter-spacing: 0.05em;
 }
 .coherence-body { padding: 0; }
 
@@ -590,7 +590,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .dcard.open .dcard-body { display: block !important; }
 .dcard-fields-label {
   font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: #4a6fa5; margin-bottom: 0.8rem; font-weight: 700;
+  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
 }
 .dcard-fields {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr));
@@ -635,7 +635,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 /* Summary AI comment */
 .summary-comment {
   background: var(--cream); border: 1px solid var(--border);
-  border-top: 3px solid #4a6fa5;
+  border-top: 3px solid var(--tan);
   padding: 1.5rem 2rem; margin-top: 1.5rem;
 }
 .summary-comment-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tan); margin-bottom: 0.6rem; font-weight: 700; }
@@ -729,7 +729,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .tracking-bl {
   font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--tan-light); background: rgba(255,255,255,0.1);
-  padding: 0.2rem 0.7rem; border: 1px solid rgba(255,255,255,0.25);
+  padding: 0.2rem 0.7rem; border: 1px solid rgba(255,255,255,0.2);
 }
 .tracking-body { padding: 1.5rem; }
 .tracking-loading {
@@ -766,7 +766,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .tracking-events { margin-top: 1rem; }
 .tracking-events-label {
   font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: #4a6fa5; margin-bottom: 0.8rem; font-weight: 700;
+  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
 }
 .event-timeline { display: flex; flex-direction: column; gap: 0; }
 .event-item {
@@ -830,7 +830,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   padding: 0.7rem 1rem; margin-bottom: 1rem;
   font-size: 0.75rem; font-weight: 700; border-left: 3px solid;
 }
-.tracking-match-banner.ok { background: rgba(74,111,165,0.06); border-color: #4a6fa5; color: #2a5090; }
+.tracking-match-banner.ok { background: rgba(61,90,62,0.06); border-color: var(--green); color: var(--green); }
 .tracking-match-banner.warn { background: rgba(201,168,130,0.1); border-color: var(--tan); color: var(--brown-mid); }
 .tracking-match-banner.err { background: rgba(122,46,34,0.06); border-color: var(--red); color: var(--red); }
 
@@ -843,8 +843,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
   margin-bottom: 1.2rem;
 }
 .critical-banner-title {
-  font-family: 'Lato', sans-serif;
-  font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--red); font-weight: 700; margin-bottom: 0.8rem;
   display: flex; align-items: center; gap: 0.6rem;
 }
@@ -1006,7 +1005,7 @@ footer {
       <a href="/" style="display:flex;align-items:center;text-decoration:none;">
         <img src="/logo.png" alt="DocsValidate" class="logo-img">
       </a>
-      <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">AI-Validation</div>
+      <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">DocsValidate.com</div>
     </div>
     <div class="header-right">
       <nav><ul class="nav">
@@ -1185,9 +1184,6 @@ footer {
     <!-- ② SET SUMMARY STATS — moved up right after verdict -->
     <div class="stats-row" id="statsRow" style="margin-bottom:2rem;"></div>
 
-    <!-- ② b RESULTS INTRO NOTE -->
-    <div id="resultsIntroNote" style="display:none;font-size:0.82rem;color:var(--text-mid);line-height:1.7;padding:1rem 1.4rem;background:var(--offwhite);border-left:3px solid var(--border);margin-bottom:1.5rem;"></div>
-
     <!-- ③ MULTI-DOC NOTICE -->
     <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
 
@@ -1262,11 +1258,10 @@ footer {
 
 
 <footer>
-  <div class="footer-logo"><img src="/logo.png" alt="DocsValidate" style="height:28px;opacity:0.90;"></div>
+  <div class="footer-logo"><img src="/logo.png" alt="DocsValidate" style="height:28px;filter:brightness(0) invert(1);opacity:0.85;"></div>
   <ul class="footer-links">
     <li><a href="/">DocsValidate.com</a></li>
-    <li><a href="https://www.instagram.com/docsvalidate/" target="_blank">Instagram</a></li>
-    <li><a href="https://www.tiktok.com/@docsvalidate" target="_blank">TikTok</a></li>
+    <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
   </ul>
   <div class="footer-copy">© 2025 DocsValidate · All Rights Reserved</div>
 </footer>
@@ -1278,42 +1273,15 @@ let uploadedFiles = [];
 let analysisResults = [];
 let coherenceResult = null;
 // ── GUEST USAGE TRACKING ─────────────────────────
-const GUEST_LIMIT = 3; // free analyses without registration — enforced server-side by IP
-
-// ── SERVER-SIDE RATE LIMIT (IP-based, works in incognito) ─────────────
-async function checkGuestLimit(){
-  try {
-    const resp = await fetch('/.netlify/functions/rate-limit', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'check' })
-    });
-    if(!resp.ok) return { allowed: true, remaining: 1 }; // fail open
-    return await resp.json();
-  } catch(e) {
-    return { allowed: true, remaining: 1 }; // fail open on network error
-  }
-}
-
-async function incGuestLimit(){
-  try {
-    const resp = await fetch('/.netlify/functions/rate-limit', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action: 'increment' })
-    });
-    if(!resp.ok) return { allowed: false, remaining: 0 };
-    return await resp.json();
-  } catch(e) {
-    return { allowed: true, remaining: 0 };
-  }
-}
+const GUEST_LIMIT = 3; // free analyses without registration
+function getGuestCount(){ return parseInt(localStorage.getItem('dv_guest_count')||'0'); }
+function incGuestCount(){ localStorage.setItem('dv_guest_count', getGuestCount()+1); }
 function isLoggedIn(){ return window.__clerk_user != null; }
 let _cachedSummary = null; // for lang switching
 
 const TX = {
   en: {
-    logoTagline:'AI-Validation',
+    logoTagline:'DocsValidate.com',
     heroEyebrow:'AI-Powered Documents Validation',
     heroTitle:'Validate your shipment documents<br><em>in seconds — not hours</em>',
     heroSub:'AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.',
@@ -1381,20 +1349,9 @@ const TX = {
     verdictDescInit:'All values are consistent.',
     coherenceBoxTitle:'Field-by-field comparison across all documents',
     inconsistencyDetail:'Inconsistency Detail',
-    tableFieldHeader:'Field',
-    tableValuesHeader:'Values by Document',
-    fieldsVerified: n=>`✓ ${n} field${n===1?'':'s'} verified consistent`,
-    labelError:'Error',
-    labelObservation:'Observation',
-    docStatusPending:'Pending',
-    docStatusAnalyzing:'Analyzing...',
-    docStatusDone:'Done ✓',
-    resultsIntroNote: (n) => n > 0
-      ? `The AI reviewed all uploaded documents and found <strong>${n} field(s) with discrepancies</strong> — these are highlighted below in the Consistency Table. Fields marked in green were consistent across all documents. Scroll down to review each document in detail.`
-      : `The AI reviewed all uploaded documents and found <strong>no discrepancies</strong>. All fields are consistent across documents. Scroll down to review each document in detail.`,
   },
   es: {
-    logoTagline:'AI-Validation',
+    logoTagline:'DocsValidate.com',
     heroEyebrow:'Validación de Documentos con IA',
     heroTitle:'Valida tus documentos de embarque<br><em>en segundos — no en horas.</em>',
     heroSub:'La IA detecta inconsistencias en contenedores, pesos, sellos, lotes y partes antes de que causen demoras.',
@@ -1462,17 +1419,6 @@ const TX = {
     verdictDescInit:'Todos los valores son consistentes.',
     coherenceBoxTitle:'Comparación campo por campo entre todos los documentos',
     inconsistencyDetail:'Detalle de Inconsistencias',
-    tableFieldHeader:'Campo',
-    tableValuesHeader:'Valores por Documento',
-    fieldsVerified: n=>`✓ ${n} campo${n===1?'':'s'} verificado${n===1?'':'s'}`,
-    labelError:'Error',
-    labelObservation:'Observación',
-    docStatusPending:'Pendiente',
-    docStatusAnalyzing:'Analizando...',
-    docStatusDone:'Listo ✓',
-    resultsIntroNote: (n) => n > 0
-      ? `La IA revisó todos los documentos cargados y encontró <strong>${n} campo(s) con discrepancias</strong> — estos se destacan a continuación en la Tabla de Consistencia. Los campos marcados en verde son consistentes en todos los documentos. Desplázate hacia abajo para revisar cada documento en detalle.`
-      : `La IA revisó todos los documentos cargados y <strong>no encontró discrepancias</strong>. Todos los campos son consistentes entre los documentos. Desplázate hacia abajo para revisar cada documento en detalle.`,
   }
 };
 
@@ -1548,11 +1494,6 @@ function applyLang(){
   st('ctableTitle', t.ctableTitle);
   st('th1', t.th1); st('th2', t.th2); st('th3', t.th3); st('th4', t.th4);
   st('perDocTitle', t.perDocTitle);
-  // Update consistency table header if already rendered
-  const thead2 = document.querySelector('.ctable thead tr');
-  if(thead2 && thead2.children.length === 2){
-    thead2.innerHTML = `<th style="width:30%">${t.tableFieldHeader}</th><th>${t.tableValuesHeader}</th>`;
-  }
 
   // ── Action buttons ─────────────────────────────
   st('dlTxt', t.dlTxt);
@@ -1657,7 +1598,7 @@ document.querySelectorAll('.doc-type-btn').forEach(btn=>{
 const isExcel=n=>/\.(xlsx|xls)$/i.test(n);
 const isWord=n=>/\.(docx|doc)$/i.test(n);
 const getIcon=(n,isPdfPage)=>{
-  const badge=(txt,color)=>`<span style="font-size:0.6rem;font-family:'Raleway',sans-serif;font-weight:600;letter-spacing:0.08em;background:${color};color:#fff;padding:3px 8px;border-radius:3px;margin-right:0.8rem;">${txt}</span>`;
+  const badge=(txt,color)=>`<span style="font-size:0.6rem;font-family:'Raleway',sans-serif;font-weight:600;letter-spacing:0.08em;background:${color};color:#fff;padding:3px 6px;border-radius:3px;">${txt}</span>`;
   if(isPdfPage||/\.pdf$/i.test(n)) return badge('PDF','#7a5230');
   if(isExcel(n)) return badge('XLS','#217346');
   if(isWord(n))  return badge('DOC','#2b579a');
@@ -1723,8 +1664,27 @@ async function splitPdfToPages(file){
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
 
-    // 1-2 pages: send as-is to Claude (fast enough)
+    // 1-2 pages: always send as-is
     if(numPages <= 2) return null;
+
+    // Only split PDFs that are clearly multi-document bundles
+    // Single documents (BL, invoice, packing list, certs) can be many pages — never split them
+    const nameLower = file.name.toLowerCase();
+    const isSingleDoc =
+      nameLower.includes('bl') || nameLower.includes('bill') || nameLower.includes('lading') ||
+      nameLower.includes('invoice') || nameLower.includes('factura') || nameLower.includes('fact') ||
+      nameLower.includes('packing') || nameLower.includes('pack') ||
+      nameLower.includes('phyto') || nameLower.includes('fito') ||
+      nameLower.includes('cert') || nameLower.includes('certif') ||
+      nameLower.includes('origin') || nameLower.includes('origen') ||
+      nameLower.includes('fumig') || nameLower.includes('gas') ||
+      nameLower.includes('letter') || nameLower.includes('carta') ||
+      nameLower.includes('declar') || nameLower.includes('shipping') ||
+      nameLower.includes('notify') || nameLower.includes('notif') ||
+      nameLower.includes('sample') || nameLower.includes('quality') ||
+      nameLower.includes('calidad') || nameLower.includes('weight') ||
+      nameLower.includes('peso') || nameLower.includes('swb');
+    if(isSingleDoc) return null;
 
     // >2 pages: split into individual page images (lower res = faster)
     const pages = [];
@@ -1778,24 +1738,25 @@ function renderFiles(){
   const list=document.getElementById('filesList');
   const fc=document.getElementById('filesCount');
   // Show guest counter if not logged in
-  // Guest counter now server-side — update async if bar exists
   const guestBar = document.getElementById('guestCounterBar');
   const guestTxt = document.getElementById('guestCounterText');
   const guestLink = document.getElementById('guestUpgradeLink');
   if(guestBar && !isLoggedIn()){
+    const used = getGuestCount();
+    const remaining = Math.max(0, GUEST_LIMIT - used);
     guestBar.style.display = 'block';
-    checkGuestLimit().then(data => {
-      const remaining = data.remaining ?? 1;
-      if(guestTxt){
-        guestTxt.textContent = lang === 'es'
-          ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
-          : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
-      }
-      if(guestLink) guestLink.textContent = lang === 'es' ? 'Mejorar plan →' : 'Upgrade for more →';
-      guestBar.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
-      guestBar.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
-      if(guestTxt) guestTxt.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
-    });
+    if(guestTxt){
+      guestTxt.textContent = lang === 'es'
+        ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
+        : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
+    }
+    if(guestLink){
+      guestLink.textContent = lang === 'es' ? 'Mejorar plan →' : 'Upgrade for more →';
+    }
+    // Turn red when 0 remaining
+    guestBar.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
+    guestBar.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
+    if(guestTxt) guestTxt.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
   } else if(guestBar){
     guestBar.style.display = 'none';
   }
@@ -2189,7 +2150,7 @@ function buildDocList(){
     list.innerHTML += `<div class="doc-progress-item" id="dpi${i}">
       <span class="doc-pi-icon">${getIcon(f.name)}</span>
       <span class="doc-pi-name">${f.name} ${tag}</span>
-      <span class="doc-pi-status" id="dps${i}">${tx().docStatusPending}</span>
+      <span class="doc-pi-status" id="dps${i}">${lang==='es'?'Pendiente':'Pending'}</span>
     </div>`;
   });
 }
@@ -2201,10 +2162,10 @@ function setDocStatus(i, status){
   item.classList.remove('active','done');
   if(status==='active'){
     item.classList.add('active');
-    lbl.textContent = tx().docStatusAnalyzing;
+    lbl.textContent = lang==='es'?'Analizando...':'Analyzing...';
   } else if(status==='done'){
     item.classList.add('done');
-    lbl.textContent = tx().docStatusDone;
+    lbl.textContent = lang==='es'?'Listo ✓':'Done ✓';
   }
 }
 
@@ -2248,15 +2209,13 @@ async function startAnalysis(){
     return;
   }
 
-  // ── CHECK AUTH / GUEST LIMIT (server-side, IP-based) ───────────────
+  // ── CHECK AUTH / GUEST LIMIT ───────────────────
   const loggedIn = isLoggedIn();
+  const guestCount = getGuestCount();
 
-  if(!loggedIn){
-    const limitData = await checkGuestLimit();
-    if(!limitData.allowed){
-      showAuthModal('guest_limit');
-      return;
-    }
+  if(!loggedIn && guestCount >= GUEST_LIMIT){
+    showAuthModal('guest_limit');
+    return;
   }
 
   // If logged in, check plan limits
@@ -2315,6 +2274,7 @@ async function startAnalysis(){
         const docsArr = Array.isArray(docs) ? docs : [docs];
         extractedDocs[e.name] = docsArr;
         docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
+        docsArr.forEach((d,i) => console.log('[EXTRACT]', e.name, i, '| type:', d.docType, '| bl:', d.blNumber, '| lots:', JSON.stringify(d.lotNumbers), '| bags:', d.bagCount, '| net:', d.netWeight));
 
 
         setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
@@ -2343,21 +2303,7 @@ async function startAnalysis(){
         body: JSON.stringify({ action:'increment', clerk_id: userId, email })
       }).catch(e => console.warn('Usage increment failed:', e.message));
     } else {
-      await incGuestLimit();
-      // Refresh guest counter display
-      const guestBar2 = document.getElementById('guestCounterBar');
-      const guestTxt2 = document.getElementById('guestCounterText');
-      if(guestBar2 && guestTxt2 && !isLoggedIn()){
-        checkGuestLimit().then(data => {
-          const remaining = data.remaining ?? 0;
-          guestTxt2.textContent = lang === 'es'
-            ? `${remaining} de ${GUEST_LIMIT} análisis gratuitos restantes`
-            : `${remaining} of ${GUEST_LIMIT} free analyses remaining`;
-          guestBar2.style.background = remaining === 0 ? '#fdf0ee' : 'var(--cream)';
-          guestBar2.style.borderColor = remaining === 0 ? 'var(--red-light)' : 'var(--border-light)';
-          guestTxt2.style.color = remaining === 0 ? 'var(--red)' : 'var(--text-mid)';
-        });
-      }
+      incGuestCount();
     }
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
@@ -3015,15 +2961,6 @@ function renderResults(){
     <div class="stat"><div class="stat-n stat-warn">${finalWarnings}</div><div class="stat-l">${t.statWarn}</div></div>
     <div class="stat"><div class="stat-n stat-err">${finalErrors}</div><div class="stat-l">${t.statErr}</div></div>`;
 
-  // ── RESULTS INTRO NOTE ──────────────────────────────────────
-  const introNote = document.getElementById('resultsIntroNote');
-  if(introNote){
-    introNote.innerHTML = t.resultsIntroNote(finalErrors + finalWarnings);
-    introNote.style.display = 'block';
-    // Color border based on verdict
-    introNote.style.borderLeftColor = finalErrors > 0 ? 'var(--red)' : finalWarnings > 0 ? 'var(--tan)' : 'var(--green)';
-  }
-
   // ── STEP 6: Coherence badge ─────────────────────────────────
   const cb=document.getElementById('coherenceBadge');
   if(finalErrors>0){cb.className='rst-badge err';cb.textContent=t.cbErr(finalErrors);}
@@ -3098,11 +3035,11 @@ function renderResults(){
           const t = tok.trim();
           const freq = tokenFreq[t.toUpperCase()]||0;
           if(freq > totalDocs/2)
-            return '<span style="display:inline-block;background:#eaf0f8;color:#2a5090;border:1px solid #aac4e8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
+            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
           else if(freq === 1)
-            return '<span style="display:inline-block;background:#fde8e8;color:#b82020;border:1px solid #e8a0a0;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t+'</span>';
+            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t+'</span>';
           else
-            return '<span style="display:inline-block;background:#f0f4ff;color:#3a4660;border:1px solid #b0bcd8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
+            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t+'</span>';
         }).join(' ');
       };
 
@@ -3119,16 +3056,16 @@ function renderResults(){
           const tTotal = details.length;
           // Determine majority value for row border coloring
           const valCounts = {};
-          details.forEach(d => { const v=(d.value||'').trim().toLowerCase(); valCounts[v]=(valCounts[v]||0)+1; });
+          details.forEach(d => { const v=(d.value||'').trim(); valCounts[v]=(valCounts[v]||0)+1; });
           const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
 
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
-                const isOutlier = (d.value||'').trim().toLowerCase() !== majVal;
-                const bg = isOutlier ? '#fff8f7' : '#fafafa';
-                const border = isOutlier ? '#c0392b' : '#2e9455';
+                const isOutlier = (d.value||'').trim() !== majVal;
+                const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
+                const border = isOutlier ? '#c0392b' : '#6aaa6a';
                 const icon = isOutlier ? '✗' : '✓';
-                const iconColor = isOutlier ? '#c0392b' : '#2e9455';
+                const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
                 return '<div style="background:'+bg+';border-left:3px solid '+border+';padding:6px 10px;border-radius:0 4px 4px 0;">'
                   +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
                   +'<span style="color:'+iconColor+';font-weight:700;">'+icon+'</span>'
@@ -3234,18 +3171,18 @@ function renderResults(){
       const tokens = String(val).split(/,\s*|\s+/).filter(Boolean);
       if(tokens.length <= 1) {
         // Single value — just show it, styling handled by row border
-        return `<span style="font-size:0.82rem;font-weight:500;color:#0f1117;">${val}</span>`;
+        return `<span style="font-size:0.82rem;font-weight:500;color:#2c1a0e;">${val}</span>`;
       }
       return tokens.map(tok => {
         const t = tok.trim();
         if(isMajorityToken(t)) {
           // Appears in most docs — show as confirmed/grey
-          return `<span style="display:inline-block;background:#eaf0f8;color:#2a5090;border:1px solid #aac4e8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
+          return `<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
         } else if(isUniqueToken(t)) {
           // Only in this doc — highlight as problem
-          return `<span style="display:inline-block;background:#fde8e8;color:#b82020;border:1px solid #e8a0a0;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ ${t}</span>`;
+          return `<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ ${t}</span>`;
         } else {
-          return `<span style="display:inline-block;background:#f0f4ff;color:#3a4660;border:1px solid #b0bcd8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
+          return `<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
         }
       }).join(' ');
     };
@@ -3254,23 +3191,23 @@ function renderResults(){
     let docRows = '';
     groupArr.forEach(([val, docs], gi) => {
       const isOutlier = gi > 0;
-      const borderColor = isOutlier ? '#c0392b' : '#2e9455';
-      const bg = isOutlier ? '#fff8f7' : '#fafafa';
+      const borderColor = isOutlier ? '#c0392b' : '#6aaa6a';
+      const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
       const icon = isOutlier ? '✗' : '✓';
-      const iconColor = isOutlier ? '#c0392b' : '#2e9455';
+      const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
       docRows += `<div style="background:${bg};border-left:3px solid ${borderColor};padding:10px 12px;margin-bottom:4px;border-radius:0 4px 4px 0;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
           <span style="color:${iconColor};font-weight:700;font-size:0.85rem;">${icon}</span>
-          <span style="font-size:0.74rem;color:#555;font-family:'Lato',sans-serif;font-weight:400;letter-spacing:0.01em;">${docs.join(' · ')}</span>
+          <span style="font-size:0.65rem;color:#888;font-family:'Raleway',sans-serif;letter-spacing:0.05em;">${docs.join(' · ')}</span>
         </div>
         <div style="line-height:1.8;">${renderTokens(val)}</div>
       </div>`;
     });
 
-    tbody.innerHTML += `<tr style="background:#fff5f5;">
+    tbody.innerHTML += `<tr style="background:#fff8f7;">
       <td style="padding:14px 16px;vertical-align:top;border-bottom:2px solid #f0d0cc;">
-        <div style="font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">${tx().labelError}</div>
-        <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
+        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">🔴 Error</div>
+        <div style="font-weight:600;color:#2c1a0e;font-size:0.82rem;">${FL(k)}</div>
       </td>
       <td style="padding:14px 16px;border-bottom:2px solid #f0d0cc;">${docRows}</td>
     </tr>`;
@@ -3282,8 +3219,8 @@ function renderResults(){
     const docList = vals.map(v => `<span style="color:#888;font-size:0.72rem;">${cleanDoc(v.doc)}:</span> <code style="background:#f5f0e8;padding:1px 5px;border-radius:3px;font-size:0.78rem;">${v.value||'—'}</code>`).join('<br>');
     tbody.innerHTML += `<tr style="background:#fffdf5;">
       <td style="padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--border);">
-        <div style="font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">${tx().labelObservation}</div>
-        <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
+        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">🟡 Observation</div>
+        <div style="font-weight:600;color:#2c1a0e;font-size:0.82rem;">${FL(k)}</div>
       </td>
       <td style="padding:12px 16px;border-bottom:1px solid var(--border);">${docList}</td>
     </tr>`;
@@ -3293,16 +3230,16 @@ function renderResults(){
   if(okEntries.length > 0){
     const okId = 'ok-rows-' + Date.now();
     const okList = okEntries.map(({k, uv}) =>
-      `<tr style="background:#fafafa;" class="ok-detail-row-${okId}">
-        <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.82rem;">✓ ${FL(k)}</td>
-        <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.82rem;color:#333;">${uv.join(' / ')}</td>
+      `<tr style="background:#f8faf8;" class="ok-detail-row-${okId}">
+        <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.78rem;">✓ ${FL(k)}</td>
+        <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.78rem;color:#555;">${uv.join(' / ')}</td>
       </tr>`
     ).join('');
 
-    tbody.innerHTML += `<tr style="background:#f5f6f8;">
-      <td colspan="2" style="padding:10px 16px;border-top:1px solid #e0e4ec;">
-        <span style="font-family:'Lato',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;color:#555;">
-          ${tx().fieldsVerified(okEntries.length)}
+    tbody.innerHTML += `<tr style="background:#f2faf2;">
+      <td colspan="2" style="padding:10px 16px;border-top:2px solid #d4e8d4;">
+        <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#5a8a5a;">
+          ✓ &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent
         </span>
       </td>
     </tr>
@@ -3314,7 +3251,7 @@ function renderResults(){
 
   // Remove old table headers (4 cols → 2 cols now)
   const thead = document.querySelector('.ctable thead tr');
-  if(thead) thead.innerHTML = `<th style="width:30%">${tx().tableFieldHeader}</th><th>${tx().tableValuesHeader}</th>`;
+  if(thead) thead.innerHTML = '<th style="width:30%">Field</th><th>Values by Document</th>';
 
   // ── STEP 10: Inconsistency cards ────────────────────────────
   const iSec=document.getElementById('inconsSec');
@@ -3344,27 +3281,27 @@ function renderResults(){
         return tokens.map(tok => {
           const t2 = tok.trim();
           if(cardIsMaj(t2))
-            return '<span style="display:inline-block;background:#eaf0f8;color:#2a5090;border:1px solid #aac4e8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
+            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
           else if(cardIsUniq(t2))
-            return '<span style="display:inline-block;background:#fde8e8;color:#b82020;border:1px solid #e8a0a0;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t2+'</span>';
+            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t2+'</span>';
           else
-            return '<span style="display:inline-block;background:#f0f4ff;color:#3a4660;border:1px solid #b0bcd8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
+            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
         }).join(' ');
       };
 
       // Determine if row is majority or outlier
       const rowCounts = {};
-      details.forEach(d => { const v=(d.value||'').trim().toLowerCase(); rowCounts[v]=(rowCounts[v]||0)+1; });
+      details.forEach(d => { const v=(d.value||'').trim(); rowCounts[v]=(rowCounts[v]||0)+1; });
       const rowMaxC = Math.max(0,...Object.values(rowCounts));
       const rowMaj = Object.keys(rowCounts).find(k=>rowCounts[k]===rowMaxC)||'';
 
       const rows=details.map(d=>{
         const val = d.value || t.notFound;
-        const isRowOutlier = (d.value||'').trim().toLowerCase() !== rowMaj;
-        const rowBg = isRowOutlier ? '#fff8f7' : '#fafafa';
-        const rowBorder = isRowOutlier ? '#c0392b' : '#2e9455';
+        const isRowOutlier = (d.value||'').trim() !== rowMaj;
+        const rowBg = isRowOutlier ? '#fff8f7' : '#f8fdf8';
+        const rowBorder = isRowOutlier ? '#c0392b' : '#6aaa6a';
         const rowIcon = isRowOutlier ? '✗' : '✓';
-        const rowIconColor = isRowOutlier ? '#c0392b' : '#2e9455';
+        const rowIconColor = isRowOutlier ? '#c0392b' : '#6aaa6a';
         return '<div style="background:'+rowBg+';border-left:3px solid '+rowBorder+';padding:8px 10px;margin-bottom:3px;border-radius:0 4px 4px 0;">'
           +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
           +'<span style="color:'+rowIconColor+';font-weight:700;font-size:0.85rem;">'+rowIcon+'</span>'
@@ -3583,16 +3520,7 @@ function renderResults(){
         ? `Acción Requerida — ${arIssues.length} problema(s) encontrado(s)`
         : `Action Required — ${arIssues.length} issue(s) found`;
 
-      const fieldsChecked = isES2
-        ? 'Contenedores · Precintos · Lotes · Sacos · Peso Neto · Peso Bruto · Shipper · Consignee · Buque · Puerto de Carga · Puerto de Descarga · N° BL · N° Factura'
-        : 'Containers · Seals · Lots · Bags · Net Weight · Gross Weight · Shipper · Consignee · Vessel · Port of Loading · Port of Discharge · BL Number · Invoice Number';
-
-      const arNote = isES2
-        ? `Esta sección solo considera los campos: <strong>${fieldsChecked}</strong>. Para cualquier otra observación potencial, por favor revisa las secciones anteriores.`
-        : `This section only considers the following fields: <strong>${fieldsChecked}</strong>. For any other potential issues, please review the sections above.`;
-
-      arBody.innerHTML = `<div style="font-size:0.76rem;color:var(--text-light);line-height:1.6;padding:0.6rem 0 0.8rem;border-bottom:1px solid rgba(176,64,48,0.1);margin-bottom:0.8rem;">${arNote}</div>`
-        + arIssues.map(issue => {
+      arBody.innerHTML = arIssues.map(issue => {
         const docNames = (issue.docs||[]).slice(0,2).join(', ');
         const docBadge = docNames
           ? `<span class="ar-doc${issue.type==='warn'?' ar-doc-warn':''}" title="${docNames}">${docNames}</span>`
