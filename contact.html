@@ -457,6 +457,8 @@ function setLang(l){
   applyLang();
 }
 
+document.addEventListener('DOMContentLoaded', applyLang);
+
 // Initialize after DOM is fully loaded
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', applyLang);
@@ -594,4 +596,15 @@ function resetForm(){
   document.getElementById('fName').value='';
   document.getElementById('fEmail').value='';
   document.getElementById('fCompany').value='';
-  document.getElementById('fC
+  document.getElementById('fCompany').value='';
+  document.getElementById('fCountry').value='';
+  if(document.getElementById('fMsg')) document.getElementById('fMsg').value='';
+  if(document.getElementById('fIssue')) document.getElementById('fIssue').value='';
+  if(document.getElementById('attachList')) document.getElementById('attachList').innerHTML='';
+  selectType('general');
+  setPriority('low');
+  applyLang();
+}
+</script>
+</body>
+</html>
