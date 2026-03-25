@@ -457,8 +457,6 @@ function setLang(l){
   applyLang();
 }
 
-document.addEventListener('DOMContentLoaded', applyLang);
-
 // Initialize after DOM is fully loaded
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', applyLang);
@@ -538,9 +536,7 @@ function validate(){
 
 // ── EmailJS config ──────────────────────────────────────────
 // Sign up free at emailjs.com, connect your Gmail, then paste your IDs here:
-const 'service_flmm6b4'  = 'YOUR_SERVICE_ID';   // e.g. 'service_abc123'
-const 'template_mssso99' = 'YOUR_TEMPLATE_ID';  // e.g. 'template_xyz789'
-const '_AX5FHPE2A2qFduJQ'  = 'YOUR_PUBLIC_KEY';   // e.g. 'AbCdEfGhIjKlMnOp'
+// EmailJS IDs initialized via emailjs.init() above
 
 async function submitForm(){
   if(!validate()) return;
