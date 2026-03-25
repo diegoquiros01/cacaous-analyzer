@@ -1665,9 +1665,9 @@ async function splitPdfToPages(file){
     const numPages = pdf.numPages;
 
     // 1-2 pages: always send as-is
-    if(numPages <= 2) return null;
+    if(numPages <= 4) return null; // 4 pages or less = always one document
 
-    // Only split PDFs that are clearly multi-document bundles
+    // Only split PDFs that are clearly multi-document bundles (5+ pages)
     // Single documents (BL, invoice, packing list, certs) can be many pages — never split them
     const nameLower = file.name.toLowerCase();
     const isSingleDoc =
@@ -1880,6 +1880,13 @@ DOCUMENT DETECTION RULES:
 - Each distinct document type should be extracted as a separate entry
 - If only ONE document type is present, return a single-item array
 
+CRITICAL — MULTI-PAGE SINGLE DOCUMENTS:
+A Bill of Lading, Commercial Invoice, Packing List, or Certificate can span multiple pages.
+"Sheet 1 of 2", "Sheet 2 of 2", "Continued from previous sheet", "Page 1 of 2" — these are ALL the SAME document, not separate documents.
+When you see these markers, combine ALL pages into ONE extracted document with the TOTAL values (total bags, total weight from the last sheet or summary line).
+NEVER return two separate Bill of Lading entries for the same BL number — merge them into one.
+The totals are usually on the LAST page (e.g. "Weight in Kgs Total: 2 CONTAINER(S) 50457.000").
+
 RESPONSE FORMAT: Return a JSON ARRAY where each element is one document:
 [
   { "docType": "Bill of Lading", "blNumber": "...", ... },
@@ -1961,14 +1968,54 @@ Also include an "extraFields" object for any fields present in the document that
 
     // Fix numbers and tag each doc with source filename
     const fixNumber = (val) => { if(!val) return val; return String(val).replace(/\s/g,''); };
-    return docs.map(p => {
+    let processed = docs.map(p => {
       if(p.netWeight)   p.netWeight   = fixNumber(p.netWeight);
       if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
       p._filename = entry.name;
-      // Fix Gas Clearance Certificate field mapping from text content
       if(entry.textContent) fixGasClearanceFields(p, entry.textContent);
       return p;
     });
+
+    // Merge duplicate same-type docs from the same file (multi-page BLs, invoices, etc.)
+    // If two docs have the same docType and same blNumber → they are the same document split across pages
+    const merged = [];
+    processed.forEach(p => {
+      if(p._err) { merged.push(p); return; }
+      const normType = (p.docType||'').toLowerCase();
+      const existing = merged.find(m =>
+        !m._err &&
+        m.docType === p.docType &&
+        ((p.blNumber && m.blNumber && p.blNumber === m.blNumber) ||
+         (p.invoiceNumber && m.invoiceNumber && p.invoiceNumber === m.invoiceNumber) ||
+         // Same doc type with no identifying number — merge if same file
+         (!p.blNumber && !p.invoiceNumber && m._filename === p._filename &&
+          (normType.includes('bill') || normType.includes('lading') || normType.includes('conocimiento')))
+        )
+      );
+      if(existing) {
+        // Merge — prefer non-null values, take larger numbers for totals
+        Object.keys(p).forEach(k => {
+          if(k.startsWith('_')) return;
+          if(p[k] != null && p[k] !== '' && (existing[k] == null || existing[k] === '')) {
+            existing[k] = p[k];
+          }
+          // For numeric totals, take the larger value (last page usually has the total)
+          if(['bagCount','netWeight','grossWeight'].includes(k) && p[k] && existing[k]) {
+            const pNum = parseFloat(String(p[k]).replace(/[^0-9.]/g,''));
+            const eNum = parseFloat(String(existing[k]).replace(/[^0-9.]/g,''));
+            if(!isNaN(pNum) && !isNaN(eNum) && pNum > eNum) existing[k] = p[k];
+          }
+          // For arrays, merge unique values
+          if(Array.isArray(p[k]) && Array.isArray(existing[k])) {
+            existing[k] = [...new Set([...existing[k], ...p[k]])];
+          }
+        });
+      } else {
+        merged.push(p);
+      }
+    });
+
+    return merged;
   }
   catch(e){return [{docType:entry.name,_err:true,_msg:e.message,_filename:entry.name}];}
 }
@@ -2274,7 +2321,7 @@ async function startAnalysis(){
         const docsArr = Array.isArray(docs) ? docs : [docs];
         extractedDocs[e.name] = docsArr;
         docsArr.forEach(d => { d._filename = e.name; analysisResults.push(d); });
-        docsArr.forEach((d,i) => console.log('[EXTRACT]', e.name, i, '| type:', d.docType, '| bl:', d.blNumber, '| lots:', JSON.stringify(d.lotNumbers), '| bags:', d.bagCount, '| net:', d.netWeight));
+
 
 
         setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
