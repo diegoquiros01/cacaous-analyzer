@@ -979,207 +979,196 @@ footer {
 .footer-links a:hover { color: var(--tan-light); }
 
 /* ══════════════════════════════════════
-   EXECUTIVE SUMMARY CARD
+   STEP 3 — NEW RESULTS DESIGN
 ══════════════════════════════════════ */
-.exec-summary-card {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 1.5rem;
+
+/* Status pill */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em;
+  margin-bottom: 1.2rem; border: 1px solid;
+}
+.status-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.status-pill.spl-ok   { color: var(--green);    border-color: rgba(26,107,58,0.3);  background: rgba(26,107,58,0.06); }
+.status-pill.spl-warn { color: var(--tan);      border-color: rgba(74,111,165,0.3); background: rgba(74,111,165,0.06); }
+.status-pill.spl-err  { color: var(--red-light);border-color: rgba(176,64,48,0.3);  background: rgba(176,64,48,0.06); }
+
+/* Summary card */
+.r-summary-card {
   background: var(--white);
+  border: 1px solid var(--border-light);
+  border-left: 3px solid var(--border);
+  border-radius: 4px; padding: 1.2rem 1.4rem;
+  margin-bottom: 1.2rem;
 }
-.exec-status-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 2rem; padding: 1.8rem 2rem;
-  transition: background 0.3s;
-}
-.exec-status-bar.approved { background: linear-gradient(135deg, #eaf5ea 0%, #f5fbf5 100%); border-bottom: 1px solid rgba(26,107,58,0.15); }
-.exec-status-bar.warning  { background: linear-gradient(135deg, #f0f4ff 0%, #f8faff 100%); border-bottom: 1px solid rgba(74,111,165,0.2); }
-.exec-status-bar.rejected { background: linear-gradient(135deg, #fff2f0 0%, #fdf8f8 100%); border-bottom: 1px solid rgba(176,64,48,0.2); }
-
-.exec-status-left { display: flex; align-items: center; gap: 1.2rem; }
-.exec-verdict-icon {
-  width: 52px; height: 52px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; font-weight: 700; flex-shrink: 0;
-  transition: all 0.3s;
-}
-.approved .exec-verdict-icon { background: var(--green); color: white; box-shadow: 0 3px 12px rgba(26,107,58,0.25); }
-.warning  .exec-verdict-icon { background: var(--tan);   color: white; box-shadow: 0 3px 12px rgba(74,111,165,0.25); }
-.rejected .exec-verdict-icon { background: var(--red);   color: white; box-shadow: 0 3px 12px rgba(176,64,48,0.25); }
-
-.exec-verdict-title {
-  font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 500;
-  margin-bottom: 0.2rem; line-height: 1.2;
-}
-.approved .exec-verdict-title { color: var(--green); }
-.warning  .exec-verdict-title { color: var(--brown-mid); }
-.rejected .exec-verdict-title { color: var(--red); }
-
-.exec-verdict-desc { font-size: 0.8rem; color: var(--text-light); }
-
-/* Compact stats inline in exec card */
-.exec-stats {
-  display: flex; gap: 1.5rem; align-items: center; flex-shrink: 0;
-}
-.exec-stat {
-  text-align: center; min-width: 48px;
-}
-.exec-stat-n {
-  font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; line-height: 1;
-}
-.exec-stat-l {
-  font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light);
-  margin-top: 0.2rem;
-}
-.exec-stat-n.stat-total { color: var(--tan); }
-.exec-stat-n.stat-ok    { color: var(--green); }
-.exec-stat-n.stat-warn  { color: var(--tan); }
-.exec-stat-n.stat-err   { color: var(--red); }
-
-/* AI summary text block */
-.exec-ai-summary {
-  padding: 1.2rem 2rem; border-top: 1px solid var(--border-light);
-  background: var(--offwhite);
-}
-.exec-ai-label {
-  font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--tan); font-weight: 700; margin-bottom: 0.5rem;
-}
-.exec-ai-text {
+.r-summary-card.sc-ok   { border-left-color: var(--green); }
+.r-summary-card.sc-warn { border-left-color: var(--tan); }
+.r-summary-card.sc-err  { border-left-color: var(--red); }
+.r-summary-text {
   font-family: 'Playfair Display', serif; font-style: italic;
-  font-size: 0.92rem; color: var(--text-mid); line-height: 1.8;
+  font-size: 0.93rem; color: var(--text-mid); line-height: 1.8;
 }
 
-/* Pending actions checklist */
-.exec-pending-label {
-  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--text-mid); font-weight: 700;
-  padding: 0.8rem 2rem 0.5rem; border-top: 1px solid var(--border-light);
-  background: var(--white);
-}
-.exec-pending-list {
-  padding: 0 2rem 1.4rem; background: var(--white);
-  display: flex; flex-direction: column; gap: 0.5rem;
-}
-.exec-pending-item {
-  display: flex; align-items: flex-start; gap: 0.8rem;
-  padding: 0.7rem 1rem; border-radius: 3px;
-  font-size: 0.8rem; line-height: 1.5; color: var(--text-mid);
-  border: 1px solid;
-}
-.exec-pending-item.pend-err  { background: rgba(176,64,48,0.04);  border-color: rgba(176,64,48,0.25);  border-left: 3px solid var(--red); }
-.exec-pending-item.pend-warn { background: rgba(74,111,165,0.04); border-color: rgba(74,111,165,0.2);  border-left: 3px solid var(--tan); }
-.exec-pending-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.05rem; }
-.exec-pending-content { flex: 1; }
-.exec-pending-field { font-weight: 700; color: var(--text); margin-bottom: 0.1rem; font-size: 0.78rem; }
-.exec-pending-msg   { color: var(--text-light); font-size: 0.76rem; }
+/* Stats row */
+.r-stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.2rem; }
+.r-stat-card { background: var(--offwhite); border-radius: 4px; padding: 0.9rem 0.75rem; text-align: center; border: 1px solid var(--border-light); }
+.r-stat-n { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 400; line-height: 1; margin-bottom: 3px; }
+.r-stat-l { font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); }
+.r-stat-n.rn-tot  { color: var(--tan); }
+.r-stat-n.rn-ok   { color: var(--green); }
+.r-stat-n.rn-warn { color: var(--tan); }
+.r-stat-n.rn-err  { color: var(--red); }
 
-/* ══════════════════════════════════════
-   ALERTS SECTION
-══════════════════════════════════════ */
-#alertsSection { margin-bottom: 1.5rem; }
-.alerts-group-label {
-  font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
-  font-weight: 700; padding: 0.5rem 0; margin-bottom: 0.6rem;
+/* Section micro-label */
+.r-sec-label {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-light);
+  margin: 1.4rem 0 0.55rem;
 }
-.alerts-label-err  { color: var(--red); }
-.alerts-label-warn { color: var(--tan); }
-.alerts-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; }
 
-.alert-card {
-  border: 1px solid; border-radius: 3px; overflow: hidden;
-  border-left: 3px solid;
+/* Alert list */
+.r-alert-list { display: flex; flex-direction: column; gap: 5px; }
+.r-alert {
+  border: 1px solid var(--border-light);
+  border-left: 3px solid; border-radius: 4px; overflow: hidden;
+  cursor: pointer; transition: background 0.15s;
 }
-.alert-card.alert-err  { border-color: rgba(176,64,48,0.25);  border-left-color: var(--red);  background: rgba(176,64,48,0.03); }
-.alert-card.alert-warn { border-color: rgba(74,111,165,0.2);  border-left-color: var(--tan);  background: rgba(74,111,165,0.03); }
+.r-alert.ra-err  { border-left-color: var(--red);  background: rgba(176,64,48,0.02); }
+.r-alert.ra-warn { border-left-color: var(--tan);  background: rgba(74,111,165,0.02); }
+.r-alert:hover   { background: var(--offwhite); }
 
-.alert-card-head {
-  display: flex; align-items: center; gap: 0.8rem;
-  padding: 0.75rem 1.1rem; cursor: pointer; user-select: none;
+.r-alert-head {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 0.72rem 1rem;
 }
-.alert-card-field {
-  font-weight: 700; font-size: 0.8rem; flex: 1;
+.r-alert-main  { flex: 1; min-width: 0; }
+.r-alert-field { font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.ra-err  .r-alert-field { color: var(--red); }
+.ra-warn .r-alert-field { color: var(--brown-mid); }
+.r-alert-msg   { font-size: 0.76rem; color: var(--text-light); line-height: 1.45; }
+.r-alert-tag {
+  font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 700; padding: 2px 7px; border: 1px solid; flex-shrink: 0;
+  border-radius: 2px; white-space: nowrap; margin-top: 1px;
 }
-.alert-err  .alert-card-field { color: var(--red); }
-.alert-warn .alert-card-field { color: var(--brown-mid); }
+.ra-err  .r-alert-tag { border-color: var(--red);      color: var(--red); }
+.ra-warn .r-alert-tag { border-color: var(--tan);      color: var(--brown-mid); }
+.r-alert-chev { font-size: 0.6rem; color: var(--text-light); flex-shrink: 0; transition: transform 0.2s; margin-top: 3px; }
+.r-alert.open .r-alert-chev { transform: rotate(180deg); }
 
-.alert-card-msg {
-  font-size: 0.77rem; color: var(--text-mid); flex: 2; line-height: 1.4;
-}
-.alert-card-tag {
-  font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 0.18rem 0.6rem; border: 1px solid; flex-shrink: 0; font-weight: 700;
-}
-.alert-err  .alert-card-tag { border-color: var(--red);  color: var(--red); }
-.alert-warn .alert-card-tag { border-color: var(--tan);  color: var(--brown-mid); }
-
-.alert-card-chevron { color: var(--text-light); font-size: 0.65rem; flex-shrink: 0; transition: transform 0.2s; }
-.alert-card.open .alert-card-chevron { transform: rotate(180deg); }
-
-.alert-card-body {
-  display: none; padding: 0.8rem 1.1rem 1rem;
+.r-alert-body {
+  display: none; padding: 0.7rem 1rem 0.9rem;
   border-top: 1px solid var(--border-light);
   background: var(--white);
-  font-size: 0.78rem; color: var(--text-mid); line-height: 1.6;
 }
-.alert-card.open .alert-card-body { display: block; }
-.alert-docs { display: flex; flex-direction: column; gap: 4px; margin-top: 0.6rem; }
-.alert-doc-row {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 4px 8px; border-radius: 3px; font-size: 0.73rem;
-}
-.alert-doc-row.doc-majority { background: #eef5ee; color: #2d7a3a; }
-.alert-doc-row.doc-outlier  { background: #fdecea; color: var(--red); font-weight: 600; }
-.alert-doc-name { font-size: 0.65rem; color: var(--text-light); min-width: 140px; }
-.alert-doc-val  { font-weight: 600; }
+.r-alert.open .r-alert-body { display: block; }
 
-/* ══════════════════════════════════════
-   COLLAPSIBLE CONSISTENCY TABLE
-══════════════════════════════════════ */
-.coherence-details {
-  border: 1px solid var(--border);
-  border-radius: 4px; overflow: hidden;
-  margin-bottom: 1.5rem;
+/* Diff table inside alert body */
+.r-diff-wrap { background: var(--offwhite); border-radius: 3px; padding: 0.8rem; margin-top: 4px; }
+.r-diff-label { font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); font-weight: 700; margin-bottom: 8px; }
+.r-diff-rows { display: flex; flex-direction: column; gap: 5px; }
+.r-diff-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px; border-radius: 3px; font-size: 0.76rem;
 }
-.coherence-details[open] .coherence-toggle-hint { display: none; }
-.coherence-summary {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.5rem; cursor: pointer; user-select: none;
-  background: var(--brown-dark); color: var(--white);
-  list-style: none; outline: none;
+.r-diff-row.rdr-ok  { background: rgba(26,107,58,0.07);  color: var(--green); }
+.r-diff-row.rdr-err { background: rgba(176,64,48,0.08);  color: var(--red);   font-weight: 600; border: 1px solid rgba(176,64,48,0.2); }
+.r-diff-row.rdr-neu { background: var(--cream);           color: var(--text-mid); }
+.r-diff-doc { font-size: 0.65rem; opacity: 0.75; min-width: 160px; font-weight: 400; }
+.r-diff-val { font-family: 'Lato', monospace; letter-spacing: 0.03em; }
+.r-diff-icon { margin-left: auto; font-size: 0.75rem; flex-shrink: 0; }
+.r-diff-note {
+  margin-top: 8px; padding: 7px 10px;
+  background: var(--white); border: 1px solid var(--border-light); border-radius: 3px;
+  font-size: 0.72rem; color: var(--text-light); line-height: 1.5;
 }
-.coherence-summary::-webkit-details-marker { display: none; }
-.coherence-summary > span:first-child {
-  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400;
-  letter-spacing: 0.03em; flex: 1;
-}
-.coherence-toggle-hint {
-  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(255,255,255,0.45); flex-shrink: 0;
+.char-diff {
+  background: rgba(176,64,48,0.15); color: var(--red);
+  font-weight: 700; border-radius: 2px; padding: 0 3px;
+  text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-color: var(--red);
 }
 
-/* ══════════════════════════════════════
-   COLLAPSIBLE PER-DOC
-══════════════════════════════════════ */
-.perdoc-details {
-  border: 1px solid var(--border);
-  border-radius: 4px; overflow: hidden;
-  margin-bottom: 1.5rem;
-}
-.perdoc-summary {
+/* Collapsible table */
+.r-table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 0.55rem; margin-bottom: 1.4rem; }
+.r-table-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.9rem 1.5rem; cursor: pointer; user-select: none;
-  background: var(--offwhite); list-style: none; outline: none;
-  font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--brown-dark);
+  padding: 0.8rem 1.2rem; background: var(--brown-dark);
+  cursor: pointer; user-select: none;
 }
-.perdoc-summary::-webkit-details-marker { display: none; }
-.perdoc-toggle-hint {
-  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-light);
+.r-table-head-left { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 400; color: var(--white); letter-spacing: 0.02em; }
+.r-table-head-right { display: flex; align-items: center; gap: 8px; }
+.r-badge {
+  font-size: 0.54rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 8px; border: 1px solid; border-radius: 2px;
 }
-.perdoc-details[open] .perdoc-toggle-hint { display: none; }
-.perdoc-details .doc-cards { padding: 1rem; }
+.r-badge.rb-ok   { border-color: rgba(90,200,120,0.5);  color: rgba(160,255,180,0.9); }
+.r-badge.rb-err  { border-color: rgba(255,120,100,0.5); color: rgba(255,160,140,0.9); }
+.r-badge.rb-warn { border-color: rgba(160,190,255,0.5); color: rgba(180,210,255,0.9); }
+.r-chev { font-size: 0.6rem; color: rgba(255,255,255,0.4); transition: transform 0.2s; }
+.r-chev.open { transform: rotate(180deg); }
+.r-table-body { display: none; }
+.r-table-body.open { display: block; }
+
+.r-ctable { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.r-ctable th { text-align: left; padding: 7px 12px; font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-light); border-bottom: 1px solid var(--border); background: var(--offwhite); font-weight: 400; }
+.r-ctable td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-mid); vertical-align: middle; }
+.r-ctable tr:last-child td { border-bottom: none; }
+.r-ctable tr.rt-ok  td { background: var(--white); }
+.r-ctable tr.rt-err td { background: rgba(176,64,48,0.04); }
+.r-ctable tr.rt-err td:first-child { color: var(--red); font-weight: 700; }
+.r-ctable tr.rt-warn td:first-child { color: var(--brown-mid); font-weight: 600; }
+.r-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+.r-dot.d-ok   { background: var(--green); }
+.r-dot.d-err  { background: var(--red); }
+.r-dot.d-warn { background: var(--tan); }
+.r-dot.d-neu  { background: var(--border); }
+
+/* Collapsible per-doc */
+.r-perdoc-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 0.55rem; margin-bottom: 1.4rem; }
+.r-perdoc-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.8rem 1.2rem; background: var(--offwhite);
+  cursor: pointer; user-select: none;
+  border-bottom: 1px solid var(--border-light);
+}
+.r-perdoc-head-left { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 400; color: var(--brown-dark); }
+.r-perdoc-body { display: none; }
+.r-perdoc-body.open { display: block; }
+
+/* Doc cards inside perdoc */
+.r-dcard { border-bottom: 1px solid var(--border-light); cursor: pointer; }
+.r-dcard:last-child { border-bottom: none; }
+.r-dcard-head { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1.1rem; transition: background 0.15s; }
+.r-dcard-head:hover { background: var(--offwhite); }
+.r-dcard-stripe { width: 3px; height: 34px; border-radius: 2px; flex-shrink: 0; }
+.r-dcard-stripe.ds-ok   { background: var(--green); }
+.r-dcard-stripe.ds-warn { background: var(--tan); }
+.r-dcard-stripe.ds-err  { background: var(--red); }
+.r-dcard-info { flex: 1; }
+.r-dcard-type { font-size: 0.8rem; font-weight: 700; color: var(--brown-dark); }
+.r-dcard-file { font-size: 0.62rem; color: var(--text-light); margin-top: 1px; }
+.r-dcard-badge { font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; padding: 2px 8px; border: 1px solid; border-radius: 2px; flex-shrink: 0; }
+.r-dcard-badge.db-ok   { border-color: var(--green); color: var(--green); }
+.r-dcard-badge.db-warn { border-color: var(--tan);   color: var(--brown-mid); }
+.r-dcard-badge.db-err  { border-color: var(--red);   color: var(--red); }
+.r-dcard-chev { font-size: 0.6rem; color: var(--text-light); transition: transform 0.2s; flex-shrink: 0; }
+.r-dcard.open .r-dcard-chev { transform: rotate(180deg); }
+.r-dcard-body { display: none; padding: 0.8rem 1.1rem 1rem 2.4rem; background: var(--offwhite); border-top: 1px solid var(--border-light); }
+.r-dcard.open .r-dcard-body { display: block; }
+.r-dcard-comment { font-size: 0.76rem; color: var(--text-light); font-style: italic; line-height: 1.6; margin-bottom: 0.7rem; }
+.r-dcard-fields { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 5px; }
+.r-dfield { padding: 6px 9px; background: var(--white); border: 1px solid var(--border-light); border-radius: 2px; }
+.r-dfield.rf-err  { background: rgba(176,64,48,0.05); border-color: rgba(176,64,48,0.3); border-left: 2px solid var(--red); }
+.r-dfield.rf-warn { background: rgba(74,111,165,0.05); border-color: rgba(74,111,165,0.25); border-left: 2px solid var(--tan); }
+.r-dfield-label { font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-light); margin-bottom: 2px; }
+.r-dfield.rf-err  .r-dfield-label { color: var(--red); }
+.r-dfield.rf-warn .r-dfield-label { color: var(--brown-mid); }
+.r-dfield-val { font-size: 0.74rem; color: var(--brown-dark); word-break: break-word; }
+.r-dfield.rf-err  .r-dfield-val { color: var(--red); font-weight: 700; }
+.r-dfield.rf-warn .r-dfield-val { color: var(--brown-mid); font-weight: 600; }
+.r-dfield-val.dv-empty { color: var(--text-light); font-style: italic; }
 
 @media(max-width:680px){
   .header-top{padding:0 1.2rem;}
@@ -1188,8 +1177,7 @@ footer {
   .hero h1{font-size:2.2rem;}
   footer{flex-direction:column;gap:1.2rem;text-align:center;}
   .progress-step span:not(.step-num){display:none;}
-  .exec-status-bar{flex-direction:column;align-items:flex-start;gap:1.2rem;}
-  .exec-stats{gap:1rem;}
+  .r-stat-row{grid-template-columns:repeat(2,1fr);}
 }
 
 </style>
@@ -1369,7 +1357,7 @@ footer {
   <!-- ══ RESULTS ══ -->
   <div class="results" id="results">
 
-    <div class="section-label" style="margin-bottom:2rem;">
+    <div class="section-label" style="margin-bottom:1.5rem;">
       <div class="section-label-num">03</div>
       <div class="section-label-text">
         <h2 id="s3title">Analysis Results</h2>
@@ -1377,72 +1365,62 @@ footer {
       </div>
     </div>
 
-    <!-- ① EXECUTIVE SUMMARY CARD -->
-    <div id="execSummaryCard" class="exec-summary-card">
-      <!-- Status bar -->
-      <div class="exec-status-bar" id="execStatusBar">
-        <div class="exec-status-left">
-          <div class="exec-verdict-icon" id="verdictIcon">✓</div>
-          <div>
-            <div class="exec-verdict-title" id="verdictTitle">Set Approved</div>
-            <div class="exec-verdict-desc" id="verdictDesc">All values are consistent.</div>
-          </div>
-        </div>
-        <div class="exec-stats" id="statsRow"></div>
-      </div>
-      <!-- AI summary in plain language -->
-      <div class="exec-ai-summary" id="execAiSummary" style="display:none;">
-        <div class="exec-ai-label" id="execAiLabel">✦ Summary</div>
-        <div class="exec-ai-text" id="execAiText"></div>
-      </div>
-      <!-- Pending actions checklist -->
-      <div id="execPendingWrap" style="display:none;">
-        <div class="exec-pending-label" id="execPendingLabel">Actions Required</div>
-        <div id="execPendingList" class="exec-pending-list"></div>
-      </div>
+    <!-- ① STATUS PILL -->
+    <div id="statusPill" class="status-pill spl-ok">
+      <span class="status-pill-dot"></span>
+      <span id="statusPillText">Set approved</span>
     </div>
 
-    <!-- ② MULTI-DOC NOTICE (compact) -->
+    <!-- ② SUMMARY CARD (AI text) -->
+    <div id="summaryCard" class="r-summary-card sc-ok" style="display:none;">
+      <div class="r-summary-text" id="summaryCardText"></div>
+    </div>
+
+    <!-- ③ STATS ROW -->
+    <div class="r-stat-row" id="statsRow"></div>
+
+    <!-- ④ MULTI-DOC NOTICE -->
     <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
 
-    <!-- ③ ALERTS — errors first, then observations, grouped -->
+    <!-- ⑤ ALERTS — errors first, then warnings -->
     <div id="alertsSection" style="display:none;">
-      <div id="alertsErrors" style="display:none;">
-        <div class="alerts-group-label alerts-label-err" id="alertsErrLabel">🔴 Inconsistencies</div>
-        <div id="alertsErrBody" class="alerts-group"></div>
+      <div id="alertsErrGroup" style="display:none;">
+        <div class="r-sec-label" id="alertsErrLabel">Critical inconsistencies</div>
+        <div class="r-alert-list" id="alertsErrBody"></div>
       </div>
-      <div id="alertsWarnings" style="display:none;">
-        <div class="alerts-group-label alerts-label-warn" id="alertsWarnLabel">🟡 Observations</div>
-        <div id="alertsWarnBody" class="alerts-group"></div>
+      <div id="alertsWarnGroup" style="display:none;">
+        <div class="r-sec-label" id="alertsWarnLabel">Observations</div>
+        <div class="r-alert-list" id="alertsWarnBody"></div>
       </div>
     </div>
 
-    <!-- ④ CONSISTENCY TABLE — collapsible, OK rows hidden by default -->
-    <details class="coherence-details" id="coherenceDetails">
-      <summary class="coherence-summary">
-        <span id="coherenceTitle">Consistency Table</span>
-        <span id="coherenceBadge" class="rst-badge ok">—</span>
-        <span class="coherence-toggle-hint" id="coherenceToggleHint">Show details ▶</span>
-      </summary>
-      <div id="criticalBanner" style="display:none;" class="critical-banner"></div>
-      <div class="coherence-box" style="margin-top:0;border-top:none;">
-        <div class="coherence-body">
-          <table class="ctable">
-            <thead><tr>
-              <th id="th1">Field</th>
-              <th id="th2">Status</th>
-              <th id="th3">Value(s) Found</th>
-              <th id="th4">Found In</th>
-            </tr></thead>
-            <tbody id="ctbody"></tbody>
-          </table>
-          <div id="inconsSec"></div>
+    <!-- ⑥ CONSISTENCY TABLE — collapsible -->
+    <div class="r-sec-label" id="coherenceTitle" style="margin-top:1.4rem;">Consistency table</div>
+    <div class="r-table-wrap" id="coherenceWrap">
+      <div class="r-table-head" onclick="toggleRTable()">
+        <div class="r-table-head-left" id="ctableTitle">Field-by-field comparison</div>
+        <div class="r-table-head-right">
+          <span class="r-badge rb-ok" id="coherenceBadge">—</span>
+          <span class="r-chev" id="rTableChev">▼</span>
         </div>
       </div>
-    </details>
+      <div class="r-table-body" id="rTableBody">
+        <div id="criticalBanner" style="display:none;" class="critical-banner"></div>
+        <table class="r-ctable">
+          <thead><tr>
+            <th id="th1">Field</th>
+            <th id="th2">Status</th>
+            <th id="th3">Value(s) found</th>
+            <th id="th4">Found in</th>
+          </tr></thead>
+          <tbody id="ctbody"></tbody>
+        </table>
+        <div id="inconsSec"></div>
+      </div>
+    </div>
 
-    <!-- ⑤ TRACKING -->
-    <div id="trackingStatusBanner" style="display:none;margin-bottom:2rem;">
+    <!-- ⑦ TRACKING -->
+    <div id="trackingStatusBanner" style="display:none;margin-bottom:1.5rem;">
       <div class="tracking-status-bar" id="trackingStatusBar">
         <div class="tsb-icon" id="tsbIcon">🚢</div>
         <div class="tsb-content">
@@ -1455,23 +1433,30 @@ footer {
     <div class="result-section-title" id="trackingSectionTitle" style="display:none;">
       <h3 id="trackingTitle">Shipment Tracking</h3>
     </div>
-    <div id="trackingSection" style="display:none;margin-bottom:2.5rem;"></div>
+    <div id="trackingSection" style="display:none;margin-bottom:2rem;"></div>
 
-    <!-- ⑥ PER DOCUMENT — collapsed by default -->
-    <details class="perdoc-details" id="perDocDetails">
-      <summary class="perdoc-summary">
-        <span id="perDocTitle">Document Detail</span>
-        <span class="perdoc-toggle-hint" id="perDocToggleHint">Expand ▶</span>
-      </summary>
-      <div class="doc-cards" id="docCards" style="margin-top:1rem;"></div>
-    </details>
+    <!-- ⑧ PER DOCUMENT — collapsible -->
+    <div class="r-sec-label" id="perDocSectionLabel" style="margin-top:1.4rem;">Document detail</div>
+    <div class="r-perdoc-wrap">
+      <div class="r-perdoc-head" onclick="toggleRPerdoc()">
+        <div class="r-perdoc-head-left" id="perDocTitle">Documents analyzed</div>
+        <span class="r-chev" id="rPerdocChev">▼</span>
+      </div>
+      <div class="r-perdoc-body" id="rPerdocBody">
+        <div id="docCards"></div>
+      </div>
+    </div>
 
-    <!-- ⑦ HIDDEN legacy elements kept for JS compatibility -->
+    <!-- legacy hidden elements for JS compat -->
     <div id="actionRequired" style="display:none;"></div>
     <div id="arBody" style="display:none;"></div>
+    <div id="verdictEl" style="display:none;"></div>
+    <div id="verdictIcon" style="display:none;"></div>
+    <div id="verdictTitle" style="display:none;"></div>
+    <div id="verdictDesc" style="display:none;"></div>
 
-    <!-- ⑧ ACTIONS -->
-    <div class="actions">
+    <!-- ⑨ ACTIONS -->
+    <div class="actions" style="margin-top:1.5rem;">
       <button class="btn-dl" id="btnDl" onclick="downloadReport()">
         ↓ <span id="dlTxt">Download Report</span>
       </button>
@@ -3252,30 +3237,52 @@ function renderResults(){
   const finalErrors   = Math.max(tableErrors, issueErrors);
   const finalWarnings = finalErrors > 0 ? 0 : issueWarnings;
 
-  // ── STEP 4: Render Exec Summary Card ───────────────────────
-  const execBar   = document.getElementById('execStatusBar');
-  const vIcon     = document.getElementById('verdictIcon');
-  const vTitle    = document.getElementById('verdictTitle');
-  const vDesc     = document.getElementById('verdictDesc');
+  // ── STEP 4: Status pill + summary card ──────────────────────
+  const pill     = document.getElementById('statusPill');
+  const pillText = document.getElementById('statusPillText');
+  const sumCard  = document.getElementById('summaryCard');
+  const sumText  = document.getElementById('summaryCardText');
+
+  // legacy hidden elements — kept for compat
+  const vIcon  = document.getElementById('verdictIcon');
+  const vTitle = document.getElementById('verdictTitle');
+  const vDesc  = document.getElementById('verdictDesc');
 
   if(finalErrors > 0){
-    if(execBar) execBar.className = 'exec-status-bar rejected';
-    if(vIcon)   vIcon.textContent = '✗';
-    if(vTitle)  vTitle.textContent = t.verdictRejected;
-    if(vDesc)   vDesc.textContent  = t.verdictRejectedDesc(finalErrors);
+    if(pill) { pill.className='status-pill spl-err'; }
+    if(pillText) pillText.textContent = lang==='es'
+      ? `${finalErrors} inconsistencia(s) crítica(s) — no liberar la carga`
+      : `${finalErrors} critical inconsistenc${finalErrors===1?'y':'ies'} — do not release cargo`;
+    if(sumCard) sumCard.className = 'r-summary-card sc-err';
+    if(vTitle) vTitle.textContent = t.verdictRejected;
+    if(vDesc)  vDesc.textContent  = t.verdictRejectedDesc(finalErrors);
   } else if(finalWarnings > 0){
-    if(execBar) execBar.className = 'exec-status-bar warning';
-    if(vIcon)   vIcon.textContent = '⚠';
-    if(vTitle)  vTitle.textContent = t.verdictWarning;
-    if(vDesc)   vDesc.textContent  = t.verdictWarningDesc(finalWarnings);
+    if(pill) { pill.className='status-pill spl-warn'; }
+    if(pillText) pillText.textContent = lang==='es'
+      ? `${finalWarnings} observación(es) a revisar`
+      : `${finalWarnings} observation${finalWarnings===1?'':'s'} to review`;
+    if(sumCard) sumCard.className = 'r-summary-card sc-warn';
+    if(vTitle) vTitle.textContent = t.verdictWarning;
+    if(vDesc)  vDesc.textContent  = t.verdictWarningDesc(finalWarnings);
   } else {
-    if(execBar) execBar.className = 'exec-status-bar approved';
-    if(vIcon)   vIcon.textContent = '✓';
-    if(vTitle)  vTitle.textContent = t.verdictApproved;
-    if(vDesc)   vDesc.textContent  = t.verdictApprovedDesc;
+    if(pill) { pill.className='status-pill spl-ok'; }
+    if(pillText) pillText.textContent = lang==='es'
+      ? 'Set aprobado — coherencia verificada'
+      : 'Set approved — coherence verified';
+    if(sumCard) sumCard.className = 'r-summary-card sc-ok';
+    if(vTitle) vTitle.textContent = t.verdictApproved;
+    if(vDesc)  vDesc.textContent  = t.verdictApprovedDesc;
   }
 
-  // ── STEP 5: Stats (inside exec card) ───────────────────────
+  // AI summary
+  if(coherenceResult?.summary && sumCard && sumText){
+    sumText.textContent = translateSummary(coherenceResult.summary);
+    sumCard.style.display = 'block';
+  } else if(sumCard){
+    sumCard.style.display = 'none';
+  }
+
+  // ── STEP 5: Stats ───────────────────────────────────────────
   const docsWithIssues = new Set([
     ...displayIssues.flatMap(i=>(i.details||[]).map(d=>d.doc)),
     ...tableEntries.filter(e=>e.isErr).flatMap(e=>(e.d.values||[]).map(v=>v.doc))
@@ -3283,25 +3290,26 @@ function renderResults(){
   const okDocs = Math.max(0, analysisResults.length - docsWithIssues.size);
   const statsEl = document.getElementById('statsRow');
   if(statsEl) statsEl.innerHTML = `
-    <div class="exec-stat"><div class="exec-stat-n stat-total">${analysisResults.length}</div><div class="exec-stat-l">${t.statDocs}</div></div>
-    <div class="exec-stat"><div class="exec-stat-n stat-ok">${okDocs}</div><div class="exec-stat-l">${t.statOk}</div></div>
-    <div class="exec-stat"><div class="exec-stat-n stat-warn">${finalWarnings}</div><div class="exec-stat-l">${t.statWarn}</div></div>
-    <div class="exec-stat"><div class="exec-stat-n stat-err">${finalErrors}</div><div class="exec-stat-l">${t.statErr}</div></div>`;
+    <div class="r-stat-card"><div class="r-stat-n rn-tot">${analysisResults.length}</div><div class="r-stat-l">${t.statDocs}</div></div>
+    <div class="r-stat-card"><div class="r-stat-n rn-ok">${okDocs}</div><div class="r-stat-l">${t.statOk}</div></div>
+    <div class="r-stat-card"><div class="r-stat-n rn-warn">${finalWarnings}</div><div class="r-stat-l">${t.statWarn}</div></div>
+    <div class="r-stat-card"><div class="r-stat-n rn-err">${finalErrors}</div><div class="r-stat-l">${t.statErr}</div></div>`;
 
   // ── STEP 6: Coherence badge ─────────────────────────────────
-  const cb=document.getElementById('coherenceBadge');
-  if(finalErrors>0){cb.className='rst-badge err';cb.textContent=t.cbErr(finalErrors);}
-  else if(finalWarnings>0){cb.className='rst-badge warn';cb.textContent=t.cbWarn;}
-  else{cb.className='rst-badge ok';cb.textContent=t.cbOk;}
+  const cb = document.getElementById('coherenceBadge');
+  if(cb){
+    if(finalErrors>0){ cb.className='r-badge rb-err'; cb.textContent=t.cbErr(finalErrors); }
+    else if(finalWarnings>0){ cb.className='r-badge rb-warn'; cb.textContent=t.cbWarn; }
+    else { cb.className='r-badge rb-ok'; cb.textContent=t.cbOk; }
+  }
 
-  // ── STEP 6b: Render Alerts section (errors + warnings as cards) ─
+  // ── STEP 6b: Alerts ─────────────────────────────────────────
   const alertsSec  = document.getElementById('alertsSection');
-  const alertsErrWrap  = document.getElementById('alertsErrors');
-  const alertsWarnWrap = document.getElementById('alertsWarnings');
-  const alertsErrBody  = document.getElementById('alertsErrBody');
-  const alertsWarnBody = document.getElementById('alertsWarnBody');
+  const errGroup   = document.getElementById('alertsErrGroup');
+  const warnGroup  = document.getElementById('alertsWarnGroup');
+  const errBody    = document.getElementById('alertsErrBody');
+  const warnBody   = document.getElementById('alertsWarnBody');
 
-  // Collect all alert items
   const errAlerts = [], warnAlerts = [];
 
   tableEntries.filter(e => e.isErr).forEach(e => {
@@ -3311,99 +3319,71 @@ function renderResults(){
     vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
     const sorted = Object.entries(valCounts).sort((a,b)=>b[1]-a[1]);
     const majVal = sorted[0]?.[0] || '';
-    errAlerts.push({ field: fieldLabel, vals, majVal,
-      msg: lang==='es'
-        ? `Valores distintos encontrados entre documentos`
-        : `Different values found across documents` });
+    errAlerts.push({ field: fieldLabel, vals, majVal, autoOpen: true,
+      msg: lang==='es' ? 'Valores distintos encontrados entre documentos' : 'Different values found across documents' });
   });
 
   displayIssues.filter(i => i.type==='warning').forEach(iss => {
     const fieldLabel = (t.FL && t.FL[iss.field]) || iss.field || '';
     if(!fieldLabel) return;
-    const vals = iss.details || [];
-    warnAlerts.push({ field: fieldLabel, vals, majVal: '', msg: iss.message || '' });
+    warnAlerts.push({ field: fieldLabel, vals: iss.details||[], majVal:'', autoOpen: false, msg: iss.message||'' });
   });
 
-  const buildAlertCard = (item, type) => {
-    const cls = type === 'err' ? 'alert-err' : 'alert-warn';
-    const tag = type === 'err'
-      ? (lang==='es' ? 'Inconsistencia' : 'Inconsistency')
-      : (lang==='es' ? 'Observación' : 'Observation');
-    const docsHtml = item.vals.length ? item.vals.map(v => {
-      const isOutlier = (v.value||'').trim() !== item.majVal && item.majVal !== '';
-      return `<div class="alert-doc-row ${isOutlier ? 'doc-outlier' : 'doc-majority'}">
-        <span class="alert-doc-name">${(v.doc||'').replace(/\.[^.]+$/,'')}</span>
-        <span class="alert-doc-val">${v.value||'—'}</span>
-      </div>`;
-    }).join('') : '';
+  const tagErr  = lang==='es' ? 'Corregir' : 'Fix required';
+  const tagWarn = lang==='es' ? 'Verificar' : 'Verify';
 
-    const card = document.createElement('div');
-    card.className = `alert-card ${cls}`;
-    card.innerHTML = `
-      <div class="alert-card-head" onclick="this.parentElement.classList.toggle('open')">
-        <span class="alert-card-field">${item.field}</span>
-        <span class="alert-card-msg">${item.msg}</span>
-        <span class="alert-card-tag">${tag}</span>
-        <span class="alert-card-chevron">▼</span>
-      </div>
-      <div class="alert-card-body">
-        ${docsHtml ? `<div class="alert-docs">${docsHtml}</div>` : item.msg}
-      </div>`;
-    return card;
+  const buildAlert = (item, type) => {
+    const cls = type==='err' ? 'ra-err' : 'ra-warn';
+    const tag = type==='err' ? tagErr : tagWarn;
+    let diffHtml = '';
+    if(item.vals.length > 0){
+      const rows = item.vals.map(v => {
+        const isOut = item.majVal && (v.value||'').trim() !== item.majVal;
+        const rc = isOut ? 'rdr-err' : (item.majVal ? 'rdr-ok' : 'rdr-neu');
+        const icon = isOut ? '✗' : (item.majVal ? '✓' : '');
+        let dispVal = v.value || '—';
+        if(isOut && item.majVal && dispVal.length === item.majVal.length && dispVal.length <= 20){
+          let hl = '';
+          for(let i=0; i<dispVal.length; i++){
+            hl += dispVal[i] !== item.majVal[i] ? `<span class="char-diff">${dispVal[i]}</span>` : dispVal[i];
+          }
+          dispVal = hl;
+        }
+        return `<div class="r-diff-row ${rc}"><span class="r-diff-doc">${(v.doc||'').replace(/\.[^.]+$/,'')}</span><span class="r-diff-val">${dispVal}</span><span class="r-diff-icon">${icon}</span></div>`;
+      }).join('');
+      const noteText = type==='err' && item.majVal
+        ? (lang==='es' ? `El valor correcto (mayoría) es <strong>${item.majVal}</strong>.` : `The correct value (majority) is <strong>${item.majVal}</strong>. Documents in red must be corrected.`)
+        : '';
+      diffHtml = `<div class="r-diff-wrap"><div class="r-diff-label">${lang==='es'?'Valor por documento':'Value per document'}</div><div class="r-diff-rows">${rows}</div>${noteText?`<div class="r-diff-note">${noteText}</div>`:''}</div>`;
+    }
+    const el = document.createElement('div');
+    el.className = `r-alert ${cls}${item.autoOpen?' open':''}`;
+    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${item.msg}</div></div><span class="r-alert-tag">${tag}</span><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
+    return el;
   };
 
-  if(alertsErrBody)  alertsErrBody.innerHTML  = '';
-  if(alertsWarnBody) alertsWarnBody.innerHTML = '';
+  if(errBody)  errBody.innerHTML  = '';
+  if(warnBody) warnBody.innerHTML = '';
+  errAlerts.forEach(item  => { if(errBody)  errBody.appendChild(buildAlert(item,'err')); });
+  warnAlerts.forEach(item => { if(warnBody) warnBody.appendChild(buildAlert(item,'warn')); });
+  if(errGroup)  errGroup.style.display  = errAlerts.length  ? 'block' : 'none';
+  if(warnGroup) warnGroup.style.display = warnAlerts.length ? 'block' : 'none';
+  if(alertsSec) alertsSec.style.display = (errAlerts.length||warnAlerts.length) ? 'block' : 'none';
+  const errLbl = document.getElementById('alertsErrLabel');
+  const warnLbl = document.getElementById('alertsWarnLabel');
+  if(errLbl)  errLbl.textContent  = lang==='es' ? 'Inconsistencias críticas' : 'Critical inconsistencies';
+  if(warnLbl) warnLbl.textContent = lang==='es' ? 'Observaciones' : 'Observations';
 
-  errAlerts.forEach(item => {
-    if(alertsErrBody) alertsErrBody.appendChild(buildAlertCard(item, 'err'));
-  });
-  warnAlerts.forEach(item => {
-    if(alertsWarnBody) alertsWarnBody.appendChild(buildAlertCard(item, 'warn'));
-  });
+  // ── STEP 6c: Per-doc title ───────────────────────────────────
+  const pdTitle = document.getElementById('perDocTitle');
+  if(pdTitle) pdTitle.textContent = lang==='es'
+    ? `${analysisResults.length} documentos analizados`
+    : `${analysisResults.length} document${analysisResults.length===1?'':'s'} analyzed`;
 
-  if(alertsErrWrap)  alertsErrWrap.style.display  = errAlerts.length  ? 'block' : 'none';
-  if(alertsWarnWrap) alertsWarnWrap.style.display  = warnAlerts.length ? 'block' : 'none';
-  if(alertsSec)      alertsSec.style.display = (errAlerts.length || warnAlerts.length) ? 'block' : 'none';
-
-  // ── STEP 6c: Exec pending actions checklist ─────────────────
-  const pendWrap = document.getElementById('execPendingWrap');
-  const pendList = document.getElementById('execPendingList');
-  const pendLabel = document.getElementById('execPendingLabel');
-  const allActions = [...errAlerts.map(a => ({...a, type:'err'})), ...warnAlerts.map(a => ({...a, type:'warn'}))];
-
-  if(pendList && allActions.length > 0){
-    if(pendLabel) pendLabel.textContent = lang==='es' ? 'Acciones Requeridas' : 'Actions Required';
-    pendList.innerHTML = allActions.map(item => `
-      <div class="exec-pending-item pend-${item.type}">
-        <span class="exec-pending-icon">${item.type==='err' ? '✗' : '⚠'}</span>
-        <div class="exec-pending-content">
-          <div class="exec-pending-field">${item.field}</div>
-          <div class="exec-pending-msg">${item.msg}</div>
-        </div>
-      </div>`).join('');
-    if(pendWrap) pendWrap.style.display = 'block';
-  } else {
-    if(pendWrap) pendWrap.style.display = 'none';
-  }
-
-  // ── STEP 6d: AI Summary in exec card ─────────────────────────
-  const aiSummaryWrap = document.getElementById('execAiSummary');
-  const aiSummaryText = document.getElementById('execAiText');
-  const aiLabel = document.getElementById('execAiLabel');
-  if(coherenceResult?.summary && aiSummaryText){
-    if(aiLabel) aiLabel.textContent = lang==='es' ? '✦ Resumen del Set' : '✦ Summary';
-    aiSummaryText.textContent = translateSummary(coherenceResult.summary);
-    if(aiSummaryWrap) aiSummaryWrap.style.display = 'block';
-  } else {
-    if(aiSummaryWrap) aiSummaryWrap.style.display = 'none';
-  }
-
-  // ── STEP 6e: Update collapsible headers ─────────────────────
-  const cohToggle = document.getElementById('coherenceToggleHint');
-  if(cohToggle) cohToggle.textContent = lang==='es' ? 'Ver detalles ▶' : 'Show details ▶';
-  const pdToggle = document.getElementById('perDocToggleHint');
-  if(pdToggle) pdToggle.textContent = lang==='es' ? 'Expandir ▶' : 'Expand ▶';
+  // ── STEP 6d: Open table if errors ───────────────────────────
+  const rTableBody = document.getElementById('rTableBody');
+  const rTableChev = document.getElementById('rTableChev');
+  if(rTableBody && finalErrors > 0){ rTableBody.classList.add('open'); if(rTableChev) rTableChev.classList.add('open'); }
 
 
 
@@ -3562,133 +3542,82 @@ function renderResults(){
     }
   }
 
-  // ── STEP 9: Render table from pre-computed tableEntries ─────
+  // ── STEP 9: Render consistency table ────────────────────────
   const tbody=document.getElementById('ctbody');
   tbody.innerHTML='';
 
-  // ── NEW TABLE DESIGN ──────────────────────────────────────
-  // 1. ERROR rows first — full expanded with per-doc breakdown
-  // 2. OK rows collapsed into a single "X fields verified" row
   const errEntries  = tableEntries.filter(e => e.isErr && e.k !== 'system');
   const okEntries   = tableEntries.filter(e => e.allSame);
   const warnEntries = tableEntries.filter(e => !e.isErr && !e.allSame);
+  const cleanDoc    = s => s.replace(/\.[^.]+$/, '').replace(/_page(\d+)/, ' p.$1');
 
-  // Helper: clean doc name
-  const cleanDoc = s => s.replace(/\.[^.]+$/, '').replace(/_page(\d+)/, ' p.$1');
+  const statusOkTxt   = lang==='es' ? 'Consistente' : 'Consistent';
+  const statusErrTxt  = lang==='es' ? 'Inconsistente' : 'Inconsistent';
+  const statusWarnTxt = lang==='es' ? 'Observación' : 'Observation';
+  const statusSingTxt = lang==='es' ? 'Un documento' : 'Single source';
 
-  // Render ERROR rows
-  errEntries.forEach(({k, d}) => {
+  // ERROR rows
+  errEntries.forEach(({k, d, uv}) => {
     const vals = d.values || [];
-    // Normalize values for grouping — lowercase, strip units for comparison only
-    const normForGroup = s => String(s||'').toLowerCase().replace(/\s*(kg|kgs|bags|sacos|sacks|jt|kn|kb|kgm)\b.*/i,'').trim();
-    // Group by normalized value to find outlier
-    const groups = {};
-    vals.forEach(v => {
-      const key = normForGroup(v.value||'—');
-      if(!groups[key]) groups[key] = {displayVal: v.value||'—', docs: []};
-      groups[key].docs.push(cleanDoc(v.doc));
-    });
-    const groupArr = Object.entries(groups)
-      .map(([norm, {displayVal, docs}]) => [displayVal, docs, norm])
-      .sort((a,b) => b[1].length - a[1].length);
-
-    // Build token frequency map using per-doc values (not grouped)
-    const allValues = vals.map(v => v.value||'');
-    const tokenFreq = {}; // token → how many docs have it
-    allValues.forEach(val => {
-      const tokens = new Set(String(val).split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()));
-      tokens.forEach(tok => { tokenFreq[tok] = (tokenFreq[tok]||0)+1; });
-    });
-    const totalDocs = allValues.length;
-    // A token is "majority" if it appears in more than half the docs
-    const isMajorityToken = tok => (tokenFreq[tok.toUpperCase()]||0) > totalDocs/2;
-    const isUniqueToken = tok => (tokenFreq[tok.toUpperCase()]||0) === 1;
-
-    const renderTokens = (val) => {
-      const tokens = String(val).split(/,\s*|\s+/).filter(Boolean);
-      if(tokens.length <= 1) {
-        // Single value — just show it, styling handled by row border
-        return `<span style="font-size:0.82rem;font-weight:500;color:#0f1117;">${val}</span>`;
-      }
-      return tokens.map(tok => {
-        const t = tok.trim();
-        if(isMajorityToken(t)) {
-          // Appears in most docs — show as confirmed/grey
-          return `<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
-        } else if(isUniqueToken(t)) {
-          // Only in this doc — highlight as problem
-          return `<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ ${t}</span>`;
-        } else {
-          return `<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">${t}</span>`;
+    const valCounts = {};
+    vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
+    const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+    const valHtml = vals.map(v => {
+      const isOut = (v.value||'').trim() !== majVal;
+      let disp = v.value||'—';
+      if(isOut && majVal && disp.length===majVal.length && disp.length<=20){
+        let hl='';
+        for(let i=0;i<disp.length;i++){
+          hl += disp[i]!==majVal[i] ? `<span class="char-diff">${disp[i]}</span>` : disp[i];
         }
-      }).join(' ');
-    };
-
-    // Build per-doc rows
-    let docRows = '';
-    groupArr.forEach(([val, docs], gi) => {
-      const isOutlier = gi > 0;
-      const borderColor = isOutlier ? '#c0392b' : '#6aaa6a';
-      const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
-      const icon = isOutlier ? '✗' : '✓';
-      const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
-      docRows += `<div style="background:${bg};border-left:3px solid ${borderColor};padding:10px 12px;margin-bottom:4px;border-radius:0 4px 4px 0;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-          <span style="color:${iconColor};font-weight:700;font-size:0.85rem;">${icon}</span>
-          <span style="font-size:0.65rem;color:#888;font-family:'Raleway',sans-serif;letter-spacing:0.05em;">${docs.join(' · ')}</span>
-        </div>
-        <div style="line-height:1.8;">${renderTokens(val)}</div>
+        disp = hl;
+      }
+      return `<div class="r-diff-row ${isOut?'rdr-err':'rdr-ok'}" style="margin-bottom:3px;">
+        <span class="r-diff-doc">${cleanDoc(v.doc||'')}</span>
+        <span class="r-diff-val">${disp}</span>
+        <span class="r-diff-icon">${isOut?'✗':'✓'}</span>
       </div>`;
-    });
-
-    tbody.innerHTML += `<tr style="background:#fff8f7;">
-      <td style="padding:14px 16px;vertical-align:top;border-bottom:2px solid #f0d0cc;">
-        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#c0392b;margin-bottom:3px;">🔴 Error</div>
-        <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
-      </td>
-      <td style="padding:14px 16px;border-bottom:2px solid #f0d0cc;">${docRows}</td>
+    }).join('');
+    tbody.innerHTML += `<tr class="rt-err">
+      <td><span class="r-dot d-err"></span>${FL(k)}</td>
+      <td><span style="font-size:0.7rem;color:var(--red);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">${statusErrTxt}</span></td>
+      <td colspan="2"><div style="display:flex;flex-direction:column;gap:3px;margin-top:2px;">${valHtml}</div></td>
     </tr>`;
   });
 
-  // Render WARNING rows
+  // WARN rows
   warnEntries.forEach(({k, d, uv}) => {
     const vals = d.values || [];
-    const docList = vals.map(v => `<span style="color:#888;font-size:0.72rem;">${cleanDoc(v.doc)}:</span> <code style="background:#f0f4ff;padding:1px 5px;border-radius:3px;font-size:0.78rem;">${v.value||'—'}</code>`).join('<br>');
-    tbody.innerHTML += `<tr style="background:#f8faff;">
-      <td style="padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--border);">
-        <div style="font-family:'Raleway',sans-serif;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:#b8860b;margin-bottom:3px;">🟡 Observation</div>
-        <div style="font-weight:600;color:#0f1117;font-size:0.82rem;">${FL(k)}</div>
-      </td>
-      <td style="padding:12px 16px;border-bottom:1px solid var(--border);">${docList}</td>
+    const valHtml = vals.map(v =>
+      `<span style="font-size:0.72rem;color:var(--text-light);">${cleanDoc(v.doc)}:</span> <code style="background:var(--cream);padding:1px 5px;border-radius:2px;font-size:0.74rem;">${v.value||'—'}</code>`
+    ).join('  ');
+    tbody.innerHTML += `<tr class="rt-warn">
+      <td><span class="r-dot d-warn"></span>${FL(k)}</td>
+      <td><span style="font-size:0.7rem;color:var(--brown-mid);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">${statusWarnTxt}</span></td>
+      <td colspan="2">${valHtml}</td>
     </tr>`;
   });
 
-  // Render OK rows — collapsed into one expandable row
-  if(okEntries.length > 0){
-    const okId = 'ok-rows-' + Date.now();
-    const okList = okEntries.map(({k, uv}) =>
-      `<tr style="background:#f8faf8;" class="ok-detail-row-${okId}">
-        <td style="padding:8px 16px 8px 32px;border-bottom:1px solid #eee;color:var(--text-light);font-size:0.78rem;">✓ ${FL(k)}</td>
-        <td style="padding:8px 16px;border-bottom:1px solid #eee;font-size:0.78rem;color:#555;">${uv.join(' / ')}</td>
-      </tr>`
-    ).join('');
+  // OK rows
+  okEntries.forEach(({k, uv, d}) => {
+    const isSingle = d?.status === 'single_source';
+    const dotCls = isSingle ? 'd-neu' : 'd-ok';
+    const stLbl  = isSingle ? statusSingTxt : statusOkTxt;
+    const stColor = isSingle ? 'var(--text-light)' : 'var(--green)';
+    tbody.innerHTML += `<tr class="rt-ok">
+      <td style="color:var(--text-light)"><span class="r-dot ${dotCls}"></span>${FL(k)}</td>
+      <td><span style="font-size:0.7rem;color:${stColor};font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">${stLbl}</span></td>
+      <td style="color:var(--text-light);font-size:0.78rem;" colspan="2">${uv.join(' / ')}</td>
+    </tr>`;
+  });
 
-    tbody.innerHTML += `<tr style="background:#f2faf2;">
-      <td colspan="2" style="padding:10px 16px;border-top:2px solid #d4e8d4;">
-        <span style="font-family:'Raleway',sans-serif;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#5a8a5a;">
-          ✓ &nbsp;${okEntries.length} field${okEntries.length===1?'':'s'} verified consistent
-        </span>
-      </td>
-    </tr>
-    ${okList}`;
+  // Update thead to match 4-col structure
+  const thead = document.querySelector('#rTableBody .r-ctable thead tr');
+  if(thead) thead.innerHTML = `
+    <th style="width:22%">${t.th1}</th>
+    <th style="width:18%">${t.th2}</th>
+    <th colspan="2">${t.th3}</th>`;
 
-
-    // OK rows shown by default — no hiding
-  }
-
-  // Remove old table headers (4 cols → 2 cols now)
-  const thead = document.querySelector('.ctable thead tr');
-  if(thead) thead.innerHTML = '<th style="width:30%">Field</th><th>Values by Document</th>';
 
   // ── STEP 10: Inconsistency cards ────────────────────────────
   const iSec=document.getElementById('inconsSec');
@@ -3865,104 +3794,45 @@ function renderResults(){
       const emp=!v||v==='null'||v==='undefined'||v==='';
       const isIncons = inconsFields.has(k);
       const isWarn = !isIncons && warnFields.has(k);
-      const divCls = isIncons ? ' dfield-inconsistent' : isWarn ? ' dfield-warning' : '';
-      const flag = isIncons
-        ? '<span class="dfield-flag">⚠ '+(lang==='es'?'INCONSISTENTE':'MISMATCH')+'</span>'
-        : isWarn
-        ? '<span class="dfield-flag">⚠ '+(lang==='es'?'REVISAR':'REVIEW')+'</span>'
-        : '';
-      return '<div class="dfield'+divCls+'">'
-        +'<div class="dfield-label">'+l+flag+'</div>'
-        +'<div class="dfield-val'+(emp?' empty':'')+'">'+( emp?'—':v)+'</div>'
-        +'</div>';
+      const cls = isIncons ? ' rf-err' : isWarn ? ' rf-warn' : '';
+      return `<div class="r-dfield${cls}">
+        <div class="r-dfield-label">${l}</div>
+        <div class="r-dfield-val${emp?' dv-empty':''}">${emp?'—':v}</div>
+      </div>`;
     }).join('');
 
     const issHtml=(ds.issues||[]).map(i=>
-      '<div style="display:flex;gap:0.7rem;padding:0.5rem 0.8rem;margin-bottom:0.3rem;'
-      +'font-size:0.74rem;background:rgba(74,111,165,0.07);border-left:2px solid var(--tan);'
-      +'color:var(--text-mid);">⚠ '+i+'</div>'
+      `<div style="font-size:0.74rem;color:var(--text-light);padding:0.4rem 0.6rem;margin-bottom:3px;border-left:2px solid var(--tan);background:rgba(74,111,165,0.06);">⚠ ${i}</div>`
     ).join('');
 
-    const commentHtml=ds.comment
-      ?'<div class="dcard-comment">'
-        +'<div class="dcard-comment-label">'+t.analysisLabel+'</div>'
-        +'<div class="dcard-comment-text">'+ds.comment+'</div>'
-        +'</div>'
-      :'';
+    const commentHtml = ds.comment
+      ? `<div class="r-dcard-comment">${ds.comment}</div>`
+      : '';
 
     const card = document.createElement('div');
-    card.className = 'dcard';
+    card.className = 'r-dcard';
     card.id = 'dc'+cardIdx;
     card.innerHTML =
-      '<div class="dcard-head" onclick="toggleCard('+cardIdx+')">'
-        +'<div class="dcard-stripe '+sc+'"></div>'
-        +'<div class="dcard-info">'
-          +'<div class="dcard-title">'+translateDocType(ds.docType||r.docType||r._filename)+' '+ftag+'</div>'
-          +'<div class="dcard-file">'+r._filename+'</div>'
-        +'</div>'
-        +'<div class="dcard-badge '+sc+'">'+lbl+'</div>'
-        +'<span class="dcard-chevron">▼</span>'
-      +'</div>'
-      +'<div class="dcard-body">'
-        +'<div class="dcard-fields-label">'+t.fieldsLabel+'</div>'
-        +'<div class="dcard-fields">'+fHtml+'</div>'
-        +(issHtml?'<div class="dcard-fields-label">'+t.obsLabel+'</div>'+issHtml:'')
-        +commentHtml
-      +'</div>';
+      `<div class="r-dcard-head" onclick="toggleCard(${cardIdx})">
+        <div class="r-dcard-stripe ds-${sc}"></div>
+        <div class="r-dcard-info">
+          <div class="r-dcard-type">${translateDocType(ds.docType||r.docType||r._filename)}</div>
+          <div class="r-dcard-file">${r._filename}</div>
+        </div>
+        <span class="r-dcard-badge db-${sc}">${lbl}</span>
+        <span class="r-dcard-chev">▼</span>
+      </div>
+      <div class="r-dcard-body">
+        ${commentHtml}
+        <div class="r-dcard-fields">${fHtml}</div>
+        ${issHtml?`<div style="margin-top:8px">${issHtml}</div>`:''}
+      </div>`;
     dc.appendChild(card);
   });
 
-  // Summary already shown in exec card — skip per-doc summary block
-
-  // ── ACTION REQUIRED PANEL ───────────────────────────────────
+  // Action required panel is now replaced by alerts — keep div hidden
   const arPanel = document.getElementById('actionRequired');
-  const arBody  = document.getElementById('arBody');
-  const arTitle = document.getElementById('arTitle');
-  if(arPanel && arBody){
-    const isES2 = lang === 'es';
-    const arIssues = [];
-
-    // Collect errors from ground-truth tableEntries
-    tableEntries.filter(e => e.isErr).forEach(e => {
-      const fieldLabel = (t.FL && t.FL[e.k]) || e.k;
-      const uv = e.uv;
-      const srcs = [...new Set((e.d.values||[]).map(v=>v.doc).filter(Boolean))];
-      const msg = isES2
-        ? `Valores distintos encontrados: ${uv.slice(0,3).join(' / ')}${uv.length>3?'…':''}`
-        : `Different values found: ${uv.slice(0,3).join(' / ')}${uv.length>3?'…':''}`;
-      arIssues.push({ type:'err', field: fieldLabel, msg, docs: srcs });
-    });
-
-    // Collect warnings from displayIssues (not already covered)
-    displayIssues.filter(i => i.type==='warning').forEach(iss => {
-      const fl2 = (t.FL && t.FL[iss.field]) || iss.field || '';
-      const already = arIssues.find(a => a.field.toLowerCase() === fl2.toLowerCase());
-      if(!already && fl2){
-        const srcs = [...new Set((iss.details||[]).map(d=>d.doc).filter(Boolean))];
-        arIssues.push({ type:'warn', field: fl2, msg: iss.message || '', docs: srcs });
-      }
-    });
-
-    if(arIssues.length === 0){
-      arPanel.style.display = 'none';
-    } else {
-      if(arTitle) arTitle.textContent = isES2
-        ? `Acción Requerida — ${arIssues.length} problema(s) encontrado(s)`
-        : `Action Required — ${arIssues.length} issue(s) found`;
-
-      arBody.innerHTML = arIssues.map(issue => {
-        const docNames = (issue.docs||[]).slice(0,2).join(', ');
-        const docBadge = docNames
-          ? `<span class="ar-doc${issue.type==='warn'?' ar-doc-warn':''}" title="${docNames}">${docNames}</span>`
-          : '';
-        return `<div class="ar-item${issue.type==='warn'?' ar-item-warn':''}">
-          ${docBadge}
-          <div><span class="ar-field">${issue.field}:</span> <span class="ar-msg">${issue.msg}</span></div>
-        </div>`;
-      }).join('');
-      arPanel.style.display = 'block';
-    }
-  }
+  if(arPanel) arPanel.style.display = 'none';
 
   document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
   } catch(err) {
@@ -3974,18 +3844,34 @@ function renderResults(){
 function toggleCard(i){
   const card = document.getElementById('dc'+i);
   if(!card) return;
-  const body = card.querySelector('.dcard-body');
-  const chevron = card.querySelector('.dcard-chevron');
+  const body = card.querySelector('.r-dcard-body');
+  const chev = card.querySelector('.r-dcard-chev');
   const isOpen = card.classList.contains('open');
   if(isOpen){
     card.classList.remove('open');
     if(body) body.style.display = 'none';
-    if(chevron) chevron.style.transform = 'rotate(0deg)';
+    if(chev) chev.style.transform = 'rotate(0deg)';
   } else {
     card.classList.add('open');
-    if(body){ body.style.display = 'block'; body.style.visibility = 'visible'; }
-    if(chevron) chevron.style.transform = 'rotate(180deg)';
+    if(body){ body.style.display = 'block'; }
+    if(chev) chev.style.transform = 'rotate(180deg)';
   }
+}
+
+function toggleRTable(){
+  const body = document.getElementById('rTableBody');
+  const chev = document.getElementById('rTableChev');
+  if(!body) return;
+  body.classList.toggle('open');
+  if(chev) chev.classList.toggle('open');
+}
+
+function toggleRPerdoc(){
+  const body = document.getElementById('rPerdocBody');
+  const chev = document.getElementById('rPerdocChev');
+  if(!body) return;
+  body.classList.toggle('open');
+  if(chev) chev.classList.toggle('open');
 }
 
 function downloadReport(){
@@ -4413,14 +4299,17 @@ function resetApp(){
   safeStyle('multiDocNotice','display','none');
   safeStyle('criticalBanner','display','none');
   safeStyle('alertsSection','display','none');
-  safeStyle('execPendingWrap','display','none');
-  safeStyle('execAiSummary','display','none');
+  safeStyle('alertsErrGroup','display','none');
+  safeStyle('alertsWarnGroup','display','none');
+  safeStyle('summaryCard','display','none');
   safeStyle('actionRequired','display','none');
   safeReset('arBody','innerHTML','');
   const bar2=safeEl('trackingStatusBar'); if(bar2) bar2.className='tracking-status-bar pending';
-  // Reset collapsible details
-  const cohDet = safeEl('coherenceDetails'); if(cohDet) cohDet.removeAttribute('open');
-  const pdDet  = safeEl('perDocDetails');  if(pdDet)  pdDet.removeAttribute('open');
+  // Reset collapsible table and perdoc
+  const rtb=safeEl('rTableBody'); if(rtb) rtb.classList.remove('open');
+  const rtc=safeEl('rTableChev'); if(rtc) rtc.classList.remove('open');
+  const rpb=safeEl('rPerdocBody'); if(rpb) rpb.classList.remove('open');
+  const rpc=safeEl('rPerdocChev'); if(rpc) rpc.classList.remove('open');
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
 }
