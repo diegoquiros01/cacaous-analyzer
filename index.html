@@ -2293,22 +2293,28 @@ FLAG these as WARNINGS (type: "warning") — observations that need attention bu
 
 DESTINATION COUNTRY IS MANDATORY: You MUST check every single document's destinationCountry.
 
-WRITING RULES — there is no field-by-field table shown to the user. Your text IS the explanation.
+WRITING RULES — there is no field-by-field table shown to the user. Your text IS the explanation. Be specific and practical — explain not just what differs but why it matters and what needs to happen.
 
-"summary" — 3-4 sentences maximum. Write like a trade compliance officer briefing a colleague:
+"summary" — 3-4 sentences. Write like a trade compliance officer briefing a colleague:
   - Sentence 1: Overall verdict and document count. ("All 9 documents are internally consistent.")
-  - Sentence 2-3: The most important issues or observations, naming actual values and document names. ("The Packing List shows container CMAU6984880 while the BL shows CMAU6984881 — one digit differs, likely a typo. A corrected Packing List is needed before customs release.")
-  - Final sentence (if issues): The single next action. ("Request a corrected Packing List from the shipper.")
+  - Sentence 2-3: The most important issues, naming actual values, document names, and the practical consequence. ("The COI (DRAFT.COI.2026.0007938) has no signature in section 18 — without the final signed version from Kiwa BCS, the cargo cannot be released as organic at Bulgarian customs.")
+  - Final sentence: The single most urgent next action. ("Request the signed COI from Kiwa BCS before the vessel arrives on 03/Mar.")
   - If clean: "All [N] documents are consistent. Containers, seals, lots, weights, and parties all match. The set is ready to proceed."
 
-"message" per coherenceIssue — 1-2 sentences. Be specific: name the document, the wrong value, and what the correct value is. Example: "Packing List shows CMAU6984880 but the Bill of Lading, COI, and Phytosanitary Certificate all show CMAU6984881. Request a corrected Packing List."
+"message" per coherenceIssue — 2-3 sentences maximum. Structure:
+  1. What differs and between which documents, with exact values. ("The Packing List shows container MRSU8021108 while the Bill of Lading, COI, and Phytosanitary Certificate all show MRSU8021109.")
+  2. Why this matters practically. ("A container number mismatch will cause a rejection at the port — customs will not release cargo whose seal numbers do not match the transport document.")
+  3. What action is needed and from whom. ("Request a corrected Packing List from Cacao San Jose before the vessel arrives.")
 
-"comment" per document in perDocumentStatus — 1 sentence max, 15 words max. State what's notable about this specific document: is it a DRAFT, does it have a pending signature, does it match everything, does it have the conflicting value? Examples: "All fields consistent with the set." / "DRAFT — section 18 signature blank, final version required." / "Shows container CMAU6984880 — differs from BL."
+"comment" per document in perDocumentStatus — 2 sentences max, 25 words max total. First sentence: what's notable about this document (DRAFT, missing signature, conflicting value, or clean). Second sentence: the practical implication if it's an issue. Examples:
+  - "All fields consistent with the set. No action required."
+  - "DRAFT — section 18 signature and Kiwa BCS stamp are blank. Cargo cannot be certified organic without the final signed version."
+  - "Shows container MRSU8021108, which differs from MRSU8021109 in all other documents. This document must be corrected before customs release."
 
 Write all text in ${isES ? 'Spanish' : 'English'}.
 
 Return ONLY valid JSON:
-{"overallStatus":"approved|warning|rejected","summary":"3-4 sentences as described","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"1-2 sentences naming doc + wrong value + correct value","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"1 sentence, 15 words max"}}}`
+{"overallStatus":"approved|warning|rejected","summary":"3-4 sentences as described","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"2-3 sentences: what differs + why it matters + what action is needed","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"2 sentences max, 25 words: what is notable + practical implication"}}}`
 
   // ── JS PRE-CHECK: detect critical mismatches deterministically ──
   const jsPreErrors = [];
