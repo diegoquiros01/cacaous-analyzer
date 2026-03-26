@@ -2293,15 +2293,22 @@ FLAG these as WARNINGS (type: "warning") — observations that need attention bu
 
 DESTINATION COUNTRY IS MANDATORY: You MUST check every single document's destinationCountry.
 
-BREVITY RULES — STRICTLY ENFORCED:
-- "summary": MAX 2 sentences. Sentence 1: overall status in plain language. Sentence 2: the single most important action needed, or omit if clean.
-- "message" per issue: MAX 1 short sentence. State the field and the conflicting values. Nothing else.
-- "comment" per document: MAX 8 words. Examples: "All fields consistent." / "DRAFT — signature pending." / "Container number differs from BL."
+WRITING RULES — there is no field-by-field table shown to the user. Your text IS the explanation.
+
+"summary" — 3-4 sentences maximum. Write like a trade compliance officer briefing a colleague:
+  - Sentence 1: Overall verdict and document count. ("All 9 documents are internally consistent.")
+  - Sentence 2-3: The most important issues or observations, naming actual values and document names. ("The Packing List shows container CMAU6984880 while the BL shows CMAU6984881 — one digit differs, likely a typo. A corrected Packing List is needed before customs release.")
+  - Final sentence (if issues): The single next action. ("Request a corrected Packing List from the shipper.")
+  - If clean: "All [N] documents are consistent. Containers, seals, lots, weights, and parties all match. The set is ready to proceed."
+
+"message" per coherenceIssue — 1-2 sentences. Be specific: name the document, the wrong value, and what the correct value is. Example: "Packing List shows CMAU6984880 but the Bill of Lading, COI, and Phytosanitary Certificate all show CMAU6984881. Request a corrected Packing List."
+
+"comment" per document in perDocumentStatus — 1 sentence max, 15 words max. State what's notable about this specific document: is it a DRAFT, does it have a pending signature, does it match everything, does it have the conflicting value? Examples: "All fields consistent with the set." / "DRAFT — section 18 signature blank, final version required." / "Shows container CMAU6984880 — differs from BL."
 
 Write all text in ${isES ? 'Spanish' : 'English'}.
 
 Return ONLY valid JSON:
-{"overallStatus":"approved|warning|rejected","summary":"max 2 sentences","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"1 sentence — field + conflicting values only","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"max 8 words"}}}`
+{"overallStatus":"approved|warning|rejected","summary":"3-4 sentences as described","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"1-2 sentences naming doc + wrong value + correct value","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"1 sentence, 15 words max"}}}`
 
   // ── JS PRE-CHECK: detect critical mismatches deterministically ──
   const jsPreErrors = [];
@@ -3255,13 +3262,9 @@ function renderResults(){
     if(vDesc)  vDesc.textContent  = t.verdictApprovedDesc;
   }
 
-  // AI summary — truncate to 2 sentences max as safety guard
+  // AI summary
   if(coherenceResult?.summary && sumCard && sumText){
-    let s = translateSummary(coherenceResult.summary).trim();
-    // Hard cap: max 2 sentences
-    const sentences = s.match(/[^.!?]+[.!?]+/g) || [s];
-    if(sentences.length > 2) s = sentences.slice(0,2).join(' ').trim();
-    sumText.textContent = s;
+    sumText.textContent = translateSummary(coherenceResult.summary);
     sumCard.style.display = 'block';
   } else if(sumCard){
     sumCard.style.display = 'none';
@@ -3350,7 +3353,7 @@ function renderResults(){
     }
     const el = document.createElement('div');
     el.className = `r-alert ${cls}${item.autoOpen?' open':''}`;
-    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${firstSentence(item.msg)}</div></div><span class="r-alert-tag">${tag}</span><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
+    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${item.msg}</div></div><span class="r-alert-tag">${tag}</span><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
     return el;
   };
 
@@ -3672,12 +3675,7 @@ function renderResults(){
     ).join('');
 
     const commentHtml = ds.comment
-      ? (() => {
-          // Max 10 words
-          const words = ds.comment.trim().split(/\s+/);
-          const short = words.length > 10 ? words.slice(0,10).join(' ') + '…' : ds.comment.trim();
-          return `<div class="r-dcard-comment">${short}</div>`;
-        })()
+      ? `<div class="r-dcard-comment">${ds.comment}</div>`
       : '';
 
     const card = document.createElement('div');
