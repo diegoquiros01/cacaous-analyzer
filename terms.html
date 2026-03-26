@@ -5,25 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Terms of Service — DocsValidate</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --cream:#f5f0e8;
-      --cream2:#ede8df;
-      --brown-dark:#2c1a0e;
-      --brown:#5c3d1e;
-      --brown-mid:#7a5230;
-      --gold:#c8a46e;
-      --gold-light:#d4b483;
-      --text:#3a2410;
-      --text-light:#6b4c2a;
-      --border:#d4c4a8;
+      --white:#ffffff;
+      --offwhite:#f7f8fa;
+      --cream:#f0f2f5;
+      --cream2:#e4e8ee;
+      --brown-dark:#0f1117;
+      --brown:#1c2230;
+      --brown-mid:#3a4660;
+      --tan:#4a6fa5;
+      --tan-light:#7da4d4;
+      --text:#0f1117;
+      --text-mid:#3a4255;
+      --text-light:#7a8499;
+      --border:#d0d6e2;
+      --border-light:#e8edf5;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
-      background:var(--cream);
+      background:var(--offwhite);
       color:var(--text);
-      font-family:'Lora',serif;
+      font-family:'Lato',sans-serif;
       font-size:16px;
       line-height:1.8;
     }
@@ -37,25 +41,22 @@
       justify-content:space-between;
     }
     .nav-logo{
-      font-family:'Raleway',sans-serif;
-      font-weight:300;
-      font-size:1.1rem;
-      letter-spacing:0.08em;
-      color:#fff;
+      display:flex;
+      align-items:center;
       text-decoration:none;
     }
-    .nav-logo span{
+    .nav-logo img{
+      height:30px;
+      width:auto;
       display:block;
-      font-size:0.65rem;
-      letter-spacing:0.12em;
-      opacity:0.5;
-      margin-top:1px;
+      filter:brightness(0) invert(1);
+      opacity:0.9;
     }
     .nav-back{
       font-family:'Raleway',sans-serif;
       font-size:0.78rem;
       letter-spacing:0.06em;
-      color:var(--gold);
+      color:var(--tan-light);
       text-decoration:none;
       display:flex;
       align-items:center;
@@ -69,18 +70,18 @@
       background:var(--brown-dark);
       padding:60px 40px 50px;
       text-align:center;
-      border-bottom:2px solid var(--gold);
+      border-bottom:2px solid var(--tan);
     }
     .hero-label{
       font-family:'Raleway',sans-serif;
       font-size:0.7rem;
       letter-spacing:0.2em;
-      color:var(--gold);
+      color:var(--tan-light);
       text-transform:uppercase;
       margin-bottom:16px;
     }
     .hero h1{
-      font-family:'Lora',serif;
+      font-family:'Playfair Display',serif;
       font-size:2.4rem;
       font-weight:400;
       color:#fff;
@@ -103,9 +104,9 @@
 
     /* TOC */
     .toc{
-      background:var(--cream2);
+      background:var(--white);
       border:1px solid var(--border);
-      border-left:3px solid var(--gold);
+      border-left:3px solid var(--tan);
       padding:28px 32px;
       margin-bottom:52px;
       border-radius:2px;
@@ -115,7 +116,7 @@
       font-size:0.7rem;
       letter-spacing:0.18em;
       text-transform:uppercase;
-      color:var(--brown-mid);
+      color:var(--text-light);
       margin-bottom:16px;
     }
     .toc ol{
@@ -127,18 +128,18 @@
     .toc a{
       font-family:'Raleway',sans-serif;
       font-size:0.85rem;
-      color:var(--brown);
+      color:var(--brown-mid);
       text-decoration:none;
       letter-spacing:0.02em;
       transition:color 0.2s;
     }
-    .toc a:hover{color:var(--gold);}
+    .toc a:hover{color:var(--tan);}
 
     /* CRITICAL BOX */
     .critical-box{
-      background:#fff8f0;
-      border:1px solid #e8c88a;
-      border-left:4px solid var(--gold);
+      background:#f0f4ff;
+      border:1px solid #c8d8f0;
+      border-left:4px solid var(--tan);
       padding:24px 28px;
       margin-bottom:48px;
       border-radius:2px;
@@ -154,7 +155,7 @@
     .critical-box p{
       font-size:0.95rem;
       line-height:1.7;
-      color:var(--brown-dark);
+      color:var(--text-mid);
     }
 
     /* SECTIONS */
@@ -168,11 +169,11 @@
       font-size:0.72rem;
       letter-spacing:0.18em;
       text-transform:uppercase;
-      color:var(--gold);
+      color:var(--tan);
       margin-bottom:8px;
     }
     section h3{
-      font-family:'Lora',serif;
+      font-family:'Playfair Display',serif;
       font-size:1.35rem;
       font-weight:400;
       color:var(--brown-dark);
@@ -182,7 +183,7 @@
     }
     section p{
       margin-bottom:14px;
-      color:var(--text);
+      color:var(--text-mid);
       font-size:0.95rem;
     }
     section ul, section ol{
@@ -192,16 +193,21 @@
     section li{
       margin-bottom:8px;
       font-size:0.95rem;
-      color:var(--text);
+      color:var(--text-mid);
     }
     section li strong{
       color:var(--brown-dark);
       font-weight:500;
     }
+    section a{
+      color:var(--tan);
+      text-decoration:none;
+    }
+    section a:hover{text-decoration:underline;}
 
     /* HIGHLIGHT BOX */
     .highlight{
-      background:var(--cream2);
+      background:var(--cream);
       border:1px solid var(--border);
       padding:20px 24px;
       margin:20px 0;
@@ -232,7 +238,7 @@
       letter-spacing:0.05em;
     }
     footer a{
-      color:var(--gold);
+      color:var(--tan-light);
       text-decoration:none;
     }
 
@@ -248,8 +254,7 @@
 <!-- NAV -->
 <nav>
   <a href="/" class="nav-logo">
-    DOCSVALIDATE
-    <span>DOCSVALIDATE.COM</span>
+    <img src="/logo.png" alt="DocsValidate">
   </a>
   <a href="/" class="nav-back">← Back to App</a>
 </nav>
@@ -369,7 +374,7 @@
     <h2>04</h2>
     <h3>Accounts & Subscriptions</h3>
     <p>You may use up to 3 validations without registration. To access additional validations, you must create a free account. Paid subscription plans ("Professional" and "Enterprise") unlock higher monthly validation limits and additional features.</p>
-    <p>You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a> if you suspect unauthorized access to your account.</p>
+    <p>You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="/cdn-cgi/l/email-protection#2149444d4d4e61454e425257404d48454055440f424e4c"><span class="__cf_email__" data-cfemail="e28a878e8e8da2868d819194838e8b86839687cc818d8f">[email&#160;protected]</span></a> if you suspect unauthorized access to your account.</p>
     <p>Subscription limits reset monthly. Unused validations do not roll over to the next billing period.</p>
   </section>
 
@@ -420,7 +425,7 @@
   <section id="termination">
     <h2>09</h2>
     <h3>Termination</h3>
-    <p>You may delete your account at any time by contacting <a href="mailto:support@docsvalidate.com">support@docsvalidate.com</a>.</p>
+    <p>You may delete your account at any time by contacting <a href="/cdn-cgi/l/email-protection#bdcec8cdcdd2cfc9fdd9d2dececbdcd1d4d9dcc9d893ded2d0"><span class="__cf_email__" data-cfemail="e3909693938c9197a3878c809095828f8a87829786cd808c8e">[email&#160;protected]</span></a>.</p>
     <p>We reserve the right to suspend or terminate your access to the Service at any time for violation of these Terms, non-payment, or any other reason at our discretion. In cases of termination for cause, no refund will be issued for unused subscription time.</p>
   </section>
 
@@ -476,21 +481,19 @@
     <div class="highlight">
       <p>
         <strong>DocsValidate</strong><br/>
-        Email: <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a><br/>
+        Email: <a href="/cdn-cgi/l/email-protection#83ebe6efefecc3e7ece0f0f5e2efeae7e2f7e6ade0ecee"><span class="__cf_email__" data-cfemail="2048454c4c4f60444f435356414c49444154450e434f4d">[email&#160;protected]</span></a><br/>
         Website: <a href="https://docsvalidate.com">docsvalidate.com</a>
       </p>
     </div>
   </section>
 
   <hr/>
-  <p style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:var(--text-light);text-align:center;letter-spacing:0.03em;">
-    By creating a DocsValidate account, you confirm that you have read, understood, and agreed to these Terms of Service.
-  </p>
+  <p style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:#7a8499;letter-spacing:0.05em;">Last updated: March 22, 2026</p>
 
-</div>
+</div><!-- /.page -->
 
 <footer>
-  <p>© 2026 DocsValidate &nbsp;·&nbsp; <a href="/terms">Terms of Service</a> &nbsp;·&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;·&nbsp; <a href="/contact">Contact</a></p>
+  <p>© 2026 DocsValidate · <a href="/">docsvalidate.com</a> · <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a></p>
 </footer>
 
 </body>
