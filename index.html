@@ -1424,7 +1424,7 @@ footer {
     <div class="r-perdoc-wrap">
       <div class="r-perdoc-head" onclick="toggleRPerdoc()">
         <div class="r-perdoc-head-left" id="perDocTitle">Documents analyzed</div>
-        <span class="r-chev" id="rPerdocChev">▼</span>
+        <button class="r-dcard-view" id="rPerdocBtn" onclick="event.stopPropagation();toggleRPerdoc()">View</button>
       </div>
       <div class="r-perdoc-body" id="rPerdocBody">
         <div id="docCards"></div>
@@ -1465,10 +1465,15 @@ footer {
 
 
 <footer>
-  <div class="footer-logo"><img src="/logo.png" alt="DocsValidate" style="height:28px;filter:brightness(0) invert(1);opacity:0.85;"></div>
+  <div class="footer-logo">
+    <a href="/" onclick="if(typeof resetApp==='function'){event.preventDefault();resetApp();}" style="display:inline-block;text-decoration:none;">
+      <img src="/logo.png" alt="DocsValidate" style="height:32px;filter:brightness(0) invert(1);opacity:0.85;">
+    </a>
+  </div>
   <ul class="footer-links">
     <li><a href="/">DocsValidate.com</a></li>
-    <li><a href="https://www.instagram.com/cacao_us/" target="_blank">Instagram</a></li>
+    <li><a href="https://www.instagram.com/docsvalidate/" target="_blank" rel="noopener">Instagram</a></li>
+    <li><a href="https://www.tiktok.com/@docsvalidate" target="_blank" rel="noopener">TikTok</a></li>
   </ul>
   <div class="footer-copy">© 2025 DocsValidate · All Rights Reserved</div>
 </footer>
@@ -3776,10 +3781,11 @@ function toggleRTable(){
 
 function toggleRPerdoc(){
   const body = document.getElementById('rPerdocBody');
-  const chev = document.getElementById('rPerdocChev');
+  const btn  = document.getElementById('rPerdocBtn');
   if(!body) return;
+  const isOpen = body.classList.contains('open');
   body.classList.toggle('open');
-  if(chev) chev.classList.toggle('open');
+  if(btn) btn.textContent = isOpen ? (lang==='es'?'Ver':'View') : (lang==='es'?'Cerrar':'Close');
 }
 
 function downloadReport(){
