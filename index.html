@@ -401,10 +401,10 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--tan); flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
 @keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 .doc-progress-list { display: flex; flex-direction: column; gap: 0.4rem; }
-.doc-progress-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.55rem 0.8rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
+.doc-progress-item { display: flex; align-items: center; gap: 1.2rem; padding: 0.6rem 1rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
 .doc-progress-item.done { background: rgba(61,90,62,0.05); border-color: rgba(61,90,62,0.2); }
 .doc-progress-item.active { background: rgba(74,111,165,0.08); border-color: var(--tan); }
-.doc-pi-icon { font-size: 0.9rem; flex-shrink: 0; width: 20px; text-align: center; }
+.doc-pi-icon { font-size: 1rem; flex-shrink: 0; width: 24px; text-align: center; }
 .doc-pi-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .doc-pi-status { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; flex-shrink: 0; color: var(--text-light); }
 .doc-progress-item.done .doc-pi-status { color: var(--green); }
@@ -1155,6 +1155,8 @@ footer {
 .r-dcard-badge.db-err  { border-color: var(--red);   color: var(--red); }
 .r-dcard-chev { font-size: 0.6rem; color: var(--text-light); transition: transform 0.2s; flex-shrink: 0; }
 .r-dcard.open .r-dcard-chev { transform: rotate(180deg); }
+.r-dcard-view { font-size: 0.62rem; font-family: 'Raleway', sans-serif; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tan); border: 1px solid var(--tan); border-radius: 3px; padding: 3px 9px; flex-shrink: 0; transition: background 0.15s, color 0.15s; cursor: pointer; }
+.r-dcard-view:hover { background: var(--tan); color: var(--white); }
 .r-dcard-body { display: none; padding: 0.8rem 1.1rem 1rem 2.4rem; background: var(--offwhite); border-top: 1px solid var(--border-light); }
 .r-dcard.open .r-dcard-body { display: block; }
 .r-dcard-comment { font-size: 0.76rem; color: var(--text-light); font-style: italic; line-height: 1.6; margin-bottom: 0.7rem; }
@@ -1195,7 +1197,7 @@ footer {
 <header class="header">
   <div class="header-top">
     <div class="logo">
-      <a href="/" style="display:flex;align-items:center;text-decoration:none;">
+      <a href="/" onclick="if(typeof resetApp==='function'){event.preventDefault();resetApp();}" style="display:flex;align-items:center;text-decoration:none;cursor:pointer;">
         <img src="/logo.png" alt="DocsValidate" class="logo-img">
       </a>
       <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">DocsValidate.com</div>
@@ -1369,6 +1371,13 @@ footer {
     <div id="statusPill" class="status-pill spl-ok">
       <span class="status-pill-dot"></span>
       <span id="statusPillText">Set approved</span>
+    </div>
+
+    <!-- ① BL NUMBER STRIP -->
+    <div id="blStrip" style="display:none;padding:0.55rem 1.1rem;background:var(--offwhite);border:1px solid var(--border-light);border-radius:4px;margin-top:0.6rem;display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;">
+      <span style="font-family:'Raleway',sans-serif;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);flex-shrink:0;">B/L</span>
+      <span id="blStripNumber" style="font-family:'Raleway',sans-serif;font-size:0.88rem;font-weight:700;color:var(--brown-dark);letter-spacing:0.04em;"></span>
+      <span id="blStripExtra" style="font-size:0.72rem;color:var(--text-light);"></span>
     </div>
 
     <!-- ② SUMMARY CARD (AI text) -->
@@ -3276,6 +3285,29 @@ function renderResults(){
     sumCard.style.display = 'none';
   }
 
+  // BL number strip
+  const blStrip = document.getElementById('blStrip');
+  const blStripNum = document.getElementById('blStripNumber');
+  const blStripExtra = document.getElementById('blStripExtra');
+  if(blStrip && blStripNum){
+    // Gather all BL numbers from extracted docs
+    const blVals = analysisResults
+      .filter(r => r.blNumber)
+      .map(r => r.blNumber.trim());
+    const uniqueBLs = [...new Set(blVals)];
+    // Also get vessel + lot for context
+    const vessel = analysisResults.find(r=>r.vesselName)?.vesselName || '';
+    const lot = analysisResults.find(r=>r.lotNumbers?.length)?.lotNumbers?.[0] || '';
+    if(uniqueBLs.length > 0){
+      blStripNum.textContent = uniqueBLs.join(' · ');
+      const extras = [vessel, lot ? (lang==='es'?'Lote ':'Lot ')+lot : ''].filter(Boolean);
+      blStripExtra.textContent = extras.join('  ·  ');
+      blStrip.style.display = 'flex';
+    } else {
+      blStrip.style.display = 'none';
+    }
+  }
+
   // ── STEP 5: Stats ───────────────────────────────────────────
   const docsWithIssues = new Set([
     ...displayIssues.flatMap(i=>(i.details||[]).map(d=>d.doc)),
@@ -3688,14 +3720,14 @@ function renderResults(){
     card.className = 'r-dcard';
     card.id = 'dc'+cardIdx;
     card.innerHTML =
-      `<div class="r-dcard-head" onclick="toggleCard(${cardIdx})">
+      `<div class="r-dcard-head">
         <div class="r-dcard-stripe ds-${sc}"></div>
         <div class="r-dcard-info">
           <div class="r-dcard-type">${translateDocType(ds.docType||r.docType||r._filename)}</div>
           <div class="r-dcard-file">${r._filename}</div>
         </div>
         <span class="r-dcard-badge db-${sc}">${lbl}</span>
-        <span class="r-dcard-chev">▼</span>
+        <button class="r-dcard-view" onclick="toggleCard(${cardIdx})" id="dcv${cardIdx}">${lang==='es'?'Ver':'View'}</button>
       </div>
       <div class="r-dcard-body">
         ${commentHtml}
@@ -3720,16 +3752,17 @@ function toggleCard(i){
   const card = document.getElementById('dc'+i);
   if(!card) return;
   const body = card.querySelector('.r-dcard-body');
-  const chev = card.querySelector('.r-dcard-chev');
+  const btn  = document.getElementById('dcv'+i);
   const isOpen = card.classList.contains('open');
+  const isES = lang === 'es';
   if(isOpen){
     card.classList.remove('open');
     if(body) body.style.display = 'none';
-    if(chev) chev.style.transform = 'rotate(0deg)';
+    if(btn) btn.textContent = isES ? 'Ver' : 'View';
   } else {
     card.classList.add('open');
     if(body){ body.style.display = 'block'; }
-    if(chev) chev.style.transform = 'rotate(180deg)';
+    if(btn) btn.textContent = isES ? 'Cerrar' : 'Close';
   }
 }
 
@@ -4177,6 +4210,7 @@ function resetApp(){
   safeStyle('alertsErrGroup','display','none');
   safeStyle('alertsWarnGroup','display','none');
   safeStyle('summaryCard','display','none');
+  safeStyle('blStrip','display','none');
   safeStyle('actionRequired','display','none');
   safeReset('arBody','innerHTML','');
   const bar2=safeEl('trackingStatusBar'); if(bar2) bar2.className='tracking-status-bar pending';
