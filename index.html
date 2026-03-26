@@ -1394,32 +1394,7 @@ footer {
       </div>
     </div>
 
-    <!-- ⑥ CONSISTENCY TABLE — collapsible -->
-    <div class="r-sec-label" id="coherenceTitle" style="margin-top:1.4rem;">Consistency table</div>
-    <div class="r-table-wrap" id="coherenceWrap">
-      <div class="r-table-head" onclick="toggleRTable()">
-        <div class="r-table-head-left" id="ctableTitle">Field-by-field comparison</div>
-        <div class="r-table-head-right">
-          <span class="r-badge rb-ok" id="coherenceBadge">—</span>
-          <span class="r-chev" id="rTableChev">▼</span>
-        </div>
-      </div>
-      <div class="r-table-body" id="rTableBody">
-        <div id="criticalBanner" style="display:none;" class="critical-banner"></div>
-        <table class="r-ctable">
-          <thead><tr>
-            <th id="th1">Field</th>
-            <th id="th2">Status</th>
-            <th id="th3">Value(s) found</th>
-            <th id="th4">Found in</th>
-          </tr></thead>
-          <tbody id="ctbody"></tbody>
-        </table>
-        <div id="inconsSec"></div>
-      </div>
-    </div>
-
-    <!-- ⑦ TRACKING -->
+    <!-- ⑥ TRACKING -->
     <div id="trackingStatusBanner" style="display:none;margin-bottom:1.5rem;">
       <div class="tracking-status-bar" id="trackingStatusBar">
         <div class="tsb-icon" id="tsbIcon">🚢</div>
@@ -1454,6 +1429,16 @@ footer {
     <div id="verdictIcon" style="display:none;"></div>
     <div id="verdictTitle" style="display:none;"></div>
     <div id="verdictDesc" style="display:none;"></div>
+    <!-- table stubs — kept for JS compat, not shown -->
+    <div id="coherenceWrap" style="display:none;">
+      <div id="rTableBody"><div id="criticalBanner"></div><table><tbody id="ctbody"></tbody></table><div id="inconsSec"></div></div>
+    </div>
+    <span id="coherenceBadge" style="display:none;"></span>
+    <span id="rTableChev" style="display:none;"></span>
+    <span id="coherenceTitle" style="display:none;"></span>
+    <span id="ctableTitle" style="display:none;"></span>
+    <span id="th1" style="display:none;"></span><span id="th2" style="display:none;"></span>
+    <span id="th3" style="display:none;"></span><span id="th4" style="display:none;"></span>
 
     <!-- ⑨ ACTIONS -->
     <div class="actions" style="margin-top:1.5rem;">
@@ -2308,19 +2293,15 @@ FLAG these as WARNINGS (type: "warning") — observations that need attention bu
 
 DESTINATION COUNTRY IS MANDATORY: You MUST check every single document's destinationCountry.
 
-SUMMARY FIELD — CRITICAL: You MUST write a "summary" in ${isES ? 'Spanish' : 'English'}.
-The summary must read like a senior trade compliance officer wrote it — clear, direct, actionable.
-Structure it as 2-3 sentences:
-1. Overall status of the set (e.g. "The document set shows strong internal coherence across all ${Object.keys(slim).length} documents.")
-2. Any critical issues or key observations (e.g. "The COI is currently in DRAFT status and requires a final signed version from Kiwa BCS before cargo release.")
-3. Recommended next step (e.g. "The set is ready to present to customs with the exception of the pending COI signature.")
-If everything is clean: "All ${Object.keys(slim).length} documents are internally consistent. Key fields — containers, seals, lots, weights, parties — match across the full set. The shipment is ready to proceed."
-Write in ${isES ? 'Spanish' : 'English'}. Be specific. Name actual values, document names, and parties when relevant.
+BREVITY RULES — STRICTLY ENFORCED:
+- "summary": MAX 2 sentences. Sentence 1: overall status in plain language. Sentence 2: the single most important action needed, or omit if clean.
+- "message" per issue: MAX 1 short sentence. State the field and the conflicting values. Nothing else.
+- "comment" per document: MAX 8 words. Examples: "All fields consistent." / "DRAFT — signature pending." / "Container number differs from BL."
 
-Write all messages in ${isES ? 'Spanish' : 'English'}. Be specific about which document has the wrong value.
+Write all text in ${isES ? 'Spanish' : 'English'}.
 
 Return ONLY valid JSON:
-{"overallStatus":"approved|warning|rejected","summary":"2-3 sentence executive summary as described above","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"specific actionable message naming the document and the exact values","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"1 sentence about this specific document — note if it is a DRAFT, if it has pending signatures, or if all fields look good"}}}}`;
+{"overallStatus":"approved|warning|rejected","summary":"max 2 sentences","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"1 sentence — field + conflicting values only","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"max 8 words"}}}`
 
   // ── JS PRE-CHECK: detect critical mismatches deterministically ──
   const jsPreErrors = [];
@@ -3274,9 +3255,13 @@ function renderResults(){
     if(vDesc)  vDesc.textContent  = t.verdictApprovedDesc;
   }
 
-  // AI summary
+  // AI summary — truncate to 2 sentences max as safety guard
   if(coherenceResult?.summary && sumCard && sumText){
-    sumText.textContent = translateSummary(coherenceResult.summary);
+    let s = translateSummary(coherenceResult.summary).trim();
+    // Hard cap: max 2 sentences
+    const sentences = s.match(/[^.!?]+[.!?]+/g) || [s];
+    if(sentences.length > 2) s = sentences.slice(0,2).join(' ').trim();
+    sumText.textContent = s;
     sumCard.style.display = 'block';
   } else if(sumCard){
     sumCard.style.display = 'none';
@@ -3332,6 +3317,13 @@ function renderResults(){
   const tagErr  = lang==='es' ? 'Corregir' : 'Fix required';
   const tagWarn = lang==='es' ? 'Verificar' : 'Verify';
 
+  // Helper: first sentence only
+  const firstSentence = s => {
+    if(!s) return '';
+    const m = s.match(/^[^.!?]+[.!?]/);
+    return m ? m[0].trim() : s.split(/\s+/).slice(0,12).join(' ');
+  };
+
   const buildAlert = (item, type) => {
     const cls = type==='err' ? 'ra-err' : 'ra-warn';
     const tag = type==='err' ? tagErr : tagWarn;
@@ -3358,7 +3350,7 @@ function renderResults(){
     }
     const el = document.createElement('div');
     el.className = `r-alert ${cls}${item.autoOpen?' open':''}`;
-    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${item.msg}</div></div><span class="r-alert-tag">${tag}</span><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
+    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${firstSentence(item.msg)}</div></div><span class="r-alert-tag">${tag}</span><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
     return el;
   };
 
@@ -3619,133 +3611,7 @@ function renderResults(){
     <th colspan="2">${t.th3}</th>`;
 
 
-  // ── STEP 10: Inconsistency cards ────────────────────────────
-  const iSec=document.getElementById('inconsSec');
-  iSec.innerHTML='';
-  if(displayIssues.length){
-    let html='<div class="incons-wrap"><div class="incons-section-label">'+t.inconsLabel+'</div>';
-    displayIssues.forEach(iss=>{
-      const isE=iss.type==='error';
-      const details=iss.details||[];
-      const counts={};
-      details.forEach(d=>{if(d.value)counts[d.value]=(counts[d.value]||0)+1;});
-      const maxC=Math.max(0,...Object.values(counts));
-      const maj=Object.keys(counts).find(k=>counts[k]===maxC);
-      // Build token frequency map — same logic as consistency table
-      const cardTokenFreq = {};
-      details.forEach(d => {
-        const toks = new Set(String(d.value||'').split(/[,\s]+/).filter(Boolean).map(x=>x.toUpperCase()));
-        toks.forEach(tok => { cardTokenFreq[tok] = (cardTokenFreq[tok]||0)+1; });
-      });
-      const cardTotalDocs = details.length;
-      const cardIsMaj = tok => (cardTokenFreq[tok.toUpperCase()]||0) > cardTotalDocs/2;
-      const cardIsUniq = tok => (cardTokenFreq[tok.toUpperCase()]||0) === 1;
-
-      const renderCardTokens = (val) => {
-        const tokens = String(val).split(/,\s*|\s+/).filter(Boolean);
-        if(tokens.length <= 1) return '<span style="font-weight:500;">'+val+'</span>';
-        return tokens.map(tok => {
-          const t2 = tok.trim();
-          if(cardIsMaj(t2))
-            return '<span style="display:inline-block;background:#eef5ee;color:#4a7a4a;border:1px solid #b8d8b8;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
-          else if(cardIsUniq(t2))
-            return '<span style="display:inline-block;background:#ffd4cc;color:#c0392b;border:1px solid #e8a090;padding:1px 6px;border-radius:4px;font-size:0.72rem;font-weight:700;margin:1px;">⚠ '+t2+'</span>';
-          else
-            return '<span style="display:inline-block;background:#fff3cc;color:#8a6a00;border:1px solid #e0c060;padding:1px 6px;border-radius:4px;font-size:0.72rem;margin:1px;">'+t2+'</span>';
-        }).join(' ');
-      };
-
-      // Determine if row is majority or outlier
-      const rowCounts = {};
-      details.forEach(d => { const v=(d.value||'').trim(); rowCounts[v]=(rowCounts[v]||0)+1; });
-      const rowMaxC = Math.max(0,...Object.values(rowCounts));
-      const rowMaj = Object.keys(rowCounts).find(k=>rowCounts[k]===rowMaxC)||'';
-
-      const rows=details.map(d=>{
-        const val = d.value || t.notFound;
-        const isRowOutlier = (d.value||'').trim() !== rowMaj;
-        const rowBg = isRowOutlier ? '#fff8f7' : '#f8fdf8';
-        const rowBorder = isRowOutlier ? '#c0392b' : '#6aaa6a';
-        const rowIcon = isRowOutlier ? '✗' : '✓';
-        const rowIconColor = isRowOutlier ? '#c0392b' : '#6aaa6a';
-        return '<div style="background:'+rowBg+';border-left:3px solid '+rowBorder+';padding:8px 10px;margin-bottom:3px;border-radius:0 4px 4px 0;">'
-          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
-          +'<span style="color:'+rowIconColor+';font-weight:700;font-size:0.85rem;">'+rowIcon+'</span>'
-          +'<span style="font-size:0.65rem;color:#888;">'+d.doc.replace(/\.[^.]+$/,'')+'</span>'
-          +'</div>'
-          +'<div style="line-height:1.8;">'+renderCardTokens(val)+'</div>'
-          +'</div>';
-      }).join('');
-      // Determine card type and label
-      const isDocProc = iss.field === 'document_processing' || iss.field === 'documentProcessing';
-      const isSameProd = (iss.field === 'productDescription' || iss.field === 'product_description') &&
-        details.length >= 2 && isSameProduct(details[0]?.value||'', details[1]?.value||'');
-
-      let cardClass, tagClass, tagLabel, cardMessage;
-      if(isDocProc){
-        cardClass = 'icard-info';
-        tagClass  = 'itag-info';
-        tagLabel  = lang === 'es' ? 'Error de lectura' : 'Read Error';
-        cardMessage = lang === 'es'
-          ? 'No se pudo leer el archivo correctamente. Verifica que el PDF no esté protegido o dañado.'
-          : 'Could not read the file. Make sure the PDF is not password-protected or corrupted.';
-      } else if(isSameProd){
-        cardClass = 'icard-ok';
-        tagClass  = 'itag-ok';
-        tagLabel  = lang === 'es' ? 'Esperado — mismo producto' : 'Expected — same product';
-        cardMessage = iss.message;
-      } else {
-        cardClass = isE ? 'icard-err' : 'icard-warn';
-        tagClass  = isE ? 'itag-err'  : 'itag-warn';
-        tagLabel  = isE ? t.errCrit : t.errWarn;
-        cardMessage = iss.message;
-      }
-
-      // For lot/bag/weight: detect outlier doc and generate clear "replace this document" message
-      let enhancedMessage = cardMessage;
-      if(!isDocProc && !isSameProd && details.length >= 2){
-        const isLotField = iss.field === 'lotNumbers' || iss.field === 'lots';
-        const isBagField = iss.field === 'bagCount' || iss.field === 'bags';
-        const isWeightField = iss.field === 'netWeight' || iss.field === 'grossWeight';
-        if(isLotField || isBagField || isWeightField){
-          const valCount = {};
-          details.forEach(d => { const v=(d.value||'').trim(); if(v) valCount[v]=(valCount[v]||0)+1; });
-          const sorted = Object.entries(valCount).sort((a,b)=>b[1]-a[1]);
-          if(sorted.length >= 2){
-            const majorityVal = sorted[0][0];
-            const majorityCount = sorted[0][1];
-            const outliers = details.filter(d=>(d.value||'').trim()!==majorityVal);
-            if(outliers.length>0 && outliers.length<details.length){
-              const outlierDocs = outliers.map(d=>d.doc.replace(/\.[^.]+$/,'')).join(', ');
-              const outlierVals = [...new Set(outliers.map(d=>d.value))].join(', ');
-              const isES3 = lang==='es';
-              if(isLotField){
-                enhancedMessage = isES3
-                  ? `El documento <strong>${outlierDocs}</strong> referencia el lote <strong>${outlierVals}</strong>, pero todos los demás documentos referencian el lote <strong>${majorityVal}</strong>. Este documento pertenece a otro embarque y debe ser reemplazado por el documento correcto del lote <strong>${majorityVal}</strong>.`
-                  : `<strong>${outlierDocs}</strong> references lot <strong>${outlierVals}</strong>, but all other documents reference lot <strong>${majorityVal}</strong>. This document belongs to a different shipment and must be replaced with the correct document for lot <strong>${majorityVal}</strong>.`;
-              } else {
-                enhancedMessage = isES3
-                  ? `<strong>${outlierDocs}</strong> indica <strong>${outlierVals}</strong>, pero ${majorityCount} documento(s) indican <strong>${majorityVal}</strong>. Verificar si el documento pertenece al embarque correcto.`
-                  : `<strong>${outlierDocs}</strong> shows <strong>${outlierVals}</strong>, but ${majorityCount} document(s) show <strong>${majorityVal}</strong>. Verify if this document belongs to the correct shipment.`;
-              }
-            }
-          }
-        }
-      }
-
-      html+='<div class="icard '+cardClass+'">'
-        +'<div class="icard-head">'
-        +'<span class="icard-field">'+(t.FL[iss.field]||iss.field)+'</span>'
-        +'<span class="itag '+tagClass+'">'+tagLabel+'</span>'
-        +'</div>'
-        +'<div class="icard-body">'
-        +'<div class="icard-desc">'+enhancedMessage+'</div>'
-        +(rows?'<div class="ivals">'+rows+'</div>':'')
-        +'</div></div>';
-    });
-    html+='</div>';
-    iSec.innerHTML=html;
-  }
+  // ── STEP 10: Inconsistency cards — removed, replaced by alerts section ─
 
   // ── STEP 11: Per document cards ─────────────────────────────
   const dc=document.getElementById('docCards');
@@ -3806,7 +3672,12 @@ function renderResults(){
     ).join('');
 
     const commentHtml = ds.comment
-      ? `<div class="r-dcard-comment">${ds.comment}</div>`
+      ? (() => {
+          // Max 10 words
+          const words = ds.comment.trim().split(/\s+/);
+          const short = words.length > 10 ? words.slice(0,10).join(' ') + '…' : ds.comment.trim();
+          return `<div class="r-dcard-comment">${short}</div>`;
+        })()
       : '';
 
     const card = document.createElement('div');
