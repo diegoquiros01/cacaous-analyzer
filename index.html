@@ -1137,6 +1137,20 @@ footer {
 .r-perdoc-body { display: none; }
 .r-perdoc-body.open { display: block; }
 
+/* Action Items */
+.r-actions-wrap { margin-top: 0.6rem; margin-bottom: 0.2rem; }
+.r-action-item { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.65rem 1rem; background: var(--white); border: 1px solid var(--border-light); border-left: 3px solid var(--tan); border-radius: 0 4px 4px 0; margin-bottom: 0.4rem; font-size: 0.78rem; color: var(--text-mid); line-height: 1.55; }
+.r-action-num { font-family: 'Raleway', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; color: var(--tan); flex-shrink: 0; padding-top: 2px; min-width: 16px; }
+.r-action-text { flex: 1; }
+
+/* Invoice financial panel */
+.inv-panel { background: var(--offwhite); border: 1px solid var(--border-light); border-radius: 4px; padding: 0.8rem 1rem; margin-bottom: 0.7rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; }
+.inv-panel-row { display: flex; flex-direction: column; gap: 2px; }
+.inv-panel-label { font-family: 'Raleway', sans-serif; font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); }
+.inv-panel-value { font-size: 0.82rem; font-weight: 600; color: var(--brown-dark); }
+.inv-panel-total { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.2rem; }
+.inv-panel-total .inv-panel-value { font-size: 1rem; color: var(--tan); }
+
 /* Doc cards inside perdoc */
 .r-dcard { border-bottom: 1px solid var(--border-light); cursor: pointer; }
 .r-dcard:last-child { border-bottom: none; }
@@ -1380,6 +1394,27 @@ footer {
       <span id="blStripExtra" style="font-size:0.72rem;color:var(--text-light);"></span>
     </div>
 
+    <!-- ① FINANCIAL PANEL -->
+    <div id="finPanel" style="display:none;margin-top:0.5rem;padding:0.7rem 1.1rem;background:var(--offwhite);border:1px solid var(--border-light);border-radius:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
+        <div style="display:flex;align-items:baseline;gap:0.5rem;">
+          <span style="font-family:'Raleway',sans-serif;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);">Commercial Value</span>
+          <span id="finTotal" style="font-family:'Raleway',sans-serif;font-size:1.05rem;font-weight:700;color:var(--brown-dark);"></span>
+        </div>
+        <div style="display:flex;gap:1.4rem;flex-wrap:wrap;">
+          <div id="finPriceWrap" style="display:none;flex-direction:column;gap:1px;">
+            <span style="font-family:'Raleway',sans-serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);">Price / Unit</span>
+            <span id="finPrice" style="font-size:0.78rem;font-weight:600;color:var(--brown-dark);"></span>
+          </div>
+          <div id="finTermsWrap" style="display:none;flex-direction:column;gap:1px;">
+            <span style="font-family:'Raleway',sans-serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);">Terms</span>
+            <span id="finTerms" style="font-size:0.78rem;font-weight:600;color:var(--brown-dark);"></span>
+          </div>
+        </div>
+        <span id="finSource" style="font-size:0.62rem;color:var(--text-light);font-style:italic;"></span>
+      </div>
+    </div>
+
     <!-- ② SUMMARY CARD (AI text) -->
     <div id="summaryCard" class="r-summary-card sc-ok" style="display:none;">
       <div class="r-summary-text" id="summaryCardText"></div>
@@ -1403,7 +1438,13 @@ footer {
       </div>
     </div>
 
-    <!-- ⑥ TRACKING -->
+    <!-- ⑥ ACTION ITEMS -->
+    <div id="actionItemsSection" style="display:none;margin-top:1.2rem;">
+      <div class="r-sec-label" id="actionItemsLabel">Action Items</div>
+      <div class="r-actions-wrap" id="actionItemsList"></div>
+    </div>
+
+    <!-- ⑦ TRACKING -->
     <div id="trackingStatusBanner" style="display:none;margin-bottom:1.5rem;">
       <div class="tracking-status-bar" id="trackingStatusBar">
         <div class="tsb-icon" id="tsbIcon">🚢</div>
@@ -2143,7 +2184,7 @@ Also include an "extraFields" object for any fields present in the document that
 
 
 
-{"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"grade/classification or null","phytoCertNumber":"phyto cert number or null","phytoInspectionDate":"inspection date or null","phytoIssueDate":"issue date or null","importPermitNumber":"import permit number or null","importPermitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null"}`;
+{"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"grade/classification or null","phytoCertNumber":"phyto cert number or null","phytoInspectionDate":"inspection date or null","phytoIssueDate":"issue date or null","importPermitNumber":"import permit number or null","importPermitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null","totalAmount":"total commercial value with currency symbol e.g. USD 374625.00 or null — extract from ANY document that states a shipment value (invoice, shipping notification, letter of declaration, etc.)","pricePerUnit":"unit price with unit e.g. 14985.00 USD/MT or 3.22 USD/kg or null — extract from any document","paymentTerms":"payment terms e.g. CAD, LC, TT or null — extract from any document","incoterms":"incoterm e.g. FOB, CIF, CFR or null — extract from any document","bankBeneficiary":"beneficiary name for payment or null — extract from any document","bankAccount":"account number or null — extract from any document"}`;
 
 
   let content;
@@ -2325,10 +2366,22 @@ WRITING RULES — there is no field-by-field table shown to the user. Your text 
   - "DRAFT — section 18 signature and Kiwa BCS stamp are blank. Cargo cannot be certified organic without the final signed version."
   - "Shows container MRSU8021108, which differs from MRSU8021109 in all other documents. This document must be corrected before customs release."
 
+"actionItems" — a flat numbered list of concrete next steps the exporter or importer must take. Only include items that are genuinely required — do not invent actions if the set is clean. Each item must:
+  - Start with a verb ("Request", "Update", "Confirm", "Obtain", "Contact")
+  - Name who is responsible or who to contact
+  - State urgency if relevant ("before vessel arrival", "before customs release", "immediately")
+  - Be one sentence only
+  Examples:
+  - "Request a corrected Packing List from Aromacacao showing container MRSU8021109 before the vessel arrives."
+  - "Obtain the final signed COI from Kiwa BCS — the current version is DRAFT and cargo cannot be released as organic without it."
+  - "Update the ISF filing with CBP to reflect the new vessel (Matthew Schulte) and containers (BEAU4744754, TLLU7985271) immediately."
+  - "Confirm the correct bank account number with Banco Pichincha — Invoice shows 23119464 but Shipping Notification shows 23119422."
+  If the set is fully clean, return: "actionItems": []
+
 Write all text in ${isES ? 'Spanish' : 'English'}.
 
 Return ONLY valid JSON:
-{"overallStatus":"approved|warning|rejected","summary":"3-4 sentences as described","coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"2-3 sentences: what differs + why it matters + what action is needed","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"2 sentences max, 25 words: what is notable + practical implication"}}}`
+{"overallStatus":"approved|warning|rejected","summary":"3-4 sentences as described","actionItems":["Concrete action 1 — who must do it and when","Concrete action 2 — who must do it and when"],"coherenceIssues":[{"type":"error|warning","field":"fieldName","message":"2-3 sentences: what differs + why it matters + what action is needed","details":[{"doc":"filename","value":"value"}]}],"setValues":{"lots":{"status":"consistent|inconsistent","values":[{"doc":"file","value":"val"}]},"bags":{"status":"consistent|inconsistent","values":[]},"netWeight":{"status":"consistent|inconsistent","values":[]},"grossWeight":{"status":"consistent|inconsistent","values":[]},"containers":{"status":"consistent|inconsistent","values":[]},"seals":{"status":"consistent|inconsistent","values":[]},"blNumber":{"status":"consistent|inconsistent","values":[]},"shipper":{"status":"consistent|inconsistent","values":[]},"consignee":{"status":"consistent|inconsistent","values":[]},"vessel":{"status":"consistent|inconsistent","values":[]},"portOfLoading":{"status":"consistent|inconsistent","values":[]},"portOfDischarge":{"status":"consistent|inconsistent","values":[]},"destinationCountry":{"status":"consistent|inconsistent","values":[]}},"perDocumentStatus":{"filename":{"status":"approved|warning|rejected","docType":"type","issues":[],"comment":"2 sentences max, 25 words: what is notable + practical implication"}}}`
 
   // ── JS PRE-CHECK: detect critical mismatches deterministically ──
   const jsPreErrors = [];
@@ -3313,7 +3366,41 @@ function renderResults(){
     }
   }
 
-  // ── STEP 5: Stats ───────────────────────────────────────────
+  // Global financial panel — priority: invoice > shipping notification > letter of declaration > any
+  const finPanel   = document.getElementById('finPanel');
+  const finTotal   = document.getElementById('finTotal');
+  const finPrice   = document.getElementById('finPrice');
+  const finPriceW  = document.getElementById('finPriceWrap');
+  const finTerms   = document.getElementById('finTerms');
+  const finTermsW  = document.getElementById('finTermsWrap');
+  const finSource  = document.getElementById('finSource');
+  if(finPanel){
+    const docPriority = ['invoice','commercial invoice','factura','shipping notification','letter of declaration','carta'];
+    const scored = analysisResults.map(r => {
+      const dt = (r.docType||'').toLowerCase();
+      const pri = docPriority.findIndex(p => dt.includes(p));
+      return { r, pri: pri === -1 ? 99 : pri };
+    }).sort((a,b) => a.pri - b.pri);
+
+    const src = scored.find(s => s.r.totalAmount || s.r.pricePerUnit);
+    if(src){
+      const r = src.r;
+      if(finTotal) finTotal.textContent = r.totalAmount || '';
+      if(r.pricePerUnit && finPrice && finPriceW){
+        finPrice.textContent = r.pricePerUnit;
+        finPriceW.style.display = 'flex';
+      } else if(finPriceW) finPriceW.style.display = 'none';
+      const terms = [r.incoterms, r.paymentTerms].filter(Boolean).join(' · ');
+      if(terms && finTerms && finTermsW){
+        finTerms.textContent = terms;
+        finTermsW.style.display = 'flex';
+      } else if(finTermsW) finTermsW.style.display = 'none';
+      if(finSource) finSource.textContent = r._filename ? `Source: ${r._filename.replace(/\.[^.]+$/,'')}` : '';
+      finPanel.style.display = 'block';
+    } else {
+      finPanel.style.display = 'none';
+    }
+  }
   const docsWithIssues = new Set([
     ...displayIssues.flatMap(i=>(i.details||[]).map(d=>d.doc)),
     ...tableEntries.filter(e=>e.isErr).flatMap(e=>(e.d.values||[]).map(v=>v.doc))
@@ -3417,6 +3504,26 @@ function renderResults(){
   if(pdTitle) pdTitle.textContent = lang==='es'
     ? `${analysisResults.length} documentos analizados`
     : `${analysisResults.length} document${analysisResults.length===1?'':'s'} analyzed`;
+
+  // ── STEP 6e: Action Items ────────────────────────────────────
+  const aiSec  = document.getElementById('actionItemsSection');
+  const aiList = document.getElementById('actionItemsList');
+  const aiLabel = document.getElementById('actionItemsLabel');
+  if(aiSec && aiList){
+    const items = coherenceResult?.actionItems || [];
+    if(items.length > 0){
+      if(aiLabel) aiLabel.textContent = lang==='es' ? 'Acciones Requeridas' : 'Action Items';
+      aiList.innerHTML = items.map((item, i) =>
+        `<div class="r-action-item">
+          <span class="r-action-num">${i+1}</span>
+          <span class="r-action-text">${item}</span>
+        </div>`
+      ).join('');
+      aiSec.style.display = 'block';
+    } else {
+      aiSec.style.display = 'none';
+    }
+  }
 
   // ── STEP 6d: Open table if errors ───────────────────────────
   const rTableBody = document.getElementById('rTableBody');
@@ -3721,6 +3828,9 @@ function renderResults(){
       ? `<div class="r-dcard-comment">${ds.comment}</div>`
       : '';
 
+    // Invoice financial panel — now shown globally, skip per-doc
+    let invPanelHtml = '';
+
     const card = document.createElement('div');
     card.className = 'r-dcard';
     card.id = 'dc'+cardIdx;
@@ -3735,6 +3845,7 @@ function renderResults(){
         <button class="r-dcard-view" onclick="toggleCard(${cardIdx})" id="dcv${cardIdx}">${lang==='es'?'Ver':'View'}</button>
       </div>
       <div class="r-dcard-body">
+        ${invPanelHtml}
         ${commentHtml}
         <div class="r-dcard-fields">${fHtml}</div>
         ${issHtml?`<div style="margin-top:8px">${issHtml}</div>`:''}
@@ -4215,6 +4326,8 @@ function resetApp(){
   safeStyle('alertsSection','display','none');
   safeStyle('alertsErrGroup','display','none');
   safeStyle('alertsWarnGroup','display','none');
+  safeStyle('finPanel','display','none');
+  safeStyle('actionItemsSection','display','none');
   safeStyle('summaryCard','display','none');
   safeStyle('blStrip','display','none');
   safeStyle('actionRequired','display','none');
