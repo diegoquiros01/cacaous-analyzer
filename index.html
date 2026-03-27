@@ -1389,7 +1389,7 @@ footer {
 
     <!-- ① BL NUMBER STRIP -->
     <div id="blStrip" style="display:none;padding:0.55rem 1.1rem;background:var(--offwhite);border:1px solid var(--border-light);border-radius:4px;margin-top:0.6rem;display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;">
-      <span style="font-family:'Raleway',sans-serif;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);flex-shrink:0;">B/L</span>
+      <span id="blStripPrefix" style="font-family:'Raleway',sans-serif;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);flex-shrink:0;">B/L</span>
       <span id="blStripNumber" style="font-family:'Raleway',sans-serif;font-size:0.88rem;font-weight:700;color:var(--brown-dark);letter-spacing:0.04em;"></span>
       <span id="blStripExtra" style="font-size:0.72rem;color:var(--text-light);"></span>
     </div>
@@ -1398,7 +1398,7 @@ footer {
     <div id="finPanel" style="display:none;margin-top:0.5rem;padding:0.7rem 1.1rem;background:var(--offwhite);border:1px solid var(--border-light);border-radius:4px;">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
         <div style="display:flex;align-items:baseline;gap:0.5rem;">
-          <span style="font-family:'Raleway',sans-serif;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);">Commercial Value</span>
+        <span class="fin-comm-label" style="font-family:'Raleway',sans-serif;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);">Commercial Value</span>
           <span id="finTotal" style="font-family:'Raleway',sans-serif;font-size:1.05rem;font-weight:700;color:var(--brown-dark);"></span>
         </div>
         <div style="display:flex;gap:1.4rem;flex-wrap:wrap;">
@@ -1580,6 +1580,11 @@ const TX = {
     notFound:'— (not found)',
     inconsLabel:'Inconsistency detail',
     fieldsLabel:'Extracted Fields', obsLabel:'Observations', analysisLabel:'✦ Analysis', summaryLabel:'✦ Set Summary',
+    actionItemsLabel:'Action Items',
+    finLabelCommercial:'Commercial Value', finLabelPrice:'Price / Unit', finLabelTerms:'Terms', finLabelSource:'Source',
+    blLabelPrefix:'B/L', blLabelLot:'Lot',
+    perDocViewBtn:'View', perDocCloseBtn:'Close',
+    docCardViewBtn:'View', docCardCloseBtn:'Close',
     FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',destinationCountry:'Destination Country',originCountry:'Country of Origin',blNumber:'BL Number',invoiceNumber:'Invoice Number',voyageNumber:'Voyage Number',hsCode:'HS Code',qualityGrade:'Quality Grade',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
     DOCFIELDS:[['Type','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Containers','containerNumbers'],['Seals','sealNumbers'],['Lots','lotNumbers'],['Bags','bagCount'],['Net Weight','netWeight'],['Gross Weight','grossWeight'],['Product','productDescription'],['Origin','originCountry'],['Destination','destinationCountry'],['Port of Loading','portOfLoading'],['Port of Discharge','portOfDischarge'],['Vessel','vesselName'],['BL Number','blNumber'],['Invoice No.','invoiceNumber'],['Date','exportDate'],['Lab / Certifier','labName'],['Lab Cert #','labCertNumber'],['Moisture','moistureContent'],['Quality Grade','qualityGrade'],['Test Results','testResults'],['Permit Number','permitNumber'],['Permit Authority','permitAuthority'],['Permit Valid From','permitValidFrom'],['Permit Valid Until','permitValidUntil'],['Importer of Record','importerOfRecord'],['COI Cert. Number','coiCertNumber'],['Certifying Body','coiCertifier'],['Organic Standard','coiStandard'],['COI Operator','coiOperator'],['COI Products','coiProducts'],['COI Valid From','coiValidFrom'],['COI Valid Until','coiValidUntil'],['COI Auth. Quantity','coiAuthorizedQty'],['Transaction Cert. TC#','coiTransactionCert'],['COI Lots','coiLots']],
     rptTitle:'DocsValidate — COHERENCE ANALYSIS REPORT',
@@ -1650,6 +1655,11 @@ const TX = {
     notFound:'— (no encontrado)',
     inconsLabel:'Detalle de inconsistencias encontradas',
     fieldsLabel:'Campos Extraídos', obsLabel:'Observaciones', analysisLabel:'✦ Análisis', summaryLabel:'✦ Resumen del Set',
+    actionItemsLabel:'Acciones Requeridas',
+    finLabelCommercial:'Valor Comercial', finLabelPrice:'Precio / Unidad', finLabelTerms:'Términos', finLabelSource:'Fuente',
+    blLabelPrefix:'N° BL', blLabelLot:'Lote',
+    perDocViewBtn:'Ver', perDocCloseBtn:'Cerrar',
+    docCardViewBtn:'Ver', docCardCloseBtn:'Cerrar',
     FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',destinationCountry:'País de Destino',originCountry:'País de Origen',blNumber:'N° de BL',invoiceNumber:'N° de Factura',voyageNumber:'N° de Viaje',hsCode:'Código HS',qualityGrade:'Grado de Calidad',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
     DOCFIELDS:[['Tipo','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Contenedores','containerNumbers'],['Precintos','sealNumbers'],['Lotes','lotNumbers'],['Sacos','bagCount'],['Peso Neto','netWeight'],['Peso Bruto','grossWeight'],['Producto','productDescription'],['Origen','originCountry'],['Destino','destinationCountry'],['Puerto Carga','portOfLoading'],['Puerto Descarga','portOfDischarge'],['Buque','vesselName'],['N° BL','blNumber'],['N° Factura','invoiceNumber'],['Fecha','exportDate'],['Lab / Certificador','labName'],['N° Cert. Lab','labCertNumber'],['Humedad','moistureContent'],['Grado de Calidad','qualityGrade'],['Resultados','testResults'],['N° Permiso Importación','permitNumber'],['Autoridad Emisora','permitAuthority'],['Permiso Válido Desde','permitValidFrom'],['Permiso Válido Hasta','permitValidUntil'],['Importador de Registro','importerOfRecord'],['N° Certificado COI','coiCertNumber'],['Organismo Certificador','coiCertifier'],['Estándar Orgánico','coiStandard'],['Operador Certificado','coiOperator'],['Productos COI','coiProducts'],['COI Válido Desde','coiValidFrom'],['COI Válido Hasta','coiValidUntil'],['Cantidad Autorizada COI','coiAuthorizedQty'],['Cert. Transacción TC#','coiTransactionCert'],['Lotes en COI','coiLots']],
     rptTitle:'DocsValidate — REPORTE DE ANÁLISIS DE COHERENCIA',
@@ -3347,19 +3357,20 @@ function renderResults(){
   const blStrip = document.getElementById('blStrip');
   const blStripNum = document.getElementById('blStripNumber');
   const blStripExtra = document.getElementById('blStripExtra');
+  const blPrefix = document.getElementById('blStripPrefix');
   if(blStrip && blStripNum){
-    // Gather all BL numbers from extracted docs
     const blVals = analysisResults
       .filter(r => r.blNumber)
       .map(r => r.blNumber.trim());
     const uniqueBLs = [...new Set(blVals)];
-    // Also get vessel + lot for context
     const vessel = analysisResults.find(r=>r.vesselName)?.vesselName || '';
     const lot = analysisResults.find(r=>r.lotNumbers?.length)?.lotNumbers?.[0] || '';
     if(uniqueBLs.length > 0){
       blStripNum.textContent = uniqueBLs.join(' · ');
-      const extras = [vessel, lot ? (lang==='es'?'Lote ':'Lot ')+lot : ''].filter(Boolean);
+      const lotLabel = t.blLabelLot || (lang==='es' ? 'Lote' : 'Lot');
+      const extras = [vessel, lot ? `${lotLabel} ${lot}` : ''].filter(Boolean);
       blStripExtra.textContent = extras.join('  ·  ');
+      if(blPrefix) blPrefix.textContent = t.blLabelPrefix || 'B/L';
       blStrip.style.display = 'flex';
     } else {
       blStrip.style.display = 'none';
@@ -3395,7 +3406,16 @@ function renderResults(){
         finTerms.textContent = terms;
         finTermsW.style.display = 'flex';
       } else if(finTermsW) finTermsW.style.display = 'none';
-      if(finSource) finSource.textContent = r._filename ? `Source: ${r._filename.replace(/\.[^.]+$/,'')}` : '';
+      if(finSource) finSource.textContent = r._filename
+        ? `${t.finLabelSource||'Source'}: ${r._filename.replace(/\.[^.]+$/,'')}`
+        : '';
+      // Update labels
+      const finCommLabel = document.querySelector('#finPanel .fin-comm-label');
+      const finPrLabel   = document.querySelector('#finPanel .fin-pr-label');
+      const finTrLabel   = document.querySelector('#finPanel .fin-tr-label');
+      if(finCommLabel) finCommLabel.textContent = t.finLabelCommercial || 'Commercial Value';
+      if(finPrLabel)   finPrLabel.textContent   = t.finLabelPrice      || 'Price / Unit';
+      if(finTrLabel)   finTrLabel.textContent   = t.finLabelTerms      || 'Terms';
       finPanel.style.display = 'block';
     } else {
       finPanel.style.display = 'none';
@@ -3512,7 +3532,7 @@ function renderResults(){
   if(aiSec && aiList){
     const items = coherenceResult?.actionItems || [];
     if(items.length > 0){
-      if(aiLabel) aiLabel.textContent = lang==='es' ? 'Acciones Requeridas' : 'Action Items';
+      if(aiLabel) aiLabel.textContent = t.actionItemsLabel || (lang==='es' ? 'Acciones Requeridas' : 'Action Items');
       aiList.innerHTML = items.map((item, i) =>
         `<div class="r-action-item">
           <span class="r-action-num">${i+1}</span>
@@ -3871,14 +3891,15 @@ function toggleCard(i){
   const btn  = document.getElementById('dcv'+i);
   const isOpen = card.classList.contains('open');
   const isES = lang === 'es';
+  const t2 = TX[lang] || TX.en;
   if(isOpen){
     card.classList.remove('open');
     if(body) body.style.display = 'none';
-    if(btn) btn.textContent = isES ? 'Ver' : 'View';
+    if(btn) btn.textContent = t2.docCardViewBtn || (isES ? 'Ver' : 'View');
   } else {
     card.classList.add('open');
     if(body){ body.style.display = 'block'; }
-    if(btn) btn.textContent = isES ? 'Cerrar' : 'Close';
+    if(btn) btn.textContent = t2.docCardCloseBtn || (isES ? 'Cerrar' : 'Close');
   }
 }
 
@@ -3894,9 +3915,12 @@ function toggleRPerdoc(){
   const body = document.getElementById('rPerdocBody');
   const btn  = document.getElementById('rPerdocBtn');
   if(!body) return;
+  const t2 = TX[lang] || TX.en;
   const isOpen = body.classList.contains('open');
   body.classList.toggle('open');
-  if(btn) btn.textContent = isOpen ? (lang==='es'?'Ver':'View') : (lang==='es'?'Cerrar':'Close');
+  if(btn) btn.textContent = isOpen
+    ? (t2.perDocViewBtn  || (lang==='es' ? 'Ver'    : 'View'))
+    : (t2.perDocCloseBtn || (lang==='es' ? 'Cerrar' : 'Close'));
 }
 
 function downloadReport(){
