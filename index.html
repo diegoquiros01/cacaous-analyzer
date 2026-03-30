@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DocsValidate — Export Document Validator</title>
 
-<!-- Fonts: non-blocking load -->
+<!-- Fonts: non-blocking load — Playfair added (used in hero h1 = LCP element) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&display=swap" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap"></noscript>
+
+<!-- Hero image preload — browser fetches LCP image immediately, not after CSS parse -->
+<link rel="preload" as="image" href="/hero-2.jpg" fetchpriority="high">
 
 <!-- pdf.js, xlsx, mammoth loaded on demand via loadHeavyLibs() — NOT at page open -->
 
@@ -4407,17 +4410,35 @@ function resetApp(){
 
 <!-- ══ USER BADGE (header) ══ -->
 <script>
-// ── CLERK INIT ───────────────────────────────────
-window.addEventListener('load', async () => {
-  try {
-    await window.Clerk?.load();
+// ── CLERK INIT — lazy, non-blocking ──────────────
+// requestIdleCallback lets browser finish painting before touching Clerk.
+// Falls back to setTimeout on browsers that don't support rIC.
+function initClerk() {
+  if(!window.Clerk) { setTimeout(initClerk, 500); return; }
+  window.Clerk.load().then(() => {
     const user = window.Clerk?.user;
     if(user){
       window.__clerk_user = user;
       updateUserBadge(user);
+      // Show admin nav link if admin email matches
+      window.Clerk.session?.getToken().then(token => {
+        if(!token) return;
+        fetch('/.netlify/functions/admin', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+          body: JSON.stringify({action:'overview'}),
+        }).then(r => {
+          if(r.ok){ const li=document.getElementById('adminNavItem'); if(li) li.style.display='list-item'; }
+        }).catch(()=>{});
+      }).catch(()=>{});
     }
-  } catch(e){ console.warn('Clerk load error:', e.message); }
-});
+  }).catch(e => console.warn('Clerk load error:', e.message));
+}
+if('requestIdleCallback' in window){
+  requestIdleCallback(initClerk, { timeout: 3000 });
+} else {
+  setTimeout(initClerk, 200);
+}
 
 function updateUserBadge(user){
   const badge = document.getElementById('userBadge');

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocsValidate — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script async defer crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_a25vd24tYnVsbGRvZy01OS5jbGVyay5hY2NvdW50cy5kZXYk"
+  src="https://keen-bulldog-59.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+</script>
+<style>
+:root {
+  --white:        #ffffff;
+  --offwhite:     #f7f8fa;
+  --cream:        #f0f2f5;
+  --cream2:       #e4e8ee;
+  --brown-dark:   #0f1117;
+  --brown:        #1c2230;
+  --brown-mid:    #3a4660;
+  --brown-light:  #6b7a99;
+  --tan:          #4a6fa5;
+  --tan-light:    #7da4d4;
+  --green:        #1a6b3a;
+  --green-light:  #2e9455;
+  --red:          #7a2e22;
+  --red-light:    #b04030;
+  --yellow:       #92600a;
+  --yellow-bg:    #fdf3e3;
+  --text:         #0f1117;
+  --text-mid:     #3a4255;
+  --text-light:   #7a8499;
+  --border:       #d0d6e2;
+  --border-light: #e8edf5;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);font-weight:300;min-height:100vh;}
+
+.header{background:var(--white);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:200;}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:68px;}
+.logo{display:flex;align-items:center;gap:1rem;text-decoration:none;}
+.logo-img{height:36px;width:auto;display:block;}
+.admin-badge{font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;background:var(--brown-dark);color:var(--tan-light);padding:0.25rem 0.6rem;border-radius:2px;font-weight:700;}
+.header-right{display:flex;align-items:center;gap:2rem;}
+.back-link{font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-light);text-decoration:none;font-weight:400;transition:color 0.2s;}
+.back-link:hover{color:var(--brown);}
+.admin-email-label{font-size:0.65rem;color:var(--text-light);letter-spacing:0.06em;}
+
+.shell{display:flex;min-height:calc(100vh - 68px);}
+
+.sidebar{width:200px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border-light);position:sticky;top:68px;height:calc(100vh - 68px);overflow-y:auto;display:flex;flex-direction:column;}
+.sb-section{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-light);padding:1.25rem 1.25rem 0.4rem;font-weight:700;}
+.sb-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 1.25rem;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);cursor:pointer;border-left:2px solid transparent;transition:all 0.15s;font-weight:400;text-decoration:none;}
+.sb-item:hover{color:var(--brown);background:var(--offwhite);}
+.sb-item.active{color:var(--brown);border-left-color:var(--tan);background:var(--cream);font-weight:700;}
+.sb-item svg{width:13px;height:13px;flex-shrink:0;opacity:0.6;}
+.sb-item.active svg{opacity:1;}
+.sb-footer{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid var(--border-light);font-size:0.68rem;color:var(--text-light);line-height:1.6;}
+
+.main{flex:1;overflow:hidden;}
+.page-header{background:var(--white);border-bottom:1px solid var(--border-light);padding:1.5rem 2.5rem 1.25rem;}
+.page-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;color:var(--brown-dark);margin-bottom:0.2rem;}
+.page-sub{font-size:0.72rem;color:var(--text-light);letter-spacing:0.04em;}
+.content{padding:2rem 2.5rem;}
+
+.panel{display:none;}
+.panel.active{display:block;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+@media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--white);border:1px solid var(--border-light);border-radius:2px;padding:1.25rem 1.5rem;position:relative;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--tan);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.yellow::before{background:var(--yellow);}
+.stat-label{font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.5rem;font-weight:700;}
+.stat-val{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:400;color:var(--brown-dark);line-height:1;}
+.stat-sub{font-size:0.7rem;color:var(--text-light);margin-top:0.35rem;}
+
+.section-label{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;}
+.section-label-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:var(--tan);line-height:1;flex-shrink:0;}
+.section-label-text h2{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:500;color:var(--brown-dark);margin-bottom:0.1rem;}
+.section-label-text p{font-size:0.72rem;color:var(--text-light);letter-spacing:0.04em;}
+.section-divider{border:none;border-top:1px solid var(--border-light);margin:2rem 0;}
+
+.tbl-wrap{background:var(--white);border:1px solid var(--border-light);border-radius:2px;overflow:hidden;margin-bottom:2rem;}
+.tbl-toolbar{padding:0.875rem 1.25rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.tbl-toolbar-left{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);font-weight:700;}
+.tbl-search{background:var(--offwhite);border:1px solid var(--border);border-radius:2px;padding:0.4rem 0.75rem;font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--text);outline:none;width:220px;transition:border-color 0.2s;}
+.tbl-search::placeholder{color:var(--text-light);}
+.tbl-search:focus{border-color:var(--tan);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);font-weight:700;padding:0.65rem 1.25rem;text-align:left;border-bottom:1px solid var(--border-light);background:var(--offwhite);}
+td{padding:0.75rem 1.25rem;font-size:0.82rem;color:var(--text-mid);border-bottom:1px solid var(--border-light);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--offwhite);}
+
+.plan-badge{display:inline-block;padding:0.2rem 0.5rem;border-radius:2px;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;}
+.plan-badge.starter{background:var(--cream2);color:var(--brown-light);}
+.plan-badge.professional{background:#dce8f5;color:var(--tan);}
+.plan-badge.enterprise{background:#d4ede0;color:var(--green);}
+.plan-badge.admin{background:var(--yellow-bg);color:var(--yellow);}
+
+.status-badge{display:inline-flex;align-items:center;gap:0.35rem;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;}
+.status-badge::before{content:'';width:6px;height:6px;border-radius:50%;}
+.status-badge.active::before{background:var(--green-light);}
+.status-badge.trialing::before{background:var(--yellow);}
+.status-badge.canceled::before{background:var(--red-light);}
+.status-badge.past_due::before{background:var(--red-light);}
+
+.err-badge{display:inline-block;padding:0.18rem 0.5rem;border-radius:2px;font-size:0.6rem;letter-spacing:0.08em;font-weight:700;text-transform:uppercase;}
+.err-badge.critical{background:#f5dbd8;color:var(--red);}
+.err-badge.warning{background:var(--yellow-bg);color:var(--yellow);}
+.err-badge.info{background:#dce8f5;color:var(--tan);}
+
+.chart-wrap{background:var(--white);border:1px solid var(--border-light);border-radius:2px;padding:1.5rem;margin-bottom:2rem;}
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:100px;margin-top:1rem;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar{width:100%;background:var(--tan);border-radius:1px;min-height:3px;opacity:0.7;transition:opacity 0.2s;}
+.bar:hover{opacity:1;}
+.bar-day{font-size:0.55rem;color:var(--text-light);white-space:nowrap;transform:rotate(-35deg);margin-top:2px;}
+
+.plan-legend{display:flex;flex-direction:column;gap:0.65rem;margin-top:1rem;}
+.plan-row{display:flex;align-items:center;gap:0.75rem;}
+.plan-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.plan-name{font-size:0.78rem;color:var(--text-mid);flex:1;letter-spacing:0.04em;}
+.plan-count{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--brown-dark);font-weight:400;}
+.plan-pct{font-size:0.68rem;color:var(--text-light);min-width:32px;text-align:right;}
+
+.two-col{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;}
+@media(max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+.panel-loading{display:flex;align-items:center;justify-content:center;min-height:200px;flex-direction:column;gap:0.75rem;}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--tan);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner-label{font-size:0.7rem;color:var(--text-light);letter-spacing:0.1em;text-transform:uppercase;}
+.error-state{background:#f9eeec;border:1px solid #e8c5bf;border-radius:2px;padding:1.25rem;text-align:center;color:var(--red);font-size:0.83rem;margin:1rem 0;}
+
+.pag{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.25rem;border-top:1px solid var(--border-light);}
+.pag-btn{background:var(--white);border:1px solid var(--border);border-radius:2px;padding:0.3rem 0.75rem;color:var(--text-mid);font-size:0.72rem;cursor:pointer;font-family:'Lato',sans-serif;letter-spacing:0.06em;text-transform:uppercase;transition:all 0.15s;}
+.pag-btn:hover{border-color:var(--tan);color:var(--brown);}
+.pag-btn:disabled{opacity:0.35;cursor:default;}
+.pag-info{font-size:0.7rem;color:var(--text-light);flex:1;text-align:center;}
+
+.refresh-btn{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;background:var(--white);color:var(--text-light);border:1px solid var(--border);border-radius:2px;padding:0.35rem 0.75rem;cursor:pointer;font-family:'Lato',sans-serif;transition:all 0.2s;}
+.refresh-btn:hover{border-color:var(--tan);color:var(--tan);}
+
+.empty-note{padding:2.5rem;text-align:center;color:var(--text-light);font-size:0.82rem;line-height:1.8;}
+.empty-note code{background:var(--cream);padding:0.2rem 0.5rem;border-radius:2px;font-size:0.75rem;color:var(--brown-mid);}
+
+#accessDenied{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:1rem;text-align:center;padding:2rem;}
+#accessDenied h2{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:400;color:var(--brown-dark);}
+#accessDenied p{font-size:0.85rem;color:var(--text-light);max-width:360px;line-height:1.7;}
+
+.payments-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;}
+</style>
+</head>
+<body>
+
+<div id="accessDenied" style="display:none;">
+  <div style="font-size:2.5rem;margin-bottom:0.5rem;">🔒</div>
+  <h2>Access Restricted</h2>
+  <p>This area is only accessible to DocsValidate administrators.</p>
+  <a href="/" style="font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--tan);text-decoration:none;margin-top:0.5rem;">← Return to app</a>
+</div>
+
+<div id="authLoading" style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:0.75rem;">
+  <div class="spinner"></div>
+  <p style="font-size:0.7rem;color:var(--text-light);letter-spacing:0.12em;text-transform:uppercase;">Verifying access…</p>
+</div>
+
+<div id="adminShell" style="display:none;">
+
+  <header class="header">
+    <div class="header-top">
+      <a href="/" class="logo">
+        <img src="/logo.png" alt="DocsValidate" class="logo-img">
+        <span class="admin-badge">Admin</span>
+      </a>
+      <div class="header-right">
+        <span class="admin-email-label" id="adminEmailLabel"></span>
+        <a href="/" class="back-link">← Back to app</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sb-section">Overview</div>
+      <a class="sb-item active" onclick="showPanel('overview')" href="#">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        Dashboard
+      </a>
+      <div class="sb-section">Data</div>
+      <a class="sb-item" onclick="showPanel('users')" href="#">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Users
+      </a>
+      <a class="sb-item" onclick="showPanel('payments')" href="#">
+        <svg viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.5"/></svg>
+        Payments
+      </a>
+      <a class="sb-item" onclick="showPanel('errors')" href="#">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v5M10 13.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Errors / Logs
+      </a>
+      <a class="sb-item" onclick="showPanel('analytics')" href="#">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M3 15l4-5 4 3 4-7 2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Analytics
+      </a>
+      <div class="sb-footer">
+        Signed in as<br>
+        <span id="sbEmail" style="color:var(--text-mid);font-weight:400;">—</span>
+      </div>
+    </aside>
+
+    <div class="main">
+
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-overview">
+        <div class="page-header">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Platform overview — users, validations, revenue, errors</div>
+        </div>
+        <div class="content">
+          <div class="stat-grid" id="overviewCards">
+            <div class="panel-loading" style="grid-column:1/-1;"><div class="spinner"></div></div>
+          </div>
+          <div class="two-col">
+            <div class="chart-wrap" id="validationsChart">
+              <div class="panel-loading"><div class="spinner"></div></div>
+            </div>
+            <div class="chart-wrap" id="planChart">
+              <div class="panel-loading"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="panel" id="panel-users">
+        <div class="page-header">
+          <div class="page-title">Users</div>
+          <div class="page-sub">All registered accounts and their usage</div>
+        </div>
+        <div class="content">
+          <div class="tbl-wrap">
+            <div class="tbl-toolbar">
+              <span class="tbl-toolbar-left">All accounts</span>
+              <input class="tbl-search" id="userSearch" placeholder="Search email or plan…" oninput="filterUsers()">
+            </div>
+            <div id="usersTableWrap"><div class="panel-loading"><div class="spinner"></div><span class="spinner-label">Loading users</span></div></div>
+            <div class="pag" id="usersPag" style="display:none;">
+              <button class="pag-btn" id="usersPrev" onclick="usersPage(-1)">← Prev</button>
+              <span class="pag-info" id="usersPagInfo"></span>
+              <button class="pag-btn" id="usersNext" onclick="usersPage(1)">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENTS -->
+      <div class="panel" id="panel-payments">
+        <div class="page-header">
+          <div class="page-title">Payments</div>
+          <div class="page-sub">Stripe charges and active subscriptions</div>
+        </div>
+        <div class="content">
+          <div class="payments-stat-grid" id="paymentsStats">
+            <div class="panel-loading" style="grid-column:1/-1;"><div class="spinner"></div></div>
+          </div>
+          <div class="section-label">
+            <div class="section-label-num">01</div>
+            <div class="section-label-text"><h2>Recent Charges</h2><p>last 50 transactions from Stripe</p></div>
+          </div>
+          <div class="tbl-wrap">
+            <div class="tbl-toolbar">
+              <span class="tbl-toolbar-left">Charges</span>
+              <button class="refresh-btn" onclick="loadPayments()">↻ Refresh</button>
+            </div>
+            <div id="paymentsTableWrap"><div class="panel-loading"><div class="spinner"></div></div></div>
+          </div>
+          <div class="section-label">
+            <div class="section-label-num">02</div>
+            <div class="section-label-text"><h2>Subscriptions</h2><p>all Stripe subscriptions</p></div>
+          </div>
+          <div class="tbl-wrap">
+            <div id="subsTableWrap"><div class="panel-loading"><div class="spinner"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ERRORS -->
+      <div class="panel" id="panel-errors">
+        <div class="page-header">
+          <div class="page-title">Errors / Logs</div>
+          <div class="page-sub">Events from the error_logs table in Supabase</div>
+        </div>
+        <div class="content">
+          <div class="tbl-wrap">
+            <div class="tbl-toolbar">
+              <span class="tbl-toolbar-left">Error log</span>
+              <button class="refresh-btn" onclick="loadErrors()">↻ Refresh</button>
+            </div>
+            <div id="errorsTableWrap"><div class="panel-loading"><div class="spinner"></div></div></div>
+            <div id="noErrorsNote" style="display:none;" class="empty-note">
+              No <code>error_logs</code> table found in Supabase yet.<br>
+              Create it with columns: <code>id, created_at, error_type, message, user_id, metadata</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="panel" id="panel-analytics">
+        <div class="page-header">
+          <div class="page-title">Analytics</div>
+          <div class="page-sub">Usage trends, user growth, and plan distribution</div>
+        </div>
+        <div class="content">
+          <div class="stat-grid" id="analyticsStats" style="grid-template-columns:repeat(3,1fr);">
+            <div class="panel-loading" style="grid-column:1/-1;"><div class="spinner"></div></div>
+          </div>
+          <div class="two-col">
+            <div class="chart-wrap" id="growthChart">
+              <div class="panel-loading"><div class="spinner"></div></div>
+            </div>
+            <div class="chart-wrap" id="planDistChart">
+              <div class="panel-loading"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_FN = '/.netlify/functions/admin';
+let _token = null;
+let _usersData = [], _usersFiltered = [], _usersPage = 0;
+const PAGE_SIZE = 25;
+
+window.addEventListener('load', async () => {
+  try {
+    await window.Clerk?.load();
+    const user = window.Clerk?.user;
+    if (!user) { showDenied(); return; }
+    _token = await window.Clerk.session.getToken();
+    if (!_token) { showDenied(); return; }
+    const res = await callAdmin('overview');
+    if (!res.ok) { showDenied(); return; }
+    const data = await res.json();
+    const email = user.primaryEmailAddress?.emailAddress || '';
+    document.getElementById('authLoading').style.display = 'none';
+    document.getElementById('adminShell').style.display = 'block';
+    document.getElementById('adminEmailLabel').textContent = email;
+    document.getElementById('sbEmail').textContent = email;
+    renderOverview(data);
+  } catch(e) { console.error(e); showDenied(); }
+});
+
+function showDenied() {
+  document.getElementById('authLoading').style.display = 'none';
+  document.getElementById('accessDenied').style.display = 'flex';
+}
+
+async function callAdmin(action, extra = {}) {
+  if (!_token) _token = await window.Clerk?.session?.getToken();
+  return fetch(ADMIN_FN, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_token}` },
+    body: JSON.stringify({ action, ...extra }),
+  });
+}
+
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelector(`.sb-item[onclick*="${name}"]`).classList.add('active');
+  if (name === 'users')     loadUsers();
+  if (name === 'payments')  loadPayments();
+  if (name === 'errors')    loadErrors();
+  if (name === 'analytics') loadAnalytics();
+}
+
+const fmt = {
+  date: ts => { if(!ts) return '—'; const d = typeof ts==='number'?new Date(ts*1000):new Date(ts); return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}); },
+  money: cents => '$'+(cents/100).toFixed(2),
+  num: n => (n||0).toLocaleString(),
+};
+
+function planBadge(plan) {
+  const p = (plan||'starter').toLowerCase();
+  return `<span class="plan-badge ${p}">${p}</span>`;
+}
+
+function renderOverview(data) {
+  document.getElementById('overviewCards').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-val">${fmt.num(data.totalUsers)}</div>
+      <div class="stat-sub">+${data.newUsers30||0} in last 30 days</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Total Validations</div>
+      <div class="stat-val">${fmt.num(data.totalValidations)}</div>
+      <div class="stat-sub">all time, all users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Plan Breakdown</div>
+      <div class="stat-val" style="font-size:0.95rem;line-height:2;margin-top:0.25rem;">
+        ${Object.entries(data.planBreakdown||{}).map(([k,v])=>`<span class="plan-badge ${k}" style="margin-right:4px;">${k}: ${v}</span>`).join('')}
+      </div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Logged Errors</div>
+      <div class="stat-val">${fmt.num(data.recentErrors)}</div>
+      <div class="stat-sub">in error_logs table</div>
+    </div>
+  `;
+  renderBarChart('validationsChart', data.validationsPerDay||{}, 14, '01', 'Validations', 'per day, last 14 days');
+  renderPlanChart('planChart', data.planBreakdown||{});
+}
+
+function renderBarChart(id, dataMap, days, num, title, sub) {
+  const wrap = document.getElementById(id);
+  const labels=[], vals=[];
+  for(let i=days-1;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000);
+    const key=d.toISOString().slice(0,10);
+    labels.push(key.slice(5)); vals.push(dataMap[key]||0);
+  }
+  const max=Math.max(...vals,1);
+  wrap.innerHTML=`
+    <div class="section-label">
+      <div class="section-label-num">${num}</div>
+      <div class="section-label-text"><h2>${title}</h2><p>${sub}</p></div>
+    </div>
+    <div class="bar-chart">
+      ${vals.map((v,i)=>`<div class="bar-col" title="${labels[i]}: ${v}">
+        <div class="bar" style="height:${Math.round((v/max)*100)}%;"></div>
+        <div class="bar-day">${labels[i]}</div>
+      </div>`).join('')}
+    </div>`;
+}
+
+function renderPlanChart(id, breakdown) {
+  const wrap=document.getElementById(id);
+  const total=Object.values(breakdown).reduce((a,b)=>a+b,0)||1;
+  const colors={starter:'#6b7a99',professional:'#4a6fa5',enterprise:'#1a6b3a',admin:'#92600a'};
+  wrap.innerHTML=`
+    <div class="section-label">
+      <div class="section-label-num">02</div>
+      <div class="section-label-text"><h2>Plan Mix</h2><p>active accounts by tier</p></div>
+    </div>
+    <div class="plan-legend">
+      ${Object.entries(breakdown).map(([plan,count])=>`
+        <div class="plan-row">
+          <div class="plan-dot" style="background:${colors[plan]||'#888'};"></div>
+          <span class="plan-name">${plan}</span>
+          <span class="plan-count">${count}</span>
+          <span class="plan-pct">${Math.round(count/total*100)}%</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+let _usersLoaded=false;
+async function loadUsers(){
+  if(_usersLoaded) return; _usersLoaded=true;
+  try{
+    const res=await callAdmin('users');
+    const data=await res.json();
+    _usersData=data.users||[]; _usersFiltered=_usersData;
+    renderUsersTable();
+  }catch(e){document.getElementById('usersTableWrap').innerHTML=`<div class="error-state">Failed to load users: ${e.message}</div>`;}
+}
+
+function filterUsers(){
+  const q=document.getElementById('userSearch').value.toLowerCase();
+  _usersFiltered=_usersData.filter(u=>(u.email||'').toLowerCase().includes(q)||(u.plan||'').toLowerCase().includes(q));
+  _usersPage=0; renderUsersTable();
+}
+
+function renderUsersTable(){
+  const start=_usersPage*PAGE_SIZE;
+  const slice=_usersFiltered.slice(start,start+PAGE_SIZE);
+  const wrap=document.getElementById('usersTableWrap');
+  if(!slice.length){wrap.innerHTML='<div class="empty-note">No users found.</div>';document.getElementById('usersPag').style.display='none';return;}
+  wrap.innerHTML=`<table>
+    <thead><tr><th>Email</th><th>Plan</th><th>Validations Used</th><th>Clerk ID</th><th>Created</th></tr></thead>
+    <tbody>${slice.map(u=>`<tr>
+      <td style="color:var(--text);font-weight:400;">${u.email||'—'}</td>
+      <td>${planBadge(u.plan)}</td>
+      <td style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--brown-dark);">${fmt.num(u.validations_used)}</td>
+      <td style="font-size:0.7rem;font-family:monospace;color:var(--text-light);">${(u.clerk_id||'').slice(0,20)}…</td>
+      <td>${fmt.date(u.created_at)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+  const pag=document.getElementById('usersPag');
+  pag.style.display='flex';
+  document.getElementById('usersPagInfo').textContent=`${start+1}–${Math.min(start+PAGE_SIZE,_usersFiltered.length)} of ${_usersFiltered.length}`;
+  document.getElementById('usersPrev').disabled=_usersPage===0;
+  document.getElementById('usersNext').disabled=start+PAGE_SIZE>=_usersFiltered.length;
+}
+
+function usersPage(dir){_usersPage+=dir;renderUsersTable();}
+
+let _paymentsLoaded=false;
+async function loadPayments(){
+  _paymentsLoaded=true;
+  ['paymentsStats','paymentsTableWrap','subsTableWrap'].forEach(id=>document.getElementById(id).innerHTML='<div class="panel-loading"><div class="spinner"></div></div>');
+  try{
+    const res=await callAdmin('stripe_payments');
+    const data=await res.json();
+    if(data.note){document.getElementById('paymentsStats').innerHTML=`<div class="error-state" style="grid-column:1/-1;">ℹ️ ${data.note}</div>`;document.getElementById('paymentsTableWrap').innerHTML='';document.getElementById('subsTableWrap').innerHTML='';return;}
+    const payments=data.payments||[], subs=data.subscriptions||[], revenue=data.revenue_cents||0;
+    const activeSubs=subs.filter(s=>s.status==='active').length;
+    document.getElementById('paymentsStats').innerHTML=`
+      <div class="stat-card green"><div class="stat-label">Total Revenue</div><div class="stat-val">${fmt.money(revenue)}</div><div class="stat-sub">from ${payments.length} charges</div></div>
+      <div class="stat-card"><div class="stat-label">Active Subscriptions</div><div class="stat-val">${activeSubs}</div><div class="stat-sub">of ${subs.length} total</div></div>
+      <div class="stat-card"><div class="stat-label">Avg per Charge</div><div class="stat-val">${payments.length?fmt.money(revenue/payments.length):'—'}</div><div class="stat-sub">&nbsp;</div></div>`;
+    document.getElementById('paymentsTableWrap').innerHTML=payments.length?`<table>
+      <thead><tr><th>Date</th><th>Email</th><th>Amount</th><th>Description</th><th>Status</th></tr></thead>
+      <tbody>${payments.map(p=>`<tr>
+        <td>${fmt.date(p.created)}</td><td>${p.email}</td>
+        <td style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--green);">${fmt.money(p.amount)} ${(p.currency||'').toUpperCase()}</td>
+        <td style="font-size:0.75rem;">${p.description||'—'}</td>
+        <td><span class="status-badge ${p.status}">${p.status}</span></td>
+      </tr>`).join('')}</tbody></table>`:'<div class="empty-note">No charges found.</div>';
+    document.getElementById('subsTableWrap').innerHTML=subs.length?`<table>
+      <thead><tr><th>Plan</th><th>Amount</th><th>Interval</th><th>Status</th><th>Renews</th></tr></thead>
+      <tbody>${subs.map(s=>`<tr>
+        <td>${planBadge(s.plan)}</td>
+        <td style="color:var(--green);font-family:'Playfair Display',serif;font-size:1rem;">${s.amount?fmt.money(s.amount):'—'}</td>
+        <td style="font-size:0.75rem;">${s.interval}</td>
+        <td><span class="status-badge ${s.status}">${s.status}</span></td>
+        <td>${fmt.date(s.current_period_end)}</td>
+      </tr>`).join('')}</tbody></table>`:'<div class="empty-note">No subscriptions found.</div>';
+  }catch(e){document.getElementById('paymentsStats').innerHTML=`<div class="error-state" style="grid-column:1/-1;">Stripe error: ${e.message}</div>`;}
+}
+
+let _errorsLoaded=false;
+async function loadErrors(){
+  _errorsLoaded=true;
+  document.getElementById('errorsTableWrap').innerHTML='<div class="panel-loading"><div class="spinner"></div></div>';
+  document.getElementById('noErrorsNote').style.display='none';
+  try{
+    const res=await callAdmin('errors');
+    const data=await res.json();
+    const errors=data.errors||[];
+    if(!errors.length){document.getElementById('errorsTableWrap').innerHTML='';document.getElementById('noErrorsNote').style.display='block';return;}
+    document.getElementById('errorsTableWrap').innerHTML=`<table>
+      <thead><tr><th>Date</th><th>Type</th><th>Message</th><th>User</th></tr></thead>
+      <tbody>${errors.map(e=>`<tr>
+        <td>${fmt.date(e.created_at)}</td>
+        <td><span class="err-badge ${e.error_type==='critical'?'critical':e.error_type==='warning'?'warning':'info'}">${e.error_type||'info'}</span></td>
+        <td style="font-size:0.78rem;max-width:420px;word-break:break-word;">${e.message||'—'}</td>
+        <td style="font-size:0.7rem;color:var(--text-light);">${e.user_id||'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  }catch(e){document.getElementById('errorsTableWrap').innerHTML='';document.getElementById('noErrorsNote').style.display='block';}
+}
+
+let _analyticsLoaded=false;
+async function loadAnalytics(){
+  if(_analyticsLoaded) return; _analyticsLoaded=true;
+  document.getElementById('analyticsStats').innerHTML='<div class="panel-loading" style="grid-column:1/-1;"><div class="spinner"></div></div>';
+  try{
+    const res=await callAdmin('analytics');
+    const data=await res.json();
+    document.getElementById('analyticsStats').innerHTML=`
+      <div class="stat-card"><div class="stat-label">Total Validations</div><div class="stat-val">${fmt.num(data.totalValidations)}</div><div class="stat-sub">all time</div></div>
+      <div class="stat-card green"><div class="stat-label">Avg per User</div><div class="stat-val">${data.avgValidationsPerUser}</div><div class="stat-sub">validations per account</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly Cohorts</div><div class="stat-val">${Object.keys(data.userGrowthByMonth||{}).length}</div><div class="stat-sub">months with signups</div></div>`;
+    const months=Object.keys(data.userGrowthByMonth||{});
+    renderBarChart('growthChart',data.userGrowthByMonth||{},months.length||6,'01','User Growth','new signups by month');
+    renderPlanChart('planDistChart',data.planDistribution||{});
+  }catch(e){document.getElementById('analyticsStats').innerHTML=`<div class="error-state" style="grid-column:1/-1;">Analytics error: ${e.message}</div>`;}
+}
+</script>
+</body>
+</html>
