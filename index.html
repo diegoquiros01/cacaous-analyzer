@@ -2093,10 +2093,26 @@ function setStep(n){
   }
 }
 
+// Build auth headers for every call to /.netlify/functions/claude
+// Logged-in users send their Clerk JWT; guests send X-Guest-Token: guest
+async function buildAuthHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (isLoggedIn() && window.Clerk?.session) {
+    try {
+      const token = await window.Clerk.session.getToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+    } catch(e) { /* non-blocking */ }
+  } else {
+    headers['X-Guest-Token'] = 'guest';
+  }
+  return headers;
+}
+
 async function callClaudeHaiku(system,content,maxTokens=2000){
   // Uses Haiku — 3x faster than Sonnet, ideal for coherence comparison
+  const headers = await buildAuthHeaders();
   const resp=await fetch('/.netlify/functions/claude',{
-    method:'POST',headers:{'Content-Type':'application/json'},
+    method:'POST', headers,
     body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
   });
   const text = await resp.text();
@@ -2110,8 +2126,9 @@ async function callClaudeHaiku(system,content,maxTokens=2000){
 }
 
 async function callClaude(system,content,maxTokens=2000){
+  const headers = await buildAuthHeaders();
   const resp=await fetch('/.netlify/functions/claude',{
-    method:'POST',headers:{'Content-Type':'application/json'},
+    method:'POST', headers,
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
   });
   // Handle non-JSON responses (504 timeout returns HTML)
@@ -2698,16 +2715,27 @@ async function startAnalysis(){
   coherenceResult = await analyzeCoherence(cleanDocs);
     _cachedSummary = coherenceResult?.summary || null;
 
-    // Track usage
-    if(isLoggedIn()){
-      const userId = window.__clerk_user.id;
-      const email = window.__clerk_user.primaryEmailAddress?.emailAddress;
-      fetch('/.netlify/functions/user', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ action:'increment', clerk_id: userId, email })
-      }).catch(e => console.warn('Usage increment failed:', e.message));
+    // Track usage — only if analysis produced a valid result
+    // A valid result must have overallStatus set to approved/warning/rejected
+    // This prevents consuming a validation when the analysis times out or fails silently
+    const validStatuses = ['approved', 'warning', 'rejected'];
+    const analysisSucceeded = coherenceResult &&
+      validStatuses.includes(coherenceResult.overallStatus) &&
+      Object.keys(cleanDocs).length > 0;
+
+    if(analysisSucceeded){
+      if(isLoggedIn()){
+        const userId = window.__clerk_user.id;
+        const email = window.__clerk_user.primaryEmailAddress?.emailAddress;
+        fetch('/.netlify/functions/user', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'increment', clerk_id: userId, email })
+        }).catch(e => console.warn('Usage increment failed:', e.message));
+      } else {
+        incGuestCount();
+      }
     } else {
-      incGuestCount();
+      console.warn('Analysis did not produce valid result — usage not incremented.');
     }
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
