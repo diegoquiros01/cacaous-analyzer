@@ -2506,6 +2506,80 @@ Return ONLY valid JSON:
     }
   }
 
+  // ── BL IS MASTER: container validation ──────────────────────────────────────
+  // The Bill of Lading is the authoritative transport document.
+  // Any other doc with different containers than the BL is wrong — not the BL.
+  (function checkContainersAgainstBL() {
+    const blEntry = Object.entries(slim).find(([k, v]) => {
+      const dt = (v.docType || '').toLowerCase();
+      return dt.includes('bill of lading') || dt.includes('waybill') ||
+             dt.includes('conocimiento') || dt === 'bl';
+    });
+    if (!blEntry) return;
+    const [blDoc, blData] = blEntry;
+
+    const blContainers = (blData.containerNumbers || [])
+      .map(c => String(c).trim().toUpperCase())
+      .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
+    if (blContainers.length === 0) return;
+
+    const blSet = new Set(blContainers);
+    const blLabel = blDoc.replace(/\.[^.]+$/, '');
+
+    Object.entries(slim).forEach(([docName, docData]) => {
+      if (docName === blDoc) return;
+      const docContainers = (docData.containerNumbers || [])
+        .map(c => String(c).trim().toUpperCase())
+        .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
+      if (docContainers.length === 0) return;
+
+      const docSet = new Set(docContainers);
+      const extraInDoc = docContainers.filter(c => !blSet.has(c));
+      const missingFromDoc = blContainers.filter(c => !docSet.has(c));
+      if (extraInDoc.length === 0 && missingFromDoc.length === 0) return;
+
+      const docLabel = docName.replace(/\.[^.]+$/, '');
+      let msg;
+      if (isES) {
+        if (extraInDoc.length > 0 && missingFromDoc.length > 0) {
+          msg = '"' + docLabel + '" lista contenedores diferentes a los del BL (' + blLabel + '). '
+              + 'Contenedores en este doc no presentes en BL: ' + extraInDoc.join(', ') + '. '
+              + 'Contenedores del BL no presentes en este doc: ' + missingFromDoc.join(', ') + '. '
+              + 'El BL es el documento master — este documento debe corregirse.';
+        } else if (extraInDoc.length > 0) {
+          msg = '"' + docLabel + '" incluye ' + extraInDoc.length + ' contenedor(es) que NO están en el BL (' + blLabel + '): '
+              + extraInDoc.join(', ') + '. El BL es el documento master — este documento debe corregirse.';
+        } else {
+          msg = '"' + docLabel + '" omite ' + missingFromDoc.length + ' contenedor(es) del BL (' + blLabel + '): '
+              + missingFromDoc.join(', ') + '. El BL es el documento master — este documento debe corregirse.';
+        }
+      } else {
+        if (extraInDoc.length > 0 && missingFromDoc.length > 0) {
+          msg = '"' + docLabel + '" lists different containers than the BL (' + blLabel + '). '
+              + 'In this doc but NOT in BL: ' + extraInDoc.join(', ') + '. '
+              + 'In BL but missing from this doc: ' + missingFromDoc.join(', ') + '. '
+              + 'The BL is the master document — this document must be corrected.';
+        } else if (extraInDoc.length > 0) {
+          msg = '"' + docLabel + '" includes ' + extraInDoc.length + ' container(s) NOT in the BL (' + blLabel + '): '
+              + extraInDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
+        } else {
+          msg = '"' + docLabel + '" is missing ' + missingFromDoc.length + ' container(s) from the BL (' + blLabel + '): '
+              + missingFromDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
+        }
+      }
+
+      jsPreErrors.push({
+        type: 'error',
+        field: 'containers',
+        message: msg,
+        details: [
+          { doc: blDoc, value: 'BL (master): ' + blContainers.join(', ') },
+          { doc: docName, value: docLabel + ': ' + docContainers.join(', ') },
+        ]
+      });
+    });
+  })();
+
   const msg = `Documents and their fields:\n${JSON.stringify(slim, null, 2)}`;
 
 
@@ -3513,7 +3587,7 @@ function renderResults(){
     vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
     const sorted = Object.entries(valCounts).sort((a,b)=>b[1]-a[1]);
     const majVal = sorted[0]?.[0] || '';
-    errAlerts.push({ field: fieldLabel, vals, majVal, autoOpen: true,
+    errAlerts.push({ field: fieldLabel, rawField: e.k, vals, majVal, autoOpen: true,
       msg: lang==='es' ? 'Valores distintos encontrados entre documentos' : 'Different values found across documents' });
   });
 
@@ -3552,8 +3626,16 @@ function renderResults(){
         }
         return `<div class="r-diff-row ${rc}"><span class="r-diff-doc">${(v.doc||'').replace(/\.[^.]+$/,'')}</span><span class="r-diff-val">${dispVal}</span><span class="r-diff-icon">${icon}</span></div>`;
       }).join('');
+      // For container fields: BL is master — don't say "majority is correct"
+      const isContainerField = ['containers','containerNumbers','seals','sealNumbers'].includes(
+        (item.rawField || item.field || '').toLowerCase().replace(/[^a-z]/g,'')
+      );
       const noteText = type==='err' && item.majVal
-        ? (lang==='es' ? `El valor correcto (mayoría) es <strong>${item.majVal}</strong>.` : `The correct value (majority) is <strong>${item.majVal}</strong>. Documents in red must be corrected.`)
+        ? isContainerField
+          ? (lang==='es'
+              ? `El BL es el documento master. Los demás documentos deben corregirse para coincidir con el BL.`
+              : `The BL is the master document. Other documents must be corrected to match the BL.`)
+          : (lang==='es' ? `El valor correcto (mayoría) es <strong>${item.majVal}</strong>.` : `The correct value (majority) is <strong>${item.majVal}</strong>. Documents in red must be corrected.`)
         : '';
       diffHtml = `<div class="r-diff-wrap"><div class="r-diff-label">${lang==='es'?'Valor por documento':'Value per document'}</div><div class="r-diff-rows">${rows}</div>${noteText?`<div class="r-diff-note">${noteText}</div>`:''}</div>`;
     }
