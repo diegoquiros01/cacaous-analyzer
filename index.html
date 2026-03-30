@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="AI-powered export document validator. Cross-check Bills of Lading, Packing Lists, Phytosanitary Certificates and more in seconds.">
+<meta http-equiv="x-dns-prefetch-control" content="on">
 <title>DocsValidate — Export Document Validator</title>
+
+<!-- DNS prefetch for all external origins — reduces connection latency -->
+<link rel="dns-prefetch" href="https://keen-bulldog-59.clerk.accounts.dev">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 
 <!-- Fonts: non-blocking load — Playfair added (used in hero h1 = LCP element) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1201,10 +1209,27 @@ footer {
 
 </style>
   <!-- Clerk Auth — async, does not block render -->
-  <script async defer crossorigin="anonymous"
-    data-clerk-publishable-key="pk_test_a25vd24tYnVsbGRvZy01OS5jbGVyay5hY2NvdW50cy5kZXYk"
-    src="https://keen-bulldog-59.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-    type="text/javascript">
+  <!-- Clerk deferred — loads after HTML parsed, init happens on idle via requestIdleCallback -->
+  <script>
+  // Inject Clerk script only after first user interaction or after 2s — whichever comes first
+  // This prevents Clerk from competing with the hero image and fonts on first paint
+  let _clerkInjected = false;
+  function injectClerk() {
+    if (_clerkInjected) return;
+    _clerkInjected = true;
+    const s = document.createElement('script');
+    s.async = true;
+    s.defer = true;
+    s.crossOrigin = 'anonymous';
+    s.dataset.clerkPublishableKey = 'pk_test_a25vd24tYnVsbGRvZy01OS5jbGVyay5hY2NvdW50cy5kZXYk';
+    s.src = 'https://keen-bulldog-59.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+    document.head.appendChild(s);
+  }
+  // Load Clerk after 2s idle, or immediately on first interaction
+  setTimeout(injectClerk, 2000);
+  ['mousedown','touchstart','keydown','scroll'].forEach(e =>
+    document.addEventListener(e, injectClerk, { once: true, passive: true })
+  );
   </script>
   <!-- Hero images loaded on demand -->
 </head>
