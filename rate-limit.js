@@ -2,8 +2,29 @@
 // IP-based usage tracking for guest users (not logged in)
 // Uses Netlify Blobs — no external database needed
 // Limit: 3 free analyses per IP per day
+// Admin bypass: requests from ADMIN_EMAIL get unlimited access
 
 const { getStore } = require('@netlify/blobs');
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+
+// Decode Clerk JWT payload to extract email (no crypto verify needed here —
+// the Anthropic API call itself is gated; this is just rate limiting)
+function getEmailFromJWT(authHeader) {
+  try {
+    if (!authHeader?.startsWith('Bearer ')) return null;
+    const payload = JSON.parse(
+      Buffer.from(authHeader.slice(7).split('.')[1], 'base64url').toString('utf8')
+    );
+    return (
+      payload.email ||
+      payload.primary_email ||
+      (payload.email_addresses?.[0]?.email_address) ||
+      null
+    );
+  } catch { return null; }
+}
+
 
 const GUEST_LIMIT     = 3;    // max analyses per IP per day
 const WINDOW_MS       = 24 * 60 * 60 * 1000; // 24 hours in ms
@@ -32,6 +53,18 @@ exports.handler = async (event) => {
 
   try {
     const { action } = JSON.parse(event.body || '{}');
+
+    // ── ADMIN BYPASS: unlimited validations ────────────────────────────────
+    const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
+    const requestEmail = getEmailFromJWT(authHeader);
+    if (ADMIN_EMAIL && requestEmail && requestEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+      return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({ allowed: true, remaining: 9999, limit: 9999, count: 0, admin: true }),
+      };
+    }
+
     const ip = getIP(event);
 
     // Use Netlify Blobs — store keyed by IP

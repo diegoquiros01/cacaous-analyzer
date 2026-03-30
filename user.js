@@ -1,5 +1,8 @@
 // netlify/functions/user.js
 // Get user plan and validation count, create user if first time
+// Reset logic: calendar month (1st of each month)
+//   - First period: 30 days from signup (grace period so new users get a full month)
+//   - From 2nd period onward: resets on the 1st of each calendar month
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
@@ -17,83 +20,199 @@ async function supabase(path, method = 'GET', body = null) {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': method === 'POST' ? 'return=representation' : '',
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=representation',
     },
     body: body ? JSON.stringify(body) : null,
   });
   return res.json();
 }
 
+// Reset logic:
+//   - If user has never been reset (last_reset = created_at or null):
+//       wait 30 days from signup (grace period) before first reset
+//   - After that: reset on the 1st of each calendar month
+function shouldReset(user) {
+  const now = new Date();
+  const created = new Date(user.created_at || now);
+  const lastReset = user.last_reset ? new Date(user.last_reset) : created;
+
+  // Has the user completed their initial 30-day grace period?
+  const daysSinceCreation = (now - created) / (1000 * 60 * 60 * 24);
+  const inGracePeriod = daysSinceCreation < 30;
+
+  if (inGracePeriod) {
+    // Still in first 30 days — never reset yet
+    return false;
+  }
+
+  // After grace period: reset on the 1st of the current calendar month
+  // i.e. if last_reset is before the 1st of this month, reset now
+  const firstOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  return lastReset < firstOfThisMonth;
+}
+
+// Returns the next reset date for display in the frontend
+function nextResetDate(user) {
+  const now = new Date();
+  const created = new Date(user.created_at || now);
+  const daysSinceCreation = (now - created) / (1000 * 60 * 60 * 24);
+
+  if (daysSinceCreation < 30) {
+    // Still in grace period — next reset is 30 days from signup
+    return new Date(created.getTime() + 30 * 86400000).toISOString();
+  }
+
+  // Next reset = 1st of next month
+  const firstOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  return firstOfNextMonth.toISOString();
+}
+
 exports.handler = async (event) => {
-  const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
     const { action, clerk_id, email } = JSON.parse(event.body || '{}');
 
-    if (!clerk_id) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id' }) };
+    if (!clerk_id) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id' }) };
+    }
 
-    // GET USER
+    // ── GET USER ────────────────────────────────────────────────────────────
     if (action === 'get' || !action) {
       let users = await supabase(`users?clerk_id=eq.${clerk_id}&select=*`);
 
       // Create user if doesn't exist
       if (!users || users.length === 0) {
+        const now = new Date().toISOString();
         users = await supabase('users', 'POST', {
           clerk_id,
           email: email || '',
           plan: 'starter',
           validations_used: 0,
+          last_reset: now,
         });
       }
 
-      const user = Array.isArray(users) ? users[0] : users;
-      const limit = PLAN_LIMITS[user.plan] || 20;
+      let user = Array.isArray(users) ? users[0] : users;
+      if (!user) {
+        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Failed to get or create user' }) };
+      }
+
+      // ── AUTO-RESET if 30 days have passed ──────────────────────────────
+      if (shouldReset(user)) {
+        const now = new Date().toISOString();
+        await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+          validations_used: 0,
+          last_reset: now,
+          updated_at: now,
+        });
+        user = { ...user, validations_used: 0, last_reset: now };
+      }
+
+      const limit     = PLAN_LIMITS[user.plan] || 20;
       const remaining = Math.max(0, limit - (user.validations_used || 0));
 
+      // Calculate next reset date for the frontend to display
+      const nextReset = nextResetDate(user);
+
       return {
-        statusCode: 200, headers,
+        statusCode: 200,
+        headers,
         body: JSON.stringify({
-          plan: user.plan,
-          validations_used: user.validations_used,
+          plan:              user.plan,
+          validations_used:  user.validations_used,
           validations_limit: limit,
           remaining,
-          can_analyze: remaining > 0,
+          can_analyze:       remaining > 0,
+          next_reset:        nextReset,
         }),
       };
     }
 
-    // INCREMENT USAGE
+    // ── INCREMENT USAGE ─────────────────────────────────────────────────────
     if (action === 'increment') {
-      const users = await supabase(`users?clerk_id=eq.${clerk_id}&select=*`);
-      const user = Array.isArray(users) ? users[0] : users;
-      if (!user) return { statusCode: 404, headers, body: JSON.stringify({ error: 'User not found' }) };
+      let users = await supabase(`users?clerk_id=eq.${clerk_id}&select=*`);
+      let user  = Array.isArray(users) ? users[0] : users;
+      if (!user) {
+        return { statusCode: 404, headers, body: JSON.stringify({ error: 'User not found' }) };
+      }
+
+      // Auto-reset check on increment too (edge case: user was at limit, period expired)
+      if (shouldReset(user)) {
+        const now = new Date().toISOString();
+        await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+          validations_used: 0,
+          last_reset: now,
+          updated_at: now,
+        });
+        user = { ...user, validations_used: 0, last_reset: now };
+      }
 
       const limit = PLAN_LIMITS[user.plan] || 20;
+
       if (user.validations_used >= limit) {
         return {
-          statusCode: 200, headers,
-          body: JSON.stringify({ success: false, reason: 'limit_reached', plan: user.plan, limit }),
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            reason:  'limit_reached',
+            plan:    user.plan,
+            limit,
+          }),
         };
       }
 
+      const now = new Date().toISOString();
       await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
         validations_used: user.validations_used + 1,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       });
 
       return {
-        statusCode: 200, headers,
+        statusCode: 200,
+        headers,
         body: JSON.stringify({
-          success: true,
+          success:          true,
           validations_used: user.validations_used + 1,
-          remaining: limit - user.validations_used - 1,
+          remaining:        limit - user.validations_used - 1,
         }),
       };
     }
 
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Unknown action' }) };
+    // ── UPDATE PLAN (called by Stripe webhook) ──────────────────────────────
+    if (action === 'update_plan') {
+      const { new_plan } = JSON.parse(event.body);
+      if (!new_plan || !PLAN_LIMITS[new_plan]) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid plan: ' + new_plan }) };
+      }
+
+      // When upgrading plan, reset counter — next reset will be 1st of next month
+      const now = new Date().toISOString();
+      await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+        plan:             new_plan,
+        validations_used: 0,
+        last_reset:       now,
+        updated_at:       now,
+      });
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, plan: new_plan }),
+      };
+    }
+
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: 'Unknown action' }),
+    };
 
   } catch (err) {
     console.error('user function error:', err);
