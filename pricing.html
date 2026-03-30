@@ -354,13 +354,24 @@ window.addEventListener('load', async () => {
   catch(e){ console.warn('Clerk load error:', e.message); }
 });
 
+function buildStripeUrl(stripeUrl, user) {
+  // Build the Stripe Payment Link URL with:
+  // 1. prefilled_email — less friction at checkout
+  // 2. client_reference_id — Clerk user ID so webhook can find user reliably
+  //    without depending on email matching (avoids case/space mismatches)
+  const params = new URLSearchParams();
+  const email = user.primaryEmailAddress?.emailAddress || '';
+  if (email) params.set('prefilled_email', email);
+  if (user.id) params.set('client_reference_id', user.id);
+  const qs = params.toString();
+  return qs ? stripeUrl + '?' + qs : stripeUrl;
+}
+
 function handleSubscribe(stripeUrl) {
   _pendingStripeUrl = stripeUrl;
   const user = window.Clerk?.user;
   if (user) {
-    const email = user.primaryEmailAddress?.emailAddress || '';
-    const url = email ? stripeUrl + '?prefilled_email=' + encodeURIComponent(email) : stripeUrl;
-    window.open(url, '_blank');
+    window.open(buildStripeUrl(stripeUrl, user), '_blank');
   } else {
     document.getElementById('authModal').style.display = 'flex';
   }
@@ -401,9 +412,7 @@ async function proceedWithClerk() {
     setTimeout(() => {
       const user = window.Clerk?.user;
       if (user && _pendingStripeUrl) {
-        const email = user.primaryEmailAddress?.emailAddress || '';
-        const url = email ? _pendingStripeUrl + '?prefilled_email=' + encodeURIComponent(email) : _pendingStripeUrl;
-        window.open(url, '_blank');
+        window.open(buildStripeUrl(_pendingStripeUrl, user), '_blank');
         _pendingStripeUrl = null;
       }
     }, 1500);

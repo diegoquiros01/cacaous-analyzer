@@ -98,25 +98,34 @@ function planFromPriceId(priceId) {
 }
 
 // ── Update user plan in Supabase by Stripe customer ID ───────────────────────
-async function updateUserPlan(stripeCustomerId, newPlan) {
+async function updateUserPlan(stripeCustomerId, newPlan, clerkId = null) {
   const now = new Date().toISOString();
+  let users = [];
 
-  // Look up user by stripe_customer_id first
-  let users = await sb(`users?stripe_customer_id=eq.${stripeCustomerId}&select=*`);
+  // 1. Best: look up by Clerk ID (set via client_reference_id in Payment Link)
+  //    This is 100% reliable — no email matching needed
+  if (clerkId) {
+    users = await sb(`users?clerk_id=eq.${clerkId}&select=*`).catch(() => []);
+  }
 
+  // 2. Good: look up by stripe_customer_id (set on previous payments)
   if (!users || users.length === 0) {
-    // Fallback: look up by email via Stripe customer object
+    users = await sb(`users?stripe_customer_id=eq.${stripeCustomerId}&select=*`).catch(() => []);
+  }
+
+  // 3. Fallback: look up by email from Stripe customer object
+  if (!users || users.length === 0) {
     const customer = await stripeGet(`customers/${stripeCustomerId}`);
     const email = customer.email;
     if (!email) {
       console.error('No email found for Stripe customer:', stripeCustomerId);
       return false;
     }
-    users = await sb(`users?email=eq.${encodeURIComponent(email)}&select=*`);
+    users = await sb(`users?email=eq.${encodeURIComponent(email)}&select=*`).catch(() => []);
   }
 
   if (!users || users.length === 0) {
-    console.error('User not found in Supabase for Stripe customer:', stripeCustomerId);
+    console.error('User not found in Supabase for Stripe customer:', stripeCustomerId, 'clerkId:', clerkId);
     return false;
   }
 
@@ -126,12 +135,12 @@ async function updateUserPlan(stripeCustomerId, newPlan) {
   await sb(`users?clerk_id=eq.${user.clerk_id}`, 'PATCH', {
     plan:                 newPlan,
     stripe_customer_id:   stripeCustomerId,
-    validations_used:     0,       // fresh start on plan change
+    validations_used:     0,
     last_reset:           now,
     updated_at:           now,
   });
 
-  console.log(`✓ Updated user ${user.email} to plan: ${newPlan}`);
+  console.log(`✓ Updated user ${user.email} (clerk: ${user.clerk_id}) to plan: ${newPlan}`);
   return true;
 }
 
@@ -188,7 +197,10 @@ exports.handler = async (event) => {
           break;
         }
 
-        await updateUserPlan(customerId, plan);
+        // client_reference_id = Clerk user ID (set in pricing.html buildStripeUrl)
+        // This is the most reliable way to find the user — no email matching needed
+        const clerkId = session.client_reference_id || null;
+        await updateUserPlan(customerId, plan, clerkId);
         break;
       }
 
