@@ -2528,6 +2528,14 @@ Return ONLY valid JSON:
 
     Object.entries(slim).forEach(([docName, docData]) => {
       if (docName === blDoc) return;
+      // Skip notification/email/letter/declaration docs — they list containers
+      // for reference only, not as authoritative transport documents
+      const dt = (docData.docType || '').toLowerCase();
+      const skipTypes = ['notification','notificacion','email','correo',
+        'letter','carta','declaration letter','carta declaracion',
+        'shipping notification','unidad'];
+      const isSkippable = skipTypes.some(s => dt.includes(s));
+      if (isSkippable) return;
       const docContainers = (docData.containerNumbers || [])
         .map(c => String(c).trim().toUpperCase())
         .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
@@ -3475,12 +3483,26 @@ function renderResults(){
     if(vDesc)  vDesc.textContent  = t.verdictApprovedDesc;
   }
 
-  // AI summary
-  if(coherenceResult?.summary && sumCard && sumText){
-    sumText.textContent = translateSummary(coherenceResult.summary);
+  // AI summary — always show the card; use AI text if available, fallback otherwise
+  const aiSummaryText = coherenceResult?.summary || '';
+  if(sumCard && sumText){
+    if(aiSummaryText){
+      sumText.textContent = translateSummary(aiSummaryText);
+    } else {
+      // Fallback summary when AI text is unavailable (timeout, truncation, etc.)
+      sumText.textContent = finalErrors > 0
+        ? (lang==='es'
+            ? `Se detectaron ${finalErrors} inconsistencia(s) crítica(s) en el set de documentos. Revisar los campos marcados en rojo antes de liberar la carga.`
+            : `${finalErrors} critical inconsistenc${finalErrors===1?'y':'ies'} detected in this document set. Review the fields flagged in red before releasing cargo.`)
+        : finalWarnings > 0
+          ? (lang==='es'
+              ? `El set tiene ${finalWarnings} observación(es) que deben revisarse. No se encontraron errores críticos en los campos verificados.`
+              : `The set has ${finalWarnings} observation(s) to review. No critical errors were found in the verified fields.`)
+          : (lang==='es'
+              ? 'Todos los campos verificados son consistentes entre los documentos del set. El embarque puede proceder.'
+              : 'All verified fields are consistent across the documents in this set. The shipment may proceed.');
+    }
     sumCard.style.display = 'block';
-  } else if(sumCard){
-    sumCard.style.display = 'none';
   }
 
   // BL number strip
