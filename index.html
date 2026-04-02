@@ -228,235 +228,154 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 
 /* ══════════════════════════════════════
-   DOC TYPE SELECTOR
+   UPLOAD — Two Column Layout
 ══════════════════════════════════════ */
-.doc-types-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.6rem; margin-bottom: 0.5rem;
-}
-@media (max-width: 900px) { .doc-types-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 600px) { .doc-types-grid { grid-template-columns: repeat(2, 1fr); } }
-.doc-type-btn {
-  padding: 0.7rem 1rem;
-  border: 1px solid var(--border);
-  background: var(--white);
-  color: var(--text-mid);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.67rem; letter-spacing: 0.1em; text-transform: uppercase;
-  cursor: pointer; transition: all 0.2s; font-weight: 400;
-  text-align: left; display: flex; align-items: center; gap: 0.6rem;
-}
-.doc-type-btn .dt-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--border); flex-shrink: 0; transition: background 0.2s;
-}
-.doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
-.doc-type-btn.active { border-color: var(--brown); background: var(--brown); color: var(--white); }
-.doc-type-btn.active .dt-dot { background: var(--tan-light); }
-.doc-type-btn.ghost {
-  background: var(--cream2); border: 1px dashed var(--tan);
-  color: var(--text-mid); opacity: 0.85; cursor: default;
-  font-style: italic;
-}
-.doc-type-btn.ghost .dt-dot { background: var(--tan); }
-.doc-type-btn.ghost:hover { border-color: var(--tan); color: var(--text-mid); }
 
-/* ══════════════════════════════════════
-   UPLOAD STEPPER
-══════════════════════════════════════ */
-.us-stepper {
+/* Mini stepper */
+.up-stepper {
+  display: flex; align-items: center; padding: 0.6rem 0; margin-bottom: 0.8rem;
+}
+.up-st {
+  display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0;
+  color: var(--text-light);
+}
+.up-st-circ {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1px solid currentColor;
   display: flex; align-items: center; justify-content: center;
-  gap: 0; margin-bottom: 1.5rem; padding: 0 2rem;
+  font-size: 0.56rem; font-weight: 700;
 }
-.us-step {
-  display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+.up-st-lbl {
+  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
 }
-.us-step-circle {
-  width: 26px; height: 26px; border-radius: 50%;
-  border: 1.5px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.65rem; font-weight: 700; color: var(--text-light);
-  transition: all 0.3s;
+.up-st-line {
+  flex: 1; height: 1px; background: var(--border-light); margin: 0 0.5rem;
 }
-.us-step.us-done .us-step-circle {
-  background: var(--green); border-color: var(--green); color: var(--white);
-}
-.us-step.us-active .us-step-circle {
-  background: var(--tan); border-color: var(--tan); color: var(--white);
-}
-.us-step-label {
-  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 400; transition: color 0.3s;
-}
-.us-step.us-done .us-step-label { color: var(--green); font-weight: 700; }
-.us-step.us-active .us-step-label { color: var(--tan); font-weight: 700; }
-.us-step-line {
-  flex: 1; height: 1.5px; background: var(--border-light);
-  margin: 0 0.8rem; min-width: 30px; transition: background 0.3s;
-}
-.us-step-line.us-line-done { background: var(--green); }
+.up-st.up-st-done { color: var(--green); }
+.up-st.up-st-done .up-st-circ { background: var(--green); border-color: var(--green); color: var(--white); }
+.up-st.up-st-done .up-st-lbl { font-weight: 700; }
+.up-st-line.up-st-line-done { background: var(--green); }
+.up-st.up-st-active { color: var(--brown-dark); }
+.up-st.up-st-active .up-st-circ { border-color: var(--tan); color: var(--tan); }
+.up-st.up-st-active .up-st-lbl { font-weight: 700; }
 
-/* Upload panel */
-.us-panel {
+/* Two-column panel */
+.up-panel {
+  display: grid; grid-template-columns: 200px 1fr; gap: 1.25rem;
   background: var(--white); border: 1px solid var(--border-light);
-  border-radius: 2px; padding: 1.5rem 1.8rem; margin-bottom: 1rem;
+  border-radius: 4px; padding: 1.5rem; margin-bottom: 1rem;
 }
-.us-panel-header { margin-bottom: 1.2rem; }
-.us-panel-title {
-  font-family: 'Playfair Display', serif; font-size: 1.2rem;
-  font-weight: 500; color: var(--brown-dark); margin-bottom: 0.3rem;
-}
-.us-panel-sub {
-  font-size: 0.72rem; color: var(--text-light); letter-spacing: 0.03em;
+@media(max-width:768px){
+  .up-panel { grid-template-columns: 1fr; }
 }
 
-/* Doc types accordion */
-.us-accordion { margin-bottom: 1.2rem; }
-.us-accordion-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.5rem 0.7rem; cursor: pointer;
-  border: 1px solid var(--border-light); border-radius: 2px;
-  background: var(--offwhite); transition: background 0.15s;
-}
-.us-accordion-head:hover { background: var(--cream); }
-.us-accordion-label {
-  font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--text-mid); font-weight: 700;
-}
-.us-accordion-chev {
-  font-size: 0.55rem; color: var(--text-light); transition: transform 0.2s;
-}
-.us-accordion.open .us-accordion-chev { transform: rotate(180deg); }
-.us-accordion-body {
-  padding: 0.8rem 0.7rem 0.4rem; border: 1px solid var(--border-light);
-  border-top: none; border-radius: 0 0 2px 2px;
-}
-
-/* Collapsed chips */
-/* Doc types read-only display */
-.us-doctypes-display { margin: 1rem 0 0.8rem; }
-.us-doctypes-label {
-  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.14em;
+/* Left: doc types */
+.up-left {}
+.up-sec-lbl {
+  font-size: 0.52rem; font-weight: 700; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--text-light); margin-bottom: 0.5rem;
 }
-.doc-type-chip {
-  padding: 0.45rem 0.7rem;
-  border: 1px solid var(--border-light); background: var(--offwhite);
-  color: var(--text-light);
+.up-dt-list {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.doc-type-btn {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--offwhite);
+  color: var(--text-mid);
   font-family: 'Lato', sans-serif;
-  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 0.5rem;
-  cursor: default; user-select: none;
+  font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.15s; font-weight: 400;
+  text-align: left; display: flex; align-items: center; gap: 4px;
+  border-radius: 2px;
 }
-.doc-type-chip .dt-dot {
-  width: 5px; height: 5px; border-radius: 50%; background: var(--tan); flex-shrink: 0;
+.doc-type-btn .dt-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0; transition: background 0.15s;
 }
+.doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
+.doc-type-btn.active { border-color: var(--brown-dark); background: var(--brown-dark); color: var(--white); }
+.doc-type-btn.active .dt-dot { background: var(--tan-light); }
 
-.us-chips {
-  display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.5rem 0 0;
-}
-.us-chip {
-  font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 2px 8px; background: var(--brown-dark); color: var(--tan-light);
-  border-radius: 2px; font-weight: 400;
-}
+/* Right: upload area */
+.up-right {}
 
-/* Files header */
-.us-files-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.5rem 0; margin-top: 0.8rem;
-  border-bottom: 1px solid var(--border-light);
-}
-.us-files-header span:first-child {
-  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 700;
-}
-.us-files-count {
-  font-size: 0.6rem; letter-spacing: 0.08em; color: var(--tan); font-weight: 700;
-}
-
-/* File item — detected doc type */
-.file-item.fi-detected {
-  background: #f0f7f2; border-color: #d4ede0;
-}
-.file-detected-type {
-  font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--green); font-weight: 700; flex-shrink: 0;
-  display: flex; align-items: center; gap: 4px;
-}
-
-@media(max-width:600px){
-  .us-stepper { padding: 0; }
-  .us-step-label { display: none; }
-  .us-panel { padding: 1rem; }
-}
-
-/* ══════════════════════════════════════
-   UPLOAD ZONE
-══════════════════════════════════════ */
 .upload-area {
   border: 2px dashed var(--border);
   background: var(--offwhite);
-  padding: 3.5rem 2rem; text-align: center;
-  cursor: pointer; transition: all 0.3s;
-  position: relative; margin-bottom: 1rem;
+  padding: 1.25rem 1rem; text-align: center;
+  cursor: pointer; transition: all 0.2s;
+  position: relative; border-radius: 3px;
 }
 .upload-area:hover, .upload-area.drag-over {
-  border-color: var(--tan); background: var(--cream);
+  border-color: var(--tan); background: #f0f4fa;
 }
 .upload-area input[type="file"] { display: none; }
-.upload-icon { font-size: 2.2rem; margin-bottom: 1rem; color: var(--tan); }
 .upload-area h3 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.4rem; font-weight: 400; color: var(--brown-dark);
-  margin-bottom: 0.5rem;
+  font-size: 0.95rem; font-weight: 400; color: var(--brown-dark);
+  margin-bottom: 0.3rem;
 }
-.upload-area p { font-size: 0.73rem; color: var(--text-light); line-height: 1.8; }
-.upload-area p strong { color: var(--text-mid); font-weight: 400; }
+.upload-area p { font-size: 0.72rem; color: var(--text-light); line-height: 1.6; }
 .upload-cta {
-  display: inline-block; margin-top: 1.5rem;
-  padding: 0.7rem 2.2rem;
-  background: var(--brown-dark); color: var(--white);
+  display: inline-block; margin-top: 0.7rem;
+  padding: 0.45rem 1.4rem;
+  background: var(--brown-dark); color: var(--tan-light);
   font-family: 'Lato', sans-serif;
-  font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-  border: none; cursor: pointer; transition: background 0.2s;
+  font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
+  border: none; cursor: pointer; transition: background 0.2s; border-radius: 2px;
 }
 .upload-cta:hover { background: var(--brown); }
 
+/* Files header */
+.up-files-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.4rem 0; margin-top: 0.6rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.up-files-lbl {
+  font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 700;
+}
+.up-files-cnt {
+  font-size: 0.55rem; letter-spacing: 0.06em; color: var(--tan); font-weight: 700;
+}
+
 /* FILES LIST */
-.files-list { margin-bottom: 0.5rem; }
+.files-list { margin-bottom: 0.3rem; }
 .file-item {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 0.85rem 1.2rem;
-  background: var(--white); border: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--offwhite); border: 1px solid var(--border-light);
   border-bottom: none; transition: background 0.15s;
 }
-.file-item:first-child { border-top: 2px solid var(--tan); }
+.file-item:first-child { border-top: none; }
 .file-item:last-child { border-bottom: 1px solid var(--border-light); }
-.file-item:hover { background: var(--offwhite); }
-.file-icon { font-size: 1.1rem; flex-shrink: 0; }
+.file-item:hover { background: var(--cream); }
+.file-item.fi-detected { background: #f0f7f2; border-color: #d4ede0; }
+.file-icon { font-size: 0.9rem; flex-shrink: 0; }
 .file-info { flex: 1; min-width: 0; }
-.file-name { font-size: 0.82rem; color: var(--brown-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.file-size { font-size: 0.6rem; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.1rem; }
+.file-name { font-size: 0.72rem; color: var(--brown-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-size { font-size: 0.52rem; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.1rem; }
 .file-badge {
-  font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.15rem 0.55rem; border: 1px solid; flex-shrink: 0; font-weight: 700;
+  font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 1px 5px; border: 1px solid; flex-shrink: 0; font-weight: 700;
 }
 .badge-excel { border-color: #2d7a3a; color: #2d7a3a; background: #f0faf1; }
 .badge-word { border-color: #2b4fa8; color: #2b4fa8; background: #f0f4ff; }
+.file-detected-type {
+  font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--green); font-weight: 700; flex-shrink: 0;
+  display: flex; align-items: center; gap: 3px;
+}
 .file-del {
   background: none; border: none; color: var(--text-light);
-  cursor: pointer; font-size: 1rem; padding: 0.2rem 0.4rem; transition: color 0.2s;
+  cursor: pointer; font-size: 0.75rem; padding: 0.15rem 0.3rem; transition: color 0.2s;
 }
 .file-del:hover { color: var(--red-light); }
 
-/* FILES COUNT */
-.files-count {
-  text-align: right;
-  font-size: 0.62rem; color: var(--text-light); letter-spacing: 0.08em;
-  margin-bottom: 1.5rem; padding-top: 0.4rem;
-}
+/* FILES COUNT (hidden, replaced by up-files-hdr) */
+.files-count { display: none; }
 
 /* ANALYZE BUTTON */
 .analyze-wrap { margin-bottom: 3rem; }
@@ -1655,65 +1574,69 @@ footer {
   <!-- ══ STEP 1: UPLOAD ══ -->
   <div id="uploadSection">
 
-    <!-- MAIN PANEL -->
-    <div class="us-panel">
-      <!-- Panel title -->
-      <div class="us-panel-header">
-        <h2 class="us-panel-title" id="uploadPanelTitle">Upload your documents</h2>
-        <p class="us-panel-sub" id="uploadPanelSub">11 document types selected · Drag or select files below</p>
-      </div>
+    <!-- Mini stepper -->
+    <div class="up-stepper" id="upStepper">
+      <div class="up-st up-st-done" id="upSt1"><span class="up-st-circ">✓</span><span class="up-st-lbl" id="upSt1Lbl">Doc Types</span></div>
+      <div class="up-st-line up-st-line-done" id="upStLine1"></div>
+      <div class="up-st up-st-active" id="upSt2"><span class="up-st-circ">2</span><span class="up-st-lbl" id="upSt2Lbl">Upload Files</span></div>
+      <div class="up-st-line" id="upStLine2"></div>
+      <div class="up-st" id="upSt3"><span class="up-st-circ">3</span><span class="up-st-lbl" id="upSt3Lbl">Analyze</span></div>
+    </div>
 
-      <!-- Drop Zone -->
-      <div class="upload-area" id="uploadZone">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        <h3 id="uploadTitle">Drop all shipment documents here</h3>
-        <p id="uploadSub">PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong></p>
-        <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">
-          <span id="browseFilesText">Browse files</span>
-        </button>
-        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
-      </div>
-
-      <!-- Doc Types — read-only display below drop zone -->
-      <div class="us-doctypes-display" id="docTypesDisplay">
-        <div class="us-doctypes-label" id="usDocTypesLabel">
-          <span id="usDocTypeLabel">Document Types (11 selected)</span>
-        </div>
-        <div class="doc-types-grid" id="docTypesGrid">
-          <div class="doc-type-chip" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></div>
-          <div class="doc-type-chip" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></div>
-          <div class="doc-type-chip" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></div>
-          <div class="doc-type-chip" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></div>
-          <div class="doc-type-chip" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></div>
-          <div class="doc-type-chip" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></div>
-          <div class="doc-type-chip" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></div>
-          <div class="doc-type-chip" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></div>
-          <div class="doc-type-chip" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></div>
-          <div class="doc-type-chip" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></div>
-          <div class="doc-type-chip" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></div>
+    <!-- Two-column panel -->
+    <div class="up-panel">
+      <!-- LEFT: Doc Types -->
+      <div class="up-left">
+        <div class="up-sec-lbl" id="upDocTypesLabel">DOCUMENT TYPES</div>
+        <div class="up-dt-list" id="docTypesGrid">
+          <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
+          <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
+          <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
+          <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
+          <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
+          <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
+          <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
+          <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
+          <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
+          <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
+          <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
         </div>
       </div>
 
-      <!-- Files list -->
-      <div id="filesListHeader" class="us-files-header" style="display:none;">
-        <span id="filesAddedLabel">Files added</span>
-        <span id="filesAddedCount" class="us-files-count"></span>
-      </div>
-      <div class="files-list" id="filesList"></div>
-      <div class="files-count" id="filesCount" style="display:none"></div>
+      <!-- RIGHT: Upload + Files + Analyze -->
+      <div class="up-right">
+        <!-- Drop zone -->
+        <div class="upload-area" id="uploadZone">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.5rem;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <h3 id="uploadTitle">Drop documents here</h3>
+          <p id="uploadSub">PDF · Excel · Word · Images</p>
+          <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">
+            <span id="browseFilesText">Browse files</span>
+          </button>
+          <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
+        </div>
 
-      <!-- Analyze Button -->
-      <div class="analyze-wrap" style="margin-top:1rem;">
-        <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
-          <span class="btn-icon">&#9670;</span>
-          <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
-        </button>
+        <!-- Files list -->
+        <div class="up-files-hdr" id="filesListHeader" style="display:none;">
+          <span class="up-files-lbl" id="filesAddedLabel">Files added</span>
+          <span class="up-files-cnt" id="filesAddedCount"></span>
+        </div>
+        <div class="files-list" id="filesList"></div>
+        <div class="files-count" id="filesCount" style="display:none"></div>
+
+        <!-- Analyze button -->
+        <div class="analyze-wrap" style="margin-top:0.75rem;">
+          <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+            <span class="btn-icon">◆</span>
+            <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Partial tip — below the panel -->
+    <!-- Tip -->
     <div class="partial-tip" id="partialTip">
       <span class="partial-tip-icon">💡</span>
       <span id="partialTipText">You don't need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.</span>
@@ -2189,15 +2112,16 @@ function applyLang(){
   st('uploadCta', t.uploadCta);
   st('analyzeBtnTxt', t.analyzeBtnTxt);
   st('partialTipText', t.partialTip);
-  st('usStep1Label', t.stepDocTypes);
-  st('usStep2Label', t.stepUpload);
-  st('usStep3Label', t.stepAnalyze);
-  st('uploadPanelTitle', t.uploadPanelTitle);
+  st('upSt1Lbl', t.stepDocTypes || (lang==='es' ? 'Tipos de Doc' : 'Doc Types'));
+  st('upSt2Lbl', t.stepUpload || (lang==='es' ? 'Subir Archivos' : 'Upload Files'));
+  st('upSt3Lbl', t.stepAnalyze || (lang==='es' ? 'Analizar' : 'Analyze'));
   st('browseFilesText', t.browseFiles);
+  const fal = document.getElementById('filesAddedLabel');
+  if(fal) fal.textContent = lang==='es' ? 'Archivos cargados' : 'Files added';
   if(typeof updateUploadStepper === 'function') updateUploadStepper();
 
   // ── Doc type buttons ───────────────────────────
-  document.querySelectorAll('.doc-type-btn, .doc-type-chip').forEach(btn => {
+  document.querySelectorAll('.doc-type-btn').forEach(btn => {
     const lbl = btn.querySelector('.dt-label');
     if(lbl) lbl.textContent = lang==='es' ? btn.dataset.es : btn.dataset.en;
   });
@@ -2386,84 +2310,38 @@ function detectDocType(filename) {
   return null;
 }
 
-function toggleDocTypeAccordion() {
-  const acc = document.querySelector('.us-accordion');
-  const body = document.getElementById('usDocTypeBody');
-  const chips = document.getElementById('usDocTypeChips');
-  if (!acc || !body) return;
-  const isOpen = acc.classList.contains('open');
-  if (isOpen) {
-    acc.classList.remove('open');
-    body.style.display = 'none';
-    if (chips) chips.style.display = 'flex';
-  } else {
-    acc.classList.add('open');
-    body.style.display = 'block';
-    if (chips) chips.style.display = 'none';
-  }
-  updateDocTypeChips();
-}
-
-function updateDocTypeChips() {
-  const chips = document.getElementById('usDocTypeChips');
-  if (!chips) return;
-  const active = document.querySelectorAll('.doc-type-chip');
-  chips.innerHTML = Array.from(active).map(btn => {
-    const lbl = btn.querySelector('.dt-label');
-    const text = lbl ? lbl.textContent : '';
-    return '<span class="us-chip">' + text + '</span>';
-  }).join('');
-}
+function toggleDocTypeAccordion() { /* no-op — accordion removed */ }
+function updateDocTypeChips() { /* no-op — chips removed */ }
 
 function updateUploadStepper() {
-  const activeTypes = document.querySelectorAll('.doc-type-chip').length;
+  const activeTypes = document.querySelectorAll('.doc-type-btn.active').length;
   const hasFiles = uploadedFiles.length > 0;
 
-  // Step 1: done if any doc types selected
-  const s1 = document.getElementById('usStep1');
-  const l1 = document.getElementById('usLine1');
-  if (s1) { s1.className = activeTypes > 0 ? 'us-step us-done' : 'us-step'; }
-  if (l1) { l1.className = activeTypes > 0 ? 'us-step-line us-line-done' : 'us-step-line'; }
-
-  // Step 2: active always (this is the main screen), done if has files
-  const s2 = document.getElementById('usStep2');
-  const l2 = document.getElementById('usLine2');
-  if (s2) { s2.className = hasFiles ? 'us-step us-done' : 'us-step us-active'; }
-  if (l2) { l2.className = hasFiles ? 'us-step-line us-line-done' : 'us-step-line'; }
+  // Step 2: done if has files
+  const s2 = document.getElementById('upSt2');
+  const l2 = document.getElementById('upStLine2');
+  if (s2) {
+    s2.className = hasFiles ? 'up-st up-st-done' : 'up-st up-st-active';
+    const circ = s2.querySelector('.up-st-circ');
+    if (circ) circ.textContent = hasFiles ? '✓' : '2';
+  }
+  if (l2) l2.className = hasFiles ? 'up-st-line up-st-line-done' : 'up-st-line';
 
   // Step 3: active if has files
-  const s3 = document.getElementById('usStep3');
-  if (s3) { s3.className = hasFiles ? 'us-step us-active' : 'us-step'; }
-
-  // Panel subtitle
-  const sub = document.getElementById('uploadPanelSub');
-  if (sub) {
-    const typesLabel = lang === 'es'
-      ? activeTypes + ' tipos de documento seleccionados'
-      : activeTypes + ' document type' + (activeTypes === 1 ? '' : 's') + ' selected';
-    const filesLabel = hasFiles
-      ? (lang === 'es' ? ' \u00b7 ' + uploadedFiles.length + ' archivos cargados' : ' \u00b7 ' + uploadedFiles.length + ' file' + (uploadedFiles.length === 1 ? '' : 's') + ' uploaded')
-      : (lang === 'es' ? ' \u00b7 Arrastra o selecciona archivos' : ' \u00b7 Drag or select files below');
-    sub.textContent = typesLabel + filesLabel;
-  }
-
-  // Doc type accordion label
-  const accLabel = document.getElementById('usDocTypeLabel');
-  if (accLabel) {
-    accLabel.textContent = (lang === 'es' ? 'Tipos de documento' : 'Document Types')
-      + ' (' + activeTypes + ' ' + (lang === 'es' ? 'seleccionados' : 'selected') + ')';
-  }
+  const s3 = document.getElementById('upSt3');
+  if (s3) s3.className = hasFiles ? 'up-st up-st-active' : 'up-st';
 
   // Files header
   const fh = document.getElementById('filesListHeader');
   const fc2 = document.getElementById('filesAddedCount');
   if (fh) fh.style.display = hasFiles ? 'flex' : 'none';
-  if (fc2) {
-    fc2.textContent = uploadedFiles.length + ' / ~' + activeTypes;
-  }
+  if (fc2) fc2.textContent = uploadedFiles.length + ' / ~' + activeTypes;
 
-  // Update chips
-  updateDocTypeChips();
+  // Doc types label
+  const dtLabel = document.getElementById('upDocTypesLabel');
+  if (dtLabel) {
+    dtLabel.textContent = (lang==='es' ? 'TIPOS DE DOCUMENTO' : 'DOCUMENT TYPES');
+  }
 }
 
 async function excelToText(f){
