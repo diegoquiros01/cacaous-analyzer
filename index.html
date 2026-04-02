@@ -1140,8 +1140,8 @@ footer {
 .r-summary-card.sc-warn { border-left-color: var(--tan); }
 .r-summary-card.sc-err  { border-left-color: var(--red); }
 .r-summary-text {
-  font-family: 'Playfair Display', serif; font-style: italic;
-  font-size: 0.93rem; color: var(--text-mid); line-height: 1.8;
+  font-family: 'Lato', sans-serif; font-style: normal;
+  font-size: 0.85rem; color: var(--text-mid); line-height: 1.75; font-weight: 300;
 }
 
 /* Stats row */
@@ -2846,6 +2846,7 @@ async function analyzeCoherence(docs){
   });
 
   const system = `You are an expert validator of cacao and coffee export documents.
+LANGUAGE: You MUST write ALL output text (summary, messages, comments, actionItems) in ${isES ? 'SPANISH' : 'ENGLISH'}. ${isES ? 'Todo tu output debe estar en español — no mezcles inglés.' : 'All output must be in English.'}
 Analyze the extracted fields from this document set and find ALL inconsistencies.
 
 IGNORE these — they are NOT errors:
@@ -3213,7 +3214,7 @@ Return ONLY valid JSON:
 
   // Include JS pre-detected errors so the AI can reference them in the summary
   const preErrorsContext = jsPreErrors.length > 0
-    ? `\n\nPRE-DETECTED CRITICAL ISSUES (verified by deterministic checks — include these in your summary with exact values):\n${jsPreErrors.map(e => `- ${e.field}: ${e.message}`).join('\n')}\n`
+    ? `\n\nPRE-DETECTED CRITICAL ISSUES (verified by deterministic checks — include these in your summary with exact values):\n${jsPreErrors.map(e => `- ${e.field}: ${e.message}`).join('\n')}\n\nIMPORTANT REMINDER: Write ALL text (summary, messages, comments, action items) in ${isES ? 'SPANISH' : 'ENGLISH'}. ${isES ? 'Todo el texto debe estar en español.' : ''}\n`
     : '';
 
   const msg = `Documents and their fields:\n${JSON.stringify(slim, null, 2)}${preErrorsContext}`;
