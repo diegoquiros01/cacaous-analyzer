@@ -263,6 +263,117 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .doc-type-btn.ghost:hover { border-color: var(--tan); color: var(--text-mid); }
 
 /* ══════════════════════════════════════
+   UPLOAD STEPPER
+══════════════════════════════════════ */
+.us-stepper {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 1.5rem; padding: 0 2rem;
+}
+.us-step {
+  display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+}
+.us-step-circle {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 700; color: var(--text-light);
+  transition: all 0.3s;
+}
+.us-step.us-done .us-step-circle {
+  background: var(--green); border-color: var(--green); color: var(--white);
+}
+.us-step.us-active .us-step-circle {
+  background: var(--tan); border-color: var(--tan); color: var(--white);
+}
+.us-step-label {
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 400; transition: color 0.3s;
+}
+.us-step.us-done .us-step-label { color: var(--green); font-weight: 700; }
+.us-step.us-active .us-step-label { color: var(--tan); font-weight: 700; }
+.us-step-line {
+  flex: 1; height: 1.5px; background: var(--border-light);
+  margin: 0 0.8rem; min-width: 30px; transition: background 0.3s;
+}
+.us-step-line.us-line-done { background: var(--green); }
+
+/* Upload panel */
+.us-panel {
+  background: var(--white); border: 1px solid var(--border-light);
+  border-radius: 2px; padding: 1.5rem 1.8rem; margin-bottom: 1rem;
+}
+.us-panel-header { margin-bottom: 1.2rem; }
+.us-panel-title {
+  font-family: 'Playfair Display', serif; font-size: 1.2rem;
+  font-weight: 500; color: var(--brown-dark); margin-bottom: 0.3rem;
+}
+.us-panel-sub {
+  font-size: 0.72rem; color: var(--text-light); letter-spacing: 0.03em;
+}
+
+/* Doc types accordion */
+.us-accordion { margin-bottom: 1.2rem; }
+.us-accordion-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0.7rem; cursor: pointer;
+  border: 1px solid var(--border-light); border-radius: 2px;
+  background: var(--offwhite); transition: background 0.15s;
+}
+.us-accordion-head:hover { background: var(--cream); }
+.us-accordion-label {
+  font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-mid); font-weight: 700;
+}
+.us-accordion-chev {
+  font-size: 0.55rem; color: var(--text-light); transition: transform 0.2s;
+}
+.us-accordion.open .us-accordion-chev { transform: rotate(180deg); }
+.us-accordion-body {
+  padding: 0.8rem 0.7rem 0.4rem; border: 1px solid var(--border-light);
+  border-top: none; border-radius: 0 0 2px 2px;
+}
+
+/* Collapsed chips */
+.us-chips {
+  display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.5rem 0 0;
+}
+.us-chip {
+  font-size: 0.55rem; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 2px 8px; background: var(--brown-dark); color: var(--tan-light);
+  border-radius: 2px; font-weight: 400;
+}
+
+/* Files header */
+.us-files-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0; margin-top: 0.8rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.us-files-header span:first-child {
+  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 700;
+}
+.us-files-count {
+  font-size: 0.6rem; letter-spacing: 0.08em; color: var(--tan); font-weight: 700;
+}
+
+/* File item — detected doc type */
+.file-item.fi-detected {
+  background: #f0f7f2; border-color: #d4ede0;
+}
+.file-detected-type {
+  font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--green); font-weight: 700; flex-shrink: 0;
+  display: flex; align-items: center; gap: 4px;
+}
+
+@media(max-width:600px){
+  .us-stepper { padding: 0; }
+  .us-step-label { display: none; }
+  .us-panel { padding: 1rem; }
+}
+
+/* ══════════════════════════════════════
    UPLOAD ZONE
 ══════════════════════════════════════ */
 .upload-area {
@@ -1441,63 +1552,91 @@ footer {
   <!-- ══ STEP 1: UPLOAD ══ -->
   <div id="uploadSection">
 
-    <div class="section-label">
-      <div class="section-label-num">01</div>
-      <div class="section-label-text">
-        <h2 id="s1title">Document Types</h2>
-        <p id="s1sub">Select the types included in this shipment set</p>
+    <!-- UPLOAD STEPPER -->
+    <div class="us-stepper">
+      <div class="us-step us-done" id="usStep1">
+        <div class="us-step-circle">1</div>
+        <span class="us-step-label" id="usStep1Label">Document Types</span>
+      </div>
+      <div class="us-step-line us-line-done" id="usLine1"></div>
+      <div class="us-step us-active" id="usStep2">
+        <div class="us-step-circle">2</div>
+        <span class="us-step-label" id="usStep2Label">Upload Files</span>
+      </div>
+      <div class="us-step-line" id="usLine2"></div>
+      <div class="us-step" id="usStep3">
+        <div class="us-step-circle">3</div>
+        <span class="us-step-label" id="usStep3Label">Analyze</span>
       </div>
     </div>
 
-    <div class="doc-types-grid" id="docTypesGrid">
-      <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
-      <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
-      <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
-      <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
-      <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
-      <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
-      <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
-      <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
-      <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
-      <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
-      <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
-      <button class="doc-type-btn ghost" data-ghost="true" disabled><span class="dt-dot"></span><span class="dt-label ghost-label">Any other docs</span></button>
-      <button class="doc-type-btn ghost" data-ghost="true" disabled><span class="dt-dot"></span><span class="dt-label ghost-label">Any other docs</span></button>
-      <button class="doc-type-btn ghost" data-ghost="true" disabled><span class="dt-dot"></span><span class="dt-label ghost-label">Any other docs</span></button>
-      <button class="doc-type-btn ghost" data-ghost="true" disabled><span class="dt-dot"></span><span class="dt-label ghost-label">Any other docs</span></button>
-    </div>
+    <!-- MAIN PANEL -->
+    <div class="us-panel">
+      <!-- Panel title -->
+      <div class="us-panel-header">
+        <h2 class="us-panel-title" id="uploadPanelTitle">Upload your documents</h2>
+        <p class="us-panel-sub" id="uploadPanelSub">11 document types selected · Drag or select files below</p>
+      </div>
 
-    <hr class="section-divider">
+      <!-- Doc Types Accordion -->
+      <div class="us-accordion">
+        <div class="us-accordion-head" id="usDocTypeHead" onclick="toggleDocTypeAccordion()">
+          <span class="us-accordion-label" id="usDocTypeLabel">Document Types (11 selected)</span>
+          <span class="us-accordion-chev" id="usDocTypeChev">&#9660;</span>
+        </div>
+        <div class="us-accordion-body" id="usDocTypeBody" style="display:none;">
+          <div class="doc-types-grid" id="docTypesGrid">
+            <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
+            <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
+            <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
+            <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
+            <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
+            <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
+            <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
+            <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
+            <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
+            <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
+            <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
+          </div>
+        </div>
+        <!-- Collapsed chips showing active types -->
+        <div class="us-chips" id="usDocTypeChips"></div>
+      </div>
 
-    <div class="section-label">
-      <div class="section-label-num">02</div>
-      <div class="section-label-text">
-        <h2 id="s2title">Upload Documents</h2>
-        <p id="s2sub">Drag all shipment documents — PDF, Images, Excel, Word</p>
+      <!-- Drop Zone -->
+      <div class="upload-area" id="uploadZone">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <h3 id="uploadTitle">Drop all shipment documents here</h3>
+        <p id="uploadSub">PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong></p>
+        <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">
+          <span id="browseFilesText">Browse files</span>
+        </button>
+        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
+      </div>
+
+      <!-- Files list -->
+      <div id="filesListHeader" class="us-files-header" style="display:none;">
+        <span id="filesAddedLabel">Files added</span>
+        <span id="filesAddedCount" class="us-files-count"></span>
+      </div>
+      <div class="files-list" id="filesList"></div>
+      <div class="files-count" id="filesCount" style="display:none"></div>
+
+      <!-- Analyze Button -->
+      <div class="analyze-wrap" style="margin-top:1rem;">
+        <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+          <span class="btn-icon">&#9670;</span>
+          <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
+        </button>
       </div>
     </div>
 
-    <div class="upload-area" id="uploadZone">
-      <div class="upload-icon">📂</div>
-      <h3 id="uploadTitle">Drag all shipment documents here</h3>
-      <p id="uploadSub">PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>All documents from the same shipment set</p>
-      <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">Select Files</button>
-      <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
-    </div>
-
+    <!-- Partial tip — below the panel -->
     <div class="partial-tip" id="partialTip">
       <span class="partial-tip-icon">💡</span>
       <span id="partialTipText">You don't need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.</span>
-    </div>
-
-    <div class="files-list" id="filesList"></div>
-    <div class="files-count" id="filesCount" style="display:none"></div>
-
-    <div class="analyze-wrap">
-      <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
-        <span class="btn-icon">◆</span>
-        <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
-      </button>
     </div>
 
   </div>
@@ -1727,6 +1866,9 @@ const TX = {
     uploadTitle:'Drag all shipment documents here',
     uploadSub:'PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>All documents from the same shipment set',
     uploadCta:'Select Files',
+    stepDocTypes:'Document Types', stepUpload:'Upload Files', stepAnalyze:'Analyze',
+    uploadPanelTitle:'Upload your documents',
+    browseFiles:'Browse files',
     analyzeBtnTxt:'Analyze Full Set with AI',
     loadTitle:'Analyzing your set', loadSub:'Starting extraction...',
     s3title:'Analysis Results', s3sub:'Internal coherence review across all documents',
@@ -1820,6 +1962,9 @@ const TX = {
     uploadTitle:'Arrastra todos los documentos del set aquí',
     uploadSub:'PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>Todos los documentos del mismo embarque',
     uploadCta:'Seleccionar Archivos',
+    stepDocTypes:'Tipos de Documento', stepUpload:'Cargar Archivos', stepAnalyze:'Analizar',
+    uploadPanelTitle:'Carga tus documentos',
+    browseFiles:'Seleccionar archivos',
     analyzeBtnTxt:'Analizar Set Completo con IA',
     loadTitle:'Analizando el set', loadSub:'Iniciando extracción...',
     s3title:'Resultados del Análisis', s3sub:'Revisión de coherencia interna entre todos los documentos',
@@ -1952,6 +2097,12 @@ function applyLang(){
   st('uploadCta', t.uploadCta);
   st('analyzeBtnTxt', t.analyzeBtnTxt);
   st('partialTipText', t.partialTip);
+  st('usStep1Label', t.stepDocTypes);
+  st('usStep2Label', t.stepUpload);
+  st('usStep3Label', t.stepAnalyze);
+  st('uploadPanelTitle', t.uploadPanelTitle);
+  st('browseFilesText', t.browseFiles);
+  if(typeof updateUploadStepper === 'function') updateUploadStepper();
 
   // ── Doc type buttons ───────────────────────────
   document.querySelectorAll('.doc-type-btn').forEach(btn => {
@@ -2039,6 +2190,7 @@ function applyLang(){
 }
 // Initialize
 applyLang();
+setTimeout(updateUploadStepper, 100);
 
 // ── ROTATING HERO IMAGES ──────────────────────────
 const HERO_IMAGES = [
@@ -2091,7 +2243,10 @@ if(document.readyState === 'loading'){
 }
 
 document.querySelectorAll('.doc-type-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>btn.classList.toggle('active'));
+  btn.addEventListener('click',()=>{
+    btn.classList.toggle('active');
+    updateUploadStepper();
+  });
 });
 
 const isExcel=n=>/\.(xlsx|xls)$/i.test(n);
@@ -2105,6 +2260,109 @@ const getIcon=(n,isPdfPage)=>{
   return badge('FILE','#999');
 };
 const getBadge=n=>isExcel(n)?'<span class="file-badge badge-excel">Excel</span>':isWord(n)?'<span class="file-badge badge-word">Word</span>':'';
+
+function detectDocType(filename) {
+  const n = filename.toUpperCase().replace(/[_\-\.]/g,' ');
+  const rules = [
+    [/\b(BL|WAYBILL|BILL\s*(OF\s*)?LADING|CONOCIMIENTO)\b/, 'Bill of Lading'],
+    [/\b(FACT|INVOICE|INV\b)/, 'Commercial Invoice'],
+    [/\b(PACK|PACKING)\b/, 'Packing List'],
+    [/\b(FITO|PHYTO|FITOSANIT)\b/, 'Phytosanitary Certificate'],
+    [/\b(CERT\s*ORIG|ORIGEN|ORIGIN|CERTIFICADO\s*DE\s*ORIG)\b/, 'Certificate of Origin'],
+    [/\b(FUMIG|FUMIGATION|GAS\s*CLEAR)\b/, 'Fumigation Certificate'],
+    [/\b(CALIDAD|QUALITY|QC)\b/, 'Quality Certificate'],
+    [/\b(ISF|CUSTOMS)\b/, 'ISF'],
+    [/\b(DECL|LETTER\s*OF|CARTA)\b/, 'Declaration Letter'],
+    [/\b(COI|ORGANIC|ORG[AÁ]NICO)\b/, 'Organic Certificate (COI)'],
+    [/\b(SHIPPING\s*NOT|SHIP\s*NOT|SHIPP\s*NOT)\b/, 'Shipping Notification'],
+    [/\b(PERM|PERMIT|PERMISO)\b/, 'Import Permit'],
+    [/\b(UNIDAD|UNIT)\b/, 'Shipping Notification'],
+  ];
+  for (const [re, type] of rules) {
+    if (re.test(n)) return type;
+  }
+  return null;
+}
+
+function toggleDocTypeAccordion() {
+  const acc = document.querySelector('.us-accordion');
+  const body = document.getElementById('usDocTypeBody');
+  const chips = document.getElementById('usDocTypeChips');
+  if (!acc || !body) return;
+  const isOpen = acc.classList.contains('open');
+  if (isOpen) {
+    acc.classList.remove('open');
+    body.style.display = 'none';
+    if (chips) chips.style.display = 'flex';
+  } else {
+    acc.classList.add('open');
+    body.style.display = 'block';
+    if (chips) chips.style.display = 'none';
+  }
+  updateDocTypeChips();
+}
+
+function updateDocTypeChips() {
+  const chips = document.getElementById('usDocTypeChips');
+  if (!chips) return;
+  const active = document.querySelectorAll('.doc-type-btn.active:not(.ghost)');
+  chips.innerHTML = Array.from(active).map(btn => {
+    const lbl = btn.querySelector('.dt-label');
+    const text = lbl ? lbl.textContent : '';
+    return '<span class="us-chip">' + text + '</span>';
+  }).join('');
+}
+
+function updateUploadStepper() {
+  const activeTypes = document.querySelectorAll('.doc-type-btn.active:not(.ghost)').length;
+  const hasFiles = uploadedFiles.length > 0;
+
+  // Step 1: done if any doc types selected
+  const s1 = document.getElementById('usStep1');
+  const l1 = document.getElementById('usLine1');
+  if (s1) { s1.className = activeTypes > 0 ? 'us-step us-done' : 'us-step'; }
+  if (l1) { l1.className = activeTypes > 0 ? 'us-step-line us-line-done' : 'us-step-line'; }
+
+  // Step 2: active always (this is the main screen), done if has files
+  const s2 = document.getElementById('usStep2');
+  const l2 = document.getElementById('usLine2');
+  if (s2) { s2.className = hasFiles ? 'us-step us-done' : 'us-step us-active'; }
+  if (l2) { l2.className = hasFiles ? 'us-step-line us-line-done' : 'us-step-line'; }
+
+  // Step 3: active if has files
+  const s3 = document.getElementById('usStep3');
+  if (s3) { s3.className = hasFiles ? 'us-step us-active' : 'us-step'; }
+
+  // Panel subtitle
+  const sub = document.getElementById('uploadPanelSub');
+  if (sub) {
+    const typesLabel = lang === 'es'
+      ? activeTypes + ' tipos de documento seleccionados'
+      : activeTypes + ' document type' + (activeTypes === 1 ? '' : 's') + ' selected';
+    const filesLabel = hasFiles
+      ? (lang === 'es' ? ' \u00b7 ' + uploadedFiles.length + ' archivos cargados' : ' \u00b7 ' + uploadedFiles.length + ' file' + (uploadedFiles.length === 1 ? '' : 's') + ' uploaded')
+      : (lang === 'es' ? ' \u00b7 Arrastra o selecciona archivos' : ' \u00b7 Drag or select files below');
+    sub.textContent = typesLabel + filesLabel;
+  }
+
+  // Doc type accordion label
+  const accLabel = document.getElementById('usDocTypeLabel');
+  if (accLabel) {
+    accLabel.textContent = (lang === 'es' ? 'Tipos de documento' : 'Document Types')
+      + ' (' + activeTypes + ' ' + (lang === 'es' ? 'seleccionados' : 'selected') + ')';
+  }
+
+  // Files header
+  const fh = document.getElementById('filesListHeader');
+  const fc2 = document.getElementById('filesAddedCount');
+  if (fh) fh.style.display = hasFiles ? 'flex' : 'none';
+  if (fc2) {
+    fc2.textContent = uploadedFiles.length + ' / ~' + activeTypes;
+  }
+
+  // Update chips
+  updateDocTypeChips();
+}
 
 async function excelToText(f){
   return new Promise((res,rej)=>{
@@ -2271,13 +2529,18 @@ function renderFiles(){
       ? `<span style="font-size:0.68rem;background:#e8d9c0;color:#7a5230;padding:2px 8px;border-radius:10px;letter-spacing:0.04em;font-family:'Raleway',sans-serif;">p.${f._pdfPage}</span>`
       : '';
     const displayExt = isPdfPage ? 'PDF' : ext;
-    list.innerHTML+=`<div class="file-item">
+    const detected = detectDocType(f.name);
+    const detectedHtml = detected
+      ? `<span class="file-detected-type">\u2713 ${detected}</span>`
+      : '';
+    const itemCls = detected ? 'file-item fi-detected' : 'file-item';
+    list.innerHTML+=`<div class="${itemCls}">
       <div class="file-icon">${getIcon(f.name, isPdfPage)}</div>
       <div class="file-info">
         <div class="file-name">${displayName}${f._pdfPage ? ` · <em style="opacity:0.5;font-size:0.85em;">page ${f._pdfPage}</em>` : ''}</div>
         <div class="file-size">${displayExt} · ${size}</div>
       </div>
-      ${getBadge(f.name)}${pageLabel}
+      ${getBadge(f.name)}${pageLabel}${detectedHtml}
       <button class="file-del" onclick="removeFile(${i})">✕</button>
     </div>`;
   });
@@ -2287,6 +2550,7 @@ function renderFiles(){
   document.getElementById('analyzeBtn').disabled=n===0;
   const ab = document.getElementById('analyzeBtn');
   if(ab) ab.classList.toggle('ready', n > 0);
+  updateUploadStepper();
 }
 
 function removeFile(i){uploadedFiles.splice(i,1);renderFiles();}
