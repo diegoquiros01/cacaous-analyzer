@@ -1544,7 +1544,7 @@ footer {
     <li><a href="https://www.instagram.com/docsvalidate/" target="_blank" rel="noopener">Instagram</a></li>
     <li><a href="https://www.tiktok.com/@docsvalidate" target="_blank" rel="noopener">TikTok</a></li>
   </ul>
-  <div class="footer-copy">© 2025 DocsValidate · All Rights Reserved</div>
+  <div class="footer-copy">© 2025–2026 DocsValidate · All Rights Reserved</div>
 </footer>
 
 <script>
@@ -1635,6 +1635,18 @@ const TX = {
     verdictDescInit:'All values are consistent.',
     coherenceBoxTitle:'Field-by-field comparison across all documents',
     inconsistencyDetail:'Inconsistency Detail',
+    authTitle:'Create your free account',
+    authDesc:"You've used your 3 free trial analyses. Sign up for free to get 20 analyses per month — no credit card required.",
+    authBtn:'Sign up free',
+    authTerms:'I have read and agree to the',
+    authTermsLink:'Terms of Service',
+    authTermsErr:'Please accept the Terms of Service to continue.',
+    authSignIn:'Already have an account?',
+    authSignInLink:'Sign in',
+    upgradeTitle:"You've reached your limit",
+    upgradeBtnTxt:'View plans',
+    rptSubtitle:'AI-Powered Export Validation',
+    libLoadErr:'Failed to load required libraries. Please check your connection and try again.',
   },
   es: {
     logoTagline:'DocsValidate.com',
@@ -1710,6 +1722,18 @@ const TX = {
     verdictDescInit:'Todos los valores son consistentes.',
     coherenceBoxTitle:'Comparación campo por campo entre todos los documentos',
     inconsistencyDetail:'Detalle de Inconsistencias',
+    authTitle:'Crea tu cuenta gratuita',
+    authDesc:'Has usado tus 3 análisis de prueba. Crea una cuenta gratis para obtener 20 análisis al mes — sin tarjeta de crédito.',
+    authBtn:'Registrarse gratis',
+    authTerms:'He leído y acepto los',
+    authTermsLink:'Términos de Servicio',
+    authTermsErr:'Por favor acepta los Términos de Servicio para continuar.',
+    authSignIn:'¿Ya tienes cuenta?',
+    authSignInLink:'Inicia sesión',
+    upgradeTitle:'Has alcanzado tu límite',
+    upgradeBtnTxt:'Ver planes',
+    rptSubtitle:'Validación de Documentos con IA',
+    libLoadErr:'No se pudieron cargar las librerías necesarias. Verifica tu conexión e intenta de nuevo.',
   }
 };
 
@@ -1823,6 +1847,18 @@ function applyLang(){
       } catch(e) { console.warn('Lang re-render error:', e.message); }
     }, 10);
   }
+  // ── Auth modal labels ───────────────────────────
+  st('authModalTitle', t.authTitle);
+  st('authModalBtn', t.authBtn);
+  st('termsError', t.authTermsErr);
+  const termsText = document.getElementById('termsText');
+  if(termsText) termsText.innerHTML = t.authTerms + ' <a href="/terms.html" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">' + t.authTermsLink + '</a>';
+  const signInP = document.getElementById('authSignInP');
+  if(signInP) signInP.innerHTML = t.authSignIn + ' <a href="#" onclick="openClerkSignIn()" style="color:var(--brown-mid);">' + t.authSignInLink + '</a>';
+  // ── Upgrade modal labels ──────────────────────
+  st('upgradeTitle', t.upgradeTitle);
+  st('upgradeBtnTxt', t.upgradeBtnTxt);
+
   // Refresh ghost button labels
   document.querySelectorAll('.ghost-label').forEach(el => {
     el.textContent = lang === 'es' ? 'Otro documento' : 'Any other docs';
@@ -2441,26 +2477,37 @@ Return ONLY valid JSON:
   // ── JS PRE-CHECK: detect critical mismatches deterministically ──
   const jsPreErrors = [];
 
-  // Check destinationCountry — catches MALAYSIA vs INDONESIA
+  // Check destinationCountry — BL is master; fallback to majority if no BL
   const destVals = Object.entries(slim)
     .filter(([,v]) => v.destinationCountry)
-    .map(([k,v]) => ({ doc: k, value: String(v.destinationCountry).trim() }));
+    .map(([k,v]) => ({ doc: k, value: String(v.destinationCountry).trim(), docType: (v.docType||'').toLowerCase() }));
   if(destVals.length >= 2) {
     const normD = s => s.toLowerCase().replace(/[^a-z]/g,'');
-    const dcounts = {}; destVals.forEach(v => { const n=normD(v.value); dcounts[n]=(dcounts[n]||0)+1; });
-    const dsorted = Object.entries(dcounts).sort((a,b)=>b[1]-a[1]);
-    if(dsorted.length > 1) {
-      const majNorm = dsorted[0][0];
-      const majVal = destVals.find(v=>normD(v.value)===majNorm)?.value || dsorted[0][0];
-      destVals.filter(v=>normD(v.value)!==majNorm).forEach(o => {
-        jsPreErrors.push({ type:'error', field:'destinationCountry',
-          message: isES
-            ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" indica destino "'+o.value+'" pero los demás documentos indican "'+majVal+'". Error crítico — corregir el certificado.'
-            : '"'+o.doc.replace(/\.[^.]+$/,'')+'" shows destination "'+o.value+'" but all other documents show "'+majVal+'". Critical error — the certificate must be corrected.',
-          details: destVals.map(v=>({doc:v.doc, value:v.value}))
-        });
-      });
+    // Prefer BL's destination as master
+    const blDest = destVals.find(v =>
+      v.docType.includes('bill of lading') || v.docType.includes('waybill') || v.docType.includes('conocimiento')
+    );
+    let masterVal, masterNorm, masterLabel;
+    if (blDest) {
+      masterVal = blDest.value;
+      masterNorm = normD(blDest.value);
+      masterLabel = isES ? 'el BL' : 'the BL';
+    } else {
+      // No BL — fallback to majority
+      const dcounts = {}; destVals.forEach(v => { const n=normD(v.value); dcounts[n]=(dcounts[n]||0)+1; });
+      const dsorted = Object.entries(dcounts).sort((a,b)=>b[1]-a[1]);
+      masterNorm = dsorted[0][0];
+      masterVal = destVals.find(v=>normD(v.value)===masterNorm)?.value || dsorted[0][0];
+      masterLabel = isES ? 'la mayoría de documentos' : 'the majority of documents';
     }
+    destVals.filter(v=>normD(v.value)!==masterNorm).forEach(o => {
+      jsPreErrors.push({ type:'error', field:'destinationCountry',
+        message: isES
+          ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" indica destino "'+o.value+'" pero '+masterLabel+' indica "'+masterVal+'". Error crítico — corregir el certificado.'
+          : '"'+o.doc.replace(/\.[^.]+$/,'')+'" shows destination "'+o.value+'" but '+masterLabel+' shows "'+masterVal+'". Critical error — the certificate must be corrected.',
+        details: destVals.map(v=>({doc:v.doc, value:v.value}))
+      });
+    });
   }
 
   // Check blNumber — catches wrong BL number in set
@@ -2506,10 +2553,10 @@ Return ONLY valid JSON:
     }
   }
 
-  // ── BL IS MASTER: container validation ──────────────────────────────────────
+  // ── BL IS MASTER: container, seal, vessel, port validation ──────────────────
   // The Bill of Lading is the authoritative transport document.
-  // Any other doc with different containers than the BL is wrong — not the BL.
-  (function checkContainersAgainstBL() {
+  // Any other doc with different containers/seals/vessel/ports than the BL is wrong — not the BL.
+  (function checkFieldsAgainstBL() {
     const blEntry = Object.entries(slim).find(([k, v]) => {
       const dt = (v.docType || '').toLowerCase();
       return dt.includes('bill of lading') || dt.includes('waybill') ||
@@ -2517,74 +2564,202 @@ Return ONLY valid JSON:
     });
     if (!blEntry) return;
     const [blDoc, blData] = blEntry;
+    const blLabel = blDoc.replace(/\.[^.]+$/, '');
 
+    // Skip types for reference-only docs
+    const skipTypes = ['notification','notificacion','email','correo',
+      'letter','carta','declaration letter','carta declaracion',
+      'shipping notification','unidad','transmittal'];
+
+    // ── CONTAINERS ──
     const blContainers = (blData.containerNumbers || [])
       .map(c => String(c).trim().toUpperCase())
       .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
-    if (blContainers.length === 0) return;
 
-    const blSet = new Set(blContainers);
-    const blLabel = blDoc.replace(/\.[^.]+$/, '');
+    if (blContainers.length > 0) {
+      const blSet = new Set(blContainers);
+      Object.entries(slim).forEach(([docName, docData]) => {
+        if (docName === blDoc) return;
+        const dt = (docData.docType || '').toLowerCase();
+        if (skipTypes.some(s => dt.includes(s))) return;
+        const docContainers = (docData.containerNumbers || [])
+          .map(c => String(c).trim().toUpperCase())
+          .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
+        if (docContainers.length === 0) return;
 
-    Object.entries(slim).forEach(([docName, docData]) => {
-      if (docName === blDoc) return;
-      // Skip notification/email/letter/declaration docs — they list containers
-      // for reference only, not as authoritative transport documents
-      const dt = (docData.docType || '').toLowerCase();
-      const skipTypes = ['notification','notificacion','email','correo',
-        'letter','carta','declaration letter','carta declaracion',
-        'shipping notification','unidad'];
-      const isSkippable = skipTypes.some(s => dt.includes(s));
-      if (isSkippable) return;
-      const docContainers = (docData.containerNumbers || [])
-        .map(c => String(c).trim().toUpperCase())
-        .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
-      if (docContainers.length === 0) return;
+        const docSet = new Set(docContainers);
+        const extraInDoc = docContainers.filter(c => !blSet.has(c));
+        const missingFromDoc = blContainers.filter(c => !docSet.has(c));
+        if (extraInDoc.length === 0 && missingFromDoc.length === 0) return;
 
-      const docSet = new Set(docContainers);
-      const extraInDoc = docContainers.filter(c => !blSet.has(c));
-      const missingFromDoc = blContainers.filter(c => !docSet.has(c));
-      if (extraInDoc.length === 0 && missingFromDoc.length === 0) return;
-
-      const docLabel = docName.replace(/\.[^.]+$/, '');
-      let msg;
-      if (isES) {
-        if (extraInDoc.length > 0 && missingFromDoc.length > 0) {
-          msg = '"' + docLabel + '" lista contenedores diferentes a los del BL (' + blLabel + '). '
-              + 'Contenedores en este doc no presentes en BL: ' + extraInDoc.join(', ') + '. '
-              + 'Contenedores del BL no presentes en este doc: ' + missingFromDoc.join(', ') + '. '
-              + 'El BL es el documento master — este documento debe corregirse.';
-        } else if (extraInDoc.length > 0) {
-          msg = '"' + docLabel + '" incluye ' + extraInDoc.length + ' contenedor(es) que NO están en el BL (' + blLabel + '): '
-              + extraInDoc.join(', ') + '. El BL es el documento master — este documento debe corregirse.';
+        const docLabel = docName.replace(/\.[^.]+$/, '');
+        let msg;
+        if (isES) {
+          if (extraInDoc.length > 0 && missingFromDoc.length > 0) {
+            msg = '"' + docLabel + '" lista contenedores diferentes a los del BL (' + blLabel + '). '
+                + 'Contenedores en este doc no presentes en BL: ' + extraInDoc.join(', ') + '. '
+                + 'Contenedores del BL no presentes en este doc: ' + missingFromDoc.join(', ') + '. '
+                + 'El BL es el documento master — este documento debe corregirse.';
+          } else if (extraInDoc.length > 0) {
+            msg = '"' + docLabel + '" incluye ' + extraInDoc.length + ' contenedor(es) que NO están en el BL (' + blLabel + '): '
+                + extraInDoc.join(', ') + '. El BL es el documento master — este documento debe corregirse.';
+          } else {
+            msg = '"' + docLabel + '" omite ' + missingFromDoc.length + ' contenedor(es) del BL (' + blLabel + '): '
+                + missingFromDoc.join(', ') + '. El BL es el documento master — este documento debe corregirse.';
+          }
         } else {
-          msg = '"' + docLabel + '" omite ' + missingFromDoc.length + ' contenedor(es) del BL (' + blLabel + '): '
-              + missingFromDoc.join(', ') + '. El BL es el documento master — este documento debe corregirse.';
+          if (extraInDoc.length > 0 && missingFromDoc.length > 0) {
+            msg = '"' + docLabel + '" lists different containers than the BL (' + blLabel + '). '
+                + 'In this doc but NOT in BL: ' + extraInDoc.join(', ') + '. '
+                + 'In BL but missing from this doc: ' + missingFromDoc.join(', ') + '. '
+                + 'The BL is the master document — this document must be corrected.';
+          } else if (extraInDoc.length > 0) {
+            msg = '"' + docLabel + '" includes ' + extraInDoc.length + ' container(s) NOT in the BL (' + blLabel + '): '
+                + extraInDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
+          } else {
+            msg = '"' + docLabel + '" is missing ' + missingFromDoc.length + ' container(s) from the BL (' + blLabel + '): '
+                + missingFromDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
+          }
         }
-      } else {
-        if (extraInDoc.length > 0 && missingFromDoc.length > 0) {
-          msg = '"' + docLabel + '" lists different containers than the BL (' + blLabel + '). '
-              + 'In this doc but NOT in BL: ' + extraInDoc.join(', ') + '. '
-              + 'In BL but missing from this doc: ' + missingFromDoc.join(', ') + '. '
-              + 'The BL is the master document — this document must be corrected.';
-        } else if (extraInDoc.length > 0) {
-          msg = '"' + docLabel + '" includes ' + extraInDoc.length + ' container(s) NOT in the BL (' + blLabel + '): '
-              + extraInDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
-        } else {
-          msg = '"' + docLabel + '" is missing ' + missingFromDoc.length + ' container(s) from the BL (' + blLabel + '): '
-              + missingFromDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
-        }
-      }
-
-      jsPreErrors.push({
-        type: 'error',
-        field: 'containers',
-        message: msg,
-        details: [
-          { doc: blDoc, value: 'BL (master): ' + blContainers.join(', ') },
-          { doc: docName, value: docLabel + ': ' + docContainers.join(', ') },
-        ]
+        jsPreErrors.push({
+          type: 'error', field: 'containers', message: msg,
+          details: [
+            { doc: blDoc, value: 'BL (master): ' + blContainers.join(', ') },
+            { doc: docName, value: docLabel + ': ' + docContainers.join(', ') },
+          ]
+        });
       });
+    }
+
+    // ── SEALS (BL is master) ──
+    const blSeals = (blData.sealNumbers || [])
+      .map(s => String(s).trim().toUpperCase()).filter(Boolean);
+    if (blSeals.length > 0) {
+      const blSealSet = new Set(blSeals);
+      Object.entries(slim).forEach(([docName, docData]) => {
+        if (docName === blDoc) return;
+        const dt = (docData.docType || '').toLowerCase();
+        if (skipTypes.some(s => dt.includes(s))) return;
+        const docSeals = (docData.sealNumbers || [])
+          .map(s => String(s).trim().toUpperCase()).filter(Boolean);
+        if (docSeals.length === 0) return;
+        const docSealSet = new Set(docSeals);
+        const extra = docSeals.filter(s => !blSealSet.has(s));
+        const missing = blSeals.filter(s => !docSealSet.has(s));
+        if (extra.length === 0 && missing.length === 0) return;
+        const docLabel = docName.replace(/\.[^.]+$/, '');
+        const msg = isES
+          ? '"' + docLabel + '" tiene sellos diferentes al BL (' + blLabel + '). BL: ' + blSeals.join(', ') + '. Doc: ' + docSeals.join(', ') + '. El BL es el documento master.'
+          : '"' + docLabel + '" has different seals than BL (' + blLabel + '). BL: ' + blSeals.join(', ') + '. Doc: ' + docSeals.join(', ') + '. The BL is the master document.';
+        jsPreErrors.push({
+          type: 'error', field: 'seals', message: msg,
+          details: [
+            { doc: blDoc, value: 'BL (master): ' + blSeals.join(', ') },
+            { doc: docName, value: docLabel + ': ' + docSeals.join(', ') },
+          ]
+        });
+      });
+    }
+
+    // ── VESSEL NAME (BL is master) ──
+    const blVessel = (blData.vesselName || '').trim();
+    if (blVessel) {
+      const blVesselNorm = blVessel.toLowerCase().replace(/[^a-z0-9]/g, '');
+      Object.entries(slim).forEach(([docName, docData]) => {
+        if (docName === blDoc) return;
+        const dt = (docData.docType || '').toLowerCase();
+        if (skipTypes.some(s => dt.includes(s))) return;
+        const docVessel = (docData.vesselName || '').trim();
+        if (!docVessel) return;
+        const docVesselNorm = docVessel.toLowerCase().replace(/[^a-z0-9]/g, '');
+        // Skip transport mode words
+        const transportModes = ['maritimo','marítimo','maritime','sea','ocean','air'];
+        if (transportModes.includes(docVesselNorm)) return;
+        if (blVesselNorm === docVesselNorm) return;
+        if (blVesselNorm.includes(docVesselNorm) || docVesselNorm.includes(blVesselNorm)) return;
+        const docLabel = docName.replace(/\.[^.]+$/, '');
+        const msg = isES
+          ? '"' + docLabel + '" indica buque "' + docVessel + '" pero el BL (' + blLabel + ') indica "' + blVessel + '". El BL es el documento master.'
+          : '"' + docLabel + '" shows vessel "' + docVessel + '" but BL (' + blLabel + ') shows "' + blVessel + '". The BL is the master document.';
+        jsPreErrors.push({
+          type: 'error', field: 'vessel', message: msg,
+          details: [
+            { doc: blDoc, value: 'BL (master): ' + blVessel },
+            { doc: docName, value: docLabel + ': ' + docVessel },
+          ]
+        });
+      });
+    }
+
+    // ── PORTS (BL is master) ──
+    ['portOfLoading', 'portOfDischarge'].forEach(portField => {
+      const blPort = (blData[portField] || '').trim();
+      if (!blPort) return;
+      const blPortNorm = normalizeValue(blPort);
+      Object.entries(slim).forEach(([docName, docData]) => {
+        if (docName === blDoc) return;
+        const dt = (docData.docType || '').toLowerCase();
+        if (skipTypes.some(s => dt.includes(s))) return;
+        const docPort = (docData[portField] || '').trim();
+        if (!docPort) return;
+        const docPortNorm = normalizeValue(docPort);
+        if (blPortNorm === docPortNorm) return;
+        if (blPortNorm.includes(docPortNorm) || docPortNorm.includes(blPortNorm)) return;
+        const docLabel = docName.replace(/\.[^.]+$/, '');
+        const fieldLabel = portField === 'portOfLoading'
+          ? (isES ? 'Puerto de Carga' : 'Port of Loading')
+          : (isES ? 'Puerto de Descarga' : 'Port of Discharge');
+        const msg = isES
+          ? '"' + docLabel + '" indica ' + fieldLabel + ' "' + docPort + '" pero el BL (' + blLabel + ') indica "' + blPort + '". El BL es el documento master.'
+          : '"' + docLabel + '" shows ' + fieldLabel + ' "' + docPort + '" but BL (' + blLabel + ') shows "' + blPort + '". The BL is the master document.';
+        jsPreErrors.push({
+          type: 'warning', field: portField, message: msg,
+          details: [
+            { doc: blDoc, value: 'BL (master): ' + blPort },
+            { doc: docName, value: docLabel + ': ' + docPort },
+          ]
+        });
+      });
+    });
+  })();
+
+  // ── SUM FUMIGATION / PHYTOSANITARY bags & weights by lot before comparison ──
+  // When multiple fumigation certs exist (one per lot), sum their bags/weights
+  // and add a synthetic "total" entry so the AI compares the sum vs BL total.
+  (function sumMultiDocTypes() {
+    const sumTypes = ['fumigation certificate', 'phytosanitary certificate',
+      'certificado de fumigación', 'certificado fitosanitario'];
+    const typeGroups = {};
+    Object.entries(slim).forEach(([k, v]) => {
+      const dt = normalizeDocType(v.docType);
+      if (sumTypes.includes(dt)) {
+        if (!typeGroups[dt]) typeGroups[dt] = [];
+        typeGroups[dt].push({ key: k, data: v });
+      }
+    });
+    Object.entries(typeGroups).forEach(([dt, entries]) => {
+      if (entries.length < 2) return; // only sum when there are multiple
+      let totalBags = 0, totalNet = 0, totalGross = 0;
+      const lots = [];
+      entries.forEach(({ data }) => {
+        const bags = parseFloat(String(data.bagCount || '0').replace(/[^0-9.]/g, ''));
+        const net = parseFloat(String(data.netWeight || '0').replace(/[^0-9.]/g, ''));
+        const gross = parseFloat(String(data.grossWeight || '0').replace(/[^0-9.]/g, ''));
+        if (!isNaN(bags)) totalBags += bags;
+        if (!isNaN(net)) totalNet += net;
+        if (!isNaN(gross)) totalGross += gross;
+        if (data.lotNumbers) lots.push(...(Array.isArray(data.lotNumbers) ? data.lotNumbers : [data.lotNumbers]));
+      });
+      // Add synthetic total entry for AI comparison
+      const label = isES ? 'TOTAL ' + dt.toUpperCase() : 'TOTAL ' + dt.toUpperCase();
+      slim['__sum_' + dt.replace(/\s+/g, '_')] = {
+        docType: label + ' (' + entries.length + ' docs)',
+        bagCount: totalBags > 0 ? String(totalBags) : null,
+        netWeight: totalNet > 0 ? String(Math.round(totalNet * 100) / 100) : null,
+        grossWeight: totalGross > 0 ? String(Math.round(totalGross * 100) / 100) : null,
+        lotNumbers: [...new Set(lots)],
+        _isSummedTotal: true,
+      };
     });
   })();
 
@@ -2702,7 +2877,7 @@ async function startAnalysis(){
     await loadHeavyLibs();
   } catch(e) {
     console.error('Library load failed:', e.message);
-    alert('Failed to load required libraries. Please check your connection and try again.');
+    alert(tx().libLoadErr);
     return;
   }
 
@@ -4092,7 +4267,7 @@ function downloadReport(){
     const perDoc=coherenceResult?.perDocumentStatus||{};
     const fl=t.FL;
 
-    let txt=`${t.rptTitle}\nAI-Powered Export Validation · AI Powered\n${t.rptDate}: ${date}\n${'═'.repeat(64)}\n\n`;
+    let txt=`${t.rptTitle}\n${t.rptSubtitle}\n${t.rptDate}: ${date}\n${'═'.repeat(64)}\n\n`;
     txt+=`${t.rptStatus.padEnd(20)}: ${(coherenceResult?.overallStatus||'N/A').toUpperCase()}\n`;
     txt+=`${t.rptDocs.padEnd(20)}: ${analysisResults.length}\n`;
     txt+=`${t.rptIncons.padEnd(20)}: ${issues.filter(i=>i.type==='error').length}\n`;
@@ -4139,7 +4314,7 @@ function downloadReport(){
     const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url; a.download=`cacaous-report-${Date.now()}.txt`;
+    a.href=url; a.download=`docsvalidate-report-${Date.now()}.txt`;
     document.body.appendChild(a); a.click();
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
   }catch(e){alert('Error: '+e.message);}
@@ -4532,23 +4707,21 @@ function resetApp(){
   <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
     <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
     <div style="font-size:2rem;margin-bottom:1rem;">🫘</div>
-    <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">Create your free account</h3>
+    <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;"></h3>
     <p id="authModalDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
     <div id="clerkSignInDiv"></div>
     <!-- Terms checkbox -->
     <label id="termsLabel" style="display:flex;align-items:flex-start;gap:10px;text-align:left;margin-bottom:1.2rem;cursor:pointer;">
       <input type="checkbox" id="termsCheck" style="margin-top:3px;min-width:15px;height:15px;accent-color:var(--brown-dark);cursor:pointer;"/>
-      <span style="font-size:0.78rem;color:var(--text-mid);line-height:1.5;">
-        I have read and agree to the
-        <a href="/terms.html" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">Terms of Service</a>
+      <span id="termsText" style="font-size:0.78rem;color:var(--text-mid);line-height:1.5;">
       </span>
     </label>
-    <p id="termsError" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.8rem;text-align:left;">Please accept the Terms of Service to continue.</p>
+    <p id="termsError" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.8rem;text-align:left;"></p>
 
     <button id="signupBtn" onclick="handleSignupClick()" style="width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;opacity:0.5;transition:opacity 0.2s;">
-      <span id="authModalBtn">Sign up free</span>
+      <span id="authModalBtn"></span>
     </button>
-    <p style="font-size:0.72rem;color:var(--text-light);">Already have an account? <a href="#" onclick="openClerkSignIn()" style="color:var(--brown-mid);">Sign in</a></p>
+    <p id="authSignInP" style="font-size:0.72rem;color:var(--text-light);"></p>
   </div>
 </div>
 
@@ -4557,10 +4730,10 @@ function resetApp(){
   <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
     <button onclick="closeUpgradeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
     <div style="font-size:2rem;margin-bottom:1rem;">⚡</div>
-    <h3 id="upgradeTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">You've reached your limit</h3>
+    <h3 id="upgradeTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;"></h3>
     <p id="upgradeDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
     <a id="upgradeBtn" href="/pricing.html" style="display:block;width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;text-decoration:none;">
-      <span id="upgradeBtnTxt">View plans</span>
+      <span id="upgradeBtnTxt"></span>
     </a>
   </div>
 </div>
@@ -4659,12 +4832,11 @@ function showAuthModal(reason){
   const btn   = document.getElementById('authModalBtn');
   const isES  = lang === 'es';
 
+  const t2 = tx();
   if(reason === 'guest_limit'){
-    title.textContent = isES ? 'Crea tu cuenta gratuita' : 'Create your free account';
-    desc.textContent  = isES
-      ? 'Has usado tus 3 análisis de prueba. Crea una cuenta gratis para obtener 20 análisis al mes — sin tarjeta de crédito.'
-      : "You've used your 3 free trial analyses. Sign up for free to get 20 analyses per month — no credit card required.";
-    btn.textContent   = isES ? 'Registrarse gratis' : 'Sign up free';
+    title.textContent = t2.authTitle;
+    desc.textContent  = t2.authDesc;
+    btn.textContent   = t2.authBtn;
   }
 
   // Reset checkbox state every time modal opens
