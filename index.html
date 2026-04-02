@@ -4305,9 +4305,7 @@ function renderResults(){
       const extras = [vessel, lot ? `${lotLabel} ${lot}` : ''].filter(Boolean);
       blStripExtra.textContent = extras.join('  ·  ');
       if(blPrefix) blPrefix.textContent = t.blLabelPrefix || 'B/L';
-      blStrip.style.display = 'flex';
-    } else {
-      blStrip.style.display = 'none';
+      // blStrip data populated for PDF report but kept hidden (resultsHeader replaces it)
     }
   }
 
@@ -4350,7 +4348,7 @@ function renderResults(){
       if(finCommLabel) finCommLabel.textContent = t.finLabelCommercial || 'Commercial Value';
       if(finPrLabel)   finPrLabel.textContent   = t.finLabelPrice      || 'Price / Unit';
       if(finTrLabel)   finTrLabel.textContent   = t.finLabelTerms      || 'Terms';
-      finPanel.style.display = 'block';
+      // finPanel data populated for PDF report but kept hidden (resultsHeader replaces it)
     } else {
       finPanel.style.display = 'none';
     }
@@ -4624,8 +4622,7 @@ function renderResults(){
         ?'Documentos múltiples detectados — totales sumados automáticamente para validación:'
         :'Multiple documents detected — totals summed automatically for validation:')
         +'</strong><br><br>'+rows;
-      mdNotice.style.display = 'block';
-    } else {
+      // Multi-doc notice hidden — info integrated into AI summary
       mdNotice.style.display = 'none';
     }
   }
