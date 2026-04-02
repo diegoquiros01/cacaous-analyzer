@@ -232,22 +232,31 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 ══════════════════════════════════════ */
 
 /* Stepper */
-.up-stepper { display: flex; align-items: center; padding: 0.75rem 0; margin-bottom: 1rem; }
-.up-st { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; color: var(--text-light); }
-.up-st-circ {
-  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.58rem; font-weight: 700; flex-shrink: 0;
+.up-stepper {
+  display: flex; align-items: center;
+  background: var(--white); border-bottom: 1px solid var(--border-light);
+  padding: 0.875rem 2rem; width: 100%;
+  position: sticky; top: 68px; z-index: 90;
+  box-shadow: 0 1px 0 var(--border-light);
 }
-.up-st-lbl { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; }
-.up-st-line { flex: 1; height: 1px; background: var(--border-light); margin: 0 0.75rem; }
+.up-st { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; color: var(--text-light); }
+.up-st-circ {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--border); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 700; flex-shrink: 0; color: var(--text-light);
+}
+.up-st-lbl { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 400; }
+.up-st-line { flex: 1; height: 1px; background: var(--border-light); margin: 0 1rem; }
+/* done */
 .up-st.up-st-done { color: var(--green); }
-.up-st.up-st-done .up-st-circ { background: var(--green); border-color: var(--green); color: var(--white); }
-.up-st.up-st-done .up-st-lbl { font-weight: 700; }
-.up-st-line.up-st-line-done { background: var(--green); }
+.up-st.up-st-done .up-st-circ { background: var(--green); border: none; color: var(--white); }
+.up-st.up-st-done .up-st-lbl { color: var(--green); font-weight: 700; }
+.up-st-line.up-st-line-done { background: linear-gradient(to right, var(--green), var(--border-light)); }
+/* active */
 .up-st.up-st-active { color: var(--brown-dark); }
-.up-st.up-st-active .up-st-circ { border-color: var(--brown-dark); color: var(--brown-dark); }
-.up-st.up-st-active .up-st-lbl { font-weight: 700; }
+.up-st.up-st-active .up-st-circ { background: var(--white); border: 2px solid var(--brown-dark); color: var(--brown-dark); }
+.up-st.up-st-active .up-st-lbl { color: var(--brown-dark); font-weight: 700; }
 
 /* Panel */
 .up-panel {
@@ -1515,7 +1524,7 @@ footer {
 </div>
 
 <!-- ══ PROGRESS BAR ══ -->
-<div class="progress-bar" id="progressBar">
+<div class="progress-bar" id="progressBar" style="display:none;">
   <div class="progress-step active" id="ps1">
     <span class="step-num">1</span>
     <span id="ps1txt">Select Documents</span>
@@ -2554,7 +2563,9 @@ function setStep(n){
   const hero = document.querySelector('.hero');
   const pbar = document.getElementById('progressBar');
   if(hero) hero.style.display = (n >= 3) ? 'none' : '';
-  if(pbar) pbar.style.display = (n >= 3) ? 'none' : '';
+  if(pbar) pbar.style.display = 'none'; // always hidden — replaced by up-stepper
+  const upStepper = document.getElementById('upStepper');
+  if(upStepper) upStepper.style.display = (n >= 3) ? 'none' : '';
 }
 
 // Build auth headers for every call to /.netlify/functions/claude
