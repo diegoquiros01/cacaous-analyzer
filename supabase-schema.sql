@@ -1,0 +1,24 @@
+-- validation_history: stores each validation run per user
+CREATE TABLE IF NOT EXISTS validation_history (
+  id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_id      TEXT         NOT NULL,
+  bl_number     TEXT,
+  vessel_name   TEXT,
+  status        TEXT         NOT NULL CHECK (status IN ('approved', 'warning', 'rejected')),
+  doc_count     INT          NOT NULL DEFAULT 0,
+  error_count   INT          NOT NULL DEFAULT 0,
+  warning_count INT          NOT NULL DEFAULT 0,
+  summary_text  TEXT,
+  created_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+-- Index for listing a user's history (sorted by date)
+CREATE INDEX IF NOT EXISTS idx_validation_history_clerk_id
+  ON validation_history (clerk_id, created_at DESC);
+
+-- Index for BL number search
+CREATE INDEX IF NOT EXISTS idx_validation_history_bl_number
+  ON validation_history (bl_number);
+
+-- Row-level security (enable if using Supabase RLS)
+-- ALTER TABLE validation_history ENABLE ROW LEVEL SECURITY;

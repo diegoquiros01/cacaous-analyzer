@@ -1067,6 +1067,19 @@ footer {
 .ra-warn .r-alert-tag { border-color: var(--tan);      color: var(--brown-mid); }
 .r-alert-chev { font-size: 0.6rem; color: var(--text-light); flex-shrink: 0; transition: transform 0.2s; margin-top: 3px; }
 .r-alert.open .r-alert-chev { transform: rotate(180deg); }
+.r-alert-dismiss {
+  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: none; border: 1px solid var(--border); color: var(--text-light);
+  padding: 0.2rem 0.6rem; border-radius: 2px; cursor: pointer;
+  margin-left: auto; margin-right: 0.4rem; white-space: nowrap; transition: all 0.2s;
+}
+.r-alert-dismiss:hover { border-color: var(--green); color: var(--green); background: rgba(26,107,58,0.05); }
+.r-alert.dismissed { opacity: 0.4; pointer-events: none; }
+.r-alert.dismissed .r-alert-head { text-decoration: line-through; }
+.r-alert-dismissed-label {
+  font-size: 0.55rem; color: var(--green); letter-spacing: 0.1em;
+  text-transform: uppercase; margin-left: auto; margin-right: 0.4rem; font-weight: 700;
+}
 
 .r-alert-body {
   display: none; padding: 0.7rem 1rem 0.9rem;
@@ -1299,6 +1312,30 @@ footer {
 
 <main>
 
+  <!-- ══ VALIDATION HISTORY ══ -->
+  <div id="historySection" style="display:none;margin-bottom:2.5rem;">
+    <div class="section-label">
+      <div class="section-label-num" style="font-size:1.6rem;">📋</div>
+      <div class="section-label-text">
+        <h2 id="histTitle">Your Recent Validations</h2>
+        <p id="histSub">Click any row to see the summary</p>
+      </div>
+    </div>
+    <div style="margin-bottom:0.8rem;">
+      <input type="text" id="histSearch" oninput="searchHistory()" placeholder="Search by BL number..."
+        style="width:100%;max-width:300px;padding:0.5rem 0.8rem;border:1px solid var(--border);
+        font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--text);background:var(--white);">
+    </div>
+    <div id="histList" style="border:1px solid var(--border-light);overflow:hidden;"></div>
+    <div id="histDetail" style="display:none;margin-top:0.8rem;background:var(--offwhite);border:1px solid var(--border-light);border-left:3px solid var(--tan);padding:1rem 1.2rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+        <span id="histDetailTitle" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:500;color:var(--brown-dark);"></span>
+        <button onclick="document.getElementById('histDetail').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:0.9rem;">✕</button>
+      </div>
+      <p id="histDetailText" style="font-size:0.8rem;color:var(--text-mid);line-height:1.7;font-style:italic;"></p>
+    </div>
+  </div>
+
   <!-- ══ STEP 1: UPLOAD ══ -->
   <div id="uploadSection">
 
@@ -1520,8 +1557,11 @@ footer {
 
     <!-- ⑨ ACTIONS -->
     <div class="actions" style="margin-top:1.5rem;">
-      <button class="btn-dl" id="btnDl" onclick="downloadReport()">
-        ↓ <span id="dlTxt">Download Report</span>
+      <button class="btn-dl" id="btnDlPdf" onclick="downloadPdfReport()">
+        ↓ <span id="dlPdfTxt">Download PDF Report</span>
+      </button>
+      <button class="btn-reset" style="background:none;border:1px solid var(--border);color:var(--text-mid);" id="btnDl" onclick="downloadReport()">
+        ↓ <span id="dlTxt">Download TXT</span>
       </button>
       <button class="btn-reset" id="btnReset" onclick="resetApp()">
         ↺ <span id="resetTxt">New Analysis</span>
@@ -1581,7 +1621,7 @@ const TX = {
     ctableTitle:'Field-by-field comparison across all documents',
     th1:'Field', th2:'Status', th3:'Value(s) Found', th4:'Found In',
     perDocTitle:'Per Document Detail',
-    dlTxt:'Download Report', resetTxt:'New Analysis', trackTxt:'Track Shipment',
+    dlPdfTxt:'Download PDF Report', dlTxt:'Download TXT', resetTxt:'New Analysis', trackTxt:'Track Shipment',
     trackingTitle:'Shipment Tracking',
     trackingLoading:'Querying carrier...',
     trackingError:'Could not retrieve tracking data. Check the BL number and try again.',
@@ -1647,6 +1687,9 @@ const TX = {
     upgradeBtnTxt:'View plans',
     rptSubtitle:'AI-Powered Export Validation',
     libLoadErr:'Failed to load required libraries. Please check your connection and try again.',
+    histTitle:'Your Recent Validations', histSub:'Click any row to see the summary',
+    histSearch:'Search by BL number...', histEmpty:'No validations yet — run your first analysis above.',
+    histDate:'Date', histBL:'BL Number', histVessel:'Vessel', histStatus:'Status', histDocs:'Docs',
   },
   es: {
     logoTagline:'DocsValidate.com',
@@ -1668,7 +1711,7 @@ const TX = {
     ctableTitle:'Comparación campo por campo entre todos los documentos',
     th1:'Campo', th2:'Estado', th3:'Valor(es) Encontrado(s)', th4:'Encontrado En',
     perDocTitle:'Detalle por Documento',
-    dlTxt:'Descargar Reporte', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
+    dlPdfTxt:'Descargar Reporte PDF', dlTxt:'Descargar TXT', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
     trackingTitle:'Tracking del Embarque',
     trackingLoading:'Consultando naviera...',
     trackingError:'No se pudo obtener el tracking. Verifica el número de BL e intenta de nuevo.',
@@ -1734,6 +1777,9 @@ const TX = {
     upgradeBtnTxt:'Ver planes',
     rptSubtitle:'Validación de Documentos con IA',
     libLoadErr:'No se pudieron cargar las librerías necesarias. Verifica tu conexión e intenta de nuevo.',
+    histTitle:'Tus Validaciones Recientes', histSub:'Haz clic en una fila para ver el resumen',
+    histSearch:'Buscar por número de BL...', histEmpty:'Aún no tienes validaciones — ejecuta tu primer análisis arriba.',
+    histDate:'Fecha', histBL:'N° BL', histVessel:'Buque', histStatus:'Estado', histDocs:'Docs',
   }
 };
 
@@ -1811,6 +1857,7 @@ function applyLang(){
   st('perDocTitle', t.perDocTitle);
 
   // ── Action buttons ─────────────────────────────
+  st('dlPdfTxt', t.dlPdfTxt);
   st('dlTxt', t.dlTxt);
   st('resetTxt', t.resetTxt);
   st('trackTxt', t.trackTxt);
@@ -1847,6 +1894,11 @@ function applyLang(){
       } catch(e) { console.warn('Lang re-render error:', e.message); }
     }, 10);
   }
+  // ── History labels ──────────────────────────────
+  st('histTitle', t.histTitle); st('histSub', t.histSub);
+  const histInput = document.getElementById('histSearch');
+  if(histInput) histInput.placeholder = t.histSearch;
+
   // ── Auth modal labels ───────────────────────────
   st('authModalTitle', t.authTitle);
   st('authModalBtn', t.authBtn);
@@ -2994,6 +3046,8 @@ async function startAnalysis(){
     } else {
       console.warn('Analysis did not produce valid result — usage not incremented.');
     }
+    // Save to history (non-blocking, after renderResults sets lastFinalErrors)
+    if(analysisSucceeded) setTimeout(() => saveHistory().catch(()=>{}), 500);
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
 
@@ -3620,6 +3674,7 @@ function renderResults(){
   const issueWarnings = displayIssues.filter(i=>i.type==='warning').length;
   const finalErrors   = Math.max(tableErrors, issueErrors);
   const finalWarnings = finalErrors > 0 ? 0 : issueWarnings;
+  lastFinalErrors = finalErrors; lastFinalWarnings = finalWarnings;
 
   // ── STEP 4: Status pill + summary card ──────────────────────
   const pill     = document.getElementById('statusPill');
@@ -3838,7 +3893,8 @@ function renderResults(){
     }
     const el = document.createElement('div');
     el.className = `r-alert ${cls}${item.autoOpen?' open':''}`;
-    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${item.msg}</div></div><span class="r-alert-tag">${tag}</span><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
+    const dismissLbl = lang==='es' ? 'No es error' : 'Not an issue';
+    el.innerHTML = `<div class="r-alert-head" onclick="this.closest('.r-alert').classList.toggle('open')"><div class="r-alert-main"><div class="r-alert-field">${item.field}</div><div class="r-alert-msg">${item.msg}</div></div><span class="r-alert-tag">${tag}</span><button class="r-alert-dismiss" onclick="event.stopPropagation();dismissAlert(this)" data-field="${(item.rawField||item.field).replace(/"/g,'&quot;')}" data-type="${type}">${dismissLbl}</button><span class="r-alert-chev">▼</span></div><div class="r-alert-body">${diffHtml||`<div style="font-size:0.78rem;color:var(--text-light)">${item.msg}</div>`}</div>`;
     return el;
   };
 
@@ -4258,6 +4314,239 @@ function toggleRPerdoc(){
     : (t2.perDocCloseBtn || (lang==='es' ? 'Cerrar' : 'Close'));
 }
 
+// ── DISMISS ALERT (feedback loop) ─────────────────────────────
+function dismissAlert(btn) {
+  const alertEl = btn.closest('.r-alert');
+  if (!alertEl) return;
+  alertEl.classList.add('dismissed');
+  alertEl.classList.remove('open');
+  const lbl = lang==='es' ? '✓ Descartado' : '✓ Dismissed';
+  btn.outerHTML = '<span class="r-alert-dismissed-label">' + lbl + '</span>';
+  recalcVerdict();
+}
+
+function recalcVerdict() {
+  const t = tx();
+  const activeErrors = document.querySelectorAll('#alertsErrBody .r-alert.ra-err:not(.dismissed)').length;
+  const activeWarnings = document.querySelectorAll('#alertsWarnBody .r-alert.ra-warn:not(.dismissed)').length;
+
+  // Update status pill
+  const pill = document.getElementById('statusPill');
+  const pillText = document.getElementById('statusPillText');
+  if (activeErrors > 0) {
+    if (pill) pill.className = 'status-pill spl-err';
+    if (pillText) pillText.textContent = lang==='es'
+      ? activeErrors + ' inconsistencia(s) crítica(s) — no liberar la carga'
+      : activeErrors + ' critical inconsistenc' + (activeErrors===1?'y':'ies') + ' — do not release cargo';
+  } else if (activeWarnings > 0) {
+    if (pill) pill.className = 'status-pill spl-warn';
+    if (pillText) pillText.textContent = lang==='es'
+      ? activeWarnings + ' observación(es) a revisar'
+      : activeWarnings + ' observation' + (activeWarnings===1?'':'s') + ' to review';
+  } else {
+    if (pill) pill.className = 'status-pill spl-ok';
+    if (pillText) pillText.textContent = lang==='es'
+      ? 'Set aprobado — coherencia verificada'
+      : 'Set approved — coherence verified';
+  }
+
+  // Update summary card
+  const sumCard = document.getElementById('summaryCard');
+  if (sumCard) {
+    sumCard.className = activeErrors > 0 ? 'r-summary-card sc-err'
+      : activeWarnings > 0 ? 'r-summary-card sc-warn' : 'r-summary-card sc-ok';
+  }
+
+  // Update stats row error/warning counts
+  const statsEl = document.getElementById('statsRow');
+  if (statsEl) {
+    const statCards = statsEl.querySelectorAll('.r-stat-card');
+    if (statCards[2]) statCards[2].querySelector('.r-stat-n').textContent = activeWarnings;
+    if (statCards[3]) statCards[3].querySelector('.r-stat-n').textContent = activeErrors;
+  }
+
+  // Hide critical banner if no active errors
+  const critBanner = document.getElementById('criticalBanner');
+  if (critBanner && activeErrors === 0) critBanner.style.display = 'none';
+
+  // Hide group headers if empty
+  const errGroup = document.getElementById('alertsErrGroup');
+  const warnGroup = document.getElementById('alertsWarnGroup');
+  if (errGroup && activeErrors === 0) errGroup.style.display = 'none';
+  if (warnGroup && activeWarnings === 0) warnGroup.style.display = 'none';
+  if (activeErrors === 0 && activeWarnings === 0) {
+    const alertsSec = document.getElementById('alertsSection');
+    if (alertsSec) alertsSec.style.display = 'none';
+  }
+}
+
+// ── PDF REPORT ────────────────────────────────────────────────
+let _html2pdfLoaded = false;
+function loadHtml2Pdf() {
+  if (_html2pdfLoaded) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    s.onload = () => { _html2pdfLoaded = true; resolve(); };
+    s.onerror = () => reject(new Error('Failed to load html2pdf'));
+    document.head.appendChild(s);
+  });
+}
+
+async function downloadPdfReport() {
+  try {
+    setStep(4);
+    await loadHtml2Pdf();
+    const t = tx();
+    const date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
+    const status = coherenceResult?.overallStatus || 'warning';
+    const issues = coherenceResult?.coherenceIssues || [];
+    const errs = issues.filter(i=>i.type==='error').length;
+    const warns = issues.filter(i=>i.type==='warning').length;
+    const okDocs = Math.max(0, analysisResults.length - errs);
+    const blNum = analysisResults.find(r=>r.blNumber)?.blNumber || '';
+    const vessel = analysisResults.find(r=>r.vesselName)?.vesselName || '';
+    const summary = coherenceResult?.summary || '';
+    const actionItems = coherenceResult?.actionItems || [];
+
+    const statusColors = {
+      approved: { bg:'#1a6b3a', label: lang==='es'?'APROBADO':'APPROVED' },
+      warning:  { bg:'#8a6a00', label: lang==='es'?'CON OBSERVACIONES':'WITH OBSERVATIONS' },
+      rejected: { bg:'#7a2e22', label: lang==='es'?'RECHAZADO':'REJECTED' },
+    };
+    const sc = statusColors[status] || statusColors.warning;
+
+    // Build coherence table rows
+    let tableRows = '';
+    const sv = coherenceResult?.setValues || {};
+    for (const [k, d] of Object.entries(sv)) {
+      if (!d?.values?.length) continue;
+      const unique = [...new Set(d.values.map(v=>v.value).filter(Boolean))];
+      const st = d.status === 'inconsistent' ? '✗' : '✓';
+      const stColor = d.status === 'inconsistent' ? '#7a2e22' : '#1a6b3a';
+      const valStr = d.values.map(v => v.doc.replace(/\.[^.]+$/,'') + ': ' + (v.value||'—')).join('<br>');
+      tableRows += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:10px;">' + (t.FL[k]||k) + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+stColor+';font-weight:700;font-size:11px;">' + st + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-size:9px;line-height:1.6;">' + (unique.length <= 1 ? (unique[0]||'—') : valStr) + '</td></tr>';
+    }
+
+    // Build per-document rows
+    let docRows = '';
+    analysisResults.forEach(r => {
+      const ds = (coherenceResult?.perDocumentStatus||{})[r._filename] || {};
+      const docStatus = ds.status === 'approved' ? '✓' : ds.status === 'rejected' ? '✗' : '⚠';
+      const docColor = ds.status === 'approved' ? '#1a6b3a' : ds.status === 'rejected' ? '#7a2e22' : '#8a6a00';
+      docRows += '<tr>'
+        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;font-size:10px;font-weight:600;">' + (translateDocType(ds.docType||r.docType)||r._filename) + '</td>'
+        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + r._filename + '</td>'
+        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+docColor+';font-weight:700;">' + docStatus + '</td>'
+        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + (ds.comment||'') + '</td>'
+        + '</tr>';
+    });
+
+    // Build action items
+    let aiHtml = '';
+    if (actionItems.length > 0) {
+      aiHtml = '<div style="margin-top:16px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a2e22;margin-bottom:8px;">'
+        + (t.actionItemsLabel || 'Action Items') + '</div>';
+      actionItems.forEach((item, i) => {
+        aiHtml += '<div style="display:flex;gap:8px;padding:4px 0;font-size:10px;line-height:1.5;border-bottom:1px solid #f0f2f5;">'
+          + '<span style="color:#7a2e22;font-weight:700;flex-shrink:0;">' + (i+1) + '.</span>'
+          + '<span style="color:#3a4255;">' + item + '</span></div>';
+      });
+      aiHtml += '</div>';
+    }
+
+    const html = `
+    <div style="width:190mm;font-family:Helvetica,Arial,sans-serif;color:#0f1117;padding:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #1c2230;padding-bottom:10px;margin-bottom:16px;">
+        <div style="font-size:18px;font-weight:700;letter-spacing:0.12em;color:#1c2230;">DOCSVALIDATE</div>
+        <div style="text-align:right;font-size:9px;color:#7a8499;line-height:1.6;">
+          <div>${date}</div>
+          ${blNum ? '<div style="font-weight:600;color:#1c2230;">B/L: '+blNum+'</div>' : ''}
+          ${vessel ? '<div>'+vessel+'</div>' : ''}
+        </div>
+      </div>
+
+      <div style="display:inline-block;background:${sc.bg};color:white;padding:6px 16px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:0.1em;margin-bottom:14px;">
+        ${sc.label}
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:16px;">
+        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
+          <div style="font-size:22px;font-weight:400;color:#4a6fa5;">${analysisResults.length}</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statDocs}</div>
+        </div>
+        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
+          <div style="font-size:22px;font-weight:400;color:#1a6b3a;">${okDocs}</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statOk}</div>
+        </div>
+        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
+          <div style="font-size:22px;font-weight:400;color:#8a6a00;">${warns}</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statWarn}</div>
+        </div>
+        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
+          <div style="font-size:22px;font-weight:400;color:#7a2e22;">${errs}</div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statErr}</div>
+        </div>
+      </div>
+
+      ${summary ? '<div style="background:#f7f8fa;border-left:3px solid #4a6fa5;padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:16px;font-size:10px;line-height:1.7;color:#3a4255;font-style:italic;">'+summary+'</div>' : ''}
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#1c2230;margin-bottom:8px;border-bottom:1px solid #e8edf5;padding-bottom:4px;">
+        ${t.coherenceTitle || 'Coherence Table'}
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead><tr style="background:#1c2230;">
+          <th style="padding:6px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;">${t.th1}</th>
+          <th style="padding:6px 10px;text-align:center;color:white;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;">${t.th2}</th>
+          <th style="padding:6px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;">${t.th3}</th>
+        </tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#1c2230;margin-bottom:8px;border-bottom:1px solid #e8edf5;padding-bottom:4px;">
+        ${t.perDocTitle || 'Per Document Detail'}
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+        <thead><tr style="background:#f0f2f5;">
+          <th style="padding:5px 10px;text-align:left;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">Type</th>
+          <th style="padding:5px 10px;text-align:left;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">File</th>
+          <th style="padding:5px 10px;text-align:center;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">${t.th2}</th>
+          <th style="padding:5px 10px;text-align:left;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">Notes</th>
+        </tr></thead>
+        <tbody>${docRows}</tbody>
+      </table>
+
+      ${aiHtml}
+
+      <div style="border-top:1px solid #d0d6e2;padding-top:8px;margin-top:20px;font-size:8px;color:#7a8499;text-align:center;letter-spacing:0.08em;">
+        Validated by DocsValidate · ${t.rptSubtitle} · ${date}
+      </div>
+    </div>`;
+
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.innerHTML = html;
+    document.body.appendChild(container);
+
+    const filename = 'docsvalidate-report-' + (blNum || Date.now()) + '.pdf';
+    await html2pdf().set({
+      margin: [10, 10, 10, 10],
+      filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    }).from(container.firstElementChild).save();
+
+    document.body.removeChild(container);
+  } catch(e) {
+    console.error('PDF generation error:', e);
+    alert('PDF error: ' + e.message);
+  }
+}
+
 function downloadReport(){
   try{
     setStep(4);
@@ -4667,6 +4956,108 @@ function safeReset(id, prop, val){ const el=safeEl(id); if(el) el[prop]=val; }
 function safeStyle(id, prop, val){ const el=safeEl(id); if(el) el.style[prop]=val; }
 function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[method](cls); }
 
+// ── VALIDATION HISTORY ─────────────────────────────────────────
+let lastFinalErrors = 0, lastFinalWarnings = 0;
+
+async function saveHistory() {
+  if (!isLoggedIn()) return;
+  try {
+    const blNum = analysisResults.find(r => r.blNumber)?.blNumber || '';
+    const vessel = analysisResults.find(r => r.vesselName)?.vesselName || '';
+    await fetch('/.netlify/functions/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save',
+        clerk_id: window.__clerk_user.id,
+        bl_number: blNum,
+        vessel_name: vessel,
+        status: coherenceResult?.overallStatus || 'warning',
+        doc_count: analysisResults.length,
+        error_count: lastFinalErrors,
+        warning_count: lastFinalWarnings,
+        summary_text: coherenceResult?.summary || '',
+      })
+    });
+  } catch (e) { console.warn('History save failed:', e.message); }
+}
+
+let _histSearchTimer = null;
+function searchHistory() {
+  clearTimeout(_histSearchTimer);
+  _histSearchTimer = setTimeout(() => loadHistory(), 300);
+}
+
+async function loadHistory() {
+  const sec = document.getElementById('historySection');
+  if (!sec || !isLoggedIn()) { if(sec) sec.style.display='none'; return; }
+  try {
+    const search = (document.getElementById('histSearch')?.value || '').trim();
+    const resp = await fetch('/.netlify/functions/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'list', clerk_id: window.__clerk_user.id, search: search || undefined }),
+    });
+    const data = await resp.json();
+    const rows = data.history || data || [];
+    renderHistory(rows);
+    sec.style.display = 'block';
+  } catch (e) {
+    console.warn('History load failed:', e.message);
+    sec.style.display = 'none';
+  }
+}
+
+function renderHistory(rows) {
+  const t = tx();
+  const list = document.getElementById('histList');
+  if (!list) return;
+  if (!rows || rows.length === 0) {
+    list.innerHTML = '<div style="padding:1.2rem;text-align:center;font-size:0.78rem;color:var(--text-light);">' + t.histEmpty + '</div>';
+    return;
+  }
+  const statusBadge = (s) => {
+    const colors = { approved:'var(--green)', warning:'var(--tan)', rejected:'var(--red)' };
+    const labels = { approved: t.statusOk, warning: t.statusWarn, rejected: t.statusErr };
+    return '<span style="font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border:1px solid '+
+      (colors[s]||'var(--border)')+';color:'+(colors[s]||'var(--text-light)')+';font-weight:700;border-radius:2px;">'+
+      (labels[s]||s)+'</span>';
+  };
+  const header = '<div style="display:flex;padding:0.5rem 1rem;background:var(--brown-dark);color:rgba(255,255,255,0.6);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;">'
+    + '<span style="flex:0 0 100px;">'+t.histDate+'</span>'
+    + '<span style="flex:1;">'+t.histBL+'</span>'
+    + '<span style="flex:0 0 140px;">'+t.histVessel+'</span>'
+    + '<span style="flex:0 0 80px;text-align:center;">'+t.histStatus+'</span>'
+    + '<span style="flex:0 0 50px;text-align:center;">'+t.histDocs+'</span>'
+    + '</div>';
+  const rowsHtml = rows.map(r => {
+    const d = new Date(r.created_at);
+    const dateStr = d.toLocaleDateString(lang==='es'?'es-ES':'en-US', { month:'short', day:'numeric' });
+    return '<div class="hist-row" onclick="showHistDetail(this)" data-summary="'+((r.summary_text||'').replace(/"/g,'&quot;'))+'" data-status="'+(r.status||'')+'" data-bl="'+(r.bl_number||'')+'" style="display:flex;align-items:center;padding:0.55rem 1rem;border-bottom:1px solid var(--border-light);cursor:pointer;font-size:0.78rem;transition:background 0.15s;"'
+      + ' onmouseover="this.style.background=\'var(--offwhite)\'" onmouseout="this.style.background=\'var(--white)\'">'
+      + '<span style="flex:0 0 100px;color:var(--text-light);font-size:0.72rem;">'+dateStr+'</span>'
+      + '<span style="flex:1;font-weight:600;color:var(--brown-dark);">'+(r.bl_number||'—')+'</span>'
+      + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.vessel_name||'—')+'</span>'
+      + '<span style="flex:0 0 80px;text-align:center;">'+statusBadge(r.status)+'</span>'
+      + '<span style="flex:0 0 50px;text-align:center;color:var(--text-light);">'+r.doc_count+'</span>'
+      + '</div>';
+  }).join('');
+  list.innerHTML = header + rowsHtml;
+}
+
+function showHistDetail(el) {
+  const detail = document.getElementById('histDetail');
+  const title = document.getElementById('histDetailTitle');
+  const text = document.getElementById('histDetailText');
+  if (!detail) return;
+  const bl = el.dataset.bl;
+  const status = el.dataset.status;
+  const summary = el.dataset.summary;
+  if (title) title.textContent = (bl || '—') + ' · ' + (status || '').toUpperCase();
+  if (text) text.textContent = summary || (lang==='es' ? 'Sin resumen disponible.' : 'No summary available.');
+  detail.style.display = 'block';
+}
+
 function resetApp(){
   uploadedFiles=[];analysisResults=[];coherenceResult=null;
   safeReset('filesList','innerHTML','');
@@ -4697,8 +5088,10 @@ function resetApp(){
   const rtc=safeEl('rTableChev'); if(rtc) rtc.classList.remove('open');
   const rpb=safeEl('rPerdocBody'); if(rpb) rpb.classList.remove('open');
   const rpc=safeEl('rPerdocChev'); if(rpc) rpc.classList.remove('open');
+  safeStyle('histDetail','display','none');
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
+  loadHistory();
 }
 </script>
 
@@ -4750,6 +5143,7 @@ function initClerk() {
     if(user){
       window.__clerk_user = user;
       updateUserBadge(user);
+      loadHistory();
       // Show admin nav link if admin email matches
       window.Clerk.session?.getToken().then(token => {
         if(!token) return;

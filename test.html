@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocsValidate — Extraction Test Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white: #ffffff;
+  --offwhite: #f7f8fa;
+  --cream: #f0f2f5;
+  --cream2: #e4e8ee;
+  --brown-dark: #0f1117;
+  --brown: #1c2230;
+  --brown-mid: #3a4660;
+  --brown-light: #6b7a99;
+  --tan: #4a6fa5;
+  --tan-light: #7da4d4;
+  --green: #1a6b3a;
+  --green-light: #2e9455;
+  --red: #7a2e22;
+  --red-light: #b04030;
+  --text: #0f1117;
+  --text-mid: #3a4255;
+  --text-light: #7a8499;
+  --border: #d0d6e2;
+  --border-light: #e8edf5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Lato', sans-serif; background: var(--offwhite); color: var(--text); font-weight: 300; }
+
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem; height: 68px;
+}
+.logo { display: flex; align-items: center; gap: 1rem; }
+.logo img { height: 36px; }
+.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 500; color: var(--brown); }
+.logo span { font-size: 0.75rem; color: var(--text-light); margin-left: 0.5rem; font-weight: 300; }
+
+.toolbar {
+  padding: 1.5rem 3rem;
+  display: flex; align-items: center; gap: 1rem;
+}
+.btn {
+  background: var(--brown); color: var(--white);
+  border: none; padding: 0.6rem 1.6rem; border-radius: 6px;
+  font-family: 'Lato', sans-serif; font-size: 0.85rem; font-weight: 400;
+  cursor: pointer; transition: background 0.2s;
+}
+.btn:hover { background: var(--brown-mid); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.summary-bar {
+  margin: 0 3rem 1.5rem;
+  padding: 1rem 1.5rem; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 400;
+  display: none;
+}
+.summary-bar.pass { background: #e8f5e9; color: var(--green); border: 1px solid #a5d6a7; }
+.summary-bar.fail { background: #fbe9e7; color: var(--red); border: 1px solid #ef9a9a; }
+
+.cards { padding: 0 3rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+.card {
+  background: var(--white); border: 1px solid var(--border-light);
+  border-radius: 10px; overflow: hidden;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-light);
+}
+.card-header h2 { font-size: 0.95rem; font-weight: 700; }
+.badge {
+  font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.75rem;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.badge.pass { background: #e8f5e9; color: var(--green); }
+.badge.fail { background: #fbe9e7; color: var(--red); }
+.badge.pending { background: var(--cream); color: var(--text-light); }
+.badge.running { background: #e3f2fd; color: #1565c0; }
+.badge.error { background: #fff3e0; color: #e65100; }
+
+.card-body { padding: 1rem 1.5rem; }
+.card-body .error-msg { color: var(--red-light); font-size: 0.85rem; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th { text-align: left; padding: 0.5rem 0.75rem; background: var(--cream); color: var(--text-mid); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+td.status-pass { color: var(--green); font-weight: 700; }
+td.status-fail { color: var(--red-light); font-weight: 700; }
+td.val { max-width: 280px; word-break: break-word; font-family: monospace; font-size: 0.78rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <img src="/logo.png" alt="DocsValidate">
+    <h1>DocsValidate</h1>
+    <span>Extraction Test Suite</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button class="btn" id="runBtn" onclick="runAllTests()">Run All Tests</button>
+  <span id="statusText" style="font-size:0.85rem;color:var(--text-light);">Click to start</span>
+</div>
+
+<div class="summary-bar" id="summaryBar"></div>
+<div class="cards" id="cards"></div>
+
+<script>
+/* ── Test Cases ── */
+const TEST_CASES = [
+  {
+    name: "Bill of Lading — MAERSK GLACIER",
+    textContent: `BILL OF LADING
+BL Number: MAEU266461945
+Shipper: EXPORTADORA DEL SUR S.A.
+Consignee: ATLANTIC COCOA TRADING INC
+Notify: ATLANTIC COCOA TRADING INC, 100 WALL STREET, NEW YORK NY 10005
+
+Vessel: MAERSK GLACIER       Voyage: 426W
+Port of Loading: GUAYAQUIL, ECUADOR
+Port of Discharge: NEW YORK, UNITED STATES
+
+Container / Seal:
+  MRSU4826790 / SEAL 87231
+  CAAU9018479 / SEAL 87232
+
+Description of Goods:
+  726 BAGS OF CACAO BEANS
+  NET WEIGHT: 50,094.00 KGS
+  GROSS WEIGHT: 51,200.00 KGS
+
+Shipped on Board: 15/FEB/2026
+FREIGHT PREPAID`,
+    expected: {
+      docType: "Bill of Lading",
+      blNumber: "MAEU266461945",
+      shipper: "EXPORTADORA DEL SUR S.A.",
+      consigneeName: "ATLANTIC COCOA TRADING INC",
+      vesselName: "MAERSK GLACIER",
+      voyageNumber: "426W",
+      portOfLoading: "GUAYAQUIL",
+      portOfDischarge: "NEW YORK",
+      containerNumbers: ["MRSU4826790", "CAAU9018479"],
+      sealNumbers: ["87231", "87232"],
+      bagCount: "726",
+      netWeight: "50094",
+      grossWeight: "51200"
+    }
+  },
+  {
+    name: "Packing List — European Number Format",
+    textContent: `PACKING LIST
+Exportador: HACIENDA TROPICAL CIA. LTDA.
+Consignatario: ATLANTIC COCOA TRADING INC
+Factura Comercial No.: INV-2026-0842
+
+Contenedores:
+  1) MRSU4826790 — 363 sacos de yute
+  2) CAAU9018479 — 363 sacos de yute
+
+Total: 726 sacos de yute
+Peso Neto Total: 50.094,00 kg
+Peso Bruto Total: 51.200,00 kg
+
+Producto: CACAO EN GRANO, VARIEDAD NACIONAL
+Origen: ECUADOR
+Lote No.: LOT-2026-029`,
+    expected: {
+      docType: "Packing List",
+      shipper: "HACIENDA TROPICAL CIA. LTDA.",
+      consigneeName: "ATLANTIC COCOA TRADING INC",
+      invoiceNumber: "INV-2026-0842",
+      containerNumbers: ["MRSU4826790", "CAAU9018479"],
+      bagCount: "726",
+      netWeight: "50094",
+      grossWeight: "51200",
+      originCountry: "ECUADOR",
+      lotNumbers: ["LOT-2026-029"]
+    }
+  },
+  {
+    name: "Fumigation Certificate — Gas Clearance",
+    textContent: `GAS CLEARANCE CERTIFICATE
+Certificate No.: FUM-GYE-2026-1187
+
+Export Company: EXPORTADORA DEL SUR S.A.
+Consignee: ATLANTIC COCOA TRADING INC
+Country / city of destination: UNITED STATES
+
+Vessel name: MAERSK GLACIER
+Trip No.: 426W
+Bl/Cont.: 266461945
+
+Number of batch (Lote No.): 29
+Number of fumigated bags: 363
+Treated weight: 25,047.00 KGS
+
+Treatment: Methyl Bromide 48g/m3 for 24 hours
+Date of treatment: 10/FEB/2026
+Date of gas clearance: 12/FEB/2026`,
+    expected: {
+      docType: "Fumigation Certificate",
+      shipper: "EXPORTADORA DEL SUR S.A.",
+      consigneeName: "ATLANTIC COCOA TRADING INC",
+      destinationCountry: "UNITED STATES",
+      vesselName: "MAERSK GLACIER",
+      voyageNumber: "426W",
+      blNumber: "266461945",
+      lotNumbers: ["29"],
+      bagCount: "363",
+      netWeight: "25047"
+    }
+  }
+];
+
+/* ── API call (copied from main app) ── */
+async function callClaude(system, content, maxTokens = 2000) {
+  const resp = await fetch('/.netlify/functions/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Guest-Token': 'guest' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content }]
+    })
+  });
+  const text = await resp.text();
+  if (!resp.ok || text.trim().startsWith('<')) {
+    throw new Error(resp.status === 504 ? 'Request timeout' : `Server error ${resp.status}`);
+  }
+  let data;
+  try { data = JSON.parse(text); } catch (e) { throw new Error('Invalid response from server'); }
+  if (data.error) throw new Error(data.error.message || 'API error');
+  return (data.content?.map(b => b.text || '').join('') || '').replace(/```json|```/g, '').trim();
+}
+
+/* ── Extraction system prompt (from main app) ── */
+const EXTRACT_SYSTEM = `You are an expert in cacao and coffee export documents.
+
+CRITICAL: A single uploaded file may contain MULTIPLE documents bundled together. Your first task is to IDENTIFY all distinct document types present, then extract data from EACH one separately.
+
+DOCUMENT DETECTION RULES:
+- Look for document headers, titles, letterheads, and section breaks
+- If only ONE document type is present, return a single-item array
+
+RESPONSE FORMAT: Return a JSON ARRAY: [{ "docType": "Bill of Lading", ... }]
+
+DOCUMENT TYPES TO DETECT:
+Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, Phytosanitary Certificate, Quality Certificate, ISF, Declaration Letter, 3rd Party Quality Report, Import Permit, Organic Certificate (COI), Fumigation Certificate (also known as: Gas Clearance Certificate, Quarantine Treatment Certificate — all are the same type: Fumigation Certificate), Sample Test Results, Transmittal Letter
+
+CRITICAL: CONTAINER NUMBER FORMAT
+A container number is ALWAYS 4 letters + 6-7 digits: e.g. MRSU4826790, CAAU9018479.
+A pure number like "266461945" is NEVER a container — it is a BL number.
+
+SPECIAL FIELD MAPPING FOR FUMIGATION / GAS CLEARANCE / QUARANTINE CERTIFICATES:
+- "Country / city of destination" or "Destino" -> destinationCountry
+- "Bl/Cont." field -> if value is pure digits -> blNumber NOT containerNumbers
+- "Number of batch" / "Lote No." -> lotNumbers array
+- "Number of fumigated bags" -> bagCount
+- "Treated weight" / "Peso tratado" -> netWeight
+- "Vessel name" / "Nombre del vapor" -> vesselName
+- "Export Company" -> shipper
+- "Trip No." / "No. de viaje" -> voyageNumber
+
+CRITICAL NUMBER EXTRACTION RULES:
+- European format: "50.094,00" means 50094 kg
+- American format: "50,094.00" means 50094 kg
+- Always extract the FULL number, removing separators: "50.094,00 KG" -> "50094"
+
+FOR EACH DOCUMENT extract all applicable fields (null if not present):
+{"docType":"...","shipper":"...","consigneeName":"...","consigneeAddress":"...","notify":"...","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500","bagUnit":"bags","netWeight":"25000","netWeightUnit":"kg","grossWeight":"25500","grossWeightUnit":"kg","productDescription":"...","originCountry":"...","destinationCountry":"...","portOfLoading":"...","portOfDischarge":"...","exportDate":"...","invoiceNumber":"...","blNumber":"...","vesselName":"...","voyageNumber":"..."}`;
+
+/* ── fixGasClearanceFields (from main app) ── */
+function fixGasClearanceFields(doc, textContent) {
+  if (!textContent) return;
+  const t = textContent;
+  const dt = (doc.docType || "").toLowerCase();
+  if (!dt.includes("fumig") && !dt.includes("gas clearance") && !dt.includes("clearance") && !dt.includes("quarantine")) return;
+
+  if (!doc.destinationCountry) {
+    const m = t.match(/country[^:]*destination[^:]*:[ \t]*([A-Za-z][A-Za-z ]{2,20})/i)
+           || t.match(/destino[ \t]*:[ \t]*([A-Za-z][A-Za-z ]{2,20})/i)
+           || t.match(/Destination[ \t]*:[ \t]*([A-Z]{3,})/);
+    if (m) doc.destinationCountry = m[1].trim().replace(/[\r\n].*/, "").trim();
+  }
+
+  if (!doc.blNumber) {
+    const m = t.match(/Bl[^:]*Cont[^:]*:[ \t]*([0-9]{8,})/i)
+           || t.match(/Container[ \t]*:[ \t]*([0-9]{8,})/i);
+    if (m) doc.blNumber = m[1].trim();
+  }
+}
+
+/* ── Run extraction for a single test case ── */
+async function extractForTest(tc) {
+  const content = 'Extract all data from this cacao/coffee export document:\n\n' + tc.textContent;
+  const raw = await callClaude(EXTRACT_SYSTEM, content, 3000);
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch (e) {
+    const arrMatch = raw.match(/(\[.*\])/s);
+    const objMatch = raw.match(/(\{.*\})/s);
+    if (arrMatch) try { parsed = JSON.parse(arrMatch[1]); } catch (e2) {}
+    if (!parsed && objMatch) try { parsed = JSON.parse(objMatch[1]); } catch (e2) {}
+  }
+  if (!parsed) throw new Error('Could not parse response');
+  const docs = Array.isArray(parsed) ? parsed : [parsed];
+  const fixNum = v => v ? String(v).replace(/\s/g, '') : v;
+  return docs.map(p => {
+    if (p.netWeight) p.netWeight = fixNum(p.netWeight);
+    if (p.grossWeight) p.grossWeight = fixNum(p.grossWeight);
+    fixGasClearanceFields(p, tc.textContent);
+    return p;
+  });
+}
+
+/* ── Comparison logic ── */
+function normalize(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'string') return v.trim().toLowerCase();
+  return v;
+}
+
+function parseNum(v) {
+  if (v === null || v === undefined) return NaN;
+  return parseFloat(String(v).replace(/[^0-9.\-]/g, ''));
+}
+
+function compareField(expected, actual, key) {
+  if (expected === null || expected === undefined) return { skip: true };
+
+  // Array comparison (sets, case-insensitive)
+  if (Array.isArray(expected)) {
+    const expSet = expected.map(v => String(v).trim().toLowerCase()).sort();
+    const actArr = Array.isArray(actual) ? actual : (actual ? [actual] : []);
+    const actSet = actArr.map(v => String(v).trim().toLowerCase()).sort();
+    const pass = expSet.length === actSet.length && expSet.every((v, i) => v === actSet[i]);
+    return { pass, expected: expected.join(', '), actual: actArr.join(', ') };
+  }
+
+  // Numeric comparison with 1% tolerance
+  const expNum = parseNum(expected);
+  const actNum = parseNum(actual);
+  if (!isNaN(expNum) && !isNaN(actNum)) {
+    const tol = Math.abs(expNum) * 0.01;
+    const pass = Math.abs(expNum - actNum) <= tol;
+    return { pass, expected: String(expected), actual: String(actual ?? '') };
+  }
+
+  // String comparison (case-insensitive, trimmed)
+  const e = normalize(expected);
+  const a = normalize(actual);
+  // Allow partial match for ports (e.g., "GUAYAQUIL" matches "GUAYAQUIL, ECUADOR")
+  const pass = e === a || (a && a.includes(e));
+  return { pass, expected: String(expected), actual: String(actual ?? '') };
+}
+
+/* ── UI rendering ── */
+function renderCards() {
+  const container = document.getElementById('cards');
+  container.innerHTML = '';
+  TEST_CASES.forEach((tc, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + i;
+    card.innerHTML = `
+      <div class="card-header">
+        <h2>${tc.name}</h2>
+        <span class="badge pending" id="badge-${i}">Pending</span>
+      </div>
+      <div class="card-body" id="body-${i}">
+        <p style="color:var(--text-light);font-size:0.85rem;">Waiting to run...</p>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function renderResult(i, fields, error) {
+  const badge = document.getElementById('badge-' + i);
+  const body = document.getElementById('body-' + i);
+
+  if (error) {
+    badge.className = 'badge error';
+    badge.textContent = 'Error';
+    body.innerHTML = `<p class="error-msg">${error}</p>`;
+    return { passed: 0, total: 0 };
+  }
+
+  let passed = 0, total = 0;
+  let rows = '';
+  for (const f of fields) {
+    if (f.skip) continue;
+    total++;
+    if (f.pass) passed++;
+    rows += `<tr>
+      <td style="font-weight:400;">${f.field}</td>
+      <td class="val">${esc(f.expected)}</td>
+      <td class="val">${esc(f.actual)}</td>
+      <td class="${f.pass ? 'status-pass' : 'status-fail'}">${f.pass ? 'PASS' : 'FAIL'}</td>
+    </tr>`;
+  }
+
+  const allPass = passed === total;
+  badge.className = 'badge ' + (allPass ? 'pass' : 'fail');
+  badge.textContent = allPass ? 'Pass' : 'Fail';
+
+  body.innerHTML = `
+    <p style="margin-bottom:0.75rem;font-size:0.85rem;color:var(--text-mid);">${passed}/${total} fields passed</p>
+    <table>
+      <thead><tr><th>Field</th><th>Expected</th><th>Actual</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  return { passed, total };
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+/* ── Main runner ── */
+async function runAllTests() {
+  const btn = document.getElementById('runBtn');
+  const statusText = document.getElementById('statusText');
+  const summaryBar = document.getElementById('summaryBar');
+  btn.disabled = true;
+  summaryBar.style.display = 'none';
+  renderCards();
+
+  let totalPassed = 0, totalFields = 0;
+
+  for (let i = 0; i < TEST_CASES.length; i++) {
+    const tc = TEST_CASES[i];
+    const badge = document.getElementById('badge-' + i);
+    badge.className = 'badge running';
+    badge.textContent = 'Running...';
+    statusText.textContent = `Running test ${i + 1}/${TEST_CASES.length}...`;
+
+    try {
+      const docs = await extractForTest(tc);
+      // Pick the first doc (each test case has a single document)
+      const doc = docs[0] || {};
+      const fields = [];
+      for (const key of Object.keys(tc.expected)) {
+        const result = compareField(tc.expected[key], doc[key], key);
+        fields.push({ field: key, ...result });
+      }
+      const r = renderResult(i, fields);
+      totalPassed += r.passed;
+      totalFields += r.total;
+    } catch (e) {
+      renderResult(i, [], e.message);
+    }
+  }
+
+  // Summary
+  const allPass = totalPassed === totalFields;
+  summaryBar.style.display = 'block';
+  summaryBar.className = 'summary-bar ' + (allPass ? 'pass' : 'fail');
+  summaryBar.textContent = `${totalPassed}/${totalFields} fields passed across ${TEST_CASES.length} test cases` +
+    (allPass ? ' — all extraction tests passed.' : ' — some fields did not match.');
+  statusText.textContent = 'Done';
+  btn.disabled = false;
+}
+
+// Initial render
+renderCards();
+</script>
+</body>
+</html>
