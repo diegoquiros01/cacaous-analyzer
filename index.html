@@ -2563,6 +2563,11 @@ function setStep(n){
     if(i<n) el.classList.add('done');
     else if(i===n) el.classList.add('active');
   }
+  // Hide hero and progress bar on results/download steps
+  const hero = document.querySelector('.hero');
+  const pbar = document.getElementById('progressBar');
+  if(hero) hero.style.display = (n >= 3) ? 'none' : '';
+  if(pbar) pbar.style.display = (n >= 3) ? 'none' : '';
 }
 
 // Build auth headers for every call to /.netlify/functions/claude
