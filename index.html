@@ -423,7 +423,7 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 /* ══════════════════════════════════════
    LOADING
 ══════════════════════════════════════ */
-.loading { display: none; padding: 4rem 2rem; max-width: 640px; margin: 0 auto; }
+.loading { display: none; padding: 2rem 2rem; max-width: 640px; margin: 0 auto; }
 .loading.show { display: block; }
 .loading-top { text-align: center; margin-bottom: 2.5rem; }
 .loading-icon { margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; }
@@ -1646,22 +1646,8 @@ footer {
 
   <!-- ══ LOADING ══ -->
   <div class="loading" id="loading">
-    <div class="loading-top">
-      <div class="loading-icon">
-        <div class="cacao-loader">
-          <div class="ring"></div>
-          <div class="ring ring2"></div>
-          <div class="bean">
-            <svg viewBox="0 0 120 170" width="28" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="60" cy="85" rx="52" ry="80" fill="#5C4A2A"/>
-              <path d="M 30 40 Q 18 85 30 132 Q 38 158 52 163 Q 36 142 33 85 Q 31 48 42 26 Q 35 31 30 40 Z" fill="#8B6B3D" opacity="0.55"/>
-              <path d="M 56 12 Q 49 85 56 158 Q 60 165 64 158 Q 71 85 64 12 Q 62 8 60 8 Q 58 8 56 12 Z" fill="#F5EDD9" opacity="0.9"/>
-              <path d="M 74 20 Q 82 85 74 150 Q 80 132 82 85 Q 81 40 75 18 Q 74 18 74 20 Z" fill="#8B6B3D" opacity="0.45"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <h2 id="loadTitle">Analyzing your set</h2>
+    <div class="loading-top" style="margin-bottom:1.5rem;">
+      <h2 id="loadTitle" style="margin-bottom:0.3rem;">Analyzing your set</h2>
       <div class="loading-sub" id="loadSub">Starting extraction...</div>
     </div>
 
