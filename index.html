@@ -1116,6 +1116,82 @@ footer {
 .status-pill.spl-warn { color: var(--tan);      border-color: rgba(74,111,165,0.3); background: rgba(74,111,165,0.06); }
 .status-pill.spl-err  { color: var(--red-light);border-color: rgba(176,64,48,0.3);  background: rgba(176,64,48,0.06); }
 
+/* Results header — Commercial / Transport */
+.rh-wrap {
+  display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+  border: 1px solid var(--border-light); border-radius: 2px;
+  background: var(--white); margin-bottom: 0.8rem; overflow: hidden;
+}
+.rh-col { padding: 1.1rem 1.4rem; }
+.rh-col-label {
+  font-size: 0.52rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 0.7rem;
+}
+.rh-divider { width: 1px; background: var(--border-light); }
+.rh-values { display: flex; gap: 1.8rem; margin-bottom: 0.5rem; }
+.rh-val-group { display: flex; flex-direction: column; gap: 2px; }
+.rh-val-label {
+  font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-light);
+}
+.rh-val-big {
+  font-family: 'Playfair Display', serif; font-size: 1.25rem;
+  font-weight: 500; color: var(--brown-dark);
+}
+.rh-val-med {
+  font-family: 'Playfair Display', serif; font-size: 0.95rem;
+  font-weight: 400; color: var(--text-mid);
+}
+.rh-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.rh-chip {
+  font-size: 0.58rem; padding: 3px 10px; border-radius: 20px;
+  background: var(--cream); color: var(--text-mid);
+  letter-spacing: 0.04em;
+}
+.rh-bl-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
+.rh-bl-prefix {
+  font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 700;
+}
+.rh-bl-number {
+  font-family: 'Playfair Display', serif; font-size: 1.15rem;
+  font-weight: 500; color: var(--brown-dark); letter-spacing: 0.03em;
+}
+.rh-meta { display: flex; flex-direction: column; gap: 0.25rem; }
+.rh-meta-row { font-size: 0.72rem; color: var(--text-light); line-height: 1.4; }
+.rh-meta-row strong { color: var(--text-mid); font-weight: 600; }
+
+/* Verdict row */
+.rv-wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.65rem 1.2rem; border: 1px solid var(--border-light);
+  border-radius: 2px; background: var(--white); margin-bottom: 0.8rem;
+}
+.rv-left { display: flex; align-items: center; gap: 0.5rem; }
+.rv-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.rv-dot.rvd-ok   { background: var(--green); }
+.rv-dot.rvd-warn { background: var(--tan); }
+.rv-dot.rvd-err  { background: var(--red); }
+.rv-text { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em; }
+.rv-wrap.rv-ok   .rv-text { color: var(--green); }
+.rv-wrap.rv-warn .rv-text { color: var(--brown-mid); }
+.rv-wrap.rv-err  .rv-text { color: var(--red); }
+.rv-right {
+  font-size: 0.65rem; color: var(--text-light); letter-spacing: 0.06em;
+  display: flex; gap: 1rem;
+}
+.rv-stat { display: flex; align-items: center; gap: 0.3rem; }
+.rv-stat-n { font-weight: 700; }
+.rv-stat.rvs-err .rv-stat-n { color: var(--red); }
+.rv-stat.rvs-ok .rv-stat-n { color: var(--green); }
+
+@media(max-width:768px){
+  .rh-wrap { grid-template-columns: 1fr; }
+  .rh-divider { width: auto; height: 1px; }
+}
+
 /* Summary card */
 .r-summary-card {
   background: var(--white);
@@ -1134,7 +1210,11 @@ footer {
 
 /* Stats row */
 .r-stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.2rem; }
-.r-stat-card { background: var(--offwhite); border-radius: 4px; padding: 0.9rem 0.75rem; text-align: center; border: 1px solid var(--border-light); }
+.r-stat-card { background: var(--offwhite); border-radius: 4px; padding: 0.9rem 0.75rem; text-align: center; border: 1px solid var(--border-light); position: relative; border-top: 3px solid var(--border-light); }
+.r-stat-card:nth-child(1) { border-top-color: var(--tan); }
+.r-stat-card:nth-child(2) { border-top-color: var(--green); }
+.r-stat-card:nth-child(3) { border-top-color: var(--tan); }
+.r-stat-card:nth-child(4) { border-top-color: var(--red); }
 .r-stat-n { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 400; line-height: 1; margin-bottom: 3px; }
 .r-stat-l { font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); }
 .r-stat-n.rn-tot  { color: var(--tan); }
@@ -1687,39 +1767,49 @@ footer {
       </div>
     </div>
 
-    <!-- ① STATUS PILL -->
-    <div id="statusPill" class="status-pill spl-ok">
-      <span class="status-pill-dot"></span>
-      <span id="statusPillText">Set approved</span>
-    </div>
-
-    <!-- ① BL NUMBER STRIP -->
-    <div id="blStrip" style="display:none;padding:0.55rem 1.1rem;background:var(--offwhite);border:1px solid var(--border-light);border-radius:4px;margin-top:0.6rem;display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;">
-      <span id="blStripPrefix" style="font-family:'Raleway',sans-serif;font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);flex-shrink:0;">B/L</span>
-      <span id="blStripNumber" style="font-family:'Raleway',sans-serif;font-size:0.88rem;font-weight:700;color:var(--brown-dark);letter-spacing:0.04em;"></span>
-      <span id="blStripExtra" style="font-size:0.72rem;color:var(--text-light);"></span>
-    </div>
-
-    <!-- ① FINANCIAL PANEL -->
-    <div id="finPanel" style="display:none;margin-top:0.5rem;padding:0.7rem 1.1rem;background:var(--offwhite);border:1px solid var(--border-light);border-radius:4px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;">
-        <div style="display:flex;align-items:baseline;gap:0.5rem;">
-        <span class="fin-comm-label" style="font-family:'Raleway',sans-serif;font-size:0.55rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-light);">Commercial Value</span>
-          <span id="finTotal" style="font-family:'Raleway',sans-serif;font-size:1.05rem;font-weight:700;color:var(--brown-dark);"></span>
-        </div>
-        <div style="display:flex;gap:1.4rem;flex-wrap:wrap;">
-          <div id="finPriceWrap" style="display:none;flex-direction:column;gap:1px;">
-            <span style="font-family:'Raleway',sans-serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);">Price / Unit</span>
-            <span id="finPrice" style="font-size:0.78rem;font-weight:600;color:var(--brown-dark);"></span>
+    <!-- ① RESULTS HEADER — Commercial / Transport split -->
+    <div id="resultsHeader" class="rh-wrap" style="display:none;">
+      <div class="rh-col rh-commercial">
+        <div class="rh-col-label">COMMERCIAL</div>
+        <div class="rh-values">
+          <div class="rh-val-group">
+            <span class="rh-val-label">Total Value</span>
+            <span class="rh-val-big" id="rhTotal">—</span>
           </div>
-          <div id="finTermsWrap" style="display:none;flex-direction:column;gap:1px;">
-            <span style="font-family:'Raleway',sans-serif;font-size:0.52rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-light);">Terms</span>
-            <span id="finTerms" style="font-size:0.78rem;font-weight:600;color:var(--brown-dark);"></span>
+          <div class="rh-val-group">
+            <span class="rh-val-label">Price / MT</span>
+            <span class="rh-val-med" id="rhPrice">—</span>
           </div>
         </div>
-        <span id="finSource" style="font-size:0.62rem;color:var(--text-light);font-style:italic;"></span>
+        <div class="rh-chips" id="rhChips"></div>
+      </div>
+      <div class="rh-divider"></div>
+      <div class="rh-col rh-transport">
+        <div class="rh-col-label">TRANSPORT</div>
+        <div class="rh-bl-row">
+          <span class="rh-bl-prefix">B/L</span>
+          <span class="rh-bl-number" id="rhBL">—</span>
+        </div>
+        <div class="rh-meta">
+          <div class="rh-meta-row" id="rhVessel"></div>
+          <div class="rh-meta-row" id="rhRoute"></div>
+          <div class="rh-meta-row" id="rhLots"></div>
+        </div>
       </div>
     </div>
+
+    <!-- ① VERDICT ROW -->
+    <div id="statusPill" class="rv-wrap" style="display:none;">
+      <div class="rv-left">
+        <span class="rv-dot" id="rvDot"></span>
+        <span class="rv-text" id="statusPillText">Set approved</span>
+      </div>
+      <div class="rv-right" id="rvStats"></div>
+    </div>
+
+    <!-- Keep old IDs hidden for JS compat -->
+    <div id="blStrip" style="display:none;"><span id="blStripPrefix"></span><span id="blStripNumber"></span><span id="blStripExtra"></span></div>
+    <div id="finPanel" style="display:none;"><span class="fin-comm-label"></span><span id="finTotal"></span><span id="finPrice"></span><span id="finPriceWrap"></span><span id="finTerms"></span><span id="finTermsWrap"></span><span id="finSource"></span></div>
 
     <!-- ② SUMMARY CARD (AI text) -->
     <div id="summaryCard" class="r-summary-card sc-ok" style="display:none;">
@@ -1906,6 +1996,8 @@ const TX = {
     actionItemsLabel:'Action Items',
     finLabelCommercial:'Commercial Value', finLabelPrice:'Price / Unit', finLabelTerms:'Terms', finLabelSource:'Source',
     blLabelPrefix:'B/L', blLabelLot:'Lot',
+    rhCommercial:'COMMERCIAL', rhTransport:'TRANSPORT',
+    rhTotalValue:'Total Value', rhPriceMT:'Price / MT',
     perDocViewBtn:'View', perDocCloseBtn:'Close',
     docCardViewBtn:'View', docCardCloseBtn:'Close',
     FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',destinationCountry:'Destination Country',originCountry:'Country of Origin',blNumber:'BL Number',invoiceNumber:'Invoice Number',voyageNumber:'Voyage Number',hsCode:'HS Code',qualityGrade:'Quality Grade',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
@@ -2002,6 +2094,8 @@ const TX = {
     actionItemsLabel:'Acciones Requeridas',
     finLabelCommercial:'Valor Comercial', finLabelPrice:'Precio / Unidad', finLabelTerms:'Términos', finLabelSource:'Fuente',
     blLabelPrefix:'N° BL', blLabelLot:'Lote',
+    rhCommercial:'COMERCIAL', rhTransport:'TRANSPORTE',
+    rhTotalValue:'Valor Total', rhPriceMT:'Precio / TM',
     perDocViewBtn:'Ver', perDocCloseBtn:'Cerrar',
     docCardViewBtn:'Ver', docCardCloseBtn:'Cerrar',
     FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',destinationCountry:'País de Destino',originCountry:'País de Origen',blNumber:'N° de BL',invoiceNumber:'N° de Factura',voyageNumber:'N° de Viaje',hsCode:'Código HS',qualityGrade:'Grado de Calidad',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
@@ -2118,6 +2212,16 @@ function applyLang(){
     st('progressLabel', t.progressLabelInit || (lang==='es' ? 'Extrayendo documentos' : 'Extracting documents'));
     st('progressPhase', t.progressPhaseInit || (lang==='es' ? 'Inicializando...' : 'Initializing...'));
   }
+
+  // ── Results header labels ───────────────────────
+  const rhCommEl = document.querySelector('.rh-commercial .rh-col-label');
+  const rhTransEl = document.querySelector('.rh-transport .rh-col-label');
+  const rhTotalLbl = document.querySelector('.rh-commercial .rh-val-group:nth-child(1) .rh-val-label');
+  const rhPriceLbl = document.querySelector('.rh-commercial .rh-val-group:nth-child(2) .rh-val-label');
+  if (rhCommEl) rhCommEl.textContent = t.rhCommercial || 'COMMERCIAL';
+  if (rhTransEl) rhTransEl.textContent = t.rhTransport || 'TRANSPORT';
+  if (rhTotalLbl) rhTotalLbl.textContent = t.rhTotalValue || 'Total Value';
+  if (rhPriceLbl) rhPriceLbl.textContent = t.rhPriceMT || 'Price / MT';
 
   // ── Results static labels ──────────────────────
   st('s3title', t.s3title); st('s3sub', t.s3sub);
@@ -4108,7 +4212,7 @@ function renderResults(){
   const vDesc  = document.getElementById('verdictDesc');
 
   if(finalErrors > 0){
-    if(pill) { pill.className='status-pill spl-err'; }
+    if(pill) { pill.className='rv-wrap rv-err'; }
     if(pillText) pillText.textContent = lang==='es'
       ? `${finalErrors} inconsistencia(s) crítica(s) — no liberar la carga`
       : `${finalErrors} critical inconsistenc${finalErrors===1?'y':'ies'} — do not release cargo`;
@@ -4116,7 +4220,7 @@ function renderResults(){
     if(vTitle) vTitle.textContent = t.verdictRejected;
     if(vDesc)  vDesc.textContent  = t.verdictRejectedDesc(finalErrors);
   } else if(finalWarnings > 0){
-    if(pill) { pill.className='status-pill spl-warn'; }
+    if(pill) { pill.className='rv-wrap rv-warn'; }
     if(pillText) pillText.textContent = lang==='es'
       ? `${finalWarnings} observación(es) a revisar`
       : `${finalWarnings} observation${finalWarnings===1?'':'s'} to review`;
@@ -4124,13 +4228,37 @@ function renderResults(){
     if(vTitle) vTitle.textContent = t.verdictWarning;
     if(vDesc)  vDesc.textContent  = t.verdictWarningDesc(finalWarnings);
   } else {
-    if(pill) { pill.className='status-pill spl-ok'; }
+    if(pill) { pill.className='rv-wrap rv-ok'; }
     if(pillText) pillText.textContent = lang==='es'
       ? 'Set aprobado — coherencia verificada'
       : 'Set approved — coherence verified';
     if(sumCard) sumCard.className = 'r-summary-card sc-ok';
     if(vTitle) vTitle.textContent = t.verdictApproved;
     if(vDesc)  vDesc.textContent  = t.verdictApprovedDesc;
+  }
+
+  // ── VERDICT ROW stats ──────────────────────
+  const rvDot = document.getElementById('rvDot');
+  const rvStats = document.getElementById('rvStats');
+  if (pill) {
+    if (finalErrors > 0) {
+      if (rvDot) rvDot.className = 'rv-dot rvd-err';
+    } else if (finalWarnings > 0) {
+      if (rvDot) rvDot.className = 'rv-dot rvd-warn';
+    } else {
+      if (rvDot) rvDot.className = 'rv-dot rvd-ok';
+    }
+    pill.style.display = 'flex';
+  }
+  if (rvStats) {
+    const errLabel = lang==='es' ? 'críticos' : 'critical';
+    const docLabel = lang==='es' ? 'docs' : 'docs';
+    const okLabel = lang==='es' ? 'sin problemas' : 'clean';
+    const okCount = Math.max(0, analysisResults.length - finalErrors);
+    rvStats.innerHTML =
+      '<span class="rv-stat rvs-err"><span class="rv-stat-n">' + finalErrors + '</span> ' + errLabel + '</span>'
+      + '<span class="rv-stat"><span class="rv-stat-n">' + analysisResults.length + '</span> ' + docLabel + '</span>'
+      + '<span class="rv-stat rvs-ok"><span class="rv-stat-n">' + okCount + '</span> ' + okLabel + '</span>';
   }
 
   // AI summary — always show the card; use AI text if available, fallback otherwise
@@ -4223,6 +4351,59 @@ function renderResults(){
       finPanel.style.display = 'none';
     }
   }
+
+  // ── RESULTS HEADER — Commercial / Transport ──────────────
+  const rh = document.getElementById('resultsHeader');
+  if (rh) {
+    // Find BL document for authoritative transport data
+    const blDoc = analysisResults.find(r => {
+      const dt = (r.docType||'').toLowerCase();
+      return dt.includes('bill of lading') || dt.includes('waybill') || dt.includes('conocimiento');
+    });
+
+    // Commercial data
+    const totalAmount = analysisResults.find(r => r.totalAmount)?.totalAmount || '';
+    const pricePerUnit = analysisResults.find(r => r.pricePerUnit)?.pricePerUnit || '';
+    const incoterm = analysisResults.find(r => r.incoterms)?.incoterms || '';
+    const paymentTerms = analysisResults.find(r => r.paymentTerms)?.paymentTerms || '';
+
+    const rhTotal = document.getElementById('rhTotal');
+    const rhPrice = document.getElementById('rhPrice');
+    const rhChips = document.getElementById('rhChips');
+    if (rhTotal) rhTotal.textContent = totalAmount || '—';
+    if (rhPrice) rhPrice.textContent = pricePerUnit || '—';
+    if (rhChips) {
+      const chips = [paymentTerms, incoterm].filter(Boolean);
+      rhChips.innerHTML = chips.map(c => '<span class="rh-chip">' + c + '</span>').join('');
+    }
+
+    // Transport data
+    const blNum = blDoc?.blNumber || analysisResults.find(r => r.blNumber)?.blNumber || '';
+    const vessel = blDoc?.vesselName || analysisResults.find(r => r.vesselName)?.vesselName || '';
+    const voyage = blDoc?.voyageNumber || analysisResults.find(r => r.voyageNumber)?.voyageNumber || '';
+    const portLoad = blDoc?.portOfLoading || analysisResults.find(r => r.portOfLoading)?.portOfLoading || '';
+    const portDisch = blDoc?.portOfDischarge || analysisResults.find(r => r.portOfDischarge)?.portOfDischarge || '';
+    const lots = [...new Set(analysisResults.flatMap(r => r.lotNumbers || []).filter(Boolean))];
+    const containers = [...new Set(analysisResults.flatMap(r => r.containerNumbers || []).filter(Boolean))];
+
+    const rhBL = document.getElementById('rhBL');
+    const rhVessel = document.getElementById('rhVessel');
+    const rhRoute = document.getElementById('rhRoute');
+    const rhLots = document.getElementById('rhLots');
+
+    if (rhBL) rhBL.textContent = blNum || '—';
+    if (rhVessel) rhVessel.innerHTML = (vessel ? '<strong>' + vessel + '</strong>' : '') + (voyage ? ' · Voy. ' + voyage : '');
+    if (rhRoute) rhRoute.innerHTML = portLoad && portDisch ? portLoad + ' → ' + portDisch : (portLoad || portDisch || '');
+    if (rhLots) {
+      const parts = [];
+      if (lots.length) parts.push((lang==='es' ? 'Lotes: ' : 'Lots: ') + lots.join(', '));
+      if (containers.length) parts.push(containers.length + ' ' + (lang==='es' ? 'contenedores' : 'containers'));
+      rhLots.textContent = parts.join(' · ');
+    }
+
+    rh.style.display = (totalAmount || blNum) ? 'grid' : 'none';
+  }
+
   const docsWithIssues = new Set([
     ...displayIssues.flatMap(i=>(i.details||[]).map(d=>d.doc)),
     ...tableEntries.filter(e=>e.isErr).flatMap(e=>(e.d.values||[]).map(v=>v.doc))
@@ -4953,21 +5134,25 @@ function recalcVerdict() {
   const activeErrors   = document.querySelectorAll('#spLeft .sp-row.sp-row-err:not(.dismissed)').length;
   const activeWarnings = document.querySelectorAll('#spLeft .sp-row.sp-row-warn:not(.dismissed)').length;
 
-  // Update status pill
+  // Update verdict row
   const pill = document.getElementById('statusPill');
   const pillText = document.getElementById('statusPillText');
+  const rvDot = document.getElementById('rvDot');
   if (activeErrors > 0) {
-    if (pill) pill.className = 'status-pill spl-err';
+    if (pill) pill.className = 'rv-wrap rv-err';
+    if (rvDot) rvDot.className = 'rv-dot rvd-err';
     if (pillText) pillText.textContent = lang==='es'
       ? activeErrors + ' inconsistencia(s) cr\u00edtica(s) \u2014 no liberar la carga'
       : activeErrors + ' critical inconsistenc' + (activeErrors===1?'y':'ies') + ' \u2014 do not release cargo';
   } else if (activeWarnings > 0) {
-    if (pill) pill.className = 'status-pill spl-warn';
+    if (pill) pill.className = 'rv-wrap rv-warn';
+    if (rvDot) rvDot.className = 'rv-dot rvd-warn';
     if (pillText) pillText.textContent = lang==='es'
       ? activeWarnings + ' observaci\u00f3n(es) a revisar'
       : activeWarnings + ' observation' + (activeWarnings===1?'':'s') + ' to review';
   } else {
-    if (pill) pill.className = 'status-pill spl-ok';
+    if (pill) pill.className = 'rv-wrap rv-ok';
+    if (rvDot) rvDot.className = 'rv-dot rvd-ok';
     if (pillText) pillText.textContent = lang==='es'
       ? 'Set aprobado \u2014 coherencia verificada'
       : 'Set approved \u2014 coherence verified';
@@ -5693,6 +5878,7 @@ function resetApp(){
   safeStyle('actionItemsSection','display','none');
   safeStyle('summaryCard','display','none');
   safeStyle('blStrip','display','none');
+  safeStyle('resultsHeader','display','none');
   safeStyle('actionRequired','display','none');
   safeReset('arBody','innerHTML','');
   const bar2=safeEl('trackingStatusBar'); if(bar2) bar2.className='tracking-status-bar pending';
