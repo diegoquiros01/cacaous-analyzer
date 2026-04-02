@@ -2584,8 +2584,16 @@ Return ONLY valid JSON:
   }
 
   // Check lotNumbers — catches wrong document in set
+  // Exclude per-lot docs (fumigation, phyto) — they only cover 1 lot each by design
+  const perLotDocTypes = ['fumig','gas clearance','quarantine','phytosanitary','fitosanitario'];
   const lotVals = Object.entries(slim)
-    .filter(([,v]) => v.lotNumbers && v.lotNumbers.length > 0)
+    .filter(([k,v]) => {
+      if (!v.lotNumbers || v.lotNumbers.length === 0) return false;
+      const dt = (v.docType||'').toLowerCase();
+      const fn = k.toLowerCase();
+      if (perLotDocTypes.some(t => dt.includes(t) || fn.includes(t))) return false;
+      return true;
+    })
     .map(([k,v]) => ({ doc: k, value: String(v.lotNumbers).trim() }));
   if(lotVals.length >= 2) {
     const normL = s => s.toLowerCase().replace(/\s+/g,'').replace(/^lote?\s*[-:\s]*/i,'').replace(/^lot\s*[-:\s]*/i,'').trim();
@@ -3573,9 +3581,9 @@ function normalizeExtractedNumber(val){
 function buildSetValuesFromResults(results){
   // Directly extract and compare values from all docs — used when AI setValues is empty
   const fieldMap = {
-    containers: r => (r.containerNumbers||[]).join(', '),
-    seals:      r => (r.sealNumbers||[]).join(', '),
-    lots:       r => (r.lotNumbers||[]).join(', '),
+    containers: r => (r.containerNumbers||[]).map(c=>c.trim().toUpperCase()).sort().join(', '),
+    seals:      r => (r.sealNumbers||[]).map(s=>s.trim().toUpperCase()).sort().join(', '),
+    lots:       r => (r.lotNumbers||[]).map(l=>l.trim()).sort().join(', '),
     bags:       r => r.bagCount ? r.bagCount + ' ' + (r.bagUnit||'') : null,
     netWeight:  r => r.netWeight ? r.netWeight + ' ' + (r.netWeightUnit||'') : null,
     grossWeight:r => r.grossWeight ? r.grossWeight + ' ' + (r.grossWeightUnit||'') : null,
@@ -3587,10 +3595,27 @@ function buildSetValuesFromResults(results){
     blNumber:   r => r.blNumber,
   };
 
+  // Doc types that cover individual lots — exclude from lot comparison
+  const perLotTypes = ['fumigation','fumigación','fumigacion','gas clearance','quarantine',
+    'phytosanitary','fitosanitario'];
+  // Doc types/filenames to exclude from container/seal comparison
+  const skipContainerTypes = ['notification','notificacion','email','correo','letter','carta',
+    'declaration','shipping notification','unidad','isf','transmittal'];
+
   const out = {};
   for(const [key, getter] of Object.entries(fieldMap)){
     const values = [];
     results.forEach(r => {
+      const dt = (r.docType||'').toLowerCase();
+      const fn = (r._filename||'').toLowerCase();
+
+      // Skip per-lot docs for lot comparison (fumigation/phyto cover 1 lot each)
+      if(key === 'lots' && perLotTypes.some(t => dt.includes(t) || fn.includes(t))) return;
+
+      // Skip reference-only docs for containers/seals
+      if((key === 'containers' || key === 'seals') &&
+         skipContainerTypes.some(t => dt.includes(t) || fn.includes(t))) return;
+
       const v = getter(r);
       if(v && v !== 'null' && v !== 'undefined' && v.trim() !== '') {
         values.push({ doc: r._filename||r.docType||'?', value: v.trim() });
@@ -3832,13 +3857,31 @@ function renderResults(){
 
   const errAlerts = [], warnAlerts = [];
 
+  // Fields where BL is master — use BL's value as "correct", not majority
+  const blMasterFields = new Set(['containers','containerNumbers','seals','sealNumbers',
+    'vessel','vesselName','portOfLoading','portOfDischarge']);
+
   tableEntries.filter(e => e.isErr).forEach(e => {
     const vals = e.d.values || [];
     const fieldLabel = (t.FL && t.FL[e.k]) || e.k;
-    const valCounts = {};
-    vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
-    const sorted = Object.entries(valCounts).sort((a,b)=>b[1]-a[1]);
-    const majVal = sorted[0]?.[0] || '';
+
+    let majVal;
+    if (blMasterFields.has(e.k)) {
+      // BL is master — find BL's value
+      const blVal = vals.find(v => {
+        const doc = (v.doc||'').toLowerCase();
+        return doc.includes('bl ') || doc.includes('bill') || doc.includes('lading')
+            || doc.includes('conocimiento') || doc.includes('waybill');
+      });
+      majVal = blVal ? (blVal.value||'').trim() : '';
+    }
+    if (!majVal) {
+      // Fallback to majority
+      const valCounts = {};
+      vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
+      const sorted = Object.entries(valCounts).sort((a,b)=>b[1]-a[1]);
+      majVal = sorted[0]?.[0] || '';
+    }
     errAlerts.push({ field: fieldLabel, rawField: e.k, vals, majVal, autoOpen: true,
       msg: lang==='es' ? 'Valores distintos encontrados entre documentos' : 'Different values found across documents' });
   });
@@ -4027,10 +4070,17 @@ function renderResults(){
               .forEach(tok => { tFreq[tok] = (tFreq[tok]||0)+1; });
           });
           const tTotal = details.length;
-          // Determine majority value for row border coloring
-          const valCounts = {};
-          details.forEach(d => { const v=(d.value||'').trim(); valCounts[v]=(valCounts[v]||0)+1; });
-          const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+          // Determine master value — BL is master for transport fields
+          let majVal;
+          if (blMasterFields.has(iss.field)) {
+            const blD = details.find(d => { const doc=(d.doc||'').toLowerCase(); return doc.includes('bl ')||doc.includes('bill')||doc.includes('lading')||doc.includes('conocimiento'); });
+            if (blD) majVal = (blD.value||'').trim();
+          }
+          if (!majVal) {
+            const valCounts = {};
+            details.forEach(d => { const v=(d.value||'').trim(); valCounts[v]=(valCounts[v]||0)+1; });
+            majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+          }
 
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
@@ -4115,9 +4165,16 @@ function renderResults(){
   // ERROR rows
   errEntries.forEach(({k, d, uv}) => {
     const vals = d.values || [];
-    const valCounts = {};
-    vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
-    const majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+    let majVal;
+    if (blMasterFields.has(k)) {
+      const blV = vals.find(v => { const doc=(v.doc||'').toLowerCase(); return doc.includes('bl ')||doc.includes('bill')||doc.includes('lading')||doc.includes('conocimiento'); });
+      if (blV) majVal = (blV.value||'').trim();
+    }
+    if (!majVal) {
+      const valCounts = {};
+      vals.forEach(v => { const vv=(v.value||'').trim(); valCounts[vv]=(valCounts[vv]||0)+1; });
+      majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
+    }
     const valHtml = vals.map(v => {
       const isOut = (v.value||'').trim() !== majVal;
       let disp = v.value||'—';
