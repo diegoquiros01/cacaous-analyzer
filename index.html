@@ -1461,10 +1461,14 @@ footer {
 .sp-row-chev { font-size: 0.5rem; color: var(--text-light); flex-shrink: 0; }
 
 /* Right panel content */
+/* Field blocks in right panel */
+.sp-field-block { border-bottom: 1px solid var(--border-light); }
+.sp-field-block:last-child { border-bottom: none; }
+
 .sp-detail-header {
   display: flex; align-items: center; gap: 10px;
   padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border-light);
-  background: var(--white);
+  background: var(--white); position: sticky; top: 0; z-index: 1;
 }
 .sp-detail-field {
   font-family: 'Playfair Display', serif; font-size: 1.1rem;
@@ -4971,28 +4975,88 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
 
   spLeft.innerHTML = leftHtml;
 
+  // Build ALL field details in the right panel at once (scrollable)
+  const spContent = document.getElementById('spRightContent');
+  const spEmpty   = document.getElementById('spRightEmpty');
+  if (spContent) {
+    let rightHtml = '';
+    const cleanDoc = s => s.replace(/\.[^.]+$/, '').replace(/_page(\d+)/, ' p.$1');
+
+    _spFields.forEach((field, idx) => {
+      const sevCls = field.severity === 'err' ? 'sdt-err' : field.severity === 'warn' ? 'sdt-warn' : 'sdt-ok';
+      const sevLabel = field.severity === 'err' ? (t.spFixRequired || 'Fix required')
+        : field.severity === 'warn' ? (t.spVerify || 'Verify')
+        : (t.spConsistent || 'Consistent');
+
+      const actionBtn = field.severity !== 'ok'
+        ? '<button onclick="spDismissField(' + idx + ')" style="font-size:0.58rem;font-family:\'Raleway\',sans-serif;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);border:1px solid var(--border);border-radius:2px;padding:2px 8px;background:none;cursor:pointer;">'
+          + (t.spNotAnIssue || 'Not an issue') + '</button>'
+        : '';
+
+      rightHtml += '<div class="sp-field-block" id="spField' + idx + '" data-sp-idx="' + idx + '">';
+      rightHtml += '<div class="sp-detail-header"><span class="sp-detail-field">' + field.label + '</span><span class="sp-detail-tag ' + sevCls + '">' + sevLabel + '</span>' + actionBtn + '</div>';
+      rightHtml += '<div class="sp-detail-body">';
+
+      if (field.message) {
+        rightHtml += '<div class="sp-detail-msg">' + field.message + '</div>';
+      }
+
+      if (field.values && field.values.length > 0 && field.severity !== 'ok') {
+        rightHtml += '<div class="r-diff-wrap"><div class="r-diff-label">' + (t.spValuePerDoc || 'Value per document') + '</div><div class="r-diff-rows">';
+        field.values.forEach(v => {
+          const isOut = field.majVal && (v.value||'').trim() !== field.majVal;
+          const rc = isOut ? 'rdr-err' : (field.majVal ? 'rdr-ok' : 'rdr-neu');
+          const icon = isOut ? '✗' : (field.majVal ? '✓' : '');
+          let dispVal = v.value || '—';
+          if (isOut && field.majVal && dispVal.length === field.majVal.length && dispVal.length <= 20) {
+            let hl = '';
+            for (let ci = 0; ci < dispVal.length; ci++) {
+              hl += dispVal[ci] !== field.majVal[ci] ? '<span class="char-diff">' + dispVal[ci] + '</span>' : dispVal[ci];
+            }
+            dispVal = hl;
+          }
+          rightHtml += '<div class="r-diff-row ' + rc + '"><span class="r-diff-doc">' + cleanDoc(v.doc||'') + '</span><span class="r-diff-val">' + dispVal + '</span><span class="r-diff-icon">' + icon + '</span></div>';
+        });
+        rightHtml += '</div>';
+        const isContainerField = ['containers','containerNumbers','seals','sealNumbers'].includes(field.key);
+        if (field.severity === 'err' && field.majVal) {
+          const noteText = isContainerField
+            ? (lang==='es' ? 'El BL es el documento master. Los dem\u00e1s documentos deben corregirse para coincidir con el BL.' : 'The BL is the master document. Other documents must be corrected to match the BL.')
+            : (lang==='es' ? 'El valor correcto (mayor\u00eda) es <strong>' + field.majVal + '</strong>.' : 'The correct value (majority) is <strong>' + field.majVal + '</strong>. Documents in red must be corrected.');
+          rightHtml += '<div class="sp-detail-note">' + noteText + '</div>';
+        }
+        rightHtml += '</div>';
+      }
+
+      if (field.severity === 'ok' && field.majVal) {
+        rightHtml += '<div class="sp-detail-value"><strong>' + (t.spConsistent || 'Consistent') + ':</strong> ' + field.majVal + '</div>';
+      }
+
+      rightHtml += '</div></div>'; // close body + block
+    });
+
+    spContent.innerHTML = rightHtml;
+    if (spEmpty) spEmpty.style.display = 'none';
+    spContent.style.display = 'block';
+  }
+
   // Show/hide panel
   if (_spFields.length > 0) {
     spPanel.style.display = 'grid';
-    // Update empty text
-    const emptyText = document.getElementById('spEmptyText');
-    if (emptyText) emptyText.textContent = t.spSelectField || 'Select a field to see details';
-    // Auto-select first field
+    // Auto-highlight first error in left panel
     const firstIdx = errFields.length > 0 ? _spFields.indexOf(errFields[0])
-      : warnFields.length > 0 ? _spFields.indexOf(warnFields[0])
-      : 0;
+      : warnFields.length > 0 ? _spFields.indexOf(warnFields[0]) : 0;
     selectField(firstIdx);
   } else {
     spPanel.style.display = 'none';
   }
 }
 
+// selectField: highlight left row and scroll right panel to the matching field block
 function selectField(idx) {
   if (idx < 0 || idx >= _spFields.length) return;
-  const field = _spFields[idx];
-  const t = tx();
 
-  // Update left panel: remove active from all, add to selected
+  // Update left panel highlighting
   document.querySelectorAll('#spLeft .sp-row').forEach(row => row.classList.remove('active'));
   const targetRow = document.querySelector('#spLeft .sp-row[data-sp-idx="' + idx + '"]');
   if (targetRow) {
@@ -5000,119 +5064,23 @@ function selectField(idx) {
     targetRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  // Build right panel content
-  const spEmpty   = document.getElementById('spRightEmpty');
-  const spContent = document.getElementById('spRightContent');
-  if (!spContent) return;
-
-  // Severity tag
-  const sevCls = field.severity === 'err' ? 'sdt-err' : field.severity === 'warn' ? 'sdt-warn' : 'sdt-ok';
-  const sevLabel = field.severity === 'err' ? (t.spFixRequired || 'Fix required')
-    : field.severity === 'warn' ? (t.spVerify || 'Verify')
-    : (t.spConsistent || 'Consistent');
-
-  // Dismiss / not-an-issue button (only for err/warn)
-  const isDismissed = targetRow && targetRow.classList.contains('dismissed');
-  let actionBtns = '';
-  if (field.severity !== 'ok' && !isDismissed) {
-    actionBtns = '<button onclick="spDismissField(' + idx + ')" style="font-size:0.62rem;font-family:\'Raleway\',sans-serif;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);border:1px solid var(--border);border-radius:3px;padding:3px 10px;background:none;cursor:pointer;transition:background 0.15s;">'
-      + (t.spNotAnIssue || 'Not an issue') + '</button>';
-  } else if (isDismissed) {
-    actionBtns = '<span style="font-size:0.62rem;color:var(--green);font-weight:700;letter-spacing:0.08em;">' + (t.spDismissed || '✓ Dismissed') + '</span>';
+  // Scroll right panel to the matching field block
+  const fieldBlock = document.getElementById('spField' + idx);
+  if (fieldBlock) {
+    fieldBlock.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
-
-  // Header
-  let html = '<div class="sp-detail-header">'
-    + '<span class="sp-detail-field">' + field.label + '</span>'
-    + '<span class="sp-detail-tag ' + sevCls + '">' + sevLabel + '</span>'
-    + actionBtns
-    + '</div>';
-
-  // Body
-  html += '<div class="sp-detail-body">';
-
-  // AI message
-  if (field.message) {
-    html += '<div class="sp-detail-msg">' + field.message + '</div>';
-  }
-
-  // Diff table for err/warn fields with values
-  if (field.values && field.values.length > 0 && field.severity !== 'ok') {
-    const cleanDoc = s => s.replace(/\.[^.]+$/, '').replace(/_page(\d+)/, ' p.$1');
-    html += '<div class="r-diff-wrap"><div class="r-diff-label">' + (t.spValuePerDoc || 'Value per document') + '</div><div class="r-diff-rows">';
-    field.values.forEach(v => {
-      const isOut = field.majVal && (v.value||'').trim() !== field.majVal;
-      const rc = isOut ? 'rdr-err' : (field.majVal ? 'rdr-ok' : 'rdr-neu');
-      const icon = isOut ? '✗' : (field.majVal ? '✓' : '');
-      let dispVal = v.value || '—';
-      if (isOut && field.majVal && dispVal.length === field.majVal.length && dispVal.length <= 20) {
-        let hl = '';
-        for (let ci = 0; ci < dispVal.length; ci++) {
-          hl += dispVal[ci] !== field.majVal[ci] ? '<span class="char-diff">' + dispVal[ci] + '</span>' : dispVal[ci];
-        }
-        dispVal = hl;
-      }
-      html += '<div class="r-diff-row ' + rc + '"><span class="r-diff-doc">' + cleanDoc(v.doc||'') + '</span><span class="r-diff-val">' + dispVal + '</span><span class="r-diff-icon">' + icon + '</span></div>';
-    });
-    html += '</div>';
-
-    // Note for container/BL master fields
-    const isContainerField = ['containers','containerNumbers','seals','sealNumbers'].includes(field.key);
-    if (field.severity === 'err' && field.majVal) {
-      const noteText = isContainerField
-        ? (lang==='es'
-            ? 'El BL es el documento master. Los dem\u00e1s documentos deben corregirse para coincidir con el BL.'
-            : 'The BL is the master document. Other documents must be corrected to match the BL.')
-        : (lang==='es'
-            ? 'El valor correcto (mayor\u00eda) es <strong>' + field.majVal + '</strong>.'
-            : 'The correct value (majority) is <strong>' + field.majVal + '</strong>. Documents in red must be corrected.');
-      html += '<div class="sp-detail-note">' + noteText + '</div>';
-    }
-
-    html += '</div>'; // close r-diff-wrap
-  }
-
-  // OK fields: just show the consistent value
-  if (field.severity === 'ok' && field.majVal) {
-    html += '<div class="sp-detail-value"><strong>' + (t.spConsistent || 'Consistent') + ':</strong> ' + field.majVal + '</div>';
-    if (field.values && field.values.length > 0) {
-      const cleanDoc = s => s.replace(/\.[^.]+$/, '').replace(/_page(\d+)/, ' p.$1');
-      html += '<div style="margin-top:0.6rem;"><div class="r-diff-label">' + (t.spValuePerDoc || 'Value per document') + '</div><div class="r-diff-rows">';
-      field.values.forEach(v => {
-        html += '<div class="r-diff-row rdr-ok"><span class="r-diff-doc">' + cleanDoc(v.doc||'') + '</span><span class="r-diff-val">' + (v.value||'—') + '</span><span class="r-diff-icon">✓</span></div>';
-      });
-      html += '</div></div>';
-    }
-  }
-
-  html += '</div>'; // close sp-detail-body
-
-  spContent.innerHTML = html;
-  if (spEmpty)   spEmpty.style.display   = 'none';
-  spContent.style.display = 'block';
-
-  // Scroll right panel to top
-  const spRight = document.getElementById('spRight');
-  if (spRight) spRight.scrollTop = 0;
 }
 
 function spDismissField(idx) {
   if (idx < 0 || idx >= _spFields.length) return;
+  // Fade left row
   const row = document.querySelector('#spLeft .sp-row[data-sp-idx="' + idx + '"]');
   if (row) row.classList.add('dismissed');
-
-  // Re-select this field to update the right panel
-  selectField(idx);
-
+  // Fade right field block
+  const block = document.getElementById('spField' + idx);
+  if (block) block.style.opacity = '0.35';
   // Recalculate verdict
   recalcVerdict();
-
-  // Auto-select next non-dismissed field
-  const allRows = document.querySelectorAll('#spLeft .sp-row:not(.dismissed)');
-  if (allRows.length > 0) {
-    const nextIdx = parseInt(allRows[0].dataset.spIdx);
-    selectField(nextIdx);
-  }
 }
 
 // ── DISMISS ALERT (legacy compat + split panel) ──────────────
