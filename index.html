@@ -2493,16 +2493,17 @@ DESTINATION COUNTRY IS MANDATORY: You MUST check every single document's destina
 
 WRITING RULES — there is no field-by-field table shown to the user. Your text IS the explanation. Be specific and practical — explain not just what differs but why it matters and what needs to happen.
 
-"summary" — 3-4 sentences. Write like a trade compliance officer briefing a colleague:
-  - Sentence 1: Overall verdict and document count. ("All 9 documents are internally consistent.")
-  - Sentence 2-3: The most important issues, naming actual values, document names, and the practical consequence. ("The COI (DRAFT.COI.2026.0007938) has no signature in section 18 — without the final signed version from Kiwa BCS, the cargo cannot be released as organic at Bulgarian customs.")
-  - Final sentence: The single most urgent next action. ("Request the signed COI from Kiwa BCS before the vessel arrives on 03/Mar.")
-  - If clean: "All [N] documents are consistent. Containers, seals, lots, weights, and parties all match. The set is ready to proceed."
+"summary" — 3-5 sentences. Write like a trade compliance officer briefing a colleague. BE EXTREMELY SPECIFIC — cite actual values, container numbers, document names, and company names. Generic summaries are useless.
+  - Sentence 1: Overall verdict, document count, and BL number. ("12 documents analyzed for BL GQL0444337 on vessel CMA CGM HARMONY — 2 critical issues require correction before customs release.")
+  - Sentence 2-3: The most critical issues with ACTUAL values quoted. Do NOT say "container mismatch found" — say exactly WHICH containers differ and in WHICH document. ("The Packing List shows 8 containers (BSIU8177031, CAAU5976057, CMAU9334195...) that share ZERO overlap with the 8 containers in the Bill of Lading (CMAU9710760, FFAU4792315, CMAU8482644...). This Packing List appears to belong to a different shipment entirely.")
+  - Sentence 4: Why this matters for customs/operations. ("Customs will reject the shipment if the Packing List containers do not match the BL — the cargo cannot be released.")
+  - Final sentence: The single most urgent action with WHO must do it. ("Request a corrected Packing List from Aromacacao S.A. referencing BL GQL0444337 immediately — before the vessel arrives at New York.")
+  - If clean: "All [N] documents for BL [NUMBER] are consistent. Containers, seals, lots, weights ([X] kg net), and parties all match across [shipper] → [consignee]. The set is ready for customs release."
 
-"message" per coherenceIssue — 2-3 sentences maximum. Structure:
-  1. What differs and between which documents, with exact values. ("The Packing List shows container MRSU8021108 while the Bill of Lading, COI, and Phytosanitary Certificate all show MRSU8021109.")
-  2. Why this matters practically. ("A container number mismatch will cause a rejection at the port — customs will not release cargo whose seal numbers do not match the transport document.")
-  3. What action is needed and from whom. ("Request a corrected Packing List from Cacao San Jose before the vessel arrives.")
+"message" per coherenceIssue — 2-3 sentences maximum. ALWAYS quote exact values. Structure:
+  1. What differs, between which documents, with EXACT values quoted. NEVER say "container mismatch" without listing the actual container numbers. ("The Packing List lists 8 containers (BSIU8177031, CAAU5976057, CMAU9334195, TCLU8505492, TCNU5567348, TLLU4659292, TXGU4024457, TXGU8424003) — NONE of these match the 8 containers in the BL (CMAU9710760, FFAU4792315, CMAU8482644, UETU6357893, CAAU6292470, FFAU4540777, BSIU8070017, CMAU6910580). The Packing List appears to be from a completely different shipment.")
+  2. Why this matters for customs/operations. ("Customs will reject the entry — the Packing List must reference the same containers as the transport document.")
+  3. What action is needed, from whom, by when. ("Request a corrected Packing List from Aromacacao S.A. before the vessel arrives at New York.")
 
 "comment" per document in perDocumentStatus — 2 sentences max, 25 words max total. First sentence: what's notable about this document (DRAFT, missing signature, conflicting value, or clean). Second sentence: the practical implication if it's an issue. Examples:
   - "All fields consistent with the set. No action required."
@@ -2823,7 +2824,12 @@ Return ONLY valid JSON:
     });
   })();
 
-  const msg = `Documents and their fields:\n${JSON.stringify(slim, null, 2)}`;
+  // Include JS pre-detected errors so the AI can reference them in the summary
+  const preErrorsContext = jsPreErrors.length > 0
+    ? `\n\nPRE-DETECTED CRITICAL ISSUES (verified by deterministic checks — include these in your summary with exact values):\n${jsPreErrors.map(e => `- ${e.field}: ${e.message}`).join('\n')}\n`
+    : '';
+
+  const msg = `Documents and their fields:\n${JSON.stringify(slim, null, 2)}${preErrorsContext}`;
 
 
   try {
