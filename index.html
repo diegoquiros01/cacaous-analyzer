@@ -334,6 +334,25 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 
 /* Collapsed chips */
+/* Doc types read-only display */
+.us-doctypes-display { margin: 1rem 0 0.8rem; }
+.us-doctypes-label {
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 0.5rem;
+}
+.doc-type-chip {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border-light); background: var(--offwhite);
+  color: var(--text-light);
+  font-family: 'Lato', sans-serif;
+  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 0.5rem;
+  cursor: default; user-select: none;
+}
+.doc-type-chip .dt-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--tan); flex-shrink: 0;
+}
+
 .us-chips {
   display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.5rem 0 0;
 }
@@ -1662,31 +1681,6 @@ footer {
         <p class="us-panel-sub" id="uploadPanelSub">11 document types selected · Drag or select files below</p>
       </div>
 
-      <!-- Doc Types Accordion -->
-      <div class="us-accordion">
-        <div class="us-accordion-head" id="usDocTypeHead" onclick="toggleDocTypeAccordion()">
-          <span class="us-accordion-label" id="usDocTypeLabel">Document Types (11 selected)</span>
-          <span class="us-accordion-chev" id="usDocTypeChev">&#9660;</span>
-        </div>
-        <div class="us-accordion-body" id="usDocTypeBody" style="display:none;">
-          <div class="doc-types-grid" id="docTypesGrid">
-            <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
-            <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
-            <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
-            <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
-            <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
-            <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
-            <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
-            <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
-            <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
-            <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
-            <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
-          </div>
-        </div>
-        <!-- Collapsed chips showing active types -->
-        <div class="us-chips" id="usDocTypeChips"></div>
-      </div>
-
       <!-- Drop Zone -->
       <div class="upload-area" id="uploadZone">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.8rem;">
@@ -1698,6 +1692,26 @@ footer {
           <span id="browseFilesText">Browse files</span>
         </button>
         <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
+      </div>
+
+      <!-- Doc Types — read-only display below drop zone -->
+      <div class="us-doctypes-display" id="docTypesDisplay">
+        <div class="us-doctypes-label" id="usDocTypesLabel">
+          <span id="usDocTypeLabel">Document Types (11 selected)</span>
+        </div>
+        <div class="doc-types-grid" id="docTypesGrid">
+          <div class="doc-type-chip" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></div>
+          <div class="doc-type-chip" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></div>
+          <div class="doc-type-chip" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></div>
+          <div class="doc-type-chip" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></div>
+          <div class="doc-type-chip" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></div>
+          <div class="doc-type-chip" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></div>
+          <div class="doc-type-chip" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></div>
+          <div class="doc-type-chip" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></div>
+          <div class="doc-type-chip" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></div>
+          <div class="doc-type-chip" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></div>
+          <div class="doc-type-chip" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></div>
+        </div>
       </div>
 
       <!-- Files list -->
@@ -2203,7 +2217,7 @@ function applyLang(){
   if(typeof updateUploadStepper === 'function') updateUploadStepper();
 
   // ── Doc type buttons ───────────────────────────
-  document.querySelectorAll('.doc-type-btn').forEach(btn => {
+  document.querySelectorAll('.doc-type-btn, .doc-type-chip').forEach(btn => {
     const lbl = btn.querySelector('.dt-label');
     if(lbl) lbl.textContent = lang==='es' ? btn.dataset.es : btn.dataset.en;
   });
@@ -2413,7 +2427,7 @@ function toggleDocTypeAccordion() {
 function updateDocTypeChips() {
   const chips = document.getElementById('usDocTypeChips');
   if (!chips) return;
-  const active = document.querySelectorAll('.doc-type-btn.active:not(.ghost)');
+  const active = document.querySelectorAll('.doc-type-chip');
   chips.innerHTML = Array.from(active).map(btn => {
     const lbl = btn.querySelector('.dt-label');
     const text = lbl ? lbl.textContent : '';
@@ -2422,7 +2436,7 @@ function updateDocTypeChips() {
 }
 
 function updateUploadStepper() {
-  const activeTypes = document.querySelectorAll('.doc-type-btn.active:not(.ghost)').length;
+  const activeTypes = document.querySelectorAll('.doc-type-chip').length;
   const hasFiles = uploadedFiles.length > 0;
 
   // Step 1: done if any doc types selected
