@@ -4910,6 +4910,7 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
 // selectField: highlight left row and scroll right panel to the matching field block
 function selectField(idx) {
   if (idx < 0 || idx >= _spFields.length) return;
+  _spSelectingFromClick = true;
 
   // Update left panel highlighting
   document.querySelectorAll('#spLeft .sp-row').forEach(row => row.classList.remove('active'));
@@ -4919,12 +4920,47 @@ function selectField(idx) {
     targetRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  // Scroll right panel to the matching field block
+  // Scroll WITHIN the right panel only (not the page)
+  const spRight = document.getElementById('spRight');
   const fieldBlock = document.getElementById('spField' + idx);
-  if (fieldBlock) {
-    fieldBlock.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  if (spRight && fieldBlock) {
+    spRight.scrollTo({ top: fieldBlock.offsetTop - spRight.offsetTop, behavior: 'smooth' });
   }
+  setTimeout(() => { _spSelectingFromClick = false; }, 500);
 }
+
+// Scroll sync: right panel scroll → highlight matching left row
+let _spSelectingFromClick = false;
+(function initScrollSync() {
+  // Defer until DOM is ready
+  const attach = () => {
+    const spRight = document.getElementById('spRight');
+    if (!spRight) return;
+    spRight.addEventListener('scroll', () => {
+      if (_spSelectingFromClick) return; // don't fight with click scroll
+      const blocks = spRight.querySelectorAll('.sp-field-block');
+      let closest = null, closestDist = Infinity;
+      const top = spRight.scrollTop + 20; // small offset
+      blocks.forEach(b => {
+        const dist = Math.abs(b.offsetTop - spRight.offsetTop - top);
+        if (dist < closestDist) { closestDist = dist; closest = b; }
+      });
+      if (closest) {
+        const idx = parseInt(closest.dataset.spIdx);
+        if (!isNaN(idx)) {
+          document.querySelectorAll('#spLeft .sp-row').forEach(r => r.classList.remove('active'));
+          const row = document.querySelector('#spLeft .sp-row[data-sp-idx="' + idx + '"]');
+          if (row) {
+            row.classList.add('active');
+            row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
+        }
+      }
+    }, { passive: true });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attach);
+  else setTimeout(attach, 200);
+})();
 
 function spDismissField(idx) {
   if (idx < 0 || idx >= _spFields.length) return;
