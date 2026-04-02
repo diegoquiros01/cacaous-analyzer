@@ -4809,7 +4809,10 @@ function selectField(idx) {
   // Update left panel: remove active from all, add to selected
   document.querySelectorAll('#spLeft .sp-row').forEach(row => row.classList.remove('active'));
   const targetRow = document.querySelector('#spLeft .sp-row[data-sp-idx="' + idx + '"]');
-  if (targetRow) targetRow.classList.add('active');
+  if (targetRow) {
+    targetRow.classList.add('active');
+    targetRow.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
 
   // Build right panel content
   const spEmpty   = document.getElementById('spRightEmpty');
@@ -4901,6 +4904,10 @@ function selectField(idx) {
   spContent.innerHTML = html;
   if (spEmpty)   spEmpty.style.display   = 'none';
   spContent.style.display = 'block';
+
+  // Scroll right panel to top
+  const spRight = document.getElementById('spRight');
+  if (spRight) spRight.scrollTop = 0;
 }
 
 function spDismissField(idx) {
