@@ -5090,143 +5090,168 @@ async function downloadPdfReport() {
     const date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
     const status = coherenceResult?.overallStatus || 'warning';
     const issues = coherenceResult?.coherenceIssues || [];
-    const errs = issues.filter(i=>i.type==='error').length;
-    const warns = issues.filter(i=>i.type==='warning').length;
-    const okDocs = Math.max(0, analysisResults.length - errs);
+    const finalErr = lastFinalErrors;
+    const finalWarn = lastFinalWarnings;
+    const okDocs = Math.max(0, analysisResults.length - finalErr);
     const blNum = analysisResults.find(r=>r.blNumber)?.blNumber || '';
     const vessel = analysisResults.find(r=>r.vesselName)?.vesselName || '';
+    const voyage = analysisResults.find(r=>r.voyageNumber)?.voyageNumber || '';
+    const portL = analysisResults.find(r=>r.portOfLoading)?.portOfLoading || '';
+    const portD = analysisResults.find(r=>r.portOfDischarge)?.portOfDischarge || '';
+    const lots = [...new Set(analysisResults.flatMap(r=>r.lotNumbers||[]).filter(Boolean))];
     const summary = coherenceResult?.summary || '';
     const actionItems = coherenceResult?.actionItems || [];
+    const totalAmt = analysisResults.find(r=>r.totalAmount)?.totalAmount || '';
+    const priceUnit = analysisResults.find(r=>r.pricePerUnit)?.pricePerUnit || '';
+    const incoterm = analysisResults.find(r=>r.incoterms)?.incoterms || '';
+    const payTerms = analysisResults.find(r=>r.paymentTerms)?.paymentTerms || '';
 
-    const statusColors = {
+    const sc = {
       approved: { bg:'#1a6b3a', label: lang==='es'?'APROBADO':'APPROVED' },
       warning:  { bg:'#8a6a00', label: lang==='es'?'CON OBSERVACIONES':'WITH OBSERVATIONS' },
       rejected: { bg:'#7a2e22', label: lang==='es'?'RECHAZADO':'REJECTED' },
-    };
-    const sc = statusColors[status] || statusColors.warning;
+    }[status] || { bg:'#8a6a00', label:'WARNING' };
 
-    // Build coherence table rows
+    const cleanDoc = s => (s||'').replace(/\.[^.]+$/,'').replace(/_page(\d+)/,' p.$1');
+
+    // Use _spFields (from split panel) — always populated
+    const fields = (typeof _spFields !== 'undefined' && _spFields.length > 0) ? _spFields : [];
+
+    // Build coherence table from _spFields
     let tableRows = '';
-    const sv = coherenceResult?.setValues || {};
-    for (const [k, d] of Object.entries(sv)) {
-      if (!d?.values?.length) continue;
-      const unique = [...new Set(d.values.map(v=>v.value).filter(Boolean))];
-      const st = d.status === 'inconsistent' ? '✗' : '✓';
-      const stColor = d.status === 'inconsistent' ? '#7a2e22' : '#1a6b3a';
-      const valStr = d.values.map(v => v.doc.replace(/\.[^.]+$/,'') + ': ' + (v.value||'—')).join('<br>');
-      tableRows += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:10px;">' + (t.FL[k]||k) + '</td>'
-        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+stColor+';font-weight:700;font-size:11px;">' + st + '</td>'
-        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-size:9px;line-height:1.6;">' + (unique.length <= 1 ? (unique[0]||'—') : valStr) + '</td></tr>';
-    }
-
-    // Build per-document rows
-    let docRows = '';
-    analysisResults.forEach(r => {
-      const ds = (coherenceResult?.perDocumentStatus||{})[r._filename] || {};
-      const docStatus = ds.status === 'approved' ? '✓' : ds.status === 'rejected' ? '✗' : '⚠';
-      const docColor = ds.status === 'approved' ? '#1a6b3a' : ds.status === 'rejected' ? '#7a2e22' : '#8a6a00';
-      docRows += '<tr>'
-        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;font-size:10px;font-weight:600;">' + (translateDocType(ds.docType||r.docType)||r._filename) + '</td>'
-        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + r._filename + '</td>'
-        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+docColor+';font-weight:700;">' + docStatus + '</td>'
-        + '<td style="padding:5px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + (ds.comment||'') + '</td>'
+    fields.forEach(f => {
+      const icon = f.severity==='err' ? '✗' : f.severity==='warn' ? '⚠' : '✓';
+      const color = f.severity==='err' ? '#7a2e22' : f.severity==='warn' ? '#8a6a00' : '#1a6b3a';
+      const bg = f.severity==='err' ? '#fdf2f0' : f.severity==='warn' ? '#fdf8ee' : '#fff';
+      let valCell = '';
+      if (f.severity==='ok') {
+        valCell = f.majVal || '—';
+      } else if (f.values && f.values.length > 0) {
+        valCell = f.values.map(v => {
+          const isOut = f.majVal && (v.value||'').trim() !== f.majVal;
+          return '<div style="margin-bottom:2px;' + (isOut?'color:#7a2e22;font-weight:700;':'') + '">'
+            + '<span style="color:#7a8499;font-size:8px;">' + cleanDoc(v.doc) + ':</span> '
+            + (v.value||'—') + (isOut?' ✗':'') + '</div>';
+        }).join('');
+      }
+      tableRows += '<tr style="background:'+bg+';">'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:10px;color:'+color+';white-space:nowrap;">' + icon + ' ' + f.label + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-size:9px;line-height:1.6;">' + valCell + '</td>'
         + '</tr>';
     });
 
-    // Build action items
+    // Per-document rows
+    let docRows = '';
+    const perDoc = coherenceResult?.perDocumentStatus || {};
+    analysisResults.forEach(r => {
+      const ds = perDoc[r._filename] || {};
+      const icon = ds.status==='approved' ? '✓' : ds.status==='rejected' ? '✗' : '⚠';
+      const color = ds.status==='approved' ? '#1a6b3a' : ds.status==='rejected' ? '#7a2e22' : '#8a6a00';
+      docRows += '<tr>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:10px;font-weight:600;">' + (translateDocType(ds.docType||r.docType)||r._filename) + '</td>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + r._filename + '</td>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+color+';font-weight:700;font-size:11px;">' + icon + '</td>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:8px;color:#7a8499;">' + (ds.comment||'') + '</td>'
+        + '</tr>';
+    });
+
+    // Action items
     let aiHtml = '';
     if (actionItems.length > 0) {
-      aiHtml = '<div style="margin-top:16px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a2e22;margin-bottom:8px;">'
+      aiHtml = '<div style="margin-top:14px;page-break-inside:avoid;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a2e22;margin-bottom:6px;">'
         + (t.actionItemsLabel || 'Action Items') + '</div>';
       actionItems.forEach((item, i) => {
-        aiHtml += '<div style="display:flex;gap:8px;padding:4px 0;font-size:10px;line-height:1.5;border-bottom:1px solid #f0f2f5;">'
-          + '<span style="color:#7a2e22;font-weight:700;flex-shrink:0;">' + (i+1) + '.</span>'
+        aiHtml += '<div style="padding:3px 0;font-size:9px;line-height:1.5;border-bottom:1px solid #f0f2f5;">'
+          + '<span style="color:#7a2e22;font-weight:700;">' + (i+1) + '.</span> '
           + '<span style="color:#3a4255;">' + item + '</span></div>';
       });
       aiHtml += '</div>';
     }
 
-    const html = `
-    <div style="width:190mm;font-family:Helvetica,Arial,sans-serif;color:#0f1117;padding:0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #1c2230;padding-bottom:10px;margin-bottom:16px;">
-        <div style="font-size:18px;font-weight:700;letter-spacing:0.12em;color:#1c2230;">DOCSVALIDATE</div>
-        <div style="text-align:right;font-size:9px;color:#7a8499;line-height:1.6;">
-          <div>${date}</div>
-          ${blNum ? '<div style="font-weight:600;color:#1c2230;">B/L: '+blNum+'</div>' : ''}
-          ${vessel ? '<div>'+vessel+'</div>' : ''}
-        </div>
-      </div>
+    // Commercial + Transport info line
+    const infoLine = [totalAmt, priceUnit, incoterm, payTerms].filter(Boolean).join(' · ');
+    const routeLine = [portL, portD].filter(Boolean).join(' → ');
+    const lotsLine = lots.length ? (lang==='es'?'Lotes: ':'Lots: ') + lots.join(', ') : '';
 
-      <div style="display:inline-block;background:${sc.bg};color:white;padding:6px 16px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:0.1em;margin-bottom:14px;">
-        ${sc.label}
-      </div>
+    const html = `<div style="width:190mm;font-family:Helvetica,Arial,sans-serif;color:#0f1117;font-size:10px;line-height:1.4;">
+<!-- Header -->
+<table style="width:100%;border-bottom:2px solid #1c2230;margin-bottom:10px;"><tr>
+<td style="font-size:16px;font-weight:700;letter-spacing:0.1em;padding-bottom:8px;">DOCSVALIDATE</td>
+<td style="text-align:right;font-size:9px;color:#7a8499;padding-bottom:8px;line-height:1.5;">
+${date}<br>${blNum?'<b style="color:#0f1117;">B/L: '+blNum+'</b><br>':''}${vessel}${voyage?' · Voy. '+voyage:''}
+</td>
+</tr></table>
 
-      <div style="display:flex;gap:12px;margin-bottom:16px;">
-        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
-          <div style="font-size:22px;font-weight:400;color:#4a6fa5;">${analysisResults.length}</div>
-          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statDocs}</div>
-        </div>
-        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
-          <div style="font-size:22px;font-weight:400;color:#1a6b3a;">${okDocs}</div>
-          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statOk}</div>
-        </div>
-        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
-          <div style="font-size:22px;font-weight:400;color:#8a6a00;">${warns}</div>
-          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statWarn}</div>
-        </div>
-        <div style="flex:1;background:#f7f8fa;border:1px solid #e8edf5;padding:10px;text-align:center;border-radius:3px;">
-          <div style="font-size:22px;font-weight:400;color:#7a2e22;">${errs}</div>
-          <div style="font-size:8px;text-transform:uppercase;letter-spacing:0.15em;color:#7a8499;">${t.statErr}</div>
-        </div>
-      </div>
+<!-- Status + Stats -->
+<table style="width:100%;margin-bottom:10px;"><tr>
+<td style="width:140px;vertical-align:top;">
+<div style="background:${sc.bg};color:white;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;display:inline-block;">${sc.label}</div>
+</td>
+<td style="vertical-align:top;">
+<table style="width:100%;border-collapse:collapse;"><tr>
+<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#4a6fa5;">${analysisResults.length}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statDocs}</div></td>
+<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#1a6b3a;">${okDocs}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statOk}</div></td>
+<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#8a6a00;">${finalWarn}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statWarn}</div></td>
+<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#7a2e22;">${finalErr}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statErr}</div></td>
+</tr></table>
+</td>
+</tr></table>
 
-      ${summary ? '<div style="background:#f7f8fa;border-left:3px solid #4a6fa5;padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:16px;font-size:10px;line-height:1.7;color:#3a4255;font-style:italic;">'+summary+'</div>' : ''}
+<!-- Transport + Commercial info -->
+${(routeLine||lotsLine||infoLine) ? '<div style="background:#f7f8fa;border:1px solid #e8edf5;padding:7px 10px;margin-bottom:10px;font-size:9px;color:#3a4255;line-height:1.6;">'
+  + (routeLine ? '<b>'+routeLine+'</b><br>' : '')
+  + (lotsLine ? lotsLine + '<br>' : '')
+  + (infoLine ? infoLine : '')
+  + '</div>' : ''}
 
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#1c2230;margin-bottom:8px;border-bottom:1px solid #e8edf5;padding-bottom:4px;">
-        ${t.coherenceTitle || 'Coherence Table'}
-      </div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-        <thead><tr style="background:#1c2230;">
-          <th style="padding:6px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;">${t.th1}</th>
-          <th style="padding:6px 10px;text-align:center;color:white;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;">${t.th2}</th>
-          <th style="padding:6px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:400;">${t.th3}</th>
-        </tr></thead>
-        <tbody>${tableRows}</tbody>
-      </table>
+<!-- AI Summary -->
+${summary ? '<div style="border-left:3px solid #4a6fa5;padding:8px 12px;margin-bottom:12px;font-size:9.5px;line-height:1.7;color:#3a4255;font-style:italic;background:#f7f8fa;">'+summary+'</div>' : ''}
 
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#1c2230;margin-bottom:8px;border-bottom:1px solid #e8edf5;padding-bottom:4px;">
-        ${t.perDocTitle || 'Per Document Detail'}
-      </div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
-        <thead><tr style="background:#f0f2f5;">
-          <th style="padding:5px 10px;text-align:left;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">Type</th>
-          <th style="padding:5px 10px;text-align:left;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">File</th>
-          <th style="padding:5px 10px;text-align:center;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">${t.th2}</th>
-          <th style="padding:5px 10px;text-align:left;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#7a8499;font-weight:400;">Notes</th>
-        </tr></thead>
-        <tbody>${docRows}</tbody>
-      </table>
+<!-- Coherence Table -->
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">${t.coherenceTitle || 'Coherence Table'}</div>
+<table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+<thead><tr style="background:#1c2230;">
+<th style="padding:5px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;width:30%;">${t.th1}</th>
+<th style="padding:5px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;">${t.th3}</th>
+</tr></thead>
+<tbody>${tableRows}</tbody>
+</table>
 
-      ${aiHtml}
+${aiHtml}
 
-      <div style="border-top:1px solid #d0d6e2;padding-top:8px;margin-top:20px;font-size:8px;color:#7a8499;text-align:center;letter-spacing:0.08em;">
-        Validated by DocsValidate · ${t.rptSubtitle} · ${date}
-      </div>
-    </div>`;
+<!-- Per Document -->
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">${t.perDocTitle || 'Per Document Detail'}</div>
+<table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
+<thead><tr style="background:#f0f2f5;">
+<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">Type</th>
+<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">File</th>
+<th style="padding:4px 10px;text-align:center;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${t.th2}</th>
+<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">Notes</th>
+</tr></thead>
+<tbody>${docRows}</tbody>
+</table>
+
+<!-- Footer -->
+<div style="border-top:1px solid #d0d6e2;padding-top:6px;margin-top:12px;font-size:7px;color:#7a8499;text-align:center;letter-spacing:0.08em;">
+Validated by DocsValidate · ${t.rptSubtitle || 'AI-Powered Export Validation'} · ${date}
+</div>
+</div>`;
 
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.left = '-9999px';
+    container.style.top = '0';
     container.innerHTML = html;
     document.body.appendChild(container);
 
     const filename = 'docsvalidate-report-' + (blNum || Date.now()) + '.pdf';
     await html2pdf().set({
-      margin: [10, 10, 10, 10],
+      margin: [8, 8, 8, 8],
       filename,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true },
+      image: { type: 'jpeg', quality: 0.92 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     }).from(container.firstElementChild).save();
 
     document.body.removeChild(container);
