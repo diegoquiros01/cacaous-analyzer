@@ -228,66 +228,98 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 }
 
 /* ══════════════════════════════════════
-   UPLOAD — Two Column Layout
+   UPLOAD SECTION
 ══════════════════════════════════════ */
 
-/* Mini stepper */
-.up-stepper {
-  display: flex; align-items: center; padding: 0.6rem 0; margin-bottom: 0.8rem;
-}
-.up-st {
-  display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0;
-  color: var(--text-light);
-}
+/* Stepper */
+.up-stepper { display: flex; align-items: center; padding: 0.75rem 0; margin-bottom: 1rem; }
+.up-st { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; color: var(--text-light); }
 .up-st-circ {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 1px solid currentColor;
+  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.56rem; font-weight: 700;
+  font-size: 0.58rem; font-weight: 700; flex-shrink: 0;
 }
-.up-st-lbl {
-  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
-}
-.up-st-line {
-  flex: 1; height: 1px; background: var(--border-light); margin: 0 0.5rem;
-}
+.up-st-lbl { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.up-st-line { flex: 1; height: 1px; background: var(--border-light); margin: 0 0.75rem; }
 .up-st.up-st-done { color: var(--green); }
 .up-st.up-st-done .up-st-circ { background: var(--green); border-color: var(--green); color: var(--white); }
 .up-st.up-st-done .up-st-lbl { font-weight: 700; }
 .up-st-line.up-st-line-done { background: var(--green); }
 .up-st.up-st-active { color: var(--brown-dark); }
-.up-st.up-st-active .up-st-circ { border-color: var(--tan); color: var(--tan); }
+.up-st.up-st-active .up-st-circ { border-color: var(--brown-dark); color: var(--brown-dark); }
 .up-st.up-st-active .up-st-lbl { font-weight: 700; }
 
-/* Two-column panel */
+/* Panel */
 .up-panel {
-  display: grid; grid-template-columns: 200px 1fr; gap: 1.25rem;
   background: var(--white); border: 1px solid var(--border-light);
   border-radius: 4px; padding: 1.5rem; margin-bottom: 1rem;
 }
-@media(max-width:768px){
-  .up-panel { grid-template-columns: 1fr; }
+.up-title {
+  font-family: 'Playfair Display', serif; font-size: 1.2rem;
+  font-weight: 500; color: var(--brown-dark); margin-bottom: 0.2rem;
 }
+.up-subtitle { font-size: 0.75rem; color: var(--text-light); margin-bottom: 1.25rem; }
 
-/* Left: doc types */
-.up-left {}
-.up-sec-lbl {
-  font-size: 0.52rem; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--text-light); margin-bottom: 0.5rem;
+/* Drop zone */
+.upload-area {
+  border: 2px dashed var(--border); background: var(--offwhite);
+  padding: 2rem 1.5rem; text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative; border-radius: 3px;
 }
-.up-dt-list {
-  display: flex; flex-direction: column; gap: 3px;
+.upload-area:hover, .upload-area.drag-over { border-color: var(--tan); background: #f0f4fa; }
+.upload-area input[type="file"] { display: none; }
+.upload-area h3 {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem;
+  font-weight: 400; color: var(--brown-dark); margin-bottom: 0.25rem;
 }
+.upload-area p { font-size: 0.72rem; color: var(--text-light); line-height: 1.6; }
+.upload-cta {
+  display: inline-block; margin-top: 0.75rem; padding: 0.55rem 1.75rem;
+  background: var(--brown-dark); color: var(--white);
+  font-family: 'Lato', sans-serif; font-size: 0.65rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border: none; cursor: pointer; transition: background 0.2s; border-radius: 2px;
+}
+.upload-cta:hover { background: var(--brown); }
+
+/* Doc types summary chips */
+.up-dt-summary {
+  margin-top: 0.875rem; padding: 0.65rem 0.75rem;
+  background: var(--offwhite); border: 1px solid var(--border-light); border-radius: 2px;
+}
+.up-dt-summary-label {
+  font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 700; margin-bottom: 0.5rem;
+}
+.up-dt-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.up-dt-chip {
+  padding: 0.28rem 0.6rem; background: var(--brown-dark); color: var(--white);
+  border-radius: 20px; font-size: 0.6rem; letter-spacing: 0.06em;
+  text-transform: uppercase; display: flex; align-items: center; gap: 3px;
+}
+.up-dt-chip .chip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--tan-light); }
+.up-dt-chip-edit {
+  padding: 0.28rem 0.6rem; background: transparent;
+  border: 1px dashed var(--border); color: var(--text-light);
+  border-radius: 20px; font-size: 0.6rem; letter-spacing: 0.06em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.15s;
+}
+.up-dt-chip-edit:hover { border-color: var(--tan); color: var(--tan); }
+
+/* Hidden edit grid */
+.up-dt-edit {
+  display: none; flex-wrap: wrap; gap: 4px;
+  margin-top: 0.5rem; padding: 0.6rem 0.75rem;
+  background: var(--white); border: 1px solid var(--border-light); border-radius: 2px;
+}
+.up-dt-edit.open { display: flex; }
 .doc-type-btn {
-  padding: 0.4rem 0.55rem;
-  border: 1px solid var(--border);
-  background: var(--offwhite);
-  color: var(--text-mid);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.35rem 0.55rem; border: 1px solid var(--border);
+  background: var(--offwhite); color: var(--text-mid);
+  font-family: 'Lato', sans-serif; font-size: 0.58rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
   cursor: pointer; transition: all 0.15s; font-weight: 400;
-  text-align: left; display: flex; align-items: center; gap: 4px;
-  border-radius: 2px;
+  display: flex; align-items: center; gap: 4px; border-radius: 2px;
 }
 .doc-type-btn .dt-dot {
   width: 4px; height: 4px; border-radius: 50%;
@@ -297,84 +329,41 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 .doc-type-btn.active { border-color: var(--brown-dark); background: var(--brown-dark); color: var(--white); }
 .doc-type-btn.active .dt-dot { background: var(--tan-light); }
 
-/* Right: upload area */
-.up-right {}
-
-.upload-area {
-  border: 2px dashed var(--border);
-  background: var(--offwhite);
-  padding: 1.25rem 1rem; text-align: center;
-  cursor: pointer; transition: all 0.2s;
-  position: relative; border-radius: 3px;
-}
-.upload-area:hover, .upload-area.drag-over {
-  border-color: var(--tan); background: #f0f4fa;
-}
-.upload-area input[type="file"] { display: none; }
-.upload-area h3 {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.95rem; font-weight: 400; color: var(--brown-dark);
-  margin-bottom: 0.3rem;
-}
-.upload-area p { font-size: 0.72rem; color: var(--text-light); line-height: 1.6; }
-.upload-cta {
-  display: inline-block; margin-top: 0.7rem;
-  padding: 0.45rem 1.4rem;
-  background: var(--brown-dark); color: var(--tan-light);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
-  border: none; cursor: pointer; transition: background 0.2s; border-radius: 2px;
-}
-.upload-cta:hover { background: var(--brown); }
-
-/* Files header */
+/* Files header + list */
 .up-files-hdr {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.4rem 0; margin-top: 0.6rem;
+  padding: 0.4rem 0.75rem; margin-top: 0.5rem;
   border-bottom: 1px solid var(--border-light);
 }
-.up-files-lbl {
-  font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 700;
-}
-.up-files-cnt {
-  font-size: 0.55rem; letter-spacing: 0.06em; color: var(--tan); font-weight: 700;
-}
-
-/* FILES LIST */
+.up-files-lbl { font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); font-weight: 700; }
+.up-files-cnt { font-size: 0.55rem; letter-spacing: 0.06em; color: var(--tan); font-weight: 700; }
 .files-list { margin-bottom: 0.3rem; }
 .file-item {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.45rem 0.6rem;
-  background: var(--offwhite); border: 1px solid var(--border-light);
-  border-bottom: none; transition: background 0.15s;
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.75rem; background: var(--white);
+  border: 1px solid var(--border-light); border-radius: 2px;
+  margin-bottom: 4px; transition: background 0.15s;
 }
-.file-item:first-child { border-top: none; }
-.file-item:last-child { border-bottom: 1px solid var(--border-light); }
-.file-item:hover { background: var(--cream); }
+.file-item:hover { background: var(--offwhite); }
 .file-item.fi-detected { background: #f0f7f2; border-color: #d4ede0; }
 .file-icon { font-size: 0.9rem; flex-shrink: 0; }
 .file-info { flex: 1; min-width: 0; }
-.file-name { font-size: 0.72rem; color: var(--brown-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-name { font-size: 0.75rem; color: var(--brown-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .file-size { font-size: 0.52rem; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.1rem; }
-.file-badge {
-  font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 1px 5px; border: 1px solid; flex-shrink: 0; font-weight: 700;
-}
-.badge-excel { border-color: #2d7a3a; color: #2d7a3a; background: #f0faf1; }
-.badge-word { border-color: #2b4fa8; color: #2b4fa8; background: #f0f4ff; }
+.file-badge { font-size: 0.55rem; font-weight: 700; color: var(--white); padding: 2px 6px; border-radius: 2px; border: none; flex-shrink: 0; }
+.badge-pdf { background: #7a5230; }
+.badge-excel { background: #217346; }
+.badge-word { background: #2b579a; }
+.badge-img { background: #5a6a8a; }
 .file-detected-type {
-  font-size: 0.5rem; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--green); font-weight: 700; flex-shrink: 0;
+  font-size: 0.65rem; color: var(--green); font-weight: 600; flex-shrink: 0;
   display: flex; align-items: center; gap: 3px;
 }
 .file-del {
   background: none; border: none; color: var(--text-light);
-  cursor: pointer; font-size: 0.75rem; padding: 0.15rem 0.3rem; transition: color 0.2s;
+  cursor: pointer; font-size: 0.85rem; margin-left: auto; transition: color 0.2s;
 }
 .file-del:hover { color: var(--red-light); }
-
-/* FILES COUNT (hidden, replaced by up-files-hdr) */
 .files-count { display: none; }
 
 /* ANALYZE BUTTON */
@@ -1574,67 +1563,73 @@ footer {
   <!-- ══ STEP 1: UPLOAD ══ -->
   <div id="uploadSection">
 
-    <!-- Mini stepper -->
+    <!-- Stepper -->
     <div class="up-stepper" id="upStepper">
       <div class="up-st up-st-done" id="upSt1"><span class="up-st-circ">✓</span><span class="up-st-lbl" id="upSt1Lbl">Doc Types</span></div>
       <div class="up-st-line up-st-line-done" id="upStLine1"></div>
-      <div class="up-st up-st-active" id="upSt2"><span class="up-st-circ">2</span><span class="up-st-lbl" id="upSt2Lbl">Upload Files</span></div>
+      <div class="up-st up-st-active" id="upSt2"><span class="up-st-circ">2</span><span class="up-st-lbl" id="upSt2Lbl">Upload</span></div>
       <div class="up-st-line" id="upStLine2"></div>
       <div class="up-st" id="upSt3"><span class="up-st-circ">3</span><span class="up-st-lbl" id="upSt3Lbl">Analyze</span></div>
     </div>
 
-    <!-- Two-column panel -->
+    <!-- Panel -->
     <div class="up-panel">
-      <!-- LEFT: Doc Types -->
-      <div class="up-left">
-        <div class="up-sec-lbl" id="upDocTypesLabel">DOCUMENT TYPES</div>
-        <div class="up-dt-list" id="docTypesGrid">
-          <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
-          <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
-          <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
-          <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
-          <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
-          <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
-          <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
-          <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
-          <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
-          <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
-          <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
-        </div>
+      <h2 class="up-title" id="uploadPanelTitle">Upload your documents</h2>
+      <p class="up-subtitle" id="uploadPanelSub">11 types selected · Drag files or browse</p>
+
+      <!-- Drop Zone -->
+      <div class="upload-area" id="uploadZone">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <h3 id="uploadTitle">Drag all shipment documents here</h3>
+        <p id="uploadSub">PDF · JPG · PNG · Excel (.xlsx) · Word (.docx)</p>
+        <p style="font-size:0.68rem;color:#b0b8cc;margin-top:0.15rem;" id="uploadSub2">All documents from the same shipment set</p>
+        <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">
+          <span id="browseFilesText">Select Files</span>
+        </button>
+        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
       </div>
 
-      <!-- RIGHT: Upload + Files + Analyze -->
-      <div class="up-right">
-        <!-- Drop zone -->
-        <div class="upload-area" id="uploadZone">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.5rem;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          <h3 id="uploadTitle">Drop documents here</h3>
-          <p id="uploadSub">PDF · Excel · Word · Images</p>
-          <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">
-            <span id="browseFilesText">Browse files</span>
-          </button>
-          <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
-        </div>
+      <!-- Doc Types Summary (chips) -->
+      <div class="up-dt-summary" id="upDtSummary">
+        <div class="up-dt-summary-label" id="upDtSummaryLabel">SELECTED DOCUMENT TYPES</div>
+        <div class="up-dt-chips" id="upDtChips"></div>
+      </div>
 
-        <!-- Files list -->
-        <div class="up-files-hdr" id="filesListHeader" style="display:none;">
-          <span class="up-files-lbl" id="filesAddedLabel">Files added</span>
-          <span class="up-files-cnt" id="filesAddedCount"></span>
-        </div>
-        <div class="files-list" id="filesList"></div>
-        <div class="files-count" id="filesCount" style="display:none"></div>
+      <!-- Hidden: full doc type grid for editing -->
+      <div id="docTypesGrid" class="up-dt-edit" style="display:none;">
+        <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
+        <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
+        <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
+        <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
+        <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
+        <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
+        <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
+        <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
+        <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
+        <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
+        <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
+        <button class="doc-type-btn active" data-en="Fumigation Certificate" data-es="Cert. de Fumigación"><span class="dt-dot"></span><span class="dt-label">Fumigation Certificate</span></button>
+        <button class="doc-type-btn active" data-en="Shipping Notification" data-es="Notificación de Embarque"><span class="dt-dot"></span><span class="dt-label">Shipping Notification</span></button>
+      </div>
 
-        <!-- Analyze button -->
-        <div class="analyze-wrap" style="margin-top:0.75rem;">
-          <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
-            <span class="btn-icon">◆</span>
-            <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
-          </button>
-        </div>
+      <!-- Analyze button -->
+      <div class="analyze-wrap" style="margin-top:0.875rem;margin-bottom:0;">
+        <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+          <span class="btn-icon">◆</span>
+          <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
+        </button>
       </div>
     </div>
+
+    <!-- Files list (below panel) -->
+    <div class="up-files-hdr" id="filesListHeader" style="display:none;">
+      <span class="up-files-lbl" id="filesAddedLabel">Files added</span>
+      <span class="up-files-cnt" id="filesAddedCount"></span>
+    </div>
+    <div class="files-list" id="filesList"></div>
+    <div class="files-count" id="filesCount" style="display:none"></div>
 
     <!-- Tip -->
     <div class="partial-tip" id="partialTip">
@@ -2303,7 +2298,7 @@ function updateUploadStepper() {
   const activeTypes = document.querySelectorAll('.doc-type-btn.active').length;
   const hasFiles = uploadedFiles.length > 0;
 
-  // Step 2: done if has files
+  // Stepper states
   const s2 = document.getElementById('upSt2');
   const l2 = document.getElementById('upStLine2');
   if (s2) {
@@ -2312,10 +2307,16 @@ function updateUploadStepper() {
     if (circ) circ.textContent = hasFiles ? '✓' : '2';
   }
   if (l2) l2.className = hasFiles ? 'up-st-line up-st-line-done' : 'up-st-line';
-
-  // Step 3: active if has files
   const s3 = document.getElementById('upSt3');
   if (s3) s3.className = hasFiles ? 'up-st up-st-active' : 'up-st';
+
+  // Subtitle
+  const sub = document.getElementById('uploadPanelSub');
+  if (sub) {
+    const tl = lang==='es' ? activeTypes+' tipos seleccionados' : activeTypes+' type'+(activeTypes===1?'':'s')+' selected';
+    const fl = lang==='es' ? ' · Arrastra archivos o selecciona' : ' · Drag files or browse';
+    sub.textContent = tl + fl;
+  }
 
   // Files header
   const fh = document.getElementById('filesListHeader');
@@ -2323,11 +2324,31 @@ function updateUploadStepper() {
   if (fh) fh.style.display = hasFiles ? 'flex' : 'none';
   if (fc2) fc2.textContent = uploadedFiles.length + ' / ~' + activeTypes;
 
-  // Doc types label
-  const dtLabel = document.getElementById('upDocTypesLabel');
-  if (dtLabel) {
-    dtLabel.textContent = (lang==='es' ? 'TIPOS DE DOCUMENTO' : 'DOCUMENT TYPES');
-  }
+  // Render doc type chips
+  renderDocTypeChips();
+}
+
+function renderDocTypeChips() {
+  const chips = document.getElementById('upDtChips');
+  if (!chips) return;
+  const active = document.querySelectorAll('.doc-type-btn.active');
+  const editLabel = lang==='es' ? '+ EDITAR' : '+ EDIT TYPES';
+  let html = '';
+  active.forEach(btn => {
+    const lbl = btn.querySelector('.dt-label');
+    const text = lbl ? lbl.textContent : '';
+    html += '<span class="up-dt-chip"><span class="chip-dot"></span>' + text + '</span>';
+  });
+  html += '<span class="up-dt-chip-edit" onclick="toggleDocTypeEdit()">' + editLabel + '</span>';
+  chips.innerHTML = html;
+}
+
+function toggleDocTypeEdit() {
+  const grid = document.getElementById('docTypesGrid');
+  if (!grid) return;
+  grid.classList.toggle('open');
+  if (grid.classList.contains('open')) grid.style.display = 'flex';
+  else grid.style.display = 'none';
 }
 
 async function excelToText(f){
