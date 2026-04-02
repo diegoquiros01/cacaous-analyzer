@@ -4160,7 +4160,17 @@ function renderResults(){
   const aiSummaryText = coherenceResult?.summary || '';
   if(sumCard && sumText){
     if(aiSummaryText){
-      sumText.textContent = translateSummary(aiSummaryText);
+      if(lang==='es'){
+        // Show local translation immediately, then async AI translation
+        sumText.textContent = translateSummaryLocal(aiSummaryText);
+        sumText.style.opacity = '0.6';
+        translateWithAI(aiSummaryText, 'es').then(translated => {
+          sumText.textContent = translated;
+          sumText.style.opacity = '1';
+        }).catch(() => { sumText.style.opacity = '1'; });
+      } else {
+        sumText.textContent = aiSummaryText;
+      }
     } else {
       // Fallback summary when AI text is unavailable (timeout, truncation, etc.)
       sumText.textContent = finalErrors > 0
@@ -4886,7 +4896,8 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
       rightHtml += '<div class="sp-detail-body">';
 
       if (field.message) {
-        rightHtml += '<div class="sp-detail-msg">' + field.message + '</div>';
+        const msgText = lang==='es' ? translateSummaryLocal(field.message) : field.message;
+        rightHtml += '<div class="sp-detail-msg">' + msgText + '</div>';
       }
 
       if (field.values && field.values.length > 0 && field.severity !== 'ok') {
@@ -4926,6 +4937,19 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
     spContent.innerHTML = rightHtml;
     if (spEmpty) spEmpty.style.display = 'none';
     spContent.style.display = 'block';
+
+    // Async translate AI messages to current language
+    if (lang === 'es') {
+      spContent.querySelectorAll('.sp-detail-msg').forEach(el => {
+        const original = el.textContent;
+        if (!original || /[áéíóúñ¿¡]/.test(original)) return; // already Spanish
+        el.style.opacity = '0.6';
+        translateWithAI(original, 'es').then(tr => {
+          el.textContent = tr;
+          el.style.opacity = '1';
+        }).catch(() => { el.style.opacity = '1'; });
+      });
+    }
   }
 
   // Show/hide panel
