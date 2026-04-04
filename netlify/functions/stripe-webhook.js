@@ -22,9 +22,14 @@
 // Fill these in with your actual Stripe Price IDs from Stripe Dashboard → Products
 // ─────────────────────────────────────────────────────────────────────────────
 const PRICE_TO_PLAN = {
+  // Starter (free — no Stripe price, but kept for reference)
   'price_1TDa31FZXtgfLmPehPPvJxzZ':      'starter',
-  'price_1TDa3bFZXtgfLmPeNZAjubq9': 'professional',
-  'price_1TDa3xFZXtgfLmPe75FrukTG': 'enterprise',
+  // Professional
+  'price_1TDa3bFZXtgfLmPeNZAjubq9': 'professional',  // monthly
+  'price_1TIcmzFZXtgfLmPeC2gaiBxU': 'professional',  // annual
+  // Enterprise
+  'price_1TDa3xFZXtgfLmPe75FrukTG': 'enterprise',    // monthly
+  'price_1TIcpoFZXtgfLmPeG8E6neTO': 'enterprise',    // annual
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
