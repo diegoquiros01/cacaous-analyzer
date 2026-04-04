@@ -3608,11 +3608,13 @@ function extractNum(s){
 }
 
 function isCode(s){
-  // Container numbers, seal numbers, BL numbers, lot numbers — must match EXACTLY
-  // Container: 4 letters + 6-7 digits (e.g. ECMU5239485)
-  // BL: mix of letters and digits
-  return /^[A-Z]{4}\d{6,7}$/i.test(s.trim()) ||  // container format
-         /^[A-Z]{2,4}\d{6,}$/i.test(s.trim());    // BL/seal format
+  // Reference codes that must match EXACTLY — never compare numerically
+  const t = s.trim();
+  return /^[A-Z]{4}\d{6,7}$/i.test(t) ||           // container: ECMU5239485
+         /^[A-Z]{2,4}\d{6,}$/i.test(t) ||           // BL/seal: MAEU266461945
+         /^\d{3}-\d{3}-\d{6,}$/.test(t) ||           // invoice: 001-002-000000824
+         /^\d{3}-\d{4}-\d{2}-\d{6,}$/.test(t) ||     // DAE: 028-2026-40-00512739
+         /^\d+-\d+-\d+$/.test(t);                     // any digit-dash-digit reference
 }
 
 function splitCodes(s){
