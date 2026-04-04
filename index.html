@@ -4017,8 +4017,15 @@ function buildSetValuesFromResults(results){
     });
     if(!values.length) continue;
     const unique = [...new Set(values.map(v=>v.value))];
+    // Check if all unique values are trivially the same (kg vs kgs, bags vs sacos, case, etc.)
+    let allTrivial = true;
+    if (unique.length > 1) {
+      for (let i = 0; i < unique.length && allTrivial; i++)
+        for (let j = i+1; j < unique.length && allTrivial; j++)
+          if (!isTrivialDifference(unique[i], unique[j])) allTrivial = false;
+    }
     out[key] = {
-      status: unique.length === 1 ? 'consistent' : values.length > 1 ? 'inconsistent' : 'single_source',
+      status: unique.length === 1 || allTrivial ? 'consistent' : values.length > 1 ? 'inconsistent' : 'single_source',
       values
     };
   }
@@ -4031,9 +4038,11 @@ function renderResults(){
   const t=tx();
 
   // ── STEP 1: Use JS-determined results directly (no AI filtering needed)
-  const smartResult = coherenceResult;
+  // Apply trivial-difference filter (kg vs kgs, bags vs sacos, case, number format, etc.)
+  const filtered = filterTrivialInconsistencies(coherenceResult);
+  const smartResult = filtered;
   // displayIssues: filter out system/document_processing fields
-  const displayIssues = (coherenceResult?.coherenceIssues||[]).filter(iss =>
+  const displayIssues = (filtered?.coherenceIssues||[]).filter(iss =>
     iss.field !== 'system' && iss.field !== 'document_processing' && iss.field !== 'documentProcessing'
   );
 
