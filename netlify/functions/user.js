@@ -76,12 +76,14 @@ exports.handler = async (event) => {
   const headers = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
-    const { action, clerk_id, email } = JSON.parse(event.body || '{}');
+    const { action, clerk_id, email, new_plan } = JSON.parse(event.body || '{}');
 
     if (!clerk_id) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id' }) };
@@ -89,7 +91,7 @@ exports.handler = async (event) => {
 
     // ── GET USER ────────────────────────────────────────────────────────────
     if (action === 'get' || !action) {
-      let users = await supabase(`users?clerk_id=eq.${clerk_id}&select=*`);
+      let users = await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}&select=*`);
 
       // Create user if doesn't exist
       if (!users || users.length === 0) {
@@ -111,7 +113,7 @@ exports.handler = async (event) => {
       // ── AUTO-RESET if 30 days have passed ──────────────────────────────
       if (shouldReset(user)) {
         const now = new Date().toISOString();
-        await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+        await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}`, 'PATCH', {
           validations_used: 0,
           last_reset: now,
           updated_at: now,
@@ -141,7 +143,7 @@ exports.handler = async (event) => {
 
     // ── INCREMENT USAGE ─────────────────────────────────────────────────────
     if (action === 'increment') {
-      let users = await supabase(`users?clerk_id=eq.${clerk_id}&select=*`);
+      let users = await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}&select=*`);
       let user  = Array.isArray(users) ? users[0] : users;
       if (!user) {
         return { statusCode: 404, headers, body: JSON.stringify({ error: 'User not found' }) };
@@ -150,7 +152,7 @@ exports.handler = async (event) => {
       // Auto-reset check on increment too (edge case: user was at limit, period expired)
       if (shouldReset(user)) {
         const now = new Date().toISOString();
-        await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+        await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}`, 'PATCH', {
           validations_used: 0,
           last_reset: now,
           updated_at: now,
@@ -174,7 +176,7 @@ exports.handler = async (event) => {
       }
 
       const now = new Date().toISOString();
-      await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+      await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}`, 'PATCH', {
         validations_used: user.validations_used + 1,
         updated_at: now,
       });
@@ -192,14 +194,13 @@ exports.handler = async (event) => {
 
     // ── UPDATE PLAN (called by Stripe webhook) ──────────────────────────────
     if (action === 'update_plan') {
-      const { new_plan } = JSON.parse(event.body);
       if (!new_plan || !PLAN_LIMITS[new_plan]) {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid plan: ' + new_plan }) };
       }
 
       // When upgrading plan, reset counter — next reset will be 1st of next month
       const now = new Date().toISOString();
-      await supabase(`users?clerk_id=eq.${clerk_id}`, 'PATCH', {
+      await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}`, 'PATCH', {
         plan:             new_plan,
         validations_used: 0,
         last_reset:       now,

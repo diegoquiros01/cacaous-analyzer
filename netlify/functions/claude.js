@@ -16,6 +16,9 @@ const ALLOWED_MODELS = [
 
 exports.handler = async (event) => {
   const origin = event.headers['origin'] || event.headers['Origin'] || '';
+  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+    return { statusCode: 403, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: { message: 'Forbidden origin' } }) };
+  }
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
 
   const corsHeaders = {
@@ -70,7 +73,12 @@ exports.handler = async (event) => {
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        model: body.model,
+        max_tokens: body.max_tokens,
+        system: body.system,
+        messages: body.messages,
+      }),
     });
 
     const data = await response.json();

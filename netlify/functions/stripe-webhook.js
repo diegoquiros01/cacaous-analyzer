@@ -54,6 +54,7 @@ async function stripeGet(path) {
   const res = await fetch(`https://api.stripe.com/v1/${path}`, {
     headers: { 'Authorization': `Bearer ${STRIPE_SECRET}` },
   });
+  if (!res.ok) throw new Error(`Stripe GET ${path} failed: ${res.status}`);
   return res.json();
 }
 
@@ -268,7 +269,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('Webhook handler error:', err.message, err.stack);
-    // Return 200 to Stripe so it doesn't retry — log the error for manual review
-    return { statusCode: 200, body: JSON.stringify({ received: true, error: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };

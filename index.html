@@ -1852,6 +1852,7 @@ function getGuestCount(){ return parseInt(localStorage.getItem('dv_guest_count')
 function incGuestCount(){ localStorage.setItem('dv_guest_count', getGuestCount()+1); }
 function isLoggedIn(){ return window.__clerk_user != null; }
 let _cachedSummary = null; // for lang switching
+let lastFinalErrors = 0, lastFinalWarnings = 0;
 
 const TX = {
   en: {
@@ -3339,9 +3340,25 @@ async function startAnalysis(){
   const loggedIn = isLoggedIn();
   const guestCount = getGuestCount();
 
-  if(!loggedIn && guestCount >= GUEST_LIMIT){
-    showAuthModal('guest_limit');
-    return;
+  if(!loggedIn){
+    try {
+      const rlResp = await fetch('/.netlify/functions/rate-limit', {
+        method: 'POST',
+        headers: await buildAuthHeaders(),
+        body: JSON.stringify({ action: 'check' }),
+      });
+      const rlData = await rlResp.json();
+      if(!rlData.allowed){
+        showAuthModal('guest_limit');
+        return;
+      }
+    } catch(e) {
+      // Fallback to localStorage if server check fails
+      if(guestCount >= GUEST_LIMIT){
+        showAuthModal('guest_limit');
+        return;
+      }
+    }
   }
 
   // If logged in, check plan limits
@@ -3359,7 +3376,11 @@ async function startAnalysis(){
         showUpgradeModal(userData.plan, userData.validations_limit);
         return;
       }
-    } catch(e){ console.warn('Plan check failed:', e.message); }
+    } catch(e){
+      console.warn('Plan check failed:', e.message);
+      alert(lang==='es' ? 'No se pudo verificar tu plan. Intenta de nuevo.' : 'Could not verify your plan. Please try again.');
+      return;
+    }
   }
 
   // Hide upload, show loading
@@ -3444,6 +3465,11 @@ async function startAnalysis(){
         }).catch(e => console.warn('Usage increment failed:', e.message));
       } else {
         incGuestCount();
+        fetch('/.netlify/functions/rate-limit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'increment' }),
+        }).catch(() => {});
       }
     } else {
       console.warn('Analysis did not produce valid result — usage not incremented.');
@@ -3457,6 +3483,10 @@ async function startAnalysis(){
     console.error('Analysis error:', err);
     setSub(`Error: ${err.message}`);
     await new Promise(r => setTimeout(r, 2000));
+    if(loadingSec) loadingSec.classList.remove('show');
+    if(uploadSec) uploadSec.style.display='block';
+    setStep(1);
+    return;
   }
 
   if(loadingSec) loadingSec.classList.remove('show');
@@ -5257,10 +5287,10 @@ ${aiHtml}
 <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">${t.perDocTitle || 'Per Document Detail'}</div>
 <table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
 <thead><tr style="background:#f0f2f5;">
-<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">Type</th>
-<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">File</th>
+<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${lang==='es'?'Tipo':'Type'}</th>
+<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${lang==='es'?'Archivo':'File'}</th>
 <th style="padding:4px 10px;text-align:center;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${t.th2}</th>
-<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">Notes</th>
+<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${lang==='es'?'Notas':'Notes'}</th>
 </tr></thead>
 <tbody>${docRows}</tbody>
 </table>
@@ -5705,7 +5735,6 @@ function safeStyle(id, prop, val){ const el=safeEl(id); if(el) el.style[prop]=va
 function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[method](cls); }
 
 // ── VALIDATION HISTORY ─────────────────────────────────────────
-let lastFinalErrors = 0, lastFinalWarnings = 0;
 
 async function saveHistory() {
   if (!isLoggedIn()) return;
@@ -6015,6 +6044,32 @@ function showUpgradeModal(plan, limit){
 function closeUpgradeModal(){
   document.getElementById('upgradeModal').style.display = 'none';
 }
+
+// ── CHECKOUT SUCCESS DETECTION ──────────────────
+(function checkCheckoutSuccess() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('checkout') === 'success') {
+    // Remove param from URL without reload
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+    // Show success message after a short delay (let Clerk load)
+    setTimeout(() => {
+      const isES = lang === 'es';
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(15,17,23,0.7);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+      modal.innerHTML = '<div style="background:#fff;border-radius:4px;padding:2.5rem;max-width:420px;width:90%;text-align:center;">'
+        + '<div style="font-size:2.5rem;margin-bottom:1rem;">✓</div>'
+        + '<h3 style="font-family:Playfair Display,serif;font-size:1.3rem;color:#0f1117;margin-bottom:0.8rem;">'
+        + (isES ? '¡Suscripción activada!' : 'Subscription activated!') + '</h3>'
+        + '<p style="font-size:0.85rem;color:#3a4255;line-height:1.6;margin-bottom:1.5rem;">'
+        + (isES ? 'Tu plan ha sido actualizado exitosamente. Ya puedes usar todas las validaciones de tu nuevo plan.' : 'Your plan has been upgraded successfully. You can now use all validations in your new plan.') + '</p>'
+        + '<button onclick="this.closest(\'div[style]\').remove()" style="padding:0.7rem 2rem;background:#0f1117;color:#7da4d4;border:none;font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;border-radius:2px;">'
+        + (isES ? 'Comenzar' : 'Get started') + '</button>'
+        + '</div>';
+      document.body.appendChild(modal);
+    }, 500);
+  }
+})();
 </script>
 </body>
 </html>

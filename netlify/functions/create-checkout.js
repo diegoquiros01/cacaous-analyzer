@@ -13,14 +13,21 @@ const PRICES = {
   enterprise_annual:    'price_1TDa3xFZXtgfLmPe75FrukTG',  // TODO: replace with annual price ID
 };
 
-const CORS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const ALLOWED_ORIGINS = ['https://www.docsvalidate.com', 'https://docsvalidate.com', 'http://localhost:8888', 'http://localhost:3000'];
+
+function getCorsHeaders(event) {
+  const origin = event.headers['origin'] || event.headers['Origin'] || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+}
 
 exports.handler = async (event) => {
+  const CORS = getCorsHeaders(event);
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: 'Method Not Allowed' };
 

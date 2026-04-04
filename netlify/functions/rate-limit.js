@@ -32,8 +32,8 @@ const WINDOW_MS       = 24 * 60 * 60 * 1000; // 24 hours in ms
 // Extract real IP — Netlify passes it in headers
 function getIP(event) {
   return (
-    event.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
     event.headers['x-nf-client-connection-ip'] ||
+    event.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
     event.headers['client-ip'] ||
     'unknown'
   );
@@ -42,7 +42,7 @@ function getIP(event) {
 exports.handler = async (event) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
     'Content-Type': 'application/json',
   };
@@ -146,14 +146,10 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('rate-limit error:', err.message);
-    // On error, allow the request through — don't block users due to infra issues
     return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ allowed: true, remaining: 1, limit: 3, count: 0, error: err.message }),
+      statusCode: 503,
+      headers: corsHeaders,
+      body: JSON.stringify({ allowed: false, remaining: 0, limit: GUEST_LIMIT, error: 'Service temporarily unavailable' }),
     };
   }
 };
