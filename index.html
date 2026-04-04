@@ -1493,7 +1493,7 @@ footer {
     <div class="header-right">
       <nav><ul class="nav">
         <li><a href="/">Home</a></li>
-        <li><a href="/pricing.html">Pricing</a></li>
+        <li><a href="/pricing.html" target="_blank" rel="noopener">Pricing</a></li>
         <li><a href="/contact.html">Contact</a></li>
       </ul></nav>
       <div id="userBadge" style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;min-width:80px;">
@@ -3324,8 +3324,14 @@ function loadHeavyLibs() {
   return _heavyLibsLoading;
 }
 
+let _analysisInProgress = false;
+window.addEventListener('beforeunload', e => {
+  if (_analysisInProgress) { e.preventDefault(); e.returnValue = ''; }
+});
+
 async function startAnalysis(){
   if(uploadedFiles.length === 0) return;
+  _analysisInProgress = true;
 
   // ── LOAD HEAVY LIBS ON FIRST USE ───────────────
   try {
@@ -3478,8 +3484,10 @@ async function startAnalysis(){
     if(analysisSucceeded) setTimeout(() => saveHistory().catch(()=>{}), 500);
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
+    _analysisInProgress = false;
 
   } catch(err) {
+    _analysisInProgress = false;
     console.error('Analysis error:', err);
     setSub(`Error: ${err.message}`);
     await new Promise(r => setTimeout(r, 2000));
