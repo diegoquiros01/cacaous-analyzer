@@ -1,3 +1,26 @@
+-- ═══════════════════════════════════════════════════════════════
+-- DocsValidate — Supabase Schema
+-- ═══════════════════════════════════════════════════════════════
+
+-- users: one row per Clerk user, linked to Stripe
+CREATE TABLE IF NOT EXISTS users (
+  id                  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+  clerk_id            TEXT         UNIQUE NOT NULL,
+  email               TEXT         DEFAULT '',
+  plan                TEXT         NOT NULL DEFAULT 'starter' CHECK (plan IN ('starter', 'professional', 'enterprise')),
+  validations_used    INT          NOT NULL DEFAULT 0,
+  stripe_customer_id  TEXT,
+  last_reset          TIMESTAMPTZ,
+  created_at          TIMESTAMPTZ  NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_clerk_id ON users (clerk_id);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+CREATE INDEX IF NOT EXISTS idx_users_stripe_customer_id ON users (stripe_customer_id);
+
+-- ─────────────────────────────────────────────────────────────
+
 -- validation_history: stores each validation run per user
 CREATE TABLE IF NOT EXISTS validation_history (
   id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),

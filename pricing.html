@@ -159,7 +159,7 @@ nav a:hover,nav a.active{color:#0f1117;font-weight:600;}
         <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_6"></span></li>
         <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_7"></span></li>
       </ul>
-      <a href="#" class="plan-cta cta-dark" id="cta2" onclick="handleSubscribe('https://buy.stripe.com/fZudR90zwbC29pYa3vgw002'); return false;"></a>
+      <a href="#" class="plan-cta cta-dark" id="cta2" onclick="handleSubscribe('professional'); return false;"></a>
     </div>
 
     <div class="plan-card">
@@ -176,7 +176,7 @@ nav a:hover,nav a.active{color:#0f1117;font-weight:600;}
         <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_6"></span></li>
         <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_7"></span></li>
       </ul>
-      <a href="#" class="plan-cta cta-fill" id="cta3" onclick="handleSubscribe('https://buy.stripe.com/4gM8wPcie9tUcCacbDgw003'); return false;"></a>
+      <a href="#" class="plan-cta cta-fill" id="cta3" onclick="handleSubscribe('enterprise'); return false;"></a>
     </div>
 
   </div>
@@ -354,16 +354,42 @@ window.addEventListener('load', async () => {
   catch(e){ console.warn('Clerk load error:', e.message); }
 });
 
-function handleSubscribe(stripeUrl) {
-  _pendingStripeUrl = stripeUrl;
+async function handleSubscribe(plan) {
+  _pendingStripeUrl = plan; // store for post-auth redirect
   const user = window.Clerk?.user;
-  if (user) {
-    const email = user.primaryEmailAddress?.emailAddress || '';
-    const url = email ? stripeUrl + '?prefilled_email=' + encodeURIComponent(email) : stripeUrl;
-    window.open(url, '_blank');
-  } else {
+  if (!user) {
     document.getElementById('authModal').style.display = 'flex';
+    return;
   }
+
+  // Show loading state on button
+  const btn = document.getElementById(plan === 'professional' ? 'cta2' : 'cta3');
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = lang === 'es' ? 'Procesando...' : 'Processing...'; btn.style.opacity = '0.6'; }
+
+  try {
+    const resp = await fetch('/.netlify/functions/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan,
+        billing: isAnnual ? 'annual' : 'monthly',
+        clerk_id: user.id,
+        email: user.primaryEmailAddress?.emailAddress || '',
+      }),
+    });
+    const data = await resp.json();
+    if (data.url) {
+      window.location.href = data.url; // redirect to Stripe Checkout
+    } else {
+      alert(data.error || 'Could not create checkout session');
+    }
+  } catch (e) {
+    alert('Error: ' + e.message);
+  }
+
+  // Restore button
+  if (btn) { btn.textContent = origText; btn.style.opacity = '1'; }
 }
 
 function closeAuthModal() {
@@ -401,9 +427,7 @@ async function proceedWithClerk() {
     setTimeout(() => {
       const user = window.Clerk?.user;
       if (user && _pendingStripeUrl) {
-        const email = user.primaryEmailAddress?.emailAddress || '';
-        const url = email ? _pendingStripeUrl + '?prefilled_email=' + encodeURIComponent(email) : _pendingStripeUrl;
-        window.open(url, '_blank');
+        handleSubscribe(_pendingStripeUrl);
         _pendingStripeUrl = null;
       }
     }, 1500);
