@@ -2730,7 +2730,7 @@ Also include an "extraFields" object for any fields present in the document that
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,3000);
+    const t=await callClaudeHaiku(system,content,3000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
@@ -3906,7 +3906,7 @@ async function translateWithAI(text, targetLang){
   // If local didn't change much, try API
   try {
     const system = 'You are a translator. Translate the following text to Spanish. Return ONLY the translated text, nothing else. Keep technical terms like BL, COI, ISF, container numbers, lot numbers, and company names as-is.';
-    const result = await callClaude(system, text, 500);
+    const result = await callClaudeHaiku(system, text, 500);
     const translated = result.trim();
     _translationCache[cacheKey] = translated;
     return translated;
