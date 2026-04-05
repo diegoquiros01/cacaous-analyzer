@@ -4899,9 +4899,14 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
     });
   });
 
-  // Build left panel HTML
-  const errFields  = _spFields.filter(f => f.severity === 'err');
-  const warnFields = _spFields.filter(f => f.severity === 'warn');
+  // Build left panel HTML — priority fields first (BL, containers, invoice)
+  const priorityKeys = ['containers','containerNumbers','blNumber','invoiceNumber','seals','sealNumbers'];
+  const sortByPriority = (a, b) => {
+    const pa = priorityKeys.indexOf(a.key), pb = priorityKeys.indexOf(b.key);
+    return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
+  };
+  const errFields  = _spFields.filter(f => f.severity === 'err').sort(sortByPriority);
+  const warnFields = _spFields.filter(f => f.severity === 'warn').sort(sortByPriority);
   const okFields   = _spFields.filter(f => f.severity === 'ok');
 
   let leftHtml = '';
