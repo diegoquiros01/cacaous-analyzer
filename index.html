@@ -1554,10 +1554,18 @@ footer {
         <p id="histSub">Click any row to see the summary</p>
       </div>
     </div>
-    <div style="margin-bottom:0.8rem;">
-      <input type="text" id="histSearch" oninput="searchHistory()" placeholder="Search by BL number..."
-        style="width:100%;max-width:300px;padding:0.5rem 0.8rem;border:1px solid var(--border);
+    <div style="display:flex;gap:0.6rem;align-items:center;margin-bottom:0.8rem;flex-wrap:wrap;">
+      <input type="text" id="histSearch" oninput="searchHistory()" placeholder="Search BL or vessel..."
+        style="flex:1;min-width:200px;max-width:300px;padding:0.5rem 0.8rem;border:1px solid var(--border);
         font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--text);background:var(--white);">
+      <select id="histStatusFilter" onchange="searchHistory()"
+        style="padding:0.45rem 0.6rem;border:1px solid var(--border);font-family:'Lato',sans-serif;
+        font-size:0.72rem;color:var(--text-mid);background:var(--white);border-radius:2px;cursor:pointer;">
+        <option value="" id="histFilterAll">All statuses</option>
+        <option value="approved" id="histFilterOk">✓ Approved</option>
+        <option value="warning" id="histFilterWarn">⚠ Observations</option>
+        <option value="rejected" id="histFilterErr">✗ Rejected</option>
+      </select>
     </div>
     <div id="histList" style="border:1px solid var(--border-light);overflow:hidden;"></div>
     <div id="histDetail" style="display:none;margin-top:0.8rem;background:var(--offwhite);border:1px solid var(--border-light);border-left:3px solid var(--tan);padding:1rem 1.2rem;">
@@ -1950,7 +1958,7 @@ const TX = {
     rptSubtitle:'AI-Powered Export Validation',
     libLoadErr:'Failed to load required libraries. Please check your connection and try again.',
     histTitle:'Your Recent Validations', histSub:'Click any row to see the summary',
-    histSearch:'Search by BL number...', histEmpty:'No validations yet — run your first analysis above.',
+    histSearch:'Search BL or vessel...', histEmpty:'No validations yet — run your first analysis above.',
     histDate:'Date', histBL:'BL Number', histVessel:'Vessel', histStatus:'Status', histDocs:'Docs',
     spCritical:'Critical Inconsistencies', spObservations:'Observations', spVerified:'Verified Fields',
     spSelectField:'Select a field to see details', spDismissed:'✓ Dismissed', spNotAnIssue:'Not an issue',
@@ -2048,7 +2056,7 @@ const TX = {
     rptSubtitle:'Validación de Documentos con IA',
     libLoadErr:'No se pudieron cargar las librerías necesarias. Verifica tu conexión e intenta de nuevo.',
     histTitle:'Tus Validaciones Recientes', histSub:'Haz clic en una fila para ver el resumen',
-    histSearch:'Buscar por número de BL...', histEmpty:'Aún no tienes validaciones — ejecuta tu primer análisis arriba.',
+    histSearch:'Buscar BL o buque...', histEmpty:'Aún no tienes validaciones — ejecuta tu primer análisis arriba.',
     histDate:'Fecha', histBL:'N° BL', histVessel:'Buque', histStatus:'Estado', histDocs:'Docs',
     spCritical:'Inconsistencias Críticas', spObservations:'Observaciones', spVerified:'Campos Verificados',
     spSelectField:'Selecciona un campo para ver el detalle', spDismissed:'✓ Descartado', spNotAnIssue:'No es error',
@@ -2192,6 +2200,14 @@ function applyLang(){
   st('histTitle', t.histTitle); st('histSub', t.histSub);
   const histInput = document.getElementById('histSearch');
   if(histInput) histInput.placeholder = t.histSearch;
+  const hfAll = document.getElementById('histFilterAll');
+  const hfOk = document.getElementById('histFilterOk');
+  const hfWarn = document.getElementById('histFilterWarn');
+  const hfErr = document.getElementById('histFilterErr');
+  if(hfAll) hfAll.textContent = lang==='es' ? 'Todos los estados' : 'All statuses';
+  if(hfOk) hfOk.textContent = lang==='es' ? '✓ Aprobado' : '✓ Approved';
+  if(hfWarn) hfWarn.textContent = lang==='es' ? '⚠ Observaciones' : '⚠ Observations';
+  if(hfErr) hfErr.textContent = lang==='es' ? '✗ Rechazado' : '✗ Rejected';
 
   // ── Auth modal labels ───────────────────────────
   st('authModalTitle', t.authTitle);
@@ -5964,10 +5980,11 @@ async function loadHistory() {
   if (!sec || !isLoggedIn()) { if(sec) sec.style.display='none'; return; }
   try {
     const search = (document.getElementById('histSearch')?.value || '').trim();
+    const statusFilter = document.getElementById('histStatusFilter')?.value || '';
     const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'list', clerk_id: window.__clerk_user.id, search: search || undefined }),
+      body: JSON.stringify({ action: 'list', clerk_id: window.__clerk_user.id, search: search || undefined, status_filter: statusFilter || undefined }),
     });
     const data = await resp.json();
     const rows = data.records || data.history || data || [];
