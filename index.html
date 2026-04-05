@@ -3458,6 +3458,74 @@ async function startAnalysis(){
     );
     await Promise.all(extractPromises);
 
+    // ── VERIFICATION PASS: re-extract missing critical fields ────────────
+    // If a doc that should have containers/totalAmount doesn't, retry with focused prompt
+    setLbl(lang==='es'?'Verificando campos críticos':'Verifying critical fields');
+    setSub(lang==='es'?'Revisando extracción...':'Checking extraction...');
+    setProgress(72, lang==='es'?'Verificando...':'Verifying...');
+
+    const criticalDocTypes = {
+      containers: ['packing list','packing','lista de empaque','bill of lading','conocimiento','bl'],
+      totalAmount: ['commercial invoice','factura comercial','invoice','factura'],
+      pricePerUnit: ['commercial invoice','factura comercial','invoice','factura'],
+    };
+
+    const reextractPromises = [];
+    analysisResults.forEach((doc, idx) => {
+      if(doc._err) return;
+      const dt = (doc.docType||'').toLowerCase();
+      const fn = (doc._filename||'').toLowerCase();
+
+      // Check containers
+      const shouldHaveContainers = criticalDocTypes.containers.some(t => dt.includes(t) || fn.includes(t));
+      const hasContainers = doc.containerNumbers && doc.containerNumbers.length > 0 &&
+        doc.containerNumbers.some(c => /^[A-Z]{4}\d{6,7}$/i.test(String(c).trim()));
+
+      // Check financial
+      const shouldHaveFinancial = criticalDocTypes.totalAmount.some(t => dt.includes(t) || fn.includes(t));
+      const hasFinancial = doc.totalAmount && doc.totalAmount !== 'null';
+
+      const missingFields = [];
+      if(shouldHaveContainers && !hasContainers) missingFields.push('containerNumbers', 'sealNumbers');
+      if(shouldHaveFinancial && !hasFinancial) missingFields.push('totalAmount', 'pricePerUnit', 'paymentTerms', 'incoterms');
+
+      if(missingFields.length > 0) {
+        const entry = uploadedFiles.find(f => f.name === doc._filename);
+        if(!entry) return;
+        const reextractPromise = (async () => {
+          try {
+            const focusedSystem = 'You are extracting specific fields from a cacao/coffee export document. Return ONLY a JSON object with these fields: ' + missingFields.join(', ') + '. For containerNumbers, extract ALL container numbers (format: 4 letters + 6-7 digits like CMAU9710760). For totalAmount, extract the total commercial value with currency. For pricePerUnit, extract the unit price. Return null for fields not found.';
+            let content;
+            if(entry.textContent) {
+              content = 'Extract from:\n\n' + entry.textContent;
+            } else {
+              const b64 = await toBase64(entry.file);
+              const mt = mediaType(entry.file);
+              content = [];
+              if(mt==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
+              else content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
+              content.push({type:'text',text:'Extract these specific fields: ' + missingFields.join(', ')});
+            }
+            const raw = await callClaudeHaiku(focusedSystem, content, 1000);
+            const parsed = safeJSON(raw);
+            if(parsed) {
+              missingFields.forEach(f => {
+                if(parsed[f] && parsed[f] !== 'null' && parsed[f] !== null) {
+                  doc[f] = parsed[f];
+                }
+              });
+            }
+          } catch(e) { console.warn('Re-extract failed for', doc._filename, ':', e.message); }
+        })();
+        reextractPromises.push(reextractPromise);
+      }
+    });
+
+    if(reextractPromises.length > 0) {
+      setSub(lang==='es'?'Re-extrayendo ' + reextractPromises.length + ' campo(s) faltante(s)...':'Re-extracting ' + reextractPromises.length + ' missing field(s)...');
+      await Promise.all(reextractPromises);
+    }
+
     setLbl(lang==='es'?'Verificando coherencia':'Verifying coherence');
     setSub(lang==='es'?'Comparando valores entre documentos...':'Cross-checking values across documents...');
     setProgress(Math.round((uploadedFiles.length/total)*100), lang==='es'?'Analizando coherencia...':'Analyzing coherence...');
