@@ -6081,9 +6081,9 @@ function resetApp(){
   const rpb=safeEl('rPerdocBody'); if(rpb) rpb.classList.remove('open');
   const rpc=safeEl('rPerdocChev'); if(rpc) rpc.classList.remove('open');
   safeStyle('histDetail','display','none');
+  safeStyle('historySection','display','none');
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
-  loadHistory();
 }
 </script>
 
@@ -6135,7 +6135,7 @@ function initClerk() {
     if(user){
       window.__clerk_user = user;
       updateUserBadge(user);
-      loadHistory();
+      // History loads on demand via "My Reports" button
       // Show admin nav link if admin email matches
       window.Clerk.session?.getToken().then(token => {
         if(!token) return;
@@ -6160,8 +6160,26 @@ function updateUserBadge(user){
   const badge = document.getElementById('userBadge');
   if(!badge) return;
   const name = user.firstName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User';
+  const reportsLabel = lang==='es' ? 'Mis Reportes' : 'My Reports';
+  const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
   badge.innerHTML = `<span style="font-size:0.65rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
-    <button onclick="signOut()" style="background:none;border:none;font-size:0.6rem;color:var(--text-light);cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;">Sign out</button>`;
+    <div style="display:flex;gap:0.8rem;">
+      <button onclick="toggleMyReports()" style="background:none;border:none;font-size:0.58rem;color:var(--tan);cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;">${reportsLabel}</button>
+      <button onclick="signOut()" style="background:none;border:none;font-size:0.58rem;color:var(--text-light);cursor:pointer;letter-spacing:0.1em;text-transform:uppercase;">${signOutLabel}</button>
+    </div>`;
+}
+
+function toggleMyReports() {
+  const sec = document.getElementById('historySection');
+  if (!sec) return;
+  const isVisible = sec.style.display !== 'none' && sec.style.display !== '';
+  if (isVisible) {
+    sec.style.display = 'none';
+  } else {
+    loadHistory();
+    sec.style.display = 'block';
+    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // ── TERMS CHECKBOX LOGIC ─────────────────────────────────────
