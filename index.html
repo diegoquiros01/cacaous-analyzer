@@ -5930,7 +5930,7 @@ async function saveHistory() {
       delete c._file; delete c._blob;
       return c;
     });
-    await fetch('/.netlify/functions/history', {
+    const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -5949,7 +5949,8 @@ async function saveHistory() {
         },
       })
     });
-  } catch (e) { console.warn('History save failed:', e.message); }
+    if (!resp.ok) throw new Error('Server error: ' + resp.status);
+  } catch (e) { console.warn('History save failed:', e.message); throw e; }
 }
 
 let _histSearchTimer = null;
@@ -6056,7 +6057,8 @@ async function loadHistReport(histId) {
       return;
     }
     // Restore the analysis state and render results
-    const saved = record.result_json;
+    let saved = record.result_json;
+    if (typeof saved === 'string') saved = JSON.parse(saved);
     coherenceResult = saved.coherenceResult;
     analysisResults = saved.analysisResults || [];
     _cachedSummary = coherenceResult?.summary || null;
