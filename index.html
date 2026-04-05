@@ -6162,11 +6162,12 @@ function updateUserBadge(user){
   const name = user.firstName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User';
   const reportsLabel = lang==='es' ? 'Mis Reportes' : 'My Reports';
   const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
-  badge.innerHTML = `<span style="font-size:0.62rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
-    <div style="display:flex;gap:0.6rem;align-items:center;">
-      <button onclick="toggleMyReports()" style="background:none;border:none;font-size:0.6rem;color:var(--tan);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">${reportsLabel}</button>
+  badge.innerHTML = `<div style="display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:0.62rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
       <span style="color:var(--border);font-size:0.5rem;">|</span>
-      <button onclick="signOut()" style="background:none;border:none;font-size:0.6rem;color:var(--text-light);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;">${signOutLabel}</button>
+      <button onclick="toggleMyReports()" style="background:none;border:none;font-size:0.62rem;color:var(--tan);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">${reportsLabel}</button>
+      <span style="color:var(--border);font-size:0.5rem;">|</span>
+      <button onclick="signOut()" style="background:none;border:none;font-size:0.62rem;color:var(--text-light);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;">${signOutLabel}</button>
     </div>`;
 }
 
