@@ -4909,6 +4909,9 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
   const warnFields = _spFields.filter(f => f.severity === 'warn').sort(sortByPriority);
   const okFields   = _spFields.filter(f => f.severity === 'ok');
 
+  // Reorder _spFields to match the sorted display order (left = right)
+  _spFields = [...errFields, ...warnFields, ...okFields];
+
   let leftHtml = '';
 
   if (errFields.length > 0) {
