@@ -3031,7 +3031,8 @@ Return ONLY valid JSON:
       Object.entries(slim).forEach(([docName, docData]) => {
         if (docName === blDoc) return;
         const dt = (docData.docType || '').toLowerCase();
-        if (skipTypes.some(s => dt.includes(s))) return;
+        const fn = docName.toLowerCase();
+        if (skipTypes.some(s => dt.includes(s) || fn.includes(s))) return;
         const docContainers = (docData.containerNumbers || [])
           .map(c => String(c).trim().toUpperCase())
           .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
@@ -4123,6 +4124,27 @@ function renderResults(){
   if(!Object.values(tableData).some(d=>d?.values?.length)){
     tableData = buildSetValuesFromResults(analysisResults);
   }
+
+  // Override: if JS pre-check found errors for a field, force it to inconsistent
+  // This handles cases where AI didn't extract data from some docs but JS detected mismatches
+  (displayIssues||[]).forEach(iss => {
+    if(iss.type !== 'error') return;
+    const fieldKey = iss.field;
+    const aliases = { containerNumbers:'containers', container_numbers:'containers' };
+    const key = aliases[fieldKey] || fieldKey;
+    if(tableData[key]) {
+      if(tableData[key].status === 'consistent' || tableData[key].status === 'single_source') {
+        tableData[key].status = 'inconsistent';
+        // Add the pre-check details as values if missing
+        if(iss.details && iss.details.length > 0 && (!tableData[key].values || tableData[key].values.length < 2)) {
+          tableData[key].values = iss.details;
+        }
+      }
+    } else if(iss.details && iss.details.length > 0) {
+      // Field not in tableData at all — add it
+      tableData[key] = { status:'inconsistent', values: iss.details };
+    }
+  });
 
   // Build tableEntries — trust status set by JS comparison engine
   const tableEntries = Object.entries(tableData).map(([k,d]) => {
