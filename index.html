@@ -3036,7 +3036,24 @@ Return ONLY valid JSON:
         const docContainers = (docData.containerNumbers || [])
           .map(c => String(c).trim().toUpperCase())
           .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
-        if (docContainers.length === 0) return;
+        if (docContainers.length === 0) {
+          // If this doc type SHOULD have containers, warn about missing extraction
+          const shouldHaveContainers = ['packing','lista de empaque','phytosanitary',
+            'fitosanitario','fumig','certificate of origin','certificado de origen','invoice','factura'];
+          if (shouldHaveContainers.some(s => dt.includes(s) || fn.includes(s))) {
+            jsPreErrors.push({
+              type: 'warning', field: 'containers',
+              message: isES
+                ? '"' + docName.replace(/\.[^.]+$/,'') + '" no incluye contenedores — verificar manualmente contra el BL (' + blLabel + ').'
+                : '"' + docName.replace(/\.[^.]+$/,'') + '" has no containers listed — verify manually against BL (' + blLabel + ').',
+              details: [
+                { doc: blDoc, value: blContainers.join(', ') },
+                { doc: docName, value: '(none extracted)' },
+              ]
+            });
+          }
+          return;
+        }
 
         const docSet = new Set(docContainers);
         const extraInDoc = docContainers.filter(c => !blSet.has(c));
@@ -4130,7 +4147,12 @@ function renderResults(){
   (displayIssues||[]).forEach(iss => {
     if(iss.type !== 'error') return;
     const fieldKey = iss.field;
-    const aliases = { containerNumbers:'containers', container_numbers:'containers' };
+    const aliases = {
+      containerNumbers:'containers', container_numbers:'containers',
+      sealNumbers:'seals', seal_numbers:'seals',
+      vesselName:'vessel', vessel_name:'vessel',
+      port_of_loading:'portOfLoading', port_of_discharge:'portOfDischarge',
+    };
     const key = aliases[fieldKey] || fieldKey;
     if(tableData[key]) {
       if(tableData[key].status === 'consistent' || tableData[key].status === 'single_source') {
@@ -4879,9 +4901,9 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
   // Error fields
   tableEntries.filter(e => e.isErr).forEach(e => {
     const vals = e.d.values || [];
+    const fieldAlias = [['containers','containerNumbers'],['seals','sealNumbers'],['vessel','vesselName'],['portOfLoading','port_of_loading'],['portOfDischarge','port_of_discharge']];
     const issueMatch = displayIssues.find(i => i.field === e.k ||
-      (e.k==='containers' && i.field==='containerNumbers') ||
-      (e.k==='containerNumbers' && i.field==='containers'));
+      fieldAlias.some(([a,b]) => (e.k===a && i.field===b) || (e.k===b && i.field===a)));
     _spFields.push({
       key: e.k,
       label: FL(e.k),
