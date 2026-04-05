@@ -3480,8 +3480,7 @@ async function startAnalysis(){
     } else {
       console.warn('Analysis did not produce valid result — usage not incremented.');
     }
-    // Save to history (non-blocking, after renderResults sets lastFinalErrors)
-    if(analysisSucceeded) setTimeout(() => saveHistory().catch(()=>{}), 500);
+    // Save to history — moved after renderResults (see below)
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
     await new Promise(r => setTimeout(r, 600));
     _analysisInProgress = false;
@@ -3501,6 +3500,8 @@ async function startAnalysis(){
   setStep(3);
   if(analysisResults.length > 0){
     renderResults();
+    // Save to history AFTER renderResults sets lastFinalErrors/lastFinalWarnings
+    if(analysisSucceeded) setTimeout(() => saveHistory().catch(()=>{}), 100);
   } else {
     // Nothing extracted — show upload again with error message
     if(uploadSec) uploadSec.style.display='block';
@@ -4387,7 +4388,7 @@ function renderResults(){
   // Fields where Commercial Invoice is master
   const invoiceMasterFields = new Set(['invoiceNumber']);
 
-  renderSplitPanel(tableEntries, displayIssues, blMasterFields, t);
+  renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMasterFields, t);
 
   // ── STEP 6c: Per-doc title ───────────────────────────────────
   const pdTitle = document.getElementById('perDocTitle');
@@ -4817,7 +4818,7 @@ function toggleRPerdoc(){
 // ── SPLIT PANEL RENDERING ─────────────────────────────────────
 let _spFields = []; // global array of split-panel field objects
 
-function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
+function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMasterFields, t) {
   const spPanel = document.getElementById('splitPanel');
   const spLeft  = document.getElementById('spLeft');
   if (!spPanel || !spLeft) return;
