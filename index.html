@@ -1818,6 +1818,9 @@ footer {
       <button class="btn-reset" style="background:none;border:1px solid var(--border);color:var(--text-mid);" id="btnDl" onclick="downloadReport()">
         ↓ <span id="dlTxt">Download TXT</span>
       </button>
+      <button class="btn-reset" style="background:none;border:1px solid var(--tan);color:var(--tan);" id="btnSaveReport" onclick="saveReportManual()">
+        💾 <span id="saveReportTxt">Save Report</span>
+      </button>
       <button class="btn-reset" id="btnReset" onclick="resetApp()">
         ↺ <span id="resetTxt">New Analysis</span>
       </button>
@@ -1878,7 +1881,7 @@ const TX = {
     ctableTitle:'Field-by-field comparison across all documents',
     th1:'Field', th2:'Status', th3:'Value(s) Found', th4:'Found In',
     perDocTitle:'Per Document Detail',
-    dlPdfTxt:'Download PDF Report', dlTxt:'Download TXT', resetTxt:'New Analysis', trackTxt:'Track Shipment',
+    dlPdfTxt:'Download PDF Report', dlTxt:'Download TXT', saveReportTxt:'Save Report', saveReportDone:'✓ Saved', resetTxt:'New Analysis', trackTxt:'Track Shipment',
     trackingTitle:'Shipment Tracking',
     trackingLoading:'Querying carrier...',
     trackingError:'Could not retrieve tracking data. Check the BL number and try again.',
@@ -1976,7 +1979,7 @@ const TX = {
     ctableTitle:'Comparación campo por campo entre todos los documentos',
     th1:'Campo', th2:'Estado', th3:'Valor(es) Encontrado(s)', th4:'Encontrado En',
     perDocTitle:'Detalle por Documento',
-    dlPdfTxt:'Descargar Reporte PDF', dlTxt:'Descargar TXT', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
+    dlPdfTxt:'Descargar Reporte PDF', dlTxt:'Descargar TXT', saveReportTxt:'Guardar Reporte', saveReportDone:'✓ Guardado', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
     trackingTitle:'Tracking del Embarque',
     trackingLoading:'Consultando naviera...',
     trackingError:'No se pudo obtener el tracking. Verifica el número de BL e intenta de nuevo.',
@@ -2146,6 +2149,9 @@ function applyLang(){
 
   // ── Action buttons ─────────────────────────────
   st('dlPdfTxt', t.dlPdfTxt);
+  // Only update save button text if not already saved
+  const saveBtn = document.getElementById('btnSaveReport');
+  if(saveBtn && !saveBtn.disabled) st('saveReportTxt', t.saveReportTxt);
   st('dlTxt', t.dlTxt);
   st('resetTxt', t.resetTxt);
   st('trackTxt', t.trackTxt);
@@ -3587,7 +3593,7 @@ async function startAnalysis(){
   if(analysisResults.length > 0){
     renderResults();
     // Save to history AFTER renderResults sets lastFinalErrors/lastFinalWarnings
-    if(analysisSucceeded) setTimeout(() => saveHistory().catch(()=>{}), 100);
+    // Report saved manually via "Save Report" button — not auto-saved
   } else {
     // Nothing extracted — show upload again with error message
     if(uploadSec) uploadSec.style.display='block';
@@ -5893,6 +5899,26 @@ function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[me
 
 // ── VALIDATION HISTORY ─────────────────────────────────────────
 
+async function saveReportManual() {
+  const btn = document.getElementById('btnSaveReport');
+  const txt = document.getElementById('saveReportTxt');
+  if (!isLoggedIn()) {
+    openClerkSignIn();
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
+  if (txt) txt.textContent = lang==='es' ? 'Guardando...' : 'Saving...';
+  try {
+    await saveHistory();
+    if (txt) txt.textContent = tx().saveReportDone || '✓ Saved';
+    if (btn) { btn.style.background = 'rgba(26,107,58,0.08)'; btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)'; }
+  } catch(e) {
+    if (txt) txt.textContent = lang==='es' ? 'Error' : 'Error';
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    console.error('Save report error:', e);
+  }
+}
+
 async function saveHistory() {
   if (!isLoggedIn()) return;
   try {
@@ -6082,6 +6108,11 @@ function resetApp(){
   const rpc=safeEl('rPerdocChev'); if(rpc) rpc.classList.remove('open');
   safeStyle('histDetail','display','none');
   safeStyle('historySection','display','none');
+  // Reset save button
+  const saveBtn = safeEl('btnSaveReport');
+  if(saveBtn){ saveBtn.disabled=false; saveBtn.style.opacity='1'; saveBtn.style.background='none'; saveBtn.style.borderColor='var(--tan)'; saveBtn.style.color='var(--tan)'; }
+  const saveTxt = safeEl('saveReportTxt');
+  if(saveTxt) saveTxt.textContent = tx().saveReportTxt || 'Save Report';
   setStep(1);
   window.scrollTo({top:0,behavior:'smooth'});
 }
