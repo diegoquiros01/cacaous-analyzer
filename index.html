@@ -4384,6 +4384,8 @@ function renderResults(){
   // Fields where BL is master — use BL's value as "correct", not majority
   const blMasterFields = new Set(['containers','containerNumbers','seals','sealNumbers',
     'vessel','vesselName','portOfLoading','portOfDischarge']);
+  // Fields where Commercial Invoice is master
+  const invoiceMasterFields = new Set(['invoiceNumber']);
 
   renderSplitPanel(tableEntries, displayIssues, blMasterFields, t);
 
@@ -4504,11 +4506,15 @@ function renderResults(){
               .forEach(tok => { tFreq[tok] = (tFreq[tok]||0)+1; });
           });
           const tTotal = details.length;
-          // Determine master value — BL is master for transport fields
+          // Determine master value — BL for transport, Invoice for invoice number
           let majVal;
           if (blMasterFields.has(iss.field)) {
             const blD = details.find(d => { const doc=(d.doc||'').toLowerCase(); return doc.includes('bl ')||doc.includes('bill')||doc.includes('lading')||doc.includes('conocimiento'); });
             if (blD) majVal = (blD.value||'').trim();
+          }
+          if (!majVal && invoiceMasterFields.has(iss.field)) {
+            const invD = details.find(d => { const doc=(d.doc||'').toLowerCase(); return doc.includes('fact')||doc.includes('invoice')||doc.includes('factura'); });
+            if (invD) majVal = (invD.value||'').trim();
           }
           if (!majVal) {
             const valCounts = {};
@@ -4602,6 +4608,10 @@ function renderResults(){
     if (blMasterFields.has(k)) {
       const blV = vals.find(v => { const doc=(v.doc||'').toLowerCase(); return doc.includes('bl ')||doc.includes('bill')||doc.includes('lading')||doc.includes('conocimiento'); });
       if (blV) majVal = (blV.value||'').trim();
+    }
+    if (!majVal && invoiceMasterFields.has(k)) {
+      const invV = vals.find(v => { const doc=(v.doc||'').toLowerCase(); return doc.includes('fact')||doc.includes('invoice')||doc.includes('factura'); });
+      if (invV) majVal = (invV.value||'').trim();
     }
     if (!majVal) {
       const valCounts = {};
@@ -4817,6 +4827,7 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
 
   const computeMajVal = (vals, fieldKey) => {
     let majVal;
+    // BL is master for transport fields
     if (blMasterFields.has(fieldKey)) {
       const blVal = vals.find(v => {
         const doc = (v.doc||'').toLowerCase();
@@ -4824,6 +4835,14 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
             || doc.includes('conocimiento') || doc.includes('waybill');
       });
       majVal = blVal ? (blVal.value||'').trim() : '';
+    }
+    // Commercial Invoice is master for invoice number
+    if (!majVal && invoiceMasterFields.has(fieldKey)) {
+      const invVal = vals.find(v => {
+        const doc = (v.doc||'').toLowerCase();
+        return doc.includes('fact') || doc.includes('invoice') || doc.includes('factura');
+      });
+      majVal = invVal ? (invVal.value||'').trim() : '';
     }
     if (!majVal) {
       const valCounts = {};
@@ -4971,9 +4990,12 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, t) {
         });
         rightHtml += '</div>';
         const isContainerField = ['containers','containerNumbers','seals','sealNumbers'].includes(field.key);
+        const isInvoiceField = field.key === 'invoiceNumber';
         if (field.severity === 'err' && field.majVal) {
           const noteText = isContainerField
             ? (lang==='es' ? 'El BL es el documento master. Los dem\u00e1s documentos deben corregirse para coincidir con el BL.' : 'The BL is the master document. Other documents must be corrected to match the BL.')
+            : isInvoiceField
+            ? (lang==='es' ? 'La factura comercial es el documento master para el n\u00famero de factura. El valor correcto es <strong>' + field.majVal + '</strong>.' : 'The commercial invoice is the master document for invoice number. The correct value is <strong>' + field.majVal + '</strong>.')
             : (lang==='es' ? 'El valor correcto (mayor\u00eda) es <strong>' + field.majVal + '</strong>.' : 'The correct value (majority) is <strong>' + field.majVal + '</strong>. Documents in red must be corrected.');
           rightHtml += '<div class="sp-detail-note">' + noteText + '</div>';
         }
