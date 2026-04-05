@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS validation_history (
   error_count   INT          NOT NULL DEFAULT 0,
   warning_count INT          NOT NULL DEFAULT 0,
   summary_text  TEXT,
+  result_json   JSONB,
   created_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 

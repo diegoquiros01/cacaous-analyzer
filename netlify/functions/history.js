@@ -40,7 +40,7 @@ exports.handler = async (event) => {
 
     // ── SAVE ────────────────────────────────────────────────────────────────
     if (action === 'save') {
-      const { status, doc_count, bl_number, vessel_name, error_count, warning_count, summary_text } = params;
+      const { status, doc_count, bl_number, vessel_name, error_count, warning_count, summary_text, result_json } = params;
 
       if (!status || doc_count == null) {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields: status, doc_count' }) };
@@ -55,6 +55,7 @@ exports.handler = async (event) => {
         error_count: error_count ?? 0,
         warning_count: warning_count ?? 0,
         summary_text: summary_text || null,
+        result_json: result_json || null,
       };
 
       const rows = await supabase('validation_history', 'POST', record);
@@ -72,7 +73,7 @@ exports.handler = async (event) => {
       const { search, limit } = params;
       const take = Math.min(parseInt(limit, 10) || 20, 100);
 
-      let path = `validation_history?clerk_id=eq.${encodeURIComponent(clerk_id)}&select=*&order=created_at.desc&limit=${take}`;
+      let path = `validation_history?clerk_id=eq.${encodeURIComponent(clerk_id)}&select=id,clerk_id,bl_number,vessel_name,status,doc_count,error_count,warning_count,summary_text,created_at&order=created_at.desc&limit=${take}`;
 
       if (search) {
         path += `&bl_number=ilike.*${encodeURIComponent(search)}*`;
