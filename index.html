@@ -1496,8 +1496,8 @@ footer {
         <li><a href="/pricing.html" onclick="if(_analysisInProgress){window.open(this.href,'_blank');return false;}">Pricing</a></li>
         <li><a href="/contact.html">Contact</a></li>
       </ul></nav>
-      <div id="userBadge" style="display:flex;align-items:center;gap:0.2rem;">
-        <button onclick="openClerkSignIn()" style="background:none;border:none;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);cursor:pointer;padding:0;margin:0;line-height:1;font-family:'Lato',sans-serif;font-weight:400;">Sign in</button>
+      <div id="userBadge">
+        <a href="#" onclick="openClerkSignIn();return false;" class="nav-signin" style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:400;">Sign in</a>
       </div>
       <div class="lang-switch">
         <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
