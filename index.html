@@ -6016,19 +6016,11 @@ function handleSignupClick(){
   openClerkSignIn();
 }
 
-async function openClerkSignIn(){
-  try {
-    closeAuthModal();
-    await window.Clerk?.openSignIn({
-      afterSignInUrl: window.location.href,
-      afterSignUpUrl: window.location.href,
-    });
-    // After sign in, update user reference
-    setTimeout(()=>{
-      const user = window.Clerk?.user;
-      if(user){ window.__clerk_user = user; updateUserBadge(user); }
-    }, 1000);
-  } catch(e){ console.warn('Clerk sign in error:', e.message); }
+function openClerkSignIn(){
+  closeAuthModal();
+  // Redirect to Clerk hosted sign-in page (more reliable than modal overlay)
+  const returnUrl = encodeURIComponent(window.location.href);
+  window.location.href = 'https://accounts.docsvalidate.com/sign-in?redirect_url=' + returnUrl;
 }
 
 async function signOut(){
