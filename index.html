@@ -4594,9 +4594,9 @@ function renderResults(){
   // ── STEP 6b: Split Panel ─────────────────────────────────────
   // Fields where BL is master — use BL's value as "correct", not majority
   const blMasterFields = new Set(['containers','containerNumbers','seals','sealNumbers',
-    'vessel','vesselName','portOfLoading','portOfDischarge']);
-  // Fields where Commercial Invoice is master
-  const invoiceMasterFields = new Set(['invoiceNumber']);
+    'vessel','vesselName','portOfLoading','portOfDischarge','invoiceNumber']);
+  // invoiceNumber now uses BL as master (BL references the correct invoice for this shipment)
+  const invoiceMasterFields = new Set([]);
 
   renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMasterFields, t);
 
@@ -5315,12 +5315,10 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
         });
         rightHtml += '</div>';
         const isContainerField = ['containers','containerNumbers','seals','sealNumbers'].includes(field.key);
-        const isInvoiceField = field.key === 'invoiceNumber';
+        const isBLField = blMasterFields.has(field.key);
         if (field.severity === 'err' && field.majVal) {
-          const noteText = isContainerField
-            ? (lang==='es' ? 'El BL es el documento master. Los dem\u00e1s documentos deben corregirse para coincidir con el BL.' : 'The BL is the master document. Other documents must be corrected to match the BL.')
-            : isInvoiceField
-            ? (lang==='es' ? 'La factura comercial es el documento master para el n\u00famero de factura. El valor correcto es <strong>' + field.majVal + '</strong>.' : 'The commercial invoice is the master document for invoice number. The correct value is <strong>' + field.majVal + '</strong>.')
+          const noteText = isBLField
+            ? (lang==='es' ? 'El BL es el documento master. El valor correcto es <strong>' + field.majVal + '</strong>. Los dem\u00e1s documentos deben corregirse.' : 'The BL is the master document. The correct value is <strong>' + field.majVal + '</strong>. Other documents must be corrected.')
             : (lang==='es' ? 'El valor correcto (mayor\u00eda) es <strong>' + field.majVal + '</strong>.' : 'The correct value (majority) is <strong>' + field.majVal + '</strong>. Documents in red must be corrected.');
           rightHtml += '<div class="sp-detail-note">' + noteText + '</div>';
         }
