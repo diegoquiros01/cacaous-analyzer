@@ -6016,18 +6016,24 @@ function renderHistory(rows) {
       (colors[s]||'var(--border)')+';color:'+(colors[s]||'var(--text-light)')+';font-weight:700;border-radius:2px;">'+
       (labels[s]||s)+'</span>';
   };
-  const header = '<div style="display:flex;padding:0.5rem 1rem;background:var(--brown-dark);color:rgba(255,255,255,0.6);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;">'
+  const delSelLabel = lang==='es' ? 'Eliminar seleccionados' : 'Delete selected';
+  const selectAllLabel = lang==='es' ? 'Todos' : 'All';
+  const header = '<div style="display:flex;align-items:center;padding:0.5rem 1rem;background:var(--brown-dark);color:rgba(255,255,255,0.6);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;">'
+    + '<span style="flex:0 0 28px;"><input type="checkbox" id="histSelectAll" onchange="toggleSelectAllReports(this.checked)" style="cursor:pointer;accent-color:var(--tan);"></span>'
     + '<span style="flex:0 0 100px;">'+t.histDate+'</span>'
     + '<span style="flex:1;">'+t.histBL+'</span>'
     + '<span style="flex:0 0 140px;">'+t.histVessel+'</span>'
     + '<span style="flex:0 0 80px;text-align:center;">'+t.histStatus+'</span>'
     + '<span style="flex:0 0 50px;text-align:center;">'+t.histDocs+'</span>'
-    + '</div>';
+    + '<span style="flex:0 0 30px;"></span>'
+    + '</div>'
+    + '<div id="histBulkActions" style="display:none;padding:0.4rem 1rem;background:var(--cream);border-bottom:1px solid var(--border-light);"><button onclick="deleteSelectedReports()" style="background:none;border:1px solid var(--red);color:var(--red);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;">' + delSelLabel + '</button></div>';
   const rowsHtml = rows.map(r => {
     const d = new Date(r.created_at);
     const dateStr = d.toLocaleDateString(lang==='es'?'es-ES':'en-US', { month:'short', day:'numeric' });
     return '<div class="hist-row" onclick="showHistDetail(this)" data-id="'+(r.id||'')+'" data-summary="'+((r.summary_text||'').replace(/"/g,'&quot;'))+'" data-status="'+(r.status||'')+'" data-bl="'+(r.bl_number||'')+'" style="display:flex;align-items:center;padding:0.55rem 1rem;border-bottom:1px solid var(--border-light);cursor:pointer;font-size:0.78rem;transition:background 0.15s;"'
       + ' onmouseover="this.style.background=\'var(--offwhite)\'" onmouseout="this.style.background=\'var(--white)\'">'
+      + '<span style="flex:0 0 28px;" onclick="event.stopPropagation();"><input type="checkbox" class="hist-check" data-id="'+(r.id||'')+'" onchange="updateBulkActions()" style="cursor:pointer;accent-color:var(--tan);"></span>'
       + '<span style="flex:0 0 100px;color:var(--text-light);font-size:0.72rem;">'+dateStr+'</span>'
       + '<span style="flex:1;font-weight:600;color:var(--brown-dark);">'+(r.bl_number||'—')+'</span>'
       + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.vessel_name||'—')+'</span>'
@@ -6063,6 +6069,37 @@ function showHistDetail(el) {
     detail.appendChild(btn);
   }
   detail.style.display = 'block';
+}
+
+function toggleSelectAllReports(checked) {
+  document.querySelectorAll('.hist-check').forEach(cb => { cb.checked = checked; });
+  updateBulkActions();
+}
+
+function updateBulkActions() {
+  const checked = document.querySelectorAll('.hist-check:checked').length;
+  const bar = document.getElementById('histBulkActions');
+  if (bar) bar.style.display = checked > 0 ? 'block' : 'none';
+}
+
+async function deleteSelectedReports() {
+  const checks = document.querySelectorAll('.hist-check:checked');
+  if (checks.length === 0) return;
+  const confirmMsg = lang==='es'
+    ? '¿Eliminar ' + checks.length + ' reporte(s)?'
+    : 'Delete ' + checks.length + ' report(s)?';
+  if (!confirm(confirmMsg)) return;
+  const ids = Array.from(checks).map(cb => cb.dataset.id).filter(Boolean);
+  for (const id of ids) {
+    try {
+      await fetch('/.netlify/functions/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', clerk_id: window.__clerk_user.id, id }),
+      });
+    } catch (e) { console.warn('Delete failed:', id, e.message); }
+  }
+  loadHistory();
 }
 
 async function deleteReport(histId) {
