@@ -6293,8 +6293,10 @@ async function openProfile(){
 
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(15,17,23,0.7);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+    modal.id = 'profileModal';
+    modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
     modal.innerHTML = `<div style="background:#fff;border-radius:4px;padding:2rem;max-width:400px;width:90%;position:relative;">
-      <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:0.8rem;right:0.8rem;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-light);">✕</button>
+      <button onclick="document.getElementById('profileModal')?.remove()" style="position:absolute;top:0.8rem;right:0.8rem;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-light);">✕</button>
       <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--brown-dark);margin-bottom:1rem;">${isES?'Mi Cuenta':'My Account'}</h3>
       <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.2rem;">
         <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
