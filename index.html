@@ -1496,9 +1496,9 @@ footer {
         <li><a href="/pricing.html" onclick="if(_analysisInProgress){window.open(this.href,'_blank');return false;}">Pricing</a></li>
         <li><a href="/contact.html">Contact</a></li>
       </ul></nav>
-      <div id="userBadge" style="display:flex;align-items:baseline;gap:2rem;">
-        <a href="#" onclick="openClerkSignIn();return false;" class="nav-signin" style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:400;">Sign in</a>
-      </div>
+      <ul id="userBadge" class="nav">
+        <li><a href="#" onclick="openClerkSignIn();return false;">Sign in</a></li>
+      </ul>
       <div class="lang-switch">
         <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
         <span class="lang-sep">|</span>
@@ -6218,11 +6218,10 @@ function updateUserBadge(user){
   const reportsLabel = lang==='es' ? 'Reportes' : 'Reports';
   const profileLabel = lang==='es' ? 'Mi Cuenta' : 'Account';
   const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
-  const ls = 'font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;text-decoration:none;font-weight:400;';
-  badge.innerHTML = `<a href="#" onclick="return false;" style="${ls}color:var(--text-mid);">${name}</a>
-      <a href="#" onclick="toggleMyReports();return false;" style="${ls}color:var(--text-mid);transition:color 0.2s;">${reportsLabel}</a>
-      <a href="#" onclick="openProfile();return false;" style="${ls}color:var(--text-mid);transition:color 0.2s;">${profileLabel}</a>
-      <a href="#" onclick="signOut();return false;" style="${ls}color:var(--text-light);transition:color 0.2s;">${signOutLabel}</a>`;
+  badge.innerHTML = `<li><a href="#" onclick="return false;">${name}</a></li>
+      <li><a href="#" onclick="toggleMyReports();return false;">${reportsLabel}</a></li>
+      <li><a href="#" onclick="openProfile();return false;">${profileLabel}</a></li>
+      <li><a href="#" onclick="signOut();return false;" style="color:var(--text-light);">${signOutLabel}</a></li>`;
 }
 
 function toggleMyReports() {
@@ -6343,7 +6342,7 @@ async function signOut(){
   await window.Clerk?.signOut();
   window.__clerk_user = null;
   const badge = document.getElementById('userBadge');
-  if(badge) badge.innerHTML = '<button onclick="openClerkSignIn()" style="background:none;border:none;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);cursor:pointer;">Sign in</button>';
+  if(badge) badge.innerHTML = '<li><a href="#" onclick="openClerkSignIn();return false;">Sign in</a></li>';
 }
 
 // ── AUTH MODAL ───────────────────────────────────
