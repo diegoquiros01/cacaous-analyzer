@@ -1337,6 +1337,42 @@ footer {
 .r-dfield.rf-warn .r-dfield-val { color: var(--brown-mid); font-weight: 600; }
 .r-dfield-val.dv-empty { color: var(--text-light); font-style: italic; }
 
+/* Consistency Matrix */
+.mx-table {
+  width: 100%; border-collapse: collapse; font-size: 0.72rem;
+  border: 1px solid var(--border-light);
+}
+.mx-table th {
+  padding: 0.45rem 0.6rem; text-align: center;
+  font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-light); font-weight: 600;
+  background: var(--brown-dark); color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.1);
+  white-space: nowrap;
+}
+.mx-table th:first-child { text-align: left; min-width: 110px; }
+.mx-table th.mx-master { background: var(--brown); color: var(--white); }
+.mx-table td {
+  padding: 0.4rem 0.6rem; text-align: center;
+  border: 1px solid var(--border-light); font-size: 0.7rem;
+}
+.mx-table td:first-child {
+  text-align: left; font-weight: 600; color: var(--brown-dark);
+  font-size: 0.68rem; background: var(--offwhite);
+}
+.mx-table td.mx-master-val {
+  text-align: left; font-size: 0.68rem; color: var(--brown-dark);
+  background: var(--offwhite); max-width: 140px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.mx-ok { background: rgba(26,107,58,0.06); color: var(--green); font-weight: 700; }
+.mx-diff { background: rgba(176,64,48,0.08); color: var(--red); font-weight: 700; }
+.mx-na { color: var(--border); }
+.mx-legend {
+  font-size: 0.6rem; color: var(--text-light); margin-top: 0.4rem;
+  letter-spacing: 0.03em;
+}
+
 /* Split Panel */
 .sp-wrap {
   display: grid; grid-template-columns: 35% 65%; gap: 0;
@@ -1745,6 +1781,17 @@ footer {
     <!-- ③ STATS ROW -->
     <div class="r-stat-row" id="statsRow"></div>
 
+    <!-- ③b CONSISTENCY MATRIX -->
+    <div id="matrixSection" style="display:none;margin-bottom:1.4rem;">
+      <div class="r-sec-label" id="matrixLabel">Consistency Matrix</div>
+      <div style="overflow-x:auto;">
+        <table id="matrixTable" class="mx-table">
+          <!-- Populated by JS -->
+        </table>
+      </div>
+      <div class="mx-legend" id="matrixLegend"></div>
+    </div>
+
     <!-- ④ MULTI-DOC NOTICE -->
     <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
 
@@ -1968,6 +2015,8 @@ const TX = {
     spCritical:'Critical Inconsistencies', spObservations:'Observations', spVerified:'Verified Fields',
     spSelectField:'Select a field to see details', spDismissed:'✓ Dismissed', spNotAnIssue:'Not an issue',
     spFixRequired:'Fix required', spVerify:'Verify', spConsistent:'Consistent', spValuePerDoc:'Value per document',
+    matrixLabel:'Consistency Matrix — Key Fields',
+    matrixLegend:'OK = consistent with B/L | — = field not present | DIFF = different value',
   },
   es: {
     logoTagline:'DocsValidate.com',
@@ -2066,6 +2115,8 @@ const TX = {
     spCritical:'Inconsistencias Críticas', spObservations:'Observaciones', spVerified:'Campos Verificados',
     spSelectField:'Selecciona un campo para ver el detalle', spDismissed:'✓ Descartado', spNotAnIssue:'No es error',
     spFixRequired:'Corregir', spVerify:'Verificar', spConsistent:'Consistente', spValuePerDoc:'Valor por documento',
+    matrixLabel:'Matriz de Consistencia — Campos Clave',
+    matrixLegend:'OK = consistente con B/L | — = campo no presente | DIFF = valor diferente',
   }
 };
 
@@ -2159,6 +2210,8 @@ function applyLang(){
   st('th1', t.th1); st('th2', t.th2); st('th3', t.th3); st('th4', t.th4);
   st('perDocTitle', t.perDocTitle);
   st('spEmptyText', t.spSelectField);
+  st('matrixLabel', t.matrixLabel);
+  st('matrixLegend', t.matrixLegend);
 
   // ── Action buttons ─────────────────────────────
   st('dlPdfTxt', t.dlPdfTxt);
@@ -4528,6 +4581,8 @@ function renderResults(){
     <div class="r-stat-card"><div class="r-stat-n rn-warn">${finalWarnings}</div><div class="r-stat-l">${t.statWarn}</div></div>
     <div class="r-stat-card"><div class="r-stat-n rn-err">${finalErrors}</div><div class="r-stat-l">${t.statErr}</div></div>`;
 
+  renderMatrix();
+
   // ── STEP 6: Coherence badge ─────────────────────────────────
   const cb = document.getElementById('coherenceBadge');
   if(cb){
@@ -4968,6 +5023,112 @@ function toggleRPerdoc(){
   if(btn) btn.textContent = isOpen
     ? (t2.perDocViewBtn  || (lang==='es' ? 'Ver'    : 'View'))
     : (t2.perDocCloseBtn || (lang==='es' ? 'Cerrar' : 'Close'));
+}
+
+// ── CONSISTENCY MATRIX RENDERING ──────────────────────────────
+function renderMatrix(){
+  const section = document.getElementById('matrixSection');
+  const table = document.getElementById('matrixTable');
+  const legend = document.getElementById('matrixLegend');
+  if(!section || !table) return;
+
+  // Find the BL document
+  const blDoc = analysisResults.find(r => {
+    const dt = (r.docType||'').toLowerCase();
+    return dt.includes('bill of lading') || dt.includes('waybill') || dt.includes('conocimiento');
+  });
+  if(!blDoc || analysisResults.length < 2){
+    section.style.display = 'none';
+    return;
+  }
+
+  // Other (non-BL, non-error) documents
+  const otherDocs = analysisResults.filter(r => r !== blDoc && !r._err);
+  if(otherDocs.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+
+  const t = tx();
+
+  // Fields to compare
+  const matrixFields = [
+    { key: 'shipper', label: FL('shipper') },
+    { key: 'consigneeName', label: FL('consignee') },
+    { key: 'lotNumbers', label: FL('lots'), isArray: true },
+    { key: 'bagCount', label: FL('bags') },
+    { key: 'netWeight', label: FL('netWeight') },
+    { key: 'grossWeight', label: FL('grossWeight') },
+    { key: 'containerNumbers', label: FL('containers'), isArray: true },
+    { key: 'sealNumbers', label: FL('seals'), isArray: true },
+    { key: 'vesselName', label: FL('vessel') },
+    { key: 'portOfLoading', label: FL('portOfLoading') },
+    { key: 'portOfDischarge', label: FL('portOfDischarge') },
+    { key: 'destinationCountry', label: FL('destinationCountry') },
+    { key: 'blNumber', label: FL('blNumber') },
+    { key: 'invoiceNumber', label: FL('invoiceNumber') },
+    { key: 'voyageNumber', label: FL('voyageNumber') },
+  ];
+
+  const getVal = (doc, key, isArray) => {
+    const v = doc[key];
+    if(isArray && Array.isArray(v)) return v.filter(Boolean).sort().join(', ');
+    return v ? String(v).trim() : '';
+  };
+
+  const truncate = (s, n) => s.length > n ? s.slice(0, n) + '...' : s;
+
+  // Short label for each doc
+  const shortLabel = (r) => {
+    const lbl = translateDocType(r.docType) || (r._filename||'').replace(/\.[^.]+$/, '');
+    return truncate(lbl, 15);
+  };
+
+  // Build header
+  const fieldHeader = lang === 'es' ? 'Campo' : 'Field';
+  let html = '<thead><tr>';
+  html += `<th>${fieldHeader}</th>`;
+  html += `<th class="mx-master">${truncate('B/L (' + ((blDoc._filename||'').replace(/\.[^.]+$/, '')) + ')', 20)}</th>`;
+  otherDocs.forEach(d => {
+    html += `<th>${shortLabel(d)}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  // Filter to only fields where the BL has a value
+  const activeFields = matrixFields.filter(f => {
+    const blVal = getVal(blDoc, f.key, f.isArray);
+    return blVal !== '';
+  });
+
+  // Build rows
+  activeFields.forEach(f => {
+    const blVal = getVal(blDoc, f.key, f.isArray);
+    html += '<tr>';
+    html += `<td>${f.label}</td>`;
+    html += `<td class="mx-master-val" title="${blVal.replace(/"/g,'&quot;')}">${truncate(blVal, 20)}</td>`;
+    otherDocs.forEach(d => {
+      const docVal = getVal(d, f.key, f.isArray);
+      if(!docVal){
+        html += '<td class="mx-na">&mdash;</td>';
+      } else if(isTrivialDifference(blVal, docVal)){
+        html += '<td class="mx-ok">OK</td>';
+      } else {
+        html += '<td class="mx-diff">DIFF</td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+
+  if(legend){
+    legend.textContent = t.matrixLegend || (lang === 'es'
+      ? 'OK = consistente con B/L | \u2014 = campo no presente | DIFF = valor diferente'
+      : 'OK = consistent with B/L | \u2014 = field not present | DIFF = different value');
+  }
+
+  section.style.display = activeFields.length > 0 ? '' : 'none';
 }
 
 // ── SPLIT PANEL RENDERING ─────────────────────────────────────
