@@ -1496,7 +1496,7 @@ footer {
         <li><a href="/pricing.html" onclick="if(_analysisInProgress){window.open(this.href,'_blank');return false;}">Pricing</a></li>
         <li><a href="/contact.html">Contact</a></li>
       </ul></nav>
-      <div id="userBadge">
+      <div id="userBadge" style="display:flex;align-items:baseline;gap:2rem;">
         <a href="#" onclick="openClerkSignIn();return false;" class="nav-signin" style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:400;">Sign in</a>
       </div>
       <div class="lang-switch">
@@ -6218,13 +6218,11 @@ function updateUserBadge(user){
   const reportsLabel = lang==='es' ? 'Reportes' : 'Reports';
   const profileLabel = lang==='es' ? 'Mi Cuenta' : 'Account';
   const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
-  const btnStyle = 'background:none;border:none;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;font-family:Lato,sans-serif;font-weight:400;padding:0;margin:0;line-height:1;';
-  badge.innerHTML = `<div style="display:flex;align-items:center;gap:2rem;">
-      <span style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);">${name}</span>
-      <button onclick="toggleMyReports()" style="${btnStyle}color:var(--text-mid);">${reportsLabel}</button>
-      <button onclick="openProfile()" style="${btnStyle}color:var(--text-mid);">${profileLabel}</button>
-      <button onclick="signOut()" style="${btnStyle}color:var(--text-light);">${signOutLabel}</button>
-    </div>`;
+  const ls = 'font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;text-decoration:none;font-weight:400;';
+  badge.innerHTML = `<a href="#" onclick="return false;" style="${ls}color:var(--text-mid);">${name}</a>
+      <a href="#" onclick="toggleMyReports();return false;" style="${ls}color:var(--text-mid);transition:color 0.2s;">${reportsLabel}</a>
+      <a href="#" onclick="openProfile();return false;" style="${ls}color:var(--text-mid);transition:color 0.2s;">${profileLabel}</a>
+      <a href="#" onclick="signOut();return false;" style="${ls}color:var(--text-light);transition:color 0.2s;">${signOutLabel}</a>`;
 }
 
 function toggleMyReports() {
