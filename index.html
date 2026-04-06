@@ -2810,7 +2810,7 @@ Also include an "extraFields" object for any fields present in the document that
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaudeHaiku(system,content,3000);
+    const t=await callClaude(system,content,3000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
