@@ -6218,14 +6218,12 @@ function updateUserBadge(user){
   const reportsLabel = lang==='es' ? 'Reportes' : 'Reports';
   const profileLabel = lang==='es' ? 'Mi Cuenta' : 'Account';
   const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
-  badge.innerHTML = `<div style="display:flex;align-items:center;gap:0.6rem;">
-      <span style="font-size:0.62rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
-      <span style="color:var(--border);font-size:0.5rem;">|</span>
-      <button onclick="toggleMyReports()" style="background:none;border:none;font-size:0.62rem;color:var(--tan);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">${reportsLabel}</button>
-      <span style="color:var(--border);font-size:0.5rem;">|</span>
-      <button onclick="openProfile()" style="background:none;border:none;font-size:0.62rem;color:var(--text-mid);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;">${profileLabel}</button>
-      <span style="color:var(--border);font-size:0.5rem;">|</span>
-      <button onclick="signOut()" style="background:none;border:none;font-size:0.62rem;color:var(--text-light);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;">${signOutLabel}</button>
+  const btnStyle = 'background:none;border:none;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;font-family:Lato,sans-serif;font-weight:400;padding:0;margin:0;line-height:1;';
+  badge.innerHTML = `<div style="display:flex;align-items:center;gap:2rem;">
+      <span style="font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);">${name}</span>
+      <button onclick="toggleMyReports()" style="${btnStyle}color:var(--text-mid);">${reportsLabel}</button>
+      <button onclick="openProfile()" style="${btnStyle}color:var(--text-mid);">${profileLabel}</button>
+      <button onclick="signOut()" style="${btnStyle}color:var(--text-light);">${signOutLabel}</button>
     </div>`;
 }
 
