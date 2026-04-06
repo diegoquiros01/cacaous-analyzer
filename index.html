@@ -2810,7 +2810,7 @@ Also include an "extraFields" object for any fields present in the document that
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaude(system,content,3000);
+    const t=await callClaudeHaiku(system,content,3000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
@@ -3539,71 +3539,97 @@ async function startAnalysis(){
     );
     await Promise.all(extractPromises);
 
-    // ── VERIFICATION PASS: re-extract missing critical fields ────────────
-    // If a doc that should have containers/totalAmount doesn't, retry with focused prompt
+    // ── VERIFICATION PASS: re-extract with Sonnet when Haiku missed critical fields ──
     setLbl(lang==='es'?'Verificando campos críticos':'Verifying critical fields');
     setSub(lang==='es'?'Revisando extracción...':'Checking extraction...');
     setProgress(72, lang==='es'?'Verificando...':'Verifying...');
 
-    const criticalDocTypes = {
-      containers: ['packing list','packing','lista de empaque','bill of lading','conocimiento','bl'],
-      totalAmount: ['commercial invoice','factura comercial','invoice','factura'],
-      pricePerUnit: ['commercial invoice','factura comercial','invoice','factura'],
+    // Define which doc types should have which fields
+    const shouldHave = {
+      containers: ['packing','lista de empaque','bill of lading','conocimiento','bl','waybill'],
+      invoiceNumber: ['invoice','factura','fact','packing','bill of lading','conocimiento','certificate of origin','certificado de origen','cert orig'],
+      totalAmount: ['invoice','factura','fact'],
+      lotNumbers: ['packing','bill of lading','conocimiento','certificate of origin','certificado de origen','phyto','fitosanit','quality','calidad'],
     };
 
-    const reextractPromises = [];
+    const needsReextract = [];
     analysisResults.forEach((doc, idx) => {
       if(doc._err) return;
       const dt = (doc.docType||'').toLowerCase();
       const fn = (doc._filename||'').toLowerCase();
+      const match = (keywords) => keywords.some(k => dt.includes(k) || fn.includes(k));
 
+      let missing = false;
       // Check containers
-      const shouldHaveContainers = criticalDocTypes.containers.some(t => dt.includes(t) || fn.includes(t));
-      const hasContainers = doc.containerNumbers && doc.containerNumbers.length > 0 &&
-        doc.containerNumbers.some(c => /^[A-Z]{4}\d{6,7}$/i.test(String(c).trim()));
+      if(match(shouldHave.containers)) {
+        const hasC = doc.containerNumbers?.length > 0 && doc.containerNumbers.some(c => /^[A-Z]{4}\d{6,7}$/i.test(String(c).trim()));
+        if(!hasC) missing = true;
+      }
+      // Check invoice number
+      if(match(shouldHave.invoiceNumber)) {
+        if(!doc.invoiceNumber || doc.invoiceNumber === 'null') missing = true;
+      }
+      // Check total amount (for invoices)
+      if(match(shouldHave.totalAmount)) {
+        if(!doc.totalAmount || doc.totalAmount === 'null') missing = true;
+      }
+      // Check lot numbers
+      if(match(shouldHave.lotNumbers)) {
+        if(!doc.lotNumbers || doc.lotNumbers.length === 0) missing = true;
+      }
 
-      // Check financial
-      const shouldHaveFinancial = criticalDocTypes.totalAmount.some(t => dt.includes(t) || fn.includes(t));
-      const hasFinancial = doc.totalAmount && doc.totalAmount !== 'null';
+      if(missing) needsReextract.push({ doc, idx });
+    });
 
-      const missingFields = [];
-      if(shouldHaveContainers && !hasContainers) missingFields.push('containerNumbers', 'sealNumbers');
-      if(shouldHaveFinancial && !hasFinancial) missingFields.push('totalAmount', 'pricePerUnit', 'paymentTerms', 'incoterms');
+    if(needsReextract.length > 0) {
+      setSub(lang==='es'?'Re-extrayendo ' + needsReextract.length + ' doc(s) con Sonnet...':'Re-extracting ' + needsReextract.length + ' doc(s) with Sonnet...');
+      setProgress(75, lang==='es'?'Re-extrayendo...':'Re-extracting...');
 
-      if(missingFields.length > 0) {
+      // Re-extract full doc with Sonnet (more accurate than Haiku for complex docs)
+      const reextractPromises = needsReextract.map(({ doc }) => {
         const entry = uploadedFiles.find(f => f.name === doc._filename);
-        if(!entry) return;
-        const reextractPromise = (async () => {
+        if(!entry) return Promise.resolve();
+        return (async () => {
           try {
-            const focusedSystem = 'You are extracting specific fields from a cacao/coffee export document. Return ONLY a JSON object with these fields: ' + missingFields.join(', ') + '. For containerNumbers, extract ALL container numbers (format: 4 letters + 6-7 digits like CMAU9710760). For totalAmount, extract the total commercial value with currency. For pricePerUnit, extract the unit price. Return null for fields not found.';
+            const result = await extractDoc(entry);
+            // extractDoc now uses Haiku — call Sonnet directly for retry
             let content;
             if(entry.textContent) {
-              content = 'Extract from:\n\n' + entry.textContent;
+              content = 'Extract all data from this cacao/coffee export document:\n\n' + entry.textContent;
             } else {
               const b64 = await toBase64(entry.file);
               const mt = mediaType(entry.file);
               content = [];
               if(mt==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
               else content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
-              content.push({type:'text',text:'Extract these specific fields: ' + missingFields.join(', ')});
+              content.push({type:'text',text:'Extract all data from this cacao/coffee export document. Pay special attention to: containerNumbers, invoiceNumber, lotNumbers, totalAmount.'});
             }
-            const raw = await callClaudeHaiku(focusedSystem, content, 1000);
-            const parsed = safeJSON(raw);
+            const retrySystem = 'You are an expert in cacao and coffee export documents. Extract ALL fields from this document. Return a JSON object. Pay special attention to: containerNumbers (format: 4 letters + 6-7 digits), sealNumbers, invoiceNumber, lotNumbers, bagCount, netWeight, grossWeight, totalAmount, pricePerUnit, vesselName, portOfLoading, portOfDischarge, blNumber, voyageNumber, shipper, consigneeName, destinationCountry, originCountry. Use null for fields not found.';
+            const raw = await callClaude(retrySystem, content, 3000);
+            let parsed;
+            try {
+              const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+              parsed = JSON.parse(cleaned);
+              if(Array.isArray(parsed)) parsed = parsed[0];
+            } catch(e) {
+              const obj = raw.match(/(\{.*\})/s);
+              if(obj) try { parsed = JSON.parse(obj[1]); } catch(e2) {}
+            }
             if(parsed) {
-              missingFields.forEach(f => {
-                if(parsed[f] && parsed[f] !== 'null' && parsed[f] !== null) {
-                  doc[f] = parsed[f];
+              // Merge: only fill in missing fields, don't overwrite existing
+              Object.keys(parsed).forEach(k => {
+                if(k.startsWith('_')) return;
+                const existing = doc[k];
+                const newVal = parsed[k];
+                if((!existing || existing === 'null' || (Array.isArray(existing) && existing.length === 0)) &&
+                   newVal && newVal !== 'null' && newVal !== null) {
+                  doc[k] = newVal;
                 }
               });
             }
-          } catch(e) { console.warn('Re-extract failed for', doc._filename, ':', e.message); }
+          } catch(e) { console.warn('Sonnet re-extract failed for', doc._filename, ':', e.message); }
         })();
-        reextractPromises.push(reextractPromise);
-      }
-    });
-
-    if(reextractPromises.length > 0) {
-      setSub(lang==='es'?'Re-extrayendo ' + reextractPromises.length + ' campo(s) faltante(s)...':'Re-extracting ' + reextractPromises.length + ' missing field(s)...');
+      });
       await Promise.all(reextractPromises);
     }
 
