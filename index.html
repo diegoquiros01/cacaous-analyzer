@@ -1575,6 +1575,11 @@ footer {
       </div>
       <p id="histDetailText" style="font-size:0.8rem;color:var(--text-mid);line-height:1.7;font-style:italic;"></p>
     </div>
+    <div style="margin-top:1.5rem;">
+      <button onclick="toggleMyReports()" style="padding:0.6rem 1.5rem;background:none;border:1px solid var(--border);color:var(--text-mid);font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;border-radius:2px;">
+        ← <span id="histBackBtn">Back to Home</span>
+      </button>
+    </div>
   </div>
 
   <!-- ══ STEP 1: UPLOAD ══ -->
@@ -6210,12 +6215,15 @@ function updateUserBadge(user){
   const badge = document.getElementById('userBadge');
   if(!badge) return;
   const name = user.firstName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User';
-  const reportsLabel = lang==='es' ? 'Mis Reportes' : 'My Reports';
+  const reportsLabel = lang==='es' ? 'Reportes' : 'Reports';
+  const profileLabel = lang==='es' ? 'Mi Cuenta' : 'Account';
   const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
   badge.innerHTML = `<div style="display:flex;align-items:center;gap:0.6rem;">
       <span style="font-size:0.62rem;letter-spacing:0.1em;color:var(--brown-mid);">${name}</span>
       <span style="color:var(--border);font-size:0.5rem;">|</span>
       <button onclick="toggleMyReports()" style="background:none;border:none;font-size:0.62rem;color:var(--tan);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;">${reportsLabel}</button>
+      <span style="color:var(--border);font-size:0.5rem;">|</span>
+      <button onclick="openProfile()" style="background:none;border:none;font-size:0.62rem;color:var(--text-mid);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;">${profileLabel}</button>
       <span style="color:var(--border);font-size:0.5rem;">|</span>
       <button onclick="signOut()" style="background:none;border:none;font-size:0.62rem;color:var(--text-light);cursor:pointer;letter-spacing:0.12em;text-transform:uppercase;">${signOutLabel}</button>
     </div>`;
@@ -6225,12 +6233,23 @@ function toggleMyReports() {
   const sec = document.getElementById('historySection');
   if (!sec) return;
   const isVisible = sec.style.display !== 'none' && sec.style.display !== '';
+  const hero = document.querySelector('.hero');
+  const upload = document.getElementById('uploadSection');
+  const stepper = document.getElementById('upStepper');
   if (isVisible) {
+    // Hide reports, show main page
     sec.style.display = 'none';
+    if (hero) hero.style.display = '';
+    if (upload) upload.style.display = '';
+    if (stepper) stepper.style.display = '';
   } else {
+    // Show reports, hide main page
+    if (hero) hero.style.display = 'none';
+    if (upload) upload.style.display = 'none';
+    if (stepper) stepper.style.display = 'none';
     loadHistory();
     sec.style.display = 'block';
-    sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
@@ -6256,6 +6275,63 @@ function handleSignupClick(){
   if(err) err.style.display = 'none';
   if(check) check.parentElement.style.outline = '';
   openClerkSignIn();
+}
+
+async function openProfile(){
+  // Show plan info + link to Clerk account management
+  if (!isLoggedIn()) { openClerkSignIn(); return; }
+  const isES = lang === 'es';
+  try {
+    const userId = window.__clerk_user.id;
+    const email = window.__clerk_user.primaryEmailAddress?.emailAddress || '';
+    const resp = await fetch('/.netlify/functions/user', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'get', clerk_id: userId, email })
+    });
+    const data = await resp.json();
+    const plan = (data.plan || 'starter').charAt(0).toUpperCase() + (data.plan || 'starter').slice(1);
+    const used = data.validations_used || 0;
+    const limit = data.validations_limit || 0;
+    const remaining = data.remaining || 0;
+    const nextReset = data.next_reset ? new Date(data.next_reset).toLocaleDateString(isES?'es-ES':'en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
+
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(15,17,23,0.7);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+    modal.innerHTML = `<div style="background:#fff;border-radius:4px;padding:2rem;max-width:400px;width:90%;position:relative;">
+      <button onclick="this.closest('div[style]').remove()" style="position:absolute;top:0.8rem;right:0.8rem;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-light);">✕</button>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--brown-dark);margin-bottom:1rem;">${isES?'Mi Cuenta':'My Account'}</h3>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.2rem;">
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
+          <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">Email</span>
+          <span style="font-size:0.78rem;color:var(--brown-dark);">${email}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
+          <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">${isES?'Plan':'Plan'}</span>
+          <span style="font-size:0.78rem;color:var(--tan);font-weight:700;">${plan}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
+          <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">${isES?'Validaciones usadas':'Validations used'}</span>
+          <span style="font-size:0.78rem;color:var(--brown-dark);">${used} / ${limit}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
+          <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">${isES?'Restantes':'Remaining'}</span>
+          <span style="font-size:0.78rem;color:var(--green);font-weight:700;">${remaining}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;">
+          <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">${isES?'Próximo reset':'Next reset'}</span>
+          <span style="font-size:0.78rem;color:var(--brown-dark);">${nextReset}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="/pricing.html" style="flex:1;text-align:center;padding:0.6rem;background:var(--brown-dark);color:#fff;font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;text-decoration:none;border-radius:2px;">${isES?'Cambiar plan':'Change plan'}</a>
+        <a href="https://accounts.docsvalidate.com/user" target="_blank" style="flex:1;text-align:center;padding:0.6rem;background:none;border:1px solid var(--border);color:var(--text-mid);font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;text-decoration:none;border-radius:2px;">${isES?'Editar perfil':'Edit profile'}</a>
+      </div>
+    </div>`;
+    document.body.appendChild(modal);
+  } catch(e) {
+    console.error('Profile error:', e);
+    window.open('https://accounts.docsvalidate.com/user', '_blank');
+  }
 }
 
 function openClerkSignIn(){
