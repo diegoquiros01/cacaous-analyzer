@@ -3067,9 +3067,10 @@ Return ONLY valid JSON:
           // If this doc type SHOULD have containers, warn about missing extraction
           const shouldHaveContainers = ['packing','lista de empaque','phytosanitary',
             'fitosanitario','fumig','certificate of origin','certificado de origen','invoice','factura'];
+          const isPL = dt.includes('packing') || fn.includes('packing') || dt.includes('lista de empaque');
           if (shouldHaveContainers.some(s => dt.includes(s) || fn.includes(s))) {
             jsPreErrors.push({
-              type: 'warning', field: 'containers',
+              type: isPL ? 'error' : 'warning', field: 'containers',
               message: isES
                 ? '"' + docName.replace(/\.[^.]+$/,'') + '" no incluye contenedores — verificar manualmente contra el BL (' + blLabel + ').'
                 : '"' + docName.replace(/\.[^.]+$/,'') + '" has no containers listed — verify manually against BL (' + blLabel + ').',
@@ -3696,7 +3697,8 @@ function normalizeValue(v){
   s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york usa');
   s = s.replace(/\bnueva\s*york\b/g, 'new york');
   s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of)\s+/g, '');
-  s = s.replace(/,?\s*(ecuador|colombia|venezuela|peru|usa|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom)\b.*/g, '');
+  s = s.replace(/[-,]?\s*(ecuador|colombia|venezuela|peru|usa|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom|estados\s*unidos|united\s*states)\b.*/g, '');
+  s = s.replace(/\bguayas\b/g, 'posorja');
   s = s.replace(/,?\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '');
 
   // ── STRIP ADDRESS FROM COMPANY NAME ─────────────────────────────
@@ -3811,6 +3813,9 @@ function isTrivialDifference(a, b){
   // Only use containment for pure text without bag units
   if(!looksLikeCode(na) && !looksLikeCode(nb) && !hasBagWord(na) && !hasBagWord(nb)){
     if(na && nb && (na.includes(nb) || nb.includes(na))) return true;
+    // Port-specific: both values start with the same significant word (city name)
+    const firstWord = s => s.split(/[\s,\-]+/)[0];
+    if(firstWord(na).length > 3 && firstWord(na) === firstWord(nb)) return true;
   }
   // 5b. After stripping company legal suffixes, check if core name matches
   const stripSuffix = s => s
@@ -4233,8 +4238,19 @@ function renderResults(){
   })();
 
   let tableData = smartResult?.setValues || {};
+  // Always run JS comparison as ground truth
+  const jsTableData = buildSetValuesFromResults(analysisResults);
   if(!Object.values(tableData).some(d=>d?.values?.length)){
-    tableData = buildSetValuesFromResults(analysisResults);
+    tableData = jsTableData;
+  } else {
+    // Merge: JS wins when it detects inconsistency that AI missed
+    for (const [key, jsField] of Object.entries(jsTableData)) {
+      if (!tableData[key] || !tableData[key].values?.length) {
+        tableData[key] = jsField;
+      } else if (jsField.status === 'inconsistent' && tableData[key].status === 'consistent') {
+        tableData[key].status = 'inconsistent';
+      }
+    }
   }
 
   // Override: if JS pre-check found errors for a field, force it to inconsistent
