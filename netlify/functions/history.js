@@ -119,6 +119,25 @@ exports.handler = async (event) => {
       };
     }
 
+    // ── DELETE ──────────────────────────────────────────────────────────────
+    if (action === 'delete') {
+      const { id } = params;
+      if (!id) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id' }) };
+      }
+      // Verify ownership first
+      const rows = await supabase(`validation_history?id=eq.${encodeURIComponent(id)}&select=id,clerk_id`);
+      const record = Array.isArray(rows) ? rows[0] : rows;
+      if (!record) {
+        return { statusCode: 404, headers, body: JSON.stringify({ error: 'Record not found' }) };
+      }
+      if (record.clerk_id !== clerk_id) {
+        return { statusCode: 403, headers, body: JSON.stringify({ error: 'Access denied' }) };
+      }
+      await supabase(`validation_history?id=eq.${encodeURIComponent(id)}`, 'DELETE');
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+    }
+
     return {
       statusCode: 400,
       headers,

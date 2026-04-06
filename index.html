@@ -6033,6 +6033,7 @@ function renderHistory(rows) {
       + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.vessel_name||'—')+'</span>'
       + '<span style="flex:0 0 80px;text-align:center;">'+statusBadge(r.status)+'</span>'
       + '<span style="flex:0 0 50px;text-align:center;color:var(--text-light);">'+r.doc_count+'</span>'
+      + '<span style="flex:0 0 30px;text-align:center;"><a href="#" onclick="event.stopPropagation();deleteReport(\''+r.id+'\');return false;" style="color:var(--text-light);text-decoration:none;font-size:0.8rem;transition:color 0.2s;" onmouseover="this.style.color=\'var(--red)\'" onmouseout="this.style.color=\'var(--text-light)\'">✕</a></span>'
       + '</div>';
   }).join('');
   list.innerHTML = header + rowsHtml;
@@ -6062,6 +6063,24 @@ function showHistDetail(el) {
     detail.appendChild(btn);
   }
   detail.style.display = 'block';
+}
+
+async function deleteReport(histId) {
+  if (!isLoggedIn() || !histId) return;
+  const confirmMsg = lang==='es' ? '¿Eliminar este reporte?' : 'Delete this report?';
+  if (!confirm(confirmMsg)) return;
+  try {
+    const resp = await fetch('/.netlify/functions/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', clerk_id: window.__clerk_user.id, id: histId }),
+    });
+    if (!resp.ok) throw new Error('Delete failed');
+    loadHistory(); // refresh list
+  } catch (e) {
+    console.error('Delete report error:', e);
+    alert(lang==='es' ? 'Error eliminando reporte' : 'Error deleting report');
+  }
 }
 
 async function loadHistReport(histId) {
