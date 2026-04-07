@@ -6463,17 +6463,20 @@ function toggleMyReports() {
   const hero = document.querySelector('.hero');
   const upload = document.getElementById('uploadSection');
   const stepper = document.getElementById('upStepper');
+  const footer = document.querySelector('footer');
   if (isVisible) {
     // Hide reports, show main page
     sec.style.display = 'none';
     if (hero) hero.style.display = '';
     if (upload) upload.style.display = '';
     if (stepper) stepper.style.display = '';
+    if (footer) footer.style.display = '';
   } else {
     // Show reports, hide main page
     if (hero) hero.style.display = 'none';
     if (upload) upload.style.display = 'none';
     if (stepper) stepper.style.display = 'none';
+    if (footer) footer.style.display = 'none';
     loadHistory();
     sec.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
