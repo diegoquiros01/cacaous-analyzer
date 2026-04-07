@@ -9,8 +9,8 @@ const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
 const PLAN_LIMITS = {
   starter:      10,
-  professional: 150,
-  enterprise:   500,
+  professional: 100,
+  enterprise:   300,
 };
 
 async function supabase(path, method = 'GET', body = null) {
