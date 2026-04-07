@@ -7,6 +7,7 @@
 
 function setLang(l){
   lang=l;
+  localStorage.setItem('dv_lang', l);
   document.getElementById('btnES').classList.toggle('active',l==='es');
   document.getElementById('btnEN').classList.toggle('active',l==='en');
   applyLang();

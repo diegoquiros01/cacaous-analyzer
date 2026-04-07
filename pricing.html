@@ -219,7 +219,7 @@ nav a:hover,nav a.active{color:#0f1117;font-weight:600;}
 </section>
 
 <script>
-let lang='en', isAnnual=false;
+let lang=localStorage.getItem('dv_lang')||'en', isAnnual=false;
 const TX={
   en:{
     logoTagline:'AI-Validation',
@@ -330,6 +330,7 @@ function applyLang(){
 
 function setLang(l){
   lang=l;
+  localStorage.setItem('dv_lang', l);
   document.getElementById('btnES').classList.toggle('active',l==='es');
   document.getElementById('btnEN').classList.toggle('active',l==='en');
   applyLang();
@@ -345,6 +346,9 @@ function toggleBilling(){
   ['p1per','p2per','p3per'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=per;});
 }
 
+// Apply saved language + update button states
+document.getElementById('btnES').classList.toggle('active',lang==='es');
+document.getElementById('btnEN').classList.toggle('active',lang==='en');
 applyLang();
 
 // ── SUBSCRIPTION FLOW ─────────────────────────────────────

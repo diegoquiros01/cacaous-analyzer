@@ -317,7 +317,7 @@ input.err,select.err,textarea.err{border-color:#b04030;}
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-let lang = 'en';
+let lang = localStorage.getItem('dv_lang') || 'en';
 let currentType = 'general';
 let priority = 'low';
 
@@ -453,6 +453,7 @@ function applyLang(){
 
 function setLang(l){
   lang=l;
+  localStorage.setItem('dv_lang', l);
   document.getElementById('btnES').classList.toggle('active',l==='es');
   document.getElementById('btnEN').classList.toggle('active',l==='en');
   applyLang();
@@ -600,6 +601,8 @@ function resetForm(){
   if(document.getElementById('attachList')) document.getElementById('attachList').innerHTML='';
   selectType('general');
   setPriority('low');
+  document.getElementById('btnES').classList.toggle('active',lang==='es');
+  document.getElementById('btnEN').classList.toggle('active',lang==='en');
   applyLang();
 }
 </script>
