@@ -80,7 +80,9 @@ function mediaType(f){
 
 // ── PDF PAGE SPLITTER ─────────────────────────────────────
 async function splitPdfToPages(file){
-  // Split PDFs with >2 pages into 2-page chunks for faster processing
+  // Disabled — Claude handles multi-page PDFs directly.
+  // Splitting caused more problems than it solved (pages treated as separate docs).
+  return null;
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
