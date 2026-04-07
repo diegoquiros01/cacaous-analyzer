@@ -103,6 +103,7 @@ nav a:hover,nav a.active{color:#0f1117;font-weight:600;}
         <li><a href="#" class="active" id="navPricing">Pricing</a></li>
         <li><a href="/contact.html" id="navContact">Contact</a></li>
       </ul></nav>
+      <ul id="userBadge" class="nav-user" style="display:flex;gap:2rem;list-style:none;align-items:baseline;"></ul>
       <div class="lang-switch">
         <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
         <span class="lang-sep">|</span>
@@ -456,6 +457,24 @@ async function proceedWithClerk() {
     <p style="margin-top:0.8rem;font-size:0.72rem;color:#888;">Already have an account? <a href="#" onclick="proceedWithClerk(); return false;" style="color:#4a6fa5;">Sign in</a></p>
   </div>
 </div>
+
+<script>
+// Show user badge if logged in
+function initUserBadge() {
+  if (!window.Clerk) { setTimeout(initUserBadge, 500); return; }
+  window.Clerk.load().then(() => {
+    const user = window.Clerk?.user;
+    const badge = document.getElementById('userBadge');
+    if (!user || !badge) return;
+    const name = user.firstName || user.primaryEmailAddress?.emailAddress?.split('@')[0] || 'User';
+    const ls = "font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;text-decoration:none;font-weight:400;";
+    badge.innerHTML = '<li><a href="/" style="'+ls+'color:#3a4255;">'+name+'</a></li>'
+      + '<li><a href="https://accounts.docsvalidate.com/user" style="'+ls+'color:#3a4255;">'+(lang==='es'?'Cuenta':'Account')+'</a></li>'
+      + '<li><a href="#" onclick="window.Clerk.signOut().then(()=>location.reload());return false;" style="'+ls+'color:#7a8499;">'+(lang==='es'?'Salir':'Sign out')+'</a></li>';
+  }).catch(() => {});
+}
+initUserBadge();
+</script>
 
 </body>
 </html>
