@@ -80,7 +80,9 @@ function mediaType(f){
 
 // ── PDF PAGE SPLITTER ─────────────────────────────────────
 async function splitPdfToPages(file){
-  // Only split PDFs that are very large (>8 pages) AND not recognizable as single documents
+  // Disabled — send all PDFs complete to Claude for best extraction quality
+  // Claude handles multi-page PDFs and multi-doc bundles natively
+  return null;
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -224,7 +226,11 @@ Also include an "extraFields" object for any fields present in the document that
     content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
   }
   try{
-    const t=await callClaudeHaiku(system,content,3000);
+    // Use Sonnet for large PDFs (multi-doc bundles), Haiku for smaller docs
+    const isLargePdf = entry.file && entry.file.size > 500000 && /\.pdf$/i.test(entry.name);
+    const t = isLargePdf
+      ? await callClaude(system, content, 6000)
+      : await callClaudeHaiku(system, content, 3000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
     // Strip markdown fences
