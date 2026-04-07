@@ -7,10 +7,10 @@ const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 // Price IDs — monthly and annual for each plan
 // Update these if you change products in Stripe Dashboard
 const PRICES = {
-  professional_monthly: 'price_1TDa3bFZXtgfLmPeNZAjubq9',
-  professional_annual:  'price_1TIcmzFZXtgfLmPeC2gaiBxU',
-  enterprise_monthly:   'price_1TDa3xFZXtgfLmPe75FrukTG',
-  enterprise_annual:    'price_1TIcpoFZXtgfLmPeG8E6neTO',
+  professional_monthly: 'price_1TJNY8FZXtgfLmPeUZYxVebI',
+  professional_annual:  'price_1TJNYSFZXtgfLmPeoLCcQrza',
+  enterprise_monthly:   'price_1TJNbKFZXtgfLmPeq2WJTHT3',
+  enterprise_annual:    'price_1TJNcXFZXtgfLmPede2a7C4b',
 };
 
 const ALLOWED_ORIGINS = ['https://www.docsvalidate.com', 'https://docsvalidate.com', 'http://localhost:8888', 'http://localhost:3000'];

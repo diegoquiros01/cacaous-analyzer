@@ -24,12 +24,12 @@
 const PRICE_TO_PLAN = {
   // Starter (free — no Stripe price, but kept for reference)
   'price_1TDa31FZXtgfLmPehPPvJxzZ':      'starter',
-  // Professional
-  'price_1TDa3bFZXtgfLmPeNZAjubq9': 'professional',  // monthly
-  'price_1TIcmzFZXtgfLmPeC2gaiBxU': 'professional',  // annual
-  // Enterprise
-  'price_1TDa3xFZXtgfLmPe75FrukTG': 'enterprise',    // monthly
-  'price_1TIcpoFZXtgfLmPeG8E6neTO': 'enterprise',    // annual
+  // Professional ($119/mo, $95/mo annual)
+  'price_1TJNY8FZXtgfLmPeUZYxVebI': 'professional',  // monthly
+  'price_1TJNYSFZXtgfLmPeoLCcQrza': 'professional',  // annual
+  // Enterprise ($189/mo, $151/mo annual)
+  'price_1TJNbKFZXtgfLmPeq2WJTHT3': 'enterprise',    // monthly
+  'price_1TJNcXFZXtgfLmPede2a7C4b': 'enterprise',    // annual
 };
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
