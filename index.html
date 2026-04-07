@@ -3761,18 +3761,19 @@ function normalizeValue(v){
   if(transportModeWords.includes(s.trim())) return '__transport_mode__';
 
   // ── PORT NORMALIZATION ────────────────────────────────────────
-  // Jersey City, Newark, Elizabeth, Bayonne = New York/NJ port area
-  s = s.replace(/\bjersey\s*city\b/g, 'new york area');
-  s = s.replace(/\bnewark\b/g, 'new york area');
-  s = s.replace(/new\s*york[\s\-]+united\s*states\b/g, 'new york area');
-  s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york area');
-  s = s.replace(/\bnew\s*york\b/g, 'new york area');
-  s = s.replace(/new\s*york,?\s*(ny|usa|u\.s\.a?\.?)\b/g, 'new york usa');
-  s = s.replace(/\bnueva\s*york\b/g, 'new york');
-  s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of)\s+/g, '');
-  s = s.replace(/[-,]?\s*(ecuador|colombia|venezuela|peru|usa|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom|estados\s*unidos|united\s*states)\b.*/g, '');
-  s = s.replace(/\bguayas\b/g, 'posorja');
+  // Strip prefixes
+  s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of|puerto)\s+/g, '');
+  // Strip country/state suffixes (comma, hyphen, or space before country)
+  s = s.replace(/[-,]?\s*(ecuador|colombia|venezuela|peru|usa|u\.s\.a?\.?|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom|estados\s*unidos|united\s*states)\b.*/g, '');
   s = s.replace(/,?\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '');
+  // Known port area normalizations
+  s = s.replace(/\bjersey\s*city\b/g, 'new york');
+  s = s.replace(/\bnewark\b/g, 'new york');
+  s = s.replace(/\bnueva\s*york\b/g, 'new york');
+  s = s.replace(/\bguayas\b/g, 'posorja');
+  s = s.replace(/\bguayaquil\b/g, 'posorja');
+  // Final cleanup: strip everything after comma, trim leading/trailing punctuation
+  s = s.replace(/,.*$/, '').replace(/^[\s,\-]+/, '').trim();
 
   // ── STRIP ADDRESS FROM COMPANY NAME ─────────────────────────────
   // "COMPANY NAME AV FRANCISCO DE ORELLANA..." → "COMPANY NAME"
