@@ -80,9 +80,8 @@ function mediaType(f){
 
 // ── PDF PAGE SPLITTER ─────────────────────────────────────
 async function splitPdfToPages(file){
-  // Disabled — send all PDFs complete to Claude for best extraction quality
-  // Claude handles multi-page PDFs and multi-doc bundles natively
-  return null;
+  // Split large PDFs (>8 pages) into chunks of 4 pages for better extraction
+  // Small PDFs (≤8 pages) are sent complete to Claude
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -112,26 +111,39 @@ async function splitPdfToPages(file){
       nameLower.includes('peso') || nameLower.includes('swb');
     if(isSingleDoc) return null;
 
-    // >8 pages: split into chunks of 4 pages each (rendered as images)
+    // >8 pages: split into chunks of 4 pages, each chunk = one combined image
     const CHUNK_SIZE = 4;
     const chunks = [];
     for(let start = 1; start <= numPages; start += CHUNK_SIZE){
       const end = Math.min(start + CHUNK_SIZE - 1, numPages);
-      const chunkPages = [];
+      // Render each page in this chunk
+      const pageCanvases = [];
       for(let i = start; i <= end; i++){
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({scale: 1.2});
+        const viewport = page.getViewport({scale: 1.0});
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         const ctx = canvas.getContext('2d');
         await page.render({canvasContext: ctx, viewport}).promise;
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.65));
-        const pageName = file.name.replace(/\.pdf$/i,'') + ` p.${i}.jpg`;
-        chunkPages.push({file: new File([blob], pageName, {type:'image/jpeg'}), name: pageName, size: blob.size, _pdfPage: i, _pdfSource: file.name});
+        pageCanvases.push(canvas);
       }
-      // Add each page as a separate entry (AI will detect doc type per page)
-      chunkPages.forEach(p => chunks.push(p));
+      // Stack pages vertically into one combined image
+      const totalHeight = pageCanvases.reduce((h, c) => h + c.height, 0);
+      const maxWidth = Math.max(...pageCanvases.map(c => c.width));
+      const combined = document.createElement('canvas');
+      combined.width = maxWidth;
+      combined.height = totalHeight;
+      const ctx = combined.getContext('2d');
+      let y = 0;
+      pageCanvases.forEach(c => { ctx.drawImage(c, 0, y); y += c.height; });
+      const blob = await new Promise(res => combined.toBlob(res, 'image/jpeg', 0.6));
+      const chunkName = file.name.replace(/\.pdf$/i,'') + ` pages ${start}-${end}.jpg`;
+      chunks.push({
+        file: new File([blob], chunkName, {type:'image/jpeg'}),
+        name: chunkName, size: blob.size,
+        _pdfPage: start, _pdfSource: file.name
+      });
     }
     return chunks;
   } catch(e){
