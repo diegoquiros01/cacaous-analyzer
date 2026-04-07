@@ -89,8 +89,9 @@ async function splitPdfToPages(file){
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
 
-    // 8 pages or less: send as-is (Claude handles multi-page PDFs well up to ~8 pages)
-    if(numPages <= 8) return null;
+    // Send all PDFs as-is — Claude handles PDFs up to 100 pages natively
+    // Large PDFs use Sonnet (see extractDoc logic) for better extraction
+    return null;
 
     // Only split PDFs that are clearly multi-document bundles (5+ pages)
     // Single documents (BL, invoice, packing list, certs) can be many pages — never split them
@@ -241,7 +242,7 @@ Also include an "extraFields" object for any fields present in the document that
     // Use Sonnet for large PDFs (multi-doc bundles), Haiku for smaller docs
     const isLargePdf = entry.file && entry.file.size > 500000 && /\.pdf$/i.test(entry.name);
     const t = isLargePdf
-      ? await callClaude(system, content, 6000)
+      ? await callClaude(system, content, 8000)
       : await callClaudeHaiku(system, content, 3000);
     // Parse — could be array (multi-doc) or single object
     let raw = t.trim();
