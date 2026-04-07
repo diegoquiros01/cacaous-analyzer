@@ -6243,8 +6243,41 @@ function renderHistory(rows) {
 function showHistDetail(el) {
   const histId = el.dataset.id;
   if (!histId) return;
-  // Load full report directly — hide reports list, show results
-  loadHistReport(histId);
+  // Load report data and download PDF directly
+  downloadHistReport(histId);
+}
+
+async function downloadHistReport(histId) {
+  if (!isLoggedIn()) return;
+  try {
+    const resp = await fetch('/.netlify/functions/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', clerk_id: window.__clerk_user.id, id: histId }),
+    });
+    const data = await resp.json();
+    const record = data.record;
+    if (!record?.result_json) {
+      alert(lang==='es' ? 'Este reporte no tiene datos guardados.' : 'This report has no saved data.');
+      return;
+    }
+    // Restore state temporarily for PDF generation
+    let saved = record.result_json;
+    if (typeof saved === 'string') saved = JSON.parse(saved);
+    const prevCoherence = coherenceResult;
+    const prevResults = analysisResults;
+    coherenceResult = saved.coherenceResult;
+    analysisResults = saved.analysisResults || [];
+    _cachedSummary = coherenceResult?.summary || null;
+    // Generate and download PDF
+    await downloadPdfReport();
+    // Restore previous state
+    coherenceResult = prevCoherence;
+    analysisResults = prevResults;
+  } catch (e) {
+    console.error('Download report error:', e);
+    alert(lang==='es' ? 'Error descargando reporte' : 'Error downloading report');
+  }
 }
 
 function toggleSelectAllReports(checked) {
