@@ -2641,6 +2641,8 @@ function setStep(n){
   if(pbar) pbar.style.display = 'none'; // always hidden — replaced by up-stepper
   const upStepper = document.getElementById('upStepper');
   if(upStepper) upStepper.style.display = (n >= 3) ? 'none' : '';
+  const footer = document.querySelector('footer');
+  if(footer) footer.style.display = (n >= 3) ? 'none' : '';
 }
 
 // Build auth headers for every call to /.netlify/functions/claude
