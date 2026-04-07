@@ -80,9 +80,7 @@ function mediaType(f){
 
 // ── PDF PAGE SPLITTER ─────────────────────────────────────
 async function splitPdfToPages(file){
-  // Disabled — Claude handles multi-page PDFs directly.
-  // Splitting caused more problems than it solved (pages treated as separate docs).
-  return null;
+  // Only split PDFs that are very large (>8 pages) AND not recognizable as single documents
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -90,8 +88,8 @@ async function splitPdfToPages(file){
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
 
-    // 1-2 pages: always send as-is
-    if(numPages <= 4) return null; // 4 pages or less = always one document
+    // 8 pages or less: send as-is (Claude handles multi-page PDFs well up to ~8 pages)
+    if(numPages <= 8) return null;
 
     // Only split PDFs that are clearly multi-document bundles (5+ pages)
     // Single documents (BL, invoice, packing list, certs) can be many pages — never split them
@@ -112,21 +110,28 @@ async function splitPdfToPages(file){
       nameLower.includes('peso') || nameLower.includes('swb');
     if(isSingleDoc) return null;
 
-    // >2 pages: split into individual page images (lower res = faster)
-    const pages = [];
-    for(let i = 1; i <= numPages; i++){
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({scale: 1.2}); // low res = small payload = fast
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      const ctx = canvas.getContext('2d');
-      await page.render({canvasContext: ctx, viewport}).promise;
-      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.65));
-      const pageName = file.name.replace(/\.pdf$/i,'') + `_page${i}.jpg`;
-      pages.push({file: new File([blob], pageName, {type:'image/jpeg'}), name: pageName, size: blob.size, _pdfPage: i, _pdfSource: file.name});
+    // >8 pages: split into chunks of 4 pages each (rendered as images)
+    const CHUNK_SIZE = 4;
+    const chunks = [];
+    for(let start = 1; start <= numPages; start += CHUNK_SIZE){
+      const end = Math.min(start + CHUNK_SIZE - 1, numPages);
+      const chunkPages = [];
+      for(let i = start; i <= end; i++){
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({scale: 1.2});
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({canvasContext: ctx, viewport}).promise;
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.65));
+        const pageName = file.name.replace(/\.pdf$/i,'') + ` p.${i}.jpg`;
+        chunkPages.push({file: new File([blob], pageName, {type:'image/jpeg'}), name: pageName, size: blob.size, _pdfPage: i, _pdfSource: file.name});
+      }
+      // Add each page as a separate entry (AI will detect doc type per page)
+      chunkPages.forEach(p => chunks.push(p));
     }
-    return pages;
+    return chunks;
   } catch(e){
     console.warn('PDF split error:', e.message);
     return null;
