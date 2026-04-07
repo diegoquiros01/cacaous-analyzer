@@ -1167,7 +1167,9 @@ async function loadTracking(){
 }
 
 // ── INITIALIZATION ──────────────────────────────────────────
-// Initialize
+// Initialize — apply saved language preference
+document.getElementById('btnES')?.classList.toggle('active', lang==='es');
+document.getElementById('btnEN')?.classList.toggle('active', lang==='en');
 applyLang();
 setTimeout(updateUploadStepper, 100);
 
