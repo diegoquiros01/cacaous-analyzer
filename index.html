@@ -6534,6 +6534,8 @@ function toggleMyReports() {
   const upload = document.getElementById('uploadSection');
   const stepper = document.getElementById('upStepper');
   const footer = document.querySelector('footer');
+  const results = document.getElementById('results');
+  const loading = document.getElementById('loading');
   if (isVisible) {
     // Hide reports, show main page
     sec.style.display = 'none';
@@ -6542,11 +6544,13 @@ function toggleMyReports() {
     if (stepper) stepper.style.display = '';
     if (footer) footer.style.display = '';
   } else {
-    // Show reports, hide main page
+    // Show reports, hide everything else
     if (hero) hero.style.display = 'none';
     if (upload) upload.style.display = 'none';
     if (stepper) stepper.style.display = 'none';
     if (footer) footer.style.display = 'none';
+    if (results) results.classList.remove('show');
+    if (loading) loading.classList.remove('show');
     loadHistory();
     sec.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
