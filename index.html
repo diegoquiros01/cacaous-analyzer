@@ -2134,21 +2134,20 @@ const tx = ()=>TX[lang];
   <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
     <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
     <div style="font-size:2rem;margin-bottom:1rem;">🫘</div>
-    <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;"></h3>
+    <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">Create your free account</h3>
     <p id="authModalDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
     <div id="clerkSignInDiv"></div>
     <!-- Terms checkbox -->
     <label id="termsLabel" style="display:flex;align-items:flex-start;gap:10px;text-align:left;margin-bottom:1.2rem;cursor:pointer;">
       <input type="checkbox" id="termsCheck" style="margin-top:3px;min-width:15px;height:15px;accent-color:var(--brown-dark);cursor:pointer;"/>
-      <span id="termsText" style="font-size:0.78rem;color:var(--text-mid);line-height:1.5;">
-      </span>
+      <span id="termsText" style="font-size:0.78rem;color:var(--text-mid);line-height:1.5;">I have read and agree to the <a href="/terms.html" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">Terms of Service</a></span>
     </label>
     <p id="termsError" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.8rem;text-align:left;"></p>
 
     <button id="signupBtn" onclick="handleSignupClick()" style="width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;opacity:0.5;transition:opacity 0.2s;">
-      <span id="authModalBtn"></span>
+      <span id="authModalBtn">Sign up free</span>
     </button>
-    <p id="authSignInP" style="font-size:0.72rem;color:var(--text-light);"></p>
+    <p id="authSignInP" style="font-size:0.72rem;color:var(--text-light);">Already have an account? <a href="#" onclick="openClerkSignIn()" style="color:var(--brown-mid);">Sign in</a></p>
   </div>
 </div>
 
