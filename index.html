@@ -2774,6 +2774,13 @@ SPECIAL FIELD MAPPING FOR FUMIGATION / GAS CLEARANCE / QUARANTINE CERTIFICATES:
 - "Consignee" / "Comprador" → consigneeName
 - "Trip No." / "No. de viaje" → voyageNumber
 
+CRITICAL INVOICE NUMBER EXTRACTION RULES:
+- Invoice numbers have format ###-###-############ (e.g. 001-002-000000824)
+- If digits appear separated by spaces, JOIN them: "0 0 1 - 0 0 2 - 00000082 4" → "001-002-000000824"
+- In Certificate of Origin, column 10 "Number and date of invoices" contains the invoice number — read ALL digits including the very last one at the edge of the cell
+- NEVER truncate the last digit — "001-002-00000082" is WRONG, the full number is "001-002-000000824" (13 digits after the dashes)
+- If a bracket or parenthesis wraps the number, remove it: "[001-002-000000824]" → "001-002-000000824"
+
 CRITICAL NUMBER EXTRACTION RULES:
 - Many documents use EUROPEAN format: period as thousands separator, comma as decimal → "50.094,00" means 50094 kg
 - Many documents use AMERICAN format: comma as thousands separator, period as decimal → "50,094.00" means 50094 kg
@@ -2831,6 +2838,7 @@ Also include an "extraFields" object for any fields present in the document that
       if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
       p._filename = entry.name;
       if(entry.textContent) fixGasClearanceFields(p, entry.textContent);
+      cleanExtractedFields(p);
       return p;
     });
 
@@ -2898,6 +2906,33 @@ function fixGasClearanceFields(doc, textContent) {
     const m = t.match(/Bl[^:]*Cont[^:]*:[ \t]*([0-9]{8,})/i)
            || t.match(/Container[ \t]*:[ \t]*([0-9]{8,})/i);
     if(m) doc.blNumber = m[1].trim();
+  }
+}
+
+// ── POST-PROCESS: clean garbled reference numbers ──────────────────
+function cleanExtractedFields(doc) {
+  // Clean invoice number — remove spaces between digits, leading non-digit chars
+  if (doc.invoiceNumber) {
+    let inv = String(doc.invoiceNumber).trim();
+    // Remove brackets: [001-002-000000824] → 001-002-000000824
+    inv = inv.replace(/^\[|\]$/g, '');
+    // Remove spaces between digits/dashes: "0 0 1 - 0 0 2 - 00000082 4" → "001-002-0000000824"
+    inv = inv.replace(/(\d)\s+(\d)/g, '$1$2').replace(/(\d)\s*-\s*(\d)/g, '$1-$2');
+    // Remove leading non-digit chars (OCR artifacts): "I001-002-..." → "001-002-..."
+    inv = inv.replace(/^[^0-9]+/, '');
+    // Remove trailing non-digit chars
+    inv = inv.replace(/[^0-9]+$/, '');
+    if (inv && inv !== doc.invoiceNumber) doc.invoiceNumber = inv;
+  }
+  // Clean BL number — remove spaces
+  if (doc.blNumber) {
+    let bl = String(doc.blNumber).trim().replace(/\s+/g, '');
+    if (bl !== doc.blNumber) doc.blNumber = bl;
+  }
+  // Clean voyage number — remove spaces
+  if (doc.voyageNumber) {
+    let voy = String(doc.voyageNumber).trim().replace(/\s+/g, '');
+    if (voy !== doc.voyageNumber) doc.voyageNumber = voy;
   }
 }
 
@@ -3620,6 +3655,7 @@ async function startAnalysis(){
                   doc[k] = newVal;
                 }
               });
+              cleanExtractedFields(doc);
             }
           } catch(e) { console.warn('Sonnet re-extract failed for', doc._filename, ':', e.message); }
         })();
