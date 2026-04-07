@@ -4246,9 +4246,9 @@ function normalizeExtractedNumber(val){
 function buildSetValuesFromResults(results){
   // Directly extract and compare values from all docs — used when AI setValues is empty
   const fieldMap = {
-    containers: r => (r.containerNumbers||[]).map(c=>c.trim().toUpperCase()).sort().join(', '),
-    seals:      r => (r.sealNumbers||[]).map(s=>s.trim().toUpperCase()).sort().join(', '),
-    lots:       r => (r.lotNumbers||[]).map(l=>l.trim()).sort().join(', '),
+    containers: r => { const a = r.containerNumbers; return (Array.isArray(a) ? a : a ? [a] : []).map(c=>String(c).trim().toUpperCase()).sort().join(', '); },
+    seals:      r => { const a = r.sealNumbers; return (Array.isArray(a) ? a : a ? [a] : []).map(s=>String(s).trim().toUpperCase()).sort().join(', '); },
+    lots:       r => { const l = r.lotNumbers; return (Array.isArray(l) ? l : l ? [l] : []).map(x=>String(x).trim()).sort().join(', '); },
     bags:       r => r.bagCount ? r.bagCount + ' ' + (r.bagUnit||'') : null,
     netWeight:  r => r.netWeight ? r.netWeight + ' ' + (r.netWeightUnit||'') : null,
     grossWeight:r => r.grossWeight ? r.grossWeight + ' ' + (r.grossWeightUnit||'') : null,
