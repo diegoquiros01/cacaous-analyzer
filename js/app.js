@@ -1171,10 +1171,7 @@ applyLang();
 setTimeout(updateUploadStepper, 100);
 
 // ── ROTATING HERO IMAGES ──────────────────────────
-const HERO_IMAGES = [
-  '/hero-1.jpg',
-  '/hero-2.jpg'
-];
+// HERO_IMAGES is declared in index.html inline script
 (function setRandomHero(){
   const heroImg = document.querySelector('.hero-img');
   if(heroImg){
