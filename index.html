@@ -5689,15 +5689,55 @@ ${(routeLine||lotsLine||infoLine) ? '<div style="background:#f7f8fa;border:1px s
 <!-- AI Summary -->
 ${summary ? '<div style="border-left:3px solid #4a6fa5;padding:8px 12px;margin-bottom:12px;font-size:9.5px;line-height:1.7;color:#3a4255;font-style:italic;background:#f7f8fa;">'+summary+'</div>' : ''}
 
-<!-- Coherence Table -->
-<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">${t.coherenceTitle || 'Coherence Table'}</div>
-<table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
-<thead><tr style="background:#1c2230;">
-<th style="padding:5px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;width:30%;">${t.th1}</th>
-<th style="padding:5px 10px;text-align:left;color:white;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;">${t.th3}</th>
-</tr></thead>
-<tbody>${tableRows}</tbody>
-</table>
+<!-- Consistency Matrix -->
+${(function buildPdfMatrix(){
+  const blDoc = analysisResults.find(r => {
+    const dt = (r.docType||'').toLowerCase();
+    return dt.includes('bill of lading') || dt.includes('waybill') || dt.includes('conocimiento');
+  });
+  if (!blDoc) return '';
+  const otherDocs = analysisResults.filter(r => r !== blDoc && !r._err);
+  if (otherDocs.length === 0) return '';
+  const mxFields = [
+    {key:'shipper',label:FL('shipper')},{key:'consigneeName',label:FL('consignee')},
+    {key:'lotNumbers',label:FL('lots'),isArr:true},{key:'bagCount',label:FL('bags')},
+    {key:'netWeight',label:FL('netWeight')},{key:'grossWeight',label:FL('grossWeight')},
+    {key:'containerNumbers',label:FL('containers'),isArr:true},
+    {key:'sealNumbers',label:FL('seals'),isArr:true},
+    {key:'vesselName',label:FL('vessel')},{key:'portOfLoading',label:FL('portOfLoading')},
+    {key:'portOfDischarge',label:FL('portOfDischarge')},{key:'destinationCountry',label:FL('destinationCountry')},
+    {key:'blNumber',label:FL('blNumber')},{key:'invoiceNumber',label:FL('invoiceNumber')},
+    {key:'voyageNumber',label:FL('voyageNumber')},
+  ];
+  const gv = (doc,key,isArr) => {
+    const v = doc[key];
+    if (isArr) return (Array.isArray(v)?v:v?[v]:[]).filter(Boolean).sort().join(', ');
+    return v ? String(v).trim() : '';
+  };
+  const shortName = r => (translateDocType(r.docType)||r._filename||'').replace(/\.[^.]+$/,'').substring(0,18);
+  let h = '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">'+(t.matrixLabel||'Consistency Matrix')+'</div>';
+  h += '<table style="width:100%;border-collapse:collapse;margin-bottom:4px;font-size:7px;">';
+  h += '<thead><tr style="background:#1c2230;"><th style="padding:3px 5px;text-align:left;color:white;font-size:6px;letter-spacing:0.06em;text-transform:uppercase;">'+(lang==='es'?'Campo':'Field')+'</th>';
+  h += '<th style="padding:3px 5px;text-align:left;color:white;font-size:6px;background:#3a4660;">B/L</th>';
+  otherDocs.forEach(d => { h += '<th style="padding:3px 5px;text-align:center;color:white;font-size:5.5px;letter-spacing:0.04em;white-space:nowrap;">'+shortName(d)+'</th>'; });
+  h += '</tr></thead><tbody>';
+  mxFields.forEach(f => {
+    const blVal = gv(blDoc,f.key,f.isArr);
+    if (!blVal) return;
+    h += '<tr><td style="padding:2px 5px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:7px;">'+f.label+'</td>';
+    h += '<td style="padding:2px 5px;border-bottom:1px solid #e8edf5;font-size:6.5px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+blVal.substring(0,25)+(blVal.length>25?'...':'')+'</td>';
+    otherDocs.forEach(d => {
+      const dv = gv(d,f.key,f.isArr);
+      if (!dv) { h += '<td style="padding:2px 5px;border-bottom:1px solid #e8edf5;text-align:center;color:#d0d6e2;">—</td>'; return; }
+      const match = isTrivialDifference(blVal, dv);
+      h += '<td style="padding:2px 5px;border-bottom:1px solid #e8edf5;text-align:center;font-weight:700;color:'+(match?'#1a6b3a':'#7a2e22')+';font-size:7px;">'+(match?'OK':'DIFF')+'</td>';
+    });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  h += '<div style="font-size:6px;color:#7a8499;margin-bottom:10px;">'+(t.matrixLegend||'OK = consistent with B/L | — = field not present | DIFF = different value')+'</div>';
+  return h;
+})()}
 
 ${aiHtml}
 
