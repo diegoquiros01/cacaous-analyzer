@@ -664,14 +664,21 @@ function isTrivialDifference(a, b){
     return true; // all codes match
   }
 
-  // 3. Single code (BL, seal) — exact match only, but allow truncation for invoice numbers
+  // 3. Single code (BL, seal) — exact match only, but allow OCR errors for invoice numbers
   if(isCode(sa) || isCode(sb)) {
-    // If one is a prefix of the other and differs by only 1-2 chars, treat as truncation (trivial)
-    const la = sa.replace(/\s/g,'').toLowerCase(), lb = sb.replace(/\s/g,'').toLowerCase();
+    const la = sa.replace(/[\s\-]/g,'').toLowerCase(), lb = sb.replace(/[\s\-]/g,'').toLowerCase();
+    // Prefix match (truncation): "00100200000080" starts with "0010020000008"
     if(la.length > 8 && lb.length > 8 && Math.abs(la.length - lb.length) <= 2) {
       const shorter = la.length <= lb.length ? la : lb;
       const longer = la.length > lb.length ? la : lb;
-      if(longer.startsWith(shorter)) return true; // truncation — e.g. "001-002-00000080" vs "001-002-000000800"
+      if(longer.startsWith(shorter)) return true;
+    }
+    // High similarity: same prefix structure, differs only in last 3 digits (OCR error)
+    // e.g. "001002000000080" vs "001002000000802" — share first 12 digits
+    if(la.length > 10 && lb.length > 10) {
+      const minLen = Math.min(la.length, lb.length);
+      const prefixLen = Math.floor(minLen * 0.8);
+      if(la.substring(0, prefixLen) === lb.substring(0, prefixLen)) return true;
     }
     return false;
   }
