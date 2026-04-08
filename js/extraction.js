@@ -346,8 +346,10 @@ function cleanExtractedFields(doc) {
     let inv = String(doc.invoiceNumber).trim();
     // Remove brackets: [001-002-000000824] → 001-002-000000824
     inv = inv.replace(/^\[|\]$/g, '');
-    // Remove spaces between digits/dashes: "0 0 1 - 0 0 2 - 00000082 4" → "001-002-0000000824"
-    inv = inv.replace(/(\d)\s+(\d)/g, '$1$2').replace(/(\d)\s*-\s*(\d)/g, '$1-$2');
+    // Remove ALL spaces/unicode whitespace between characters
+    inv = inv.replace(/[\s\u00A0\u200B]+/g, '');
+    // Normalize dashes
+    inv = inv.replace(/\s*-\s*/g, '-');
     // Remove leading non-digit chars (OCR artifacts): "I001-002-..." → "001-002-..."
     inv = inv.replace(/^[^0-9]+/, '');
     // Remove trailing non-digit chars
