@@ -637,6 +637,17 @@ function isTrivialDifference(a, b){
   // 1. Case-insensitive exact match
   if(sa.toLowerCase() === sb.toLowerCase()) return true;
 
+  // 1b. Bag count: same number + any bag unit variant = trivial
+  // "1448 bags" = "1448 YUTE BAGS" = "1448 JT" = "1448 sacos" = "1448 S A C O"
+  const bagPattern = /^(\d[\d,.]*)\s*(bags?|sacos?|sacks?|bolsas?|jt|jute|yute|s\s*a\s*c\s*o|yute\s+bags?|jute\s+bags?|pp\s+bags?|plastic\s+bags?|bultos?|boxes?|cajones?|cajas?)?\s*$/i;
+  const ma = bagPattern.exec(sa.replace(/\s+/g,' ').trim());
+  const mb = bagPattern.exec(sb.replace(/\s+/g,' ').trim());
+  if(ma && mb) {
+    const na = parseFloat(ma[1].replace(/,/g,''));
+    const nb = parseFloat(mb[1].replace(/,/g,''));
+    if(!isNaN(na) && !isNaN(nb) && Math.abs(na-nb) < 0.01) return true;
+  }
+
   // 0b. Same product — commercial vs botanical vs translated name
   if(isSameProduct(sa, sb)) return true;
 
@@ -653,12 +664,24 @@ function isTrivialDifference(a, b){
     return true; // all codes match
   }
 
-  // 3. Single code (BL, seal) — exact match only
-  if(isCode(sa) || isCode(sb)) return false;
+  // 3. Single code (BL, seal) — exact match only, but allow truncation for invoice numbers
+  if(isCode(sa) || isCode(sb)) {
+    // If one is a prefix of the other and differs by only 1-2 chars, treat as truncation (trivial)
+    const la = sa.replace(/\s/g,'').toLowerCase(), lb = sb.replace(/\s/g,'').toLowerCase();
+    if(la.length > 8 && lb.length > 8 && Math.abs(la.length - lb.length) <= 2) {
+      const shorter = la.length <= lb.length ? la : lb;
+      const longer = la.length > lb.length ? la : lb;
+      if(longer.startsWith(shorter)) return true; // truncation — e.g. "001-002-00000080" vs "001-002-000000800"
+    }
+    return false;
+  }
 
   // 4. After full normalization
   const na = normalizeValue(sa), nb = normalizeValue(sb);
   if(na === nb) return true;
+
+  // 4b. Transport mode words are not real values — treat as trivial
+  if(na === '__transport_mode__' || nb === '__transport_mode__') return true;
 
   // 5. Containment — only for plain text (cities, names), not codes, not bag-type values
   const looksLikeCode = s => /^[A-Z0-9\-]{6,}$/i.test(s.replace(/[\s,]/g,''));
@@ -679,6 +702,11 @@ function isTrivialDifference(a, b){
     .trim();
   const ca = stripSuffix(na), cb = stripSuffix(nb);
   if(ca && cb && ca.length > 3 && ca === cb) return true;
+  // 5c. Compare with spaces removed — "aroma cacao" = "aromacacao"
+  const noSp = s => s.replace(/\s/g,'');
+  if(noSp(ca).length > 5 && noSp(ca) === noSp(cb)) return true;
+  // 5d. One contains the other after suffix strip — "aromas y sabores del ecuador aromacacao" contains "aromacacao"
+  if(ca && cb && ca.length > 5 && cb.length > 5 && (ca.includes(cb) || cb.includes(ca))) return true;
 
   // 6. Numeric comparison — only for values that are purely numeric/weight
   // Skip if values have bag material qualifiers (726 bags jute ≠ 726 bags plastic)
