@@ -275,10 +275,7 @@ function renderResults(){
   const rh = document.getElementById('resultsHeader');
   if (rh) {
     // Find BL document for authoritative transport data
-    const blDoc = analysisResults.find(r => {
-      const dt = (r.docType||'').toLowerCase();
-      return dt.includes('bill of lading') || dt.includes('waybill') || dt.includes('conocimiento');
-    });
+    const blDoc = findBLDoc(analysisResults);
 
     // Commercial data
     const totalAmount = analysisResults.find(r => r.totalAmount)?.totalAmount || '';
@@ -787,10 +784,7 @@ function renderMatrix(){
   if(!section || !table) return;
 
   // Find the BL document
-  const blDoc = analysisResults.find(r => {
-    const dt = (r.docType||'').toLowerCase();
-    return dt.includes('bill of lading') || dt.includes('waybill') || dt.includes('conocimiento');
-  });
+  const blDoc = findBLDoc(analysisResults);
   if(!blDoc || analysisResults.length < 2){
     section.style.display = 'none';
     return;

@@ -108,7 +108,7 @@ async function downloadPdfReport() {
     // Build consistency matrix HTML before the template
     let matrixHtml = '';
     try {
-      const blDoc = analysisResults.find(r => { const dt=(r.docType||'').toLowerCase(); return dt.includes('bill of lading')||dt.includes('waybill')||dt.includes('conocimiento'); });
+      const blDoc = findBLDoc(analysisResults);
       if (blDoc) {
         const otherDocs = analysisResults.filter(r => r !== blDoc && !r._err);
         if (otherDocs.length > 0) {

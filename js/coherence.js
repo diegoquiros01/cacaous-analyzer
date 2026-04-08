@@ -2,6 +2,23 @@
 // Depends on globals: lang, tx(), PRODUCT_SYNONYMS, DOC_TYPE_ES, _translationCache, callClaude, callClaudeHaiku
 // Called by: app.js (startAnalysis), rendering.js, pdf.js
 
+// Find the BL document — prefer files with "bl" or "bill" in the filename
+function findBLDoc(results) {
+  const isBLType = r => {
+    const dt = (r.docType||'').toLowerCase();
+    return dt.includes('bill of lading') || dt.includes('waybill') || dt.includes('conocimiento');
+  };
+  const candidates = results.filter(r => !r._err && isBLType(r));
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+  // Multiple BLs — prefer one from a file named "bl" or "bill"
+  const fromBLFile = candidates.find(r => {
+    const fn = (r._filename||'').toLowerCase();
+    return fn.includes('bl') || fn.includes('bill') || fn.includes('lading') || fn.includes('conocimiento');
+  });
+  return fromBLFile || candidates[0];
+}
+
 async function analyzeCoherence(docs){
   const isES = lang === 'es';
 
@@ -182,11 +199,16 @@ Return ONLY valid JSON:
   // The Bill of Lading is the authoritative transport document.
   // Any other doc with different containers/seals/vessel/ports than the BL is wrong — not the BL.
   (function checkFieldsAgainstBL() {
-    const blEntry = Object.entries(slim).find(([k, v]) => {
+    // Find BL — prefer entries from files named "bl" or "bill"
+    const blCandidates = Object.entries(slim).filter(([k, v]) => {
       const dt = (v.docType || '').toLowerCase();
       return dt.includes('bill of lading') || dt.includes('waybill') ||
              dt.includes('conocimiento') || dt === 'bl';
     });
+    const blEntry = blCandidates.find(([k]) => {
+      const fn = k.toLowerCase();
+      return fn.includes('bl') || fn.includes('bill') || fn.includes('lading');
+    }) || blCandidates[0];
     if (!blEntry) return;
     const [blDoc, blData] = blEntry;
     const blLabel = blDoc.replace(/\.[^.]+$/, '');
