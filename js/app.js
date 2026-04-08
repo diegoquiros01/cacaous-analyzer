@@ -616,6 +616,73 @@ async function startAnalysis(){
     );
     await Promise.all(extractPromises);
 
+    // ── MERGE: combine docs from split PDF chunks ────────────────────────
+    // When a large PDF is split into chunks, the same document type may appear
+    // in multiple chunks. Merge them by _pdfSource + docType.
+    setLbl(lang==='es'?'Combinando documentos':'Merging documents');
+    setSub(lang==='es'?'Agrupando páginas del mismo documento...':'Grouping pages from same document...');
+
+    const pdfSources = {};
+    analysisResults.forEach(doc => {
+      if (!doc._pdfSource || doc._err) return;
+      const key = doc._pdfSource;
+      if (!pdfSources[key]) pdfSources[key] = [];
+      pdfSources[key].push(doc);
+    });
+
+    for (const [source, docs] of Object.entries(pdfSources)) {
+      if (docs.length <= 1) continue; // Only one chunk, nothing to merge
+
+      // Group by normalized docType within this PDF source
+      const typeGroups = {};
+      docs.forEach(d => {
+        const dt = normalizeDocType(d.docType || '');
+        if (!dt || dt === source) return; // Skip unnamed/error docs
+        if (!typeGroups[dt]) typeGroups[dt] = [];
+        typeGroups[dt].push(d);
+      });
+
+      // Merge each group into one doc
+      for (const [dt, group] of Object.entries(typeGroups)) {
+        if (group.length <= 1) continue;
+        const merged = group[0]; // Base doc
+        for (let i = 1; i < group.length; i++) {
+          const other = group[i];
+          Object.keys(other).forEach(k => {
+            if (k.startsWith('_')) return;
+            const mv = merged[k], ov = other[k];
+            // Fill missing fields
+            if ((mv == null || mv === '' || mv === 'null') && ov != null && ov !== '' && ov !== 'null') {
+              merged[k] = ov;
+            }
+            // For numeric totals, take larger value
+            if (['bagCount','netWeight','grossWeight'].includes(k) && ov && mv) {
+              const on = parseFloat(String(ov).replace(/[^0-9.]/g,''));
+              const mn = parseFloat(String(mv).replace(/[^0-9.]/g,''));
+              if (!isNaN(on) && !isNaN(mn) && on > mn) merged[k] = ov;
+            }
+            // For arrays, merge unique values
+            if (Array.isArray(ov) && Array.isArray(mv)) {
+              merged[k] = [...new Set([...mv, ...ov])];
+            } else if (Array.isArray(ov) && !Array.isArray(mv)) {
+              merged[k] = ov;
+            }
+          });
+          // Remove the duplicate from analysisResults
+          const idx = analysisResults.indexOf(other);
+          if (idx >= 0) analysisResults.splice(idx, 1);
+          // Also remove from extractedDocs
+          if (extractedDocs[other._filename]) {
+            const arr = extractedDocs[other._filename];
+            const di = arr.indexOf(other);
+            if (di >= 0) arr.splice(di, 1);
+          }
+        }
+      }
+    }
+
+    console.log('After merge:', analysisResults.length, 'documents');
+
     // ── VERIFICATION PASS: re-extract with Sonnet when Haiku missed critical fields ──
     setLbl(lang==='es'?'Verificando campos críticos':'Verifying critical fields');
     setSub(lang==='es'?'Revisando extracción...':'Checking extraction...');

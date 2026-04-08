@@ -89,11 +89,10 @@ async function splitPdfToPages(file){
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
 
-    // Send all PDFs as-is — Claude handles PDFs up to 100 pages natively
-    // Large PDFs use Sonnet (see extractDoc logic) for better extraction
-    return null;
+    // ≤8 pages: send complete
+    if(numPages <= 8) return null;
 
-    // Only split PDFs that are clearly multi-document bundles (5+ pages)
+    // Only split PDFs that are clearly multi-document bundles
     // Single documents (BL, invoice, packing list, certs) can be many pages — never split them
     const nameLower = file.name.toLowerCase();
     const isSingleDoc =
