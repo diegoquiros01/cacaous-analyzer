@@ -80,8 +80,7 @@ function mediaType(f){
 
 // ── PDF PAGE SPLITTER ─────────────────────────────────────
 async function splitPdfToPages(file){
-  // All PDFs sent complete — Netlify Pro has 26s timeout, Sonnet handles large PDFs
-  return null;
+  // PDFs ≤8 pages: sent complete. >8 pages: split into 4-page chunks + merge after extraction
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
