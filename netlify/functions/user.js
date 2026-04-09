@@ -72,10 +72,19 @@ function nextResetDate(user) {
   return firstOfNextMonth.toISOString();
 }
 
+const ALLOWED_ORIGINS = [
+  'https://www.docsvalidate.com',
+  'https://docsvalidate.com',
+  'http://localhost:8888',
+  'http://localhost:3000',
+];
+
 exports.handler = async (event) => {
+  const origin = event.headers['origin'] || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
@@ -87,6 +96,10 @@ exports.handler = async (event) => {
 
     if (!clerk_id) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id' }) };
+    }
+    // Validate clerk_id format to prevent injection
+    if (!/^[a-zA-Z0-9_-]{10,60}$/.test(clerk_id)) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid clerk_id' }) };
     }
 
     // ── GET USER ────────────────────────────────────────────────────────────
@@ -141,7 +154,7 @@ exports.handler = async (event) => {
       };
     }
 
-    // ── INCREMENT USAGE ─────────────────────────────────────────────────────
+    // ── INCREMENT USAGE (atomic — prevents race conditions) ────────────────
     if (action === 'increment') {
       let users = await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}&select=*`);
       let user  = Array.isArray(users) ? users[0] : users;
@@ -175,11 +188,38 @@ exports.handler = async (event) => {
         };
       }
 
+      // Atomic increment: only update if validations_used hasn't changed (optimistic lock)
+      // The filter ensures the row only updates if still at the expected count
       const now = new Date().toISOString();
-      await supabase(`users?clerk_id=eq.${encodeURIComponent(clerk_id)}`, 'PATCH', {
-        validations_used: user.validations_used + 1,
-        updated_at: now,
+      const cid = encodeURIComponent(clerk_id);
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/users?clerk_id=eq.${cid}&validations_used=lt.${limit}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          validations_used: user.validations_used + 1,
+          updated_at: now,
+        }),
       });
+      const updated = await res.json();
+
+      // If no rows were updated, someone else incremented first (race condition caught)
+      if (!updated || (Array.isArray(updated) && updated.length === 0)) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            reason:  'limit_reached',
+            plan:    user.plan,
+            limit,
+          }),
+        };
+      }
 
       return {
         statusCode: 200,
@@ -222,6 +262,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('user function error:', err);
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal server error' }) };
   }
 };

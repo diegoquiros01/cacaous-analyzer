@@ -21,16 +21,17 @@
 // PRICE ID → PLAN MAPPING
 // Fill these in with your actual Stripe Price IDs from Stripe Dashboard → Products
 // ─────────────────────────────────────────────────────────────────────────────
-const PRICE_TO_PLAN = {
-  // Starter (free — no Stripe price, but kept for reference)
-  'price_1TDa31FZXtgfLmPehPPvJxzZ':      'starter',
-  // Professional ($119/mo, $95/mo annual)
-  'price_1TJNY8FZXtgfLmPeUZYxVebI': 'professional',  // monthly
-  'price_1TJNYSFZXtgfLmPeoLCcQrza': 'professional',  // annual
-  // Enterprise ($189/mo, $151/mo annual)
-  'price_1TJNbKFZXtgfLmPeq2WJTHT3': 'enterprise',    // monthly
-  'price_1TJNcXFZXtgfLmPede2a7C4b': 'enterprise',    // annual
-};
+// Price-to-plan mapping — built from env vars with hardcoded fallbacks
+// To add/change prices: set STRIPE_PRICE_* env vars in Netlify
+const PRICE_TO_PLAN = {};
+// Starter
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_STARTER || 'price_1TDa31FZXtgfLmPehPPvJxzZ'] = 'starter';
+// Professional
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_1TJNY8FZXtgfLmPeUZYxVebI'] = 'professional';
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_PRO_ANNUAL  || 'price_1TJNYSFZXtgfLmPeoLCcQrza'] = 'professional';
+// Enterprise
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_ENT_MONTHLY || 'price_1TJNbKFZXtgfLmPeq2WJTHT3'] = 'enterprise';
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_ENT_ANNUAL  || 'price_1TJNcXFZXtgfLmPede2a7C4b'] = 'enterprise';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
@@ -96,6 +97,33 @@ async function verifyStripeSignature(payload, sigHeader, secret) {
   if (age > 300) throw new Error('Stripe event too old — possible replay attack');
 
   return true;
+}
+
+// ── Webhook deduplication — prevent replay attacks ──────────────────────────
+// Stores processed event IDs in Supabase to reject duplicates
+async function isEventProcessed(eventId) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/webhook_events?event_id=eq.${encodeURIComponent(eventId)}&select=event_id`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+    });
+    const data = await res.json();
+    return data && data.length > 0;
+  } catch { return false; }
+}
+
+async function markEventProcessed(eventId) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/webhook_events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ event_id: eventId, created_at: new Date().toISOString() }),
+    });
+  } catch (e) { console.warn('Failed to mark event processed:', e.message); }
 }
 
 // ── Get plan name from Price ID ──────────────────────────────────────────────
@@ -176,7 +204,13 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: 'Invalid JSON' };
   }
 
-  console.log('Stripe event received:', stripeEvent.type);
+  console.log('Stripe event received:', stripeEvent.type, stripeEvent.id);
+
+  // Deduplicate — reject already-processed events
+  if (await isEventProcessed(stripeEvent.id)) {
+    console.log('Duplicate event, skipping:', stripeEvent.id);
+    return { statusCode: 200, body: JSON.stringify({ received: true, duplicate: true }) };
+  }
 
   try {
     switch (stripeEvent.type) {
@@ -270,10 +304,12 @@ exports.handler = async (event) => {
         console.log('Unhandled event type:', stripeEvent.type);
     }
 
+    // Mark event as processed after successful handling
+    await markEventProcessed(stripeEvent.id);
     return { statusCode: 200, body: JSON.stringify({ received: true }) };
 
   } catch (err) {
     console.error('Webhook handler error:', err.message, err.stack);
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ received: false }) };
   }
 };

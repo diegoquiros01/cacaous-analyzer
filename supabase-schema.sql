@@ -46,3 +46,14 @@ CREATE INDEX IF NOT EXISTS idx_validation_history_bl_number
 
 -- Row-level security (enable if using Supabase RLS)
 -- ALTER TABLE validation_history ENABLE ROW LEVEL SECURITY;
+
+-- ─────────────────────────────────────────────────────────────
+
+-- webhook_events: deduplication table for Stripe webhook replay protection
+CREATE TABLE IF NOT EXISTS webhook_events (
+  event_id    TEXT         PRIMARY KEY,
+  created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+-- Auto-cleanup: delete events older than 7 days (run via Supabase cron or pg_cron)
+-- SELECT cron.schedule('cleanup-webhook-events', '0 3 * * *', $$DELETE FROM webhook_events WHERE created_at < now() - interval '7 days'$$);

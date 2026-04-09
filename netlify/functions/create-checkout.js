@@ -4,13 +4,13 @@
 
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 
-// Price IDs — monthly and annual for each plan
-// Update these if you change products in Stripe Dashboard
+// Price IDs — configurable via env vars, fallback to current values
+// To update: change in Netlify env vars without redeploying code
 const PRICES = {
-  professional_monthly: 'price_1TJNY8FZXtgfLmPeUZYxVebI',
-  professional_annual:  'price_1TJNYSFZXtgfLmPeoLCcQrza',
-  enterprise_monthly:   'price_1TJNbKFZXtgfLmPeq2WJTHT3',
-  enterprise_annual:    'price_1TJNcXFZXtgfLmPede2a7C4b',
+  professional_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY  || 'price_1TJNY8FZXtgfLmPeUZYxVebI',
+  professional_annual:  process.env.STRIPE_PRICE_PRO_ANNUAL   || 'price_1TJNYSFZXtgfLmPeoLCcQrza',
+  enterprise_monthly:   process.env.STRIPE_PRICE_ENT_MONTHLY  || 'price_1TJNbKFZXtgfLmPeq2WJTHT3',
+  enterprise_annual:    process.env.STRIPE_PRICE_ENT_ANNUAL   || 'price_1TJNcXFZXtgfLmPede2a7C4b',
 };
 
 const ALLOWED_ORIGINS = ['https://www.docsvalidate.com', 'https://docsvalidate.com', 'http://localhost:8888', 'http://localhost:3000'];
@@ -36,6 +36,11 @@ exports.handler = async (event) => {
 
     if (!plan || !clerk_id) {
       return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing plan or clerk_id' }) };
+    }
+
+    // Validate clerk_id format (Clerk IDs are user_XXXX or similar alphanumeric)
+    if (!/^user_[a-zA-Z0-9]{20,40}$/.test(clerk_id) && !/^[a-zA-Z0-9_-]{10,60}$/.test(clerk_id)) {
+      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid clerk_id format' }) };
     }
 
     // Determine price ID
@@ -83,6 +88,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('create-checkout error:', err.message);
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Could not create checkout session' }) };
   }
 };

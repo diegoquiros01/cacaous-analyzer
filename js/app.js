@@ -260,11 +260,12 @@ async function addFiles(files){
   for(const f of files){
     if(uploadedFiles.find(u=>u.name===f.name&&u.size===f.size)) continue;
 
-    // Split large PDFs (>2 pages) into individual page images for faster processing
+    // Split multi-document PDFs using AI page classification
     if(f.name.toLowerCase().endsWith('.pdf')){
       const pages = await splitPdfToPages(f);
       if(pages && pages.length > 1){
-        console.log(`Split ${f.name} into ${pages.length} pages`);
+        const docTypes = pages.filter(p => p._detectedDocType).map(p => p._detectedDocType);
+        if(location?.hostname === 'localhost') console.log(`AI split: ${pages.length} documents`);
         for(const pageEntry of pages){
           if(!uploadedFiles.find(u=>u.name===pageEntry.name)) uploadedFiles.push(pageEntry);
         }
@@ -319,7 +320,7 @@ function renderFiles(){
       ? `<span style="font-size:0.68rem;background:#e8d9c0;color:#7a5230;padding:2px 8px;border-radius:10px;letter-spacing:0.04em;font-family:'Raleway',sans-serif;">p.${f._pdfPage}</span>`
       : '';
     const displayExt = isPdfPage ? 'PDF' : ext;
-    const detected = detectDocType(f.name);
+    const detected = f._detectedDocType || detectDocType(f.name);
     const detectedHtml = detected
       ? `<span class="file-detected-type">\u2713 ${detected}</span>`
       : '';
@@ -412,38 +413,43 @@ async function buildAuthHeaders() {
   return headers;
 }
 
-async function callClaudeHaiku(system,content,maxTokens=2000){
-  // Uses Haiku — 3x faster than Sonnet, ideal for coherence comparison
+// Shared fetch-with-retry for Claude API calls (retries on 429, 500, 503, 504)
+async function _callClaudeWithRetry(model, system, content, maxTokens, retries=2) {
   const headers = await buildAuthHeaders();
-  const resp=await fetch('/.netlify/functions/claude',{
-    method:'POST', headers,
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
-  });
-  const text = await resp.text();
-  if(!resp.ok || text.trim().startsWith('<')){
-    throw new Error(resp.status === 504 ? 'Request timeout — document may be too large' : `Server error ${resp.status}`);
+  const body = JSON.stringify({model, max_tokens:maxTokens, system, messages:[{role:'user',content}]});
+  for(let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const resp = await fetch('/.netlify/functions/claude', { method:'POST', headers, body });
+      const text = await resp.text();
+      if(text.trim().startsWith('<')) {
+        if(attempt < retries) { await new Promise(r => setTimeout(r, 1000 * (attempt+1))); continue; }
+        throw new Error(resp.status === 504 ? 'Request timeout — document may be too large' : `Server error ${resp.status}`);
+      }
+      let data;
+      try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server'); }
+      // Retry on rate limit or server errors
+      if(data.error && [429, 500, 503, 529].includes(resp.status) && attempt < retries) {
+        await new Promise(r => setTimeout(r, 1500 * (attempt+1)));
+        continue;
+      }
+      if(data.error) throw new Error(data.error.message||'API error');
+      return (data.content?.map(b=>b.text||'').join('')||'').replace(/```json|```/g,'').trim();
+    } catch(e) {
+      if(attempt < retries && !e.message.includes('Authentication')) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt+1)));
+        continue;
+      }
+      throw e;
+    }
   }
-  let data;
-  try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server'); }
-  if(data.error) throw new Error(data.error.message||'API error');
-  return (data.content?.map(b=>b.text||'').join('')||'').replace(/```json|```/g,'').trim();
+}
+
+async function callClaudeHaiku(system,content,maxTokens=2000){
+  return _callClaudeWithRetry('claude-haiku-4-5-20251001', system, content, maxTokens);
 }
 
 async function callClaude(system,content,maxTokens=2000){
-  const headers = await buildAuthHeaders();
-  const resp=await fetch('/.netlify/functions/claude',{
-    method:'POST', headers,
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,system,messages:[{role:'user',content}]})
-  });
-  // Handle non-JSON responses (504 timeout returns HTML)
-  const text = await resp.text();
-  if(!resp.ok || text.trim().startsWith('<')){
-    throw new Error(resp.status === 504 ? 'Request timeout — document may be too large' : `Server error ${resp.status}`);
-  }
-  let data;
-  try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server'); }
-  if(data.error) throw new Error(data.error.message||'API error');
-  return (data.content?.map(b=>b.text||'').join('')||'').replace(/```json|```/g,'').trim();
+  return _callClaudeWithRetry('claude-sonnet-4-20250514', system, content, maxTokens);
 }
 
 function safeJSON(text){
@@ -681,7 +687,7 @@ async function startAnalysis(){
       }
     }
 
-    console.log('After merge:', analysisResults.length, 'documents');
+    if(location?.hostname === 'localhost') console.log('After merge:', analysisResults.length, 'docs');
 
     // ── VERIFICATION PASS: re-extract with Sonnet when Haiku missed critical fields ──
     setLbl(lang==='es'?'Verificando campos críticos':'Verifying critical fields');
@@ -826,7 +832,10 @@ async function startAnalysis(){
   } catch(err) {
     _analysisInProgress = false;
     console.error('Analysis error:', err);
-    setSub(`Error: ${err.message}`);
+    const userMsg = err.message.includes('timeout') ? (lang==='es'?'Tiempo de espera agotado — intenta con menos archivos':'Request timeout — try with fewer files')
+      : err.message.includes('Rate limit') ? (lang==='es'?'Límite alcanzado. Crea una cuenta gratuita.':'Rate limit reached. Create a free account.')
+      : (lang==='es'?'Error en el análisis. Intenta de nuevo.':'Analysis error. Please try again.');
+    setSub(userMsg);
     await new Promise(r => setTimeout(r, 2000));
     if(loadingSec) loadingSec.classList.remove('show');
     if(uploadSec) uploadSec.style.display='block';

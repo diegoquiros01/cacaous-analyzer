@@ -1637,7 +1637,7 @@ footer {
         <h3 id="uploadTitle">Drag all shipment documents here</h3>
         <p id="uploadSub">PDF · JPG · PNG · Excel (.xlsx) · Word (.docx)</p>
         <p style="font-size:0.68rem;color:#b0b8cc;margin-top:0.15rem;" id="uploadSub2">All documents from the same shipment set</p>
-        <button class="upload-cta" id="uploadCta" onclick="document.getElementById('fileInput').click()">
+        <button class="upload-cta" id="uploadCta" aria-label="Select files to upload" onclick="document.getElementById('fileInput').click()">
           <span id="browseFilesText">Select Files</span>
         </button>
         <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
@@ -1668,7 +1668,7 @@ footer {
 
       <!-- Analyze button -->
       <div class="analyze-wrap" style="margin-top:0.875rem;margin-bottom:0;">
-        <button class="analyze-btn" id="analyzeBtn" disabled onclick="startAnalysis()">
+        <button class="analyze-btn" id="analyzeBtn" aria-label="Start document analysis" disabled onclick="startAnalysis()">
           <span class="btn-icon">◆</span>
           <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
         </button>
@@ -1866,16 +1866,16 @@ footer {
 
     <!-- ⑨ ACTIONS -->
     <div class="actions" style="margin-top:1.5rem;">
-      <button class="btn-dl" id="btnDlPdf" onclick="downloadPdfReport()">
+      <button class="btn-dl" id="btnDlPdf" aria-label="Download PDF report" onclick="downloadPdfReport()">
         ↓ <span id="dlPdfTxt">Download PDF Report</span>
       </button>
-      <button class="btn-reset" style="background:none;border:1px solid var(--border);color:var(--text-mid);" id="btnDl" onclick="downloadReport()">
+      <button class="btn-reset" style="background:none;border:1px solid var(--border);color:var(--text-mid);" id="btnDl" aria-label="Download TXT report" onclick="downloadReport()">
         ↓ <span id="dlTxt">Download TXT</span>
       </button>
-      <button class="btn-reset" style="background:none;border:1px solid var(--tan);color:var(--tan);" id="btnSaveReport" onclick="saveReportManual()">
+      <button class="btn-reset" style="background:none;border:1px solid var(--tan);color:var(--tan);" id="btnSaveReport" aria-label="Save report to account" onclick="saveReportManual()">
         💾 <span id="saveReportTxt">Save Report</span>
       </button>
-      <button class="btn-reset" id="btnReset" onclick="resetApp()">
+      <button class="btn-reset" id="btnReset" aria-label="Start new analysis" onclick="resetApp()">
         ↺ <span id="resetTxt">New Analysis</span>
       </button>
     </div>

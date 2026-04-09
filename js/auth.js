@@ -43,10 +43,24 @@ function updateUserBadge(user){
   const reportsLabel = lang==='es' ? 'Reportes' : 'Reports';
   const profileLabel = lang==='es' ? 'Mi Cuenta' : 'Account';
   const signOutLabel = lang==='es' ? 'Salir' : 'Sign out';
-  badge.innerHTML = `<li><a href="#" onclick="return false;">${name}</a></li>
-      <li><a href="#" onclick="toggleMyReports();return false;">${reportsLabel}</a></li>
-      <li><a href="#" onclick="openProfile();return false;">${profileLabel}</a></li>
-      <li><a href="#" onclick="signOut();return false;" style="color:var(--text-light);">${signOutLabel}</a></li>`;
+  // Build DOM nodes instead of innerHTML to prevent XSS via user-controlled fields
+  badge.innerHTML = '';
+  const items = [
+    { text: name, onclick: null },
+    { text: reportsLabel, onclick: () => { toggleMyReports(); } },
+    { text: profileLabel, onclick: () => { openProfile(); } },
+    { text: signOutLabel, onclick: () => { signOut(); }, style: 'color:var(--text-light)' },
+  ];
+  items.forEach(item => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = item.text;
+    if(item.style) a.style.cssText = item.style;
+    a.addEventListener('click', (e) => { e.preventDefault(); if(item.onclick) item.onclick(); });
+    li.appendChild(a);
+    badge.appendChild(li);
+  });
 }
 
 function toggleMyReports() {
@@ -132,7 +146,7 @@ async function openProfile(){
       <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.2rem;">
         <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
           <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">Email</span>
-          <span style="font-size:0.78rem;color:var(--brown-dark);">${email}</span>
+          <span style="font-size:0.78rem;color:var(--brown-dark);">${email.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-light);">
           <span style="font-size:0.7rem;color:var(--text-light);text-transform:uppercase;letter-spacing:0.1em;">${isES?'Plan':'Plan'}</span>
@@ -176,6 +190,18 @@ async function signOut(){
   const badge = document.getElementById('userBadge');
   if(badge) badge.innerHTML = '<li><a href="#" onclick="openClerkSignIn();return false;">Sign in</a></li>';
 }
+
+// ── KEYBOARD: Escape closes modals ───────────────
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') {
+    const auth = document.getElementById('authModal');
+    if(auth && auth.style.display === 'flex') { closeAuthModal(); return; }
+    const upgrade = document.getElementById('upgradeModal');
+    if(upgrade && upgrade.style.display === 'flex') { closeUpgradeModal(); return; }
+    const profile = document.getElementById('profileModal');
+    if(profile) { profile.remove(); return; }
+  }
+});
 
 // ── AUTH MODAL ───────────────────────────────────
 function showAuthModal(reason){

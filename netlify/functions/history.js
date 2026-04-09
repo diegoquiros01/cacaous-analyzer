@@ -23,10 +23,21 @@ async function supabase(path, method = 'GET', body = null) {
   return data;
 }
 
+const ALLOWED_ORIGINS = [
+  'https://www.docsvalidate.com',
+  'https://docsvalidate.com',
+  'http://localhost:8888',
+  'http://localhost:3000',
+];
+
 exports.handler = async (event) => {
+  const origin = event.headers['origin'] || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
@@ -36,6 +47,10 @@ exports.handler = async (event) => {
 
     if (!clerk_id) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id' }) };
+    }
+    // Validate clerk_id format to prevent injection
+    if (!/^[a-zA-Z0-9_-]{10,60}$/.test(clerk_id)) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid clerk_id' }) };
     }
 
     // ── SAVE ────────────────────────────────────────────────────────────────
@@ -76,8 +91,12 @@ exports.handler = async (event) => {
       let path = `validation_history?clerk_id=eq.${encodeURIComponent(clerk_id)}&select=id,clerk_id,bl_number,vessel_name,status,doc_count,error_count,warning_count,summary_text,created_at&order=created_at.desc&limit=${take}`;
 
       if (search) {
-        const s = encodeURIComponent(search);
-        path += `&or=(bl_number.ilike.*${s}*,vessel_name.ilike.*${s}*)`;
+        // Sanitize search: strip Supabase operators and special chars to prevent injection
+        const sanitized = String(search).replace(/[^a-zA-Z0-9\s\-_.]/g, '').substring(0, 50);
+        if (sanitized) {
+          const s = encodeURIComponent(sanitized);
+          path += `&or=(bl_number.ilike.*${s}*,vessel_name.ilike.*${s}*)`;
+        }
       }
 
       if (status_filter && ['approved','warning','rejected'].includes(status_filter)) {
@@ -97,8 +116,8 @@ exports.handler = async (event) => {
     if (action === 'get') {
       const { id } = params;
 
-      if (!id) {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id' }) };
+      if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing or invalid id' }) };
       }
 
       const rows = await supabase(`validation_history?id=eq.${encodeURIComponent(id)}&select=*`);
@@ -122,8 +141,8 @@ exports.handler = async (event) => {
     // ── DELETE ──────────────────────────────────────────────────────────────
     if (action === 'delete') {
       const { id } = params;
-      if (!id) {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id' }) };
+      if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing or invalid id' }) };
       }
       // Verify ownership first
       const rows = await supabase(`validation_history?id=eq.${encodeURIComponent(id)}&select=id,clerk_id`);
@@ -146,6 +165,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('history function error:', err);
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal server error' }) };
   }
 };

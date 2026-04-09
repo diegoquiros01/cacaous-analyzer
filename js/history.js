@@ -22,8 +22,15 @@ async function saveReportManual() {
   }
 }
 
+let _saveHistoryInProgress = false;
 async function saveHistory() {
   if (!isLoggedIn()) return;
+  // Prevent concurrent saves (debounce)
+  if (_saveHistoryInProgress) return;
+  _saveHistoryInProgress = true;
+  try { await _saveHistoryInner(); } finally { _saveHistoryInProgress = false; }
+}
+async function _saveHistoryInner() {
   try {
     const blNum = analysisResults.find(r => r.blNumber)?.blNumber || '';
     const vessel = analysisResults.find(r => r.vesselName)?.vesselName || '';
@@ -110,18 +117,25 @@ function renderHistory(rows) {
     + '<span style="flex:0 0 30px;"></span>'
     + '</div>'
     + '<div id="histBulkActions" style="display:none;padding:0.4rem 1rem;background:var(--cream);border-bottom:1px solid var(--border-light);"><button onclick="deleteSelectedReports()" style="background:none;border:1px solid var(--red);color:var(--red);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;">' + delSelLabel + '</button></div>';
+  // Escape HTML to prevent XSS from API data (BL numbers, vessel names, etc.)
+  const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const rowsHtml = rows.map(r => {
     const d = new Date(r.created_at);
     const dateStr = d.toLocaleDateString(lang==='es'?'es-ES':'en-US', { month:'short', day:'numeric' });
-    return '<div class="hist-row" onclick="showHistDetail(this)" data-id="'+(r.id||'')+'" data-summary="'+((r.summary_text||'').replace(/"/g,'&quot;'))+'" data-status="'+(r.status||'')+'" data-bl="'+(r.bl_number||'')+'" style="display:flex;align-items:center;padding:0.55rem 1rem;border-bottom:1px solid var(--border-light);cursor:pointer;font-size:0.78rem;transition:background 0.15s;"'
+    const safeId = esc(r.id||'');
+    const safeBL = esc(r.bl_number||'—');
+    const safeVessel = esc(r.vessel_name||'—');
+    const safeSummary = esc(r.summary_text||'');
+    const safeStatus = esc(r.status||'');
+    return '<div class="hist-row" onclick="showHistDetail(this)" data-id="'+safeId+'" data-summary="'+safeSummary+'" data-status="'+safeStatus+'" data-bl="'+safeBL+'" style="display:flex;align-items:center;padding:0.55rem 1rem;border-bottom:1px solid var(--border-light);cursor:pointer;font-size:0.78rem;transition:background 0.15s;"'
       + ' onmouseover="this.style.background=\'var(--offwhite)\'" onmouseout="this.style.background=\'var(--white)\'">'
-      + '<span style="flex:0 0 28px;" onclick="event.stopPropagation();"><input type="checkbox" class="hist-check" data-id="'+(r.id||'')+'" onchange="updateBulkActions()" style="cursor:pointer;accent-color:var(--tan);"></span>'
-      + '<span style="flex:0 0 100px;color:var(--text-light);font-size:0.72rem;">'+dateStr+'</span>'
-      + '<span style="flex:1;font-weight:600;color:var(--brown-dark);">'+(r.bl_number||'—')+'</span>'
-      + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.vessel_name||'—')+'</span>'
+      + '<span style="flex:0 0 28px;" onclick="event.stopPropagation();"><input type="checkbox" class="hist-check" data-id="'+safeId+'" onchange="updateBulkActions()" style="cursor:pointer;accent-color:var(--tan);"></span>'
+      + '<span style="flex:0 0 100px;color:var(--text-light);font-size:0.72rem;">'+esc(dateStr)+'</span>'
+      + '<span style="flex:1;font-weight:600;color:var(--brown-dark);">'+safeBL+'</span>'
+      + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+safeVessel+'</span>'
       + '<span style="flex:0 0 80px;text-align:center;">'+statusBadge(r.status)+'</span>'
-      + '<span style="flex:0 0 50px;text-align:center;color:var(--text-light);">'+r.doc_count+'</span>'
-      + '<span style="flex:0 0 30px;text-align:center;"><a href="#" onclick="event.stopPropagation();deleteReport(\''+r.id+'\');return false;" style="color:var(--text-light);text-decoration:none;font-size:0.8rem;transition:color 0.2s;" onmouseover="this.style.color=\'var(--red)\'" onmouseout="this.style.color=\'var(--text-light)\'">✕</a></span>'
+      + '<span style="flex:0 0 50px;text-align:center;color:var(--text-light);">'+esc(String(r.doc_count||0))+'</span>'
+      + '<span style="flex:0 0 30px;text-align:center;"><a href="#" onclick="event.stopPropagation();deleteReport(\''+safeId+'\');return false;" style="color:var(--text-light);text-decoration:none;font-size:0.8rem;transition:color 0.2s;" onmouseover="this.style.color=\'var(--red)\'" onmouseout="this.style.color=\'var(--text-light)\'">✕</a></span>'
       + '</div>';
   }).join('');
   list.innerHTML = header + rowsHtml;

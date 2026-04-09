@@ -1,18 +1,31 @@
 // netlify/functions/admin.js
-// Admin-only backend — verifies ADMIN_EMAIL from env vars before serving any data
+// Admin-only backend — verifies ADMIN_EMAIL + JWT signature before serving any data
 // Fetches aggregated data from Supabase + Stripe
+
+const { verifyClerkJWT } = require('./verify-jwt');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 const STRIPE_KEY   = process.env.STRIPE_SECRET_KEY;
 const ADMIN_EMAIL  = process.env.ADMIN_EMAIL; // e.g. diego@docsvalidate.com
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Type': 'application/json',
-};
+const ALLOWED_ORIGINS = [
+  'https://www.docsvalidate.com',
+  'https://docsvalidate.com',
+  'http://localhost:8888',
+  'http://localhost:3000',
+];
+
+function getCORS(event) {
+  const origin = event.headers['origin'] || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json',
+  };
+}
 
 // ── Supabase helper ─────────────────────────────────────────────────────────
 async function sb(path, method = 'GET', body = null) {
@@ -38,37 +51,16 @@ async function stripe(path) {
   return res.json();
 }
 
-// ── Verify admin token via Clerk JWT ─────────────────────────────────────────
-// We decode the JWT payload (no crypto verify needed — Netlify/Clerk does that).
-// We only trust the email claim to gate access. For extra security, add
-// Clerk JWT verification with the public key in production.
-function extractEmailFromJWT(authHeader) {
-  try {
-    if (!authHeader?.startsWith('Bearer ')) return null;
-    const token = authHeader.slice(7);
-    const payload = JSON.parse(
-      Buffer.from(token.split('.')[1], 'base64url').toString('utf8')
-    );
-    // Clerk stores email in different claims depending on version
-    return (
-      payload.email ||
-      payload.primary_email ||
-      (payload.email_addresses?.[0]?.email_address) ||
-      null
-    );
-  } catch (e) {
-    return null;
-  }
-}
-
 // ── Main handler ─────────────────────────────────────────────────────────────
 exports.handler = async (event) => {
+  const CORS = getCORS(event);
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
-  // 1. Auth check
-  const email = extractEmailFromJWT(event.headers['authorization'] || event.headers['Authorization']);
-  if (!email || email.toLowerCase() !== (ADMIN_EMAIL || '').toLowerCase()) {
+  // 1. Auth check — verify JWT signature + admin email
+  const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
+  const clerk = await verifyClerkJWT(authHeader);
+  if (!clerk?.valid || !clerk.email || clerk.email.toLowerCase() !== (ADMIN_EMAIL || '').toLowerCase()) {
     return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Forbidden' }) };
   }
 
@@ -217,6 +209,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('admin function error:', err);
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Internal server error' }) };
   }
 };

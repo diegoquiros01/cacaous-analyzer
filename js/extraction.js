@@ -78,9 +78,10 @@ function mediaType(f){
   return e==='pdf'?'application/pdf':['jpg','jpeg'].includes(e)?'image/jpeg':'image/jpeg';
 }
 
-// ── PDF PAGE SPLITTER ─────────────────────────────────────
+// ── PDF PAGE SPLITTER — AI-based document boundary detection ──
+// Instead of arbitrary 4-page chunks, classifies each page with Haiku
+// to find real document boundaries, then groups pages by document type.
 async function splitPdfToPages(file){
-  // PDFs ≤8 pages: sent complete. >8 pages: split into 4-page chunks + merge after extraction
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -88,67 +89,190 @@ async function splitPdfToPages(file){
     const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
     const numPages = pdf.numPages;
 
-    // ≤8 pages: send complete
-    if(numPages <= 8) return null;
+    // Single page — no split needed
+    if(numPages <= 1) return null;
 
-    // Only split PDFs that are clearly multi-document bundles
-    // Single documents (BL, invoice, packing list, certs) can be many pages — never split them
-    const nameLower = file.name.toLowerCase();
-    const isSingleDoc =
-      nameLower.includes('bl') || nameLower.includes('bill') || nameLower.includes('lading') ||
-      nameLower.includes('invoice') || nameLower.includes('factura') || nameLower.includes('fact') ||
-      nameLower.includes('packing') || nameLower.includes('pack') ||
-      nameLower.includes('phyto') || nameLower.includes('fito') ||
-      nameLower.includes('cert') || nameLower.includes('certif') ||
-      nameLower.includes('origin') || nameLower.includes('origen') ||
-      nameLower.includes('fumig') || nameLower.includes('gas') ||
-      nameLower.includes('letter') || nameLower.includes('carta') ||
-      nameLower.includes('declar') || nameLower.includes('shipping') ||
-      nameLower.includes('notify') || nameLower.includes('notif') ||
-      nameLower.includes('sample') || nameLower.includes('quality') ||
-      nameLower.includes('calidad') || nameLower.includes('weight') ||
-      nameLower.includes('peso') || nameLower.includes('swb');
-    if(isSingleDoc) return null;
+    // ≤4 pages: send complete — Claude's extractDoc handles multi-doc detection
+    if(numPages <= 4) return null;
 
-    // >8 pages: split into chunks of 4 pages, each chunk = one combined image
-    const CHUNK_SIZE = 4;
-    const chunks = [];
-    for(let start = 1; start <= numPages; start += CHUNK_SIZE){
-      const end = Math.min(start + CHUNK_SIZE - 1, numPages);
-      // Render each page in this chunk
-      const pageCanvases = [];
-      for(let i = start; i <= end; i++){
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({scale: 1.0});
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d');
-        await page.render({canvasContext: ctx, viewport}).promise;
-        pageCanvases.push(canvas);
-      }
-      // Stack pages vertically into one combined image
-      const totalHeight = pageCanvases.reduce((h, c) => h + c.height, 0);
-      const maxWidth = Math.max(...pageCanvases.map(c => c.width));
-      const combined = document.createElement('canvas');
-      combined.width = maxWidth;
-      combined.height = totalHeight;
-      const ctx = combined.getContext('2d');
-      let y = 0;
-      pageCanvases.forEach(c => { ctx.drawImage(c, 0, y); y += c.height; });
-      const blob = await new Promise(res => combined.toBlob(res, 'image/jpeg', 0.6));
-      const chunkName = file.name.replace(/\.pdf$/i,'') + ` pages ${start}-${end}.jpg`;
-      chunks.push({
-        file: new File([blob], chunkName, {type:'image/jpeg'}),
-        name: chunkName, size: blob.size,
-        _pdfPage: start, _pdfSource: file.name
-      });
+    // 5+ pages: classify pages with AI to detect document boundaries
+    // Step 1: Extract text from each page (cheap, no API call)
+    const pageTexts = [];
+    let textPageCount = 0;
+    for(let i = 1; i <= numPages; i++){
+      const page = await pdf.getPage(i);
+      const tc = await page.getTextContent();
+      const text = tc.items.map(item => item.str).join(' ').trim();
+      pageTexts.push({ page: i, text: text.substring(0, 400) });
+      if(text.length > 30) textPageCount++;
     }
-    return chunks;
+
+    // Step 2: Classify pages with Haiku
+    let groups;
+    try {
+      const hasText = textPageCount > numPages * 0.5; // >50% pages have text
+      groups = await _classifyPdfPages(pageTexts, hasText, pdf, numPages);
+    } catch(e) {
+      console.warn('AI page classification failed:', e.message);
+      groups = null;
+    }
+
+    // If classification found only 1 document, send complete (≤8p) or chunk (>8p)
+    if(!groups || groups.length <= 1) {
+      if(numPages <= 8) return null;
+      return await _fallbackChunkSplit(pdf, file, numPages);
+    }
+
+    // Step 3: Render each document group as a combined image
+    if(typeof console !== 'undefined' && location?.hostname === 'localhost') console.log(`AI split: ${groups.length} documents detected`);
+    return await _renderDocGroups(pdf, file, groups);
+
   } catch(e){
     console.warn('PDF split error:', e.message);
     return null;
   }
+}
+
+// Classify PDF pages using Haiku — text-based (cheap) or vision-based (for scanned PDFs)
+async function _classifyPdfPages(pageTexts, hasText, pdf, numPages) {
+  let classifyContent;
+
+  if(hasText) {
+    // Text-based classification — very cheap (~500 tokens input)
+    const pagesSummary = pageTexts.map(p =>
+      `--- PAGE ${p.page} ---\n${p.text || '[No text — scanned image]'}`
+    ).join('\n\n');
+    classifyContent = `This PDF has ${numPages} pages. Here is the text from each page:\n\n${pagesSummary}`;
+  } else {
+    // Scanned PDF — render small thumbnails for vision classification
+    const thumbnails = [];
+    for(let i = 1; i <= numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 0.3 }); // Low res for classification
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
+      thumbnails.push({ page: i, data: dataUrl.split(',')[1] });
+    }
+    // Build vision content array
+    classifyContent = [];
+    for(const t of thumbnails) {
+      classifyContent.push({
+        type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: t.data }
+      });
+      classifyContent.push({ type: 'text', text: `Page ${t.page} above.` });
+    }
+    classifyContent.push({
+      type: 'text',
+      text: `This scanned PDF has ${numPages} pages (shown above). Classify each page.`
+    });
+  }
+
+  const classifySystem = `You identify document boundaries in multi-page PDFs from export/import shipments.
+Common document types: Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, Phytosanitary Certificate, Quality Certificate, Fumigation Certificate, Organic Certificate (COI), Transmittal Letter, Declaration Letter, Import Permit, Shipping Notification, ISF.
+
+RULES:
+- A multi-page document (e.g. "Sheet 1 of 2", "Page 2", continuation of same table) is ONE document — mark subsequent pages as continuation (isNew: false).
+- A new letterhead, title, or completely different layout = NEW document (isNew: true).
+- Page 1 is always isNew: true.
+
+Return ONLY a valid JSON array, no explanation:
+[{"page":1,"docType":"Commercial Invoice","isNew":true},{"page":2,"docType":"Commercial Invoice","isNew":false},{"page":3,"docType":"Packing List","isNew":true}]`;
+
+  const raw = await callClaudeHaiku(classifySystem, classifyContent, 1500);
+  let parsed = raw.trim().replace(/^```json\s*/i,'').replace(/```\s*$/i,'').trim();
+  const classifications = JSON.parse(parsed);
+
+  if(!Array.isArray(classifications) || classifications.length === 0) return null;
+
+  // Group consecutive pages by document boundary
+  const groups = [];
+  let current = null;
+  for(const c of classifications) {
+    if(c.isNew || !current) {
+      current = { docType: c.docType, startPage: c.page, endPage: c.page };
+      groups.push(current);
+    } else {
+      current.endPage = c.page;
+    }
+  }
+
+  return groups;
+}
+
+// Render document groups as combined images for extraction
+async function _renderDocGroups(pdf, file, groups) {
+  const chunks = [];
+  for(const group of groups) {
+    const pageCanvases = [];
+    for(let i = group.startPage; i <= group.endPage; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 1.0 });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      pageCanvases.push(canvas);
+    }
+    const totalHeight = pageCanvases.reduce((h, c) => h + c.height, 0);
+    const maxWidth = Math.max(...pageCanvases.map(c => c.width));
+    const combined = document.createElement('canvas');
+    combined.width = maxWidth;
+    combined.height = totalHeight;
+    const ctx = combined.getContext('2d');
+    let y = 0;
+    pageCanvases.forEach(c => { ctx.drawImage(c, 0, y); y += c.height; });
+    const blob = await new Promise(res => combined.toBlob(res, 'image/jpeg', 0.6));
+    const label = group.docType.replace(/[^a-zA-Z0-9 ]/g,'').substring(0, 30);
+    const chunkName = file.name.replace(/\.pdf$/i,'') + ` [${label}] p${group.startPage}-${group.endPage}.jpg`;
+    chunks.push({
+      file: new File([blob], chunkName, { type: 'image/jpeg' }),
+      name: chunkName, size: blob.size,
+      _pdfPage: group.startPage, _pdfSource: file.name,
+      _detectedDocType: group.docType
+    });
+  }
+  return chunks.length > 1 ? chunks : null;
+}
+
+// Fallback: split into arbitrary 4-page chunks (used when AI classification fails on large PDFs)
+async function _fallbackChunkSplit(pdf, file, numPages) {
+  const CHUNK_SIZE = 4;
+  const chunks = [];
+  for(let start = 1; start <= numPages; start += CHUNK_SIZE){
+    const end = Math.min(start + CHUNK_SIZE - 1, numPages);
+    const pageCanvases = [];
+    for(let i = start; i <= end; i++){
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({scale: 1.0});
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({canvasContext: ctx, viewport}).promise;
+      pageCanvases.push(canvas);
+    }
+    const totalHeight = pageCanvases.reduce((h, c) => h + c.height, 0);
+    const maxWidth = Math.max(...pageCanvases.map(c => c.width));
+    const combined = document.createElement('canvas');
+    combined.width = maxWidth;
+    combined.height = totalHeight;
+    const ctx = combined.getContext('2d');
+    let y = 0;
+    pageCanvases.forEach(c => { ctx.drawImage(c, 0, y); y += c.height; });
+    const blob = await new Promise(res => combined.toBlob(res, 'image/jpeg', 0.6));
+    const chunkName = file.name.replace(/\.pdf$/i,'') + ` pages ${start}-${end}.jpg`;
+    chunks.push({
+      file: new File([blob], chunkName, {type:'image/jpeg'}),
+      name: chunkName, size: blob.size,
+      _pdfPage: start, _pdfSource: file.name
+    });
+  }
+  return chunks;
 }
 
 async function extractDoc(entry){
@@ -339,20 +463,32 @@ function fixGasClearanceFields(doc, textContent) {
   }
 }
 
-// ── POST-PROCESS: clean garbled reference numbers ──────────────────
+// ── POST-PROCESS: clean + validate extracted fields ──────────────────
+// Sanitizes all string fields to prevent injection/XSS and validates formats
 function cleanExtractedFields(doc) {
+  // Sanitize all string fields — strip HTML tags, control chars, and cap length
+  const MAX_FIELD_LEN = 500;
+  for (const k of Object.keys(doc)) {
+    if (k.startsWith('_')) continue;
+    if (typeof doc[k] === 'string') {
+      doc[k] = doc[k].replace(/<[^>]*>/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
+      if (doc[k].length > MAX_FIELD_LEN) doc[k] = doc[k].substring(0, MAX_FIELD_LEN);
+    }
+    if (Array.isArray(doc[k])) {
+      doc[k] = doc[k].map(v => typeof v === 'string'
+        ? v.replace(/<[^>]*>/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').substring(0, MAX_FIELD_LEN)
+        : v
+      );
+    }
+  }
+
   // Clean invoice number — remove spaces between digits, leading non-digit chars
   if (doc.invoiceNumber) {
     let inv = String(doc.invoiceNumber).trim();
-    // Remove brackets: [001-002-000000824] → 001-002-000000824
     inv = inv.replace(/^\[|\]$/g, '');
-    // Remove ALL spaces/unicode whitespace between characters
     inv = inv.replace(/[\s\u00A0\u200B]+/g, '');
-    // Normalize dashes
     inv = inv.replace(/\s*-\s*/g, '-');
-    // Remove leading non-digit chars (OCR artifacts): "I001-002-..." → "001-002-..."
     inv = inv.replace(/^[^0-9]+/, '');
-    // Remove trailing non-digit chars
     inv = inv.replace(/[^0-9]+$/, '');
     if (inv && inv !== doc.invoiceNumber) doc.invoiceNumber = inv;
   }
@@ -365,5 +501,18 @@ function cleanExtractedFields(doc) {
   if (doc.voyageNumber) {
     let voy = String(doc.voyageNumber).trim().replace(/\s+/g, '');
     if (voy !== doc.voyageNumber) doc.voyageNumber = voy;
+  }
+  // Validate container numbers — must be 4 letters + 6-7 digits
+  if (Array.isArray(doc.containerNumbers)) {
+    doc.containerNumbers = doc.containerNumbers.filter(c => {
+      if (!c) return false;
+      const clean = String(c).trim().toUpperCase().replace(/\s+/g, '');
+      return /^[A-Z]{4}\d{6,7}$/.test(clean);
+    }).map(c => String(c).trim().toUpperCase().replace(/\s+/g, ''));
+  }
+  // Validate seal numbers — alphanumeric only, max 20 chars
+  if (Array.isArray(doc.sealNumbers)) {
+    doc.sealNumbers = doc.sealNumbers.filter(s => s && String(s).trim().length > 0)
+      .map(s => String(s).trim().replace(/[^a-zA-Z0-9\-]/g, '').substring(0, 20));
   }
 }

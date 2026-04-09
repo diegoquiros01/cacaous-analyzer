@@ -5,25 +5,9 @@
 // Admin bypass: requests from ADMIN_EMAIL get unlimited access
 
 const { getStore } = require('@netlify/blobs');
+const { verifyClerkJWT } = require('./verify-jwt');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-
-// Decode Clerk JWT payload to extract email (no crypto verify needed here —
-// the Anthropic API call itself is gated; this is just rate limiting)
-function getEmailFromJWT(authHeader) {
-  try {
-    if (!authHeader?.startsWith('Bearer ')) return null;
-    const payload = JSON.parse(
-      Buffer.from(authHeader.slice(7).split('.')[1], 'base64url').toString('utf8')
-    );
-    return (
-      payload.email ||
-      payload.primary_email ||
-      (payload.email_addresses?.[0]?.email_address) ||
-      null
-    );
-  } catch { return null; }
-}
 
 
 const GUEST_LIMIT     = 3;    // max analyses per IP per day
@@ -39,11 +23,20 @@ function getIP(event) {
   );
 }
 
+const ALLOWED_ORIGINS = [
+  'https://www.docsvalidate.com',
+  'https://docsvalidate.com',
+  'http://localhost:8888',
+  'http://localhost:3000',
+];
+
 exports.handler = async (event) => {
+  const origin = event.headers['origin'] || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json',
   };
 
@@ -54,9 +47,10 @@ exports.handler = async (event) => {
   try {
     const { action } = JSON.parse(event.body || '{}');
 
-    // ── ADMIN BYPASS: unlimited validations ────────────────────────────────
+    // ── ADMIN BYPASS: unlimited validations (JWT signature verified) ─────
     const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
-    const requestEmail = getEmailFromJWT(authHeader);
+    const clerk = await verifyClerkJWT(authHeader);
+    const requestEmail = clerk?.email || null;
     if (ADMIN_EMAIL && requestEmail && requestEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
       return {
         statusCode: 200,

@@ -19,24 +19,28 @@ async function downloadPdfReport() {
     setStep(4);
     await loadHtml2Pdf();
     const t = tx();
+
+    // HTML escape function to prevent injection in PDF templates
+    const _e = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
     const date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
     const status = coherenceResult?.overallStatus || 'warning';
     const issues = coherenceResult?.coherenceIssues || [];
     const finalErr = lastFinalErrors;
     const finalWarn = lastFinalWarnings;
     const okDocs = Math.max(0, analysisResults.length - finalErr);
-    const blNum = analysisResults.find(r=>r.blNumber)?.blNumber || '';
-    const vessel = analysisResults.find(r=>r.vesselName)?.vesselName || '';
-    const voyage = analysisResults.find(r=>r.voyageNumber)?.voyageNumber || '';
-    const portL = analysisResults.find(r=>r.portOfLoading)?.portOfLoading || '';
-    const portD = analysisResults.find(r=>r.portOfDischarge)?.portOfDischarge || '';
-    const lots = [...new Set(analysisResults.flatMap(r=>r.lotNumbers||[]).filter(Boolean))];
-    const summary = coherenceResult?.summary || '';
-    const actionItems = coherenceResult?.actionItems || [];
-    const totalAmt = analysisResults.find(r=>r.totalAmount)?.totalAmount || '';
-    const priceUnit = analysisResults.find(r=>r.pricePerUnit)?.pricePerUnit || '';
-    const incoterm = analysisResults.find(r=>r.incoterms)?.incoterms || '';
-    const payTerms = analysisResults.find(r=>r.paymentTerms)?.paymentTerms || '';
+    const blNum = _e(analysisResults.find(r=>r.blNumber)?.blNumber || '');
+    const vessel = _e(analysisResults.find(r=>r.vesselName)?.vesselName || '');
+    const voyage = _e(analysisResults.find(r=>r.voyageNumber)?.voyageNumber || '');
+    const portL = _e(analysisResults.find(r=>r.portOfLoading)?.portOfLoading || '');
+    const portD = _e(analysisResults.find(r=>r.portOfDischarge)?.portOfDischarge || '');
+    const lots = [...new Set(analysisResults.flatMap(r=>r.lotNumbers||[]).filter(Boolean))].map(_e);
+    const summary = _e(coherenceResult?.summary || '');
+    const actionItems = (coherenceResult?.actionItems || []).map(_e);
+    const totalAmt = _e(analysisResults.find(r=>r.totalAmount)?.totalAmount || '');
+    const priceUnit = _e(analysisResults.find(r=>r.pricePerUnit)?.pricePerUnit || '');
+    const incoterm = _e(analysisResults.find(r=>r.incoterms)?.incoterms || '');
+    const payTerms = _e(analysisResults.find(r=>r.paymentTerms)?.paymentTerms || '');
 
     const sc = {
       approved: { bg:'#1a6b3a', label: lang==='es'?'APROBADO':'APPROVED' },
@@ -44,7 +48,7 @@ async function downloadPdfReport() {
       rejected: { bg:'#7a2e22', label: lang==='es'?'RECHAZADO':'REJECTED' },
     }[status] || { bg:'#8a6a00', label:'WARNING' };
 
-    const cleanDoc = s => (s||'').replace(/\.[^.]+$/,'').replace(/_page(\d+)/,' p.$1');
+    const cleanDoc = s => _e((s||'').replace(/\.[^.]+$/,'').replace(/_page(\d+)/,' p.$1'));
 
     // Use _spFields (from split panel) — always populated
     const fields = (typeof _spFields !== 'undefined' && _spFields.length > 0) ? _spFields : [];
@@ -57,17 +61,17 @@ async function downloadPdfReport() {
       const bg = f.severity==='err' ? '#fdf2f0' : f.severity==='warn' ? '#fdf8ee' : '#fff';
       let valCell = '';
       if (f.severity==='ok') {
-        valCell = f.majVal || '—';
+        valCell = _e(f.majVal || '—');
       } else if (f.values && f.values.length > 0) {
         valCell = f.values.map(v => {
           const isOut = f.majVal && (v.value||'').trim() !== f.majVal;
           return '<div style="margin-bottom:2px;' + (isOut?'color:#7a2e22;font-weight:700;':'') + '">'
             + '<span style="color:#7a8499;font-size:8px;">' + cleanDoc(v.doc) + ':</span> '
-            + (v.value||'—') + (isOut?' ✗':'') + '</div>';
+            + _e(v.value||'—') + (isOut?' ✗':'') + '</div>';
         }).join('');
       }
       tableRows += '<tr style="background:'+bg+';">'
-        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:10px;color:'+color+';white-space:nowrap;">' + icon + ' ' + f.label + '</td>'
+        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:10px;color:'+color+';white-space:nowrap;">' + icon + ' ' + _e(f.label) + '</td>'
         + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-size:9px;line-height:1.6;">' + valCell + '</td>'
         + '</tr>';
     });
@@ -80,10 +84,10 @@ async function downloadPdfReport() {
       const icon = ds.status==='approved' ? '✓' : ds.status==='rejected' ? '✗' : '⚠';
       const color = ds.status==='approved' ? '#1a6b3a' : ds.status==='rejected' ? '#7a2e22' : '#8a6a00';
       docRows += '<tr>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:10px;font-weight:600;">' + (translateDocType(ds.docType||r.docType)||r._filename) + '</td>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + r._filename + '</td>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:10px;font-weight:600;">' + _e(translateDocType(ds.docType||r.docType)||r._filename) + '</td>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + _e(r._filename) + '</td>'
         + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+color+';font-weight:700;font-size:11px;">' + icon + '</td>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:8px;color:#7a8499;">' + (ds.comment||'') + '</td>'
+        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:8px;color:#7a8499;">' + _e(ds.comment||'') + '</td>'
         + '</tr>';
     });
 
