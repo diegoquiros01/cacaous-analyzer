@@ -313,6 +313,24 @@ CRITICAL: CONTAINER NUMBER FORMAT
 A container number is ALWAYS 4 letters + 6-7 digits: e.g. MRSU4826790, CAAU9018479, TCKU7300166.
 A pure number like "266461945" is NEVER a container — it is a BL number. Never put pure digit strings into containerNumbers.
 
+SPECIAL FIELD MAPPING FOR PHYTOSANITARY / FITOSANITARY CERTIFICATES:
+- "Certificado Fitosanitario" / "Phytosanitary Certificate" → docType
+- "N° Certificado" / "Certificate No." → phytoCertNumber
+- "Exportador" / "Exporter" → shipper
+- "Destinatario" / "Consignee" / "Importador" → consigneeName
+- "País de destino" / "Destination country" → destinationCountry
+- "País de origen" / "Origin country" → originCountry
+- "Puerto de salida" / "Port of exit" → portOfLoading
+- "Nombre del buque" / "Vessel" → vesselName
+- "N° de contenedor" / "Container No." → containerNumbers (MUST be 4 letters + 6-7 digits format)
+- "Marcas y números" / "Marks and numbers" → may contain BL number, lot numbers, seal numbers
+- "Cantidad declarada" / "Declared quantity" → bagCount
+- "Peso neto" / "Net weight" → netWeight
+- "N° de lote" / "Lot number" / "Lote" → lotNumbers
+- "Producto" / "Product" / "Nombre del producto" → productDescription
+- "Tratamiento" / "Treatment" → extraFields
+- CRITICAL: Extract containerNumbers even from fields like "Marcas" or "Marks" if you see 4-letter + 6-7 digit patterns
+
 SPECIAL FIELD MAPPING FOR FUMIGATION / GAS CLEARANCE / QUARANTINE CERTIFICATES:
 - "Country / city of destination" or "Destino" → destinationCountry (CRITICAL — extract exact country name, even if MALAYSIA or INDONESIA)
 - "Bl/Cont." field → if value is pure digits (e.g. 266461945) → blNumber NOT containerNumbers
@@ -392,6 +410,7 @@ Also include an "extraFields" object for any fields present in the document that
       if(p.grossWeight) p.grossWeight = fixNumber(p.grossWeight);
       p._filename = entry.name;
       if(entry.textContent) fixGasClearanceFields(p, entry.textContent);
+      if(entry.textContent) fixPhytoCertFields(p, entry.textContent);
       cleanExtractedFields(p);
       return p;
     });
@@ -460,6 +479,39 @@ function fixGasClearanceFields(doc, textContent) {
     const m = t.match(/Bl[^:]*Cont[^:]*:[ \t]*([0-9]{8,})/i)
            || t.match(/Container[ \t]*:[ \t]*([0-9]{8,})/i);
     if(m) doc.blNumber = m[1].trim();
+  }
+}
+
+// ── POST-PROCESS: fix Phytosanitary Certificate field mapping from text ──
+function fixPhytoCertFields(doc, textContent) {
+  if(!textContent) return;
+  const dt = (doc.docType||"").toLowerCase();
+  if(!dt.includes("phyto") && !dt.includes("fitosanit") && !dt.includes("fito")) return;
+  const t = textContent;
+
+  // Extract containers from "Marcas y números" or "Marks" field
+  if(!doc.containerNumbers || doc.containerNumbers.length === 0) {
+    const containerMatches = t.match(/\b[A-Z]{4}\d{6,7}\b/g);
+    if(containerMatches) {
+      doc.containerNumbers = [...new Set(containerMatches)];
+    }
+  }
+  // Extract lot numbers
+  if(!doc.lotNumbers || doc.lotNumbers.length === 0) {
+    const lotMatch = t.match(/(?:lote|lot)\s*(?:no\.?|n[°º]?)?\s*:?\s*([A-Z0-9][\w\-\/]+)/gi);
+    if(lotMatch) {
+      doc.lotNumbers = lotMatch.map(m => m.replace(/^(?:lote|lot)\s*(?:no\.?|n[°º]?)?\s*:?\s*/i, '').trim());
+    }
+  }
+  // Extract vessel name
+  if(!doc.vesselName) {
+    const vm = t.match(/(?:buque|vessel|vapor|nave)\s*:?\s*([A-Z][A-Z\s]{3,30})/i);
+    if(vm) doc.vesselName = vm[1].trim();
+  }
+  // Extract BL number from marks/numbers section
+  if(!doc.blNumber) {
+    const blm = t.match(/(?:BL|B\/L|BILL\s*OF\s*LADING)\s*:?\s*#?\s*([A-Z0-9]{6,})/i);
+    if(blm) doc.blNumber = blm[1].trim();
   }
 }
 

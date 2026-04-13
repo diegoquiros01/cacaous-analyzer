@@ -736,10 +736,15 @@ function renderResults(){
     var wsList = document.getElementById('wsDocList');
     var wsScore = document.getElementById('wsScoreNum');
     if (!wsList) return;
-    // Score from tableEntries
-    var okCount = tableEntries.filter(function(e){ return e.allSame; }).length;
-    var totalCount = tableEntries.length;
-    var pct = totalCount > 0 ? Math.round((okCount / totalCount) * 100) : (finalErrors === 0 ? 100 : 0);
+    // Score from tableEntries — weighted: critical fields count more
+    var criticalFields = ['containers','seals','blNumber','destinationCountry','lots','netWeight','grossWeight'];
+    var totalWeight = 0, okWeight = 0;
+    tableEntries.forEach(function(e){
+      var w = criticalFields.indexOf(e.k) >= 0 ? 3 : 1; // critical fields worth 3x
+      totalWeight += w;
+      if(e.allSame) okWeight += w;
+    });
+    var pct = totalWeight > 0 ? Math.round((okWeight / totalWeight) * 100) : (finalErrors === 0 ? 100 : 0);
     if (wsScore) wsScore.textContent = pct + '/100';
     // Doc list from analysisResults + perDoc (already resolved above)
     wsList.innerHTML = '';

@@ -742,6 +742,33 @@ function isTrivialDifference(a, b){
   const isDate = s => /\d{1,2}[\/\-\.]\d{1,2}|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ene|abr|ago)/i.test(s);
   if(isDate(sa) && isDate(sb)) return true;
 
+  // 9. Weight tolerance — values within 0.5% are trivial (scale rounding, moisture loss)
+  if(!skipNumeric){
+    const w1 = normalizeExtractedNumber(sa), w2 = normalizeExtractedNumber(sb);
+    if(w1 && w2 && !isNaN(w1) && !isNaN(w2) && w1 > 100 && w2 > 100) {
+      const diff = Math.abs(w1 - w2);
+      const pct = diff / Math.max(w1, w2);
+      if(pct < 0.005) return true; // 0.5% tolerance
+    }
+  }
+
+  // 10. Shipper/company: one value is a substring or abbreviation of the other
+  // "AROMACACAO S.A. Av. Francisco de Orellana..." vs "AROMACACAO S.A."
+  // After normalization, the shorter should be contained in the longer
+  if(na.length > 5 && nb.length > 5) {
+    const shorter = na.length <= nb.length ? na : nb;
+    const longer = na.length > nb.length ? na : nb;
+    // If shorter is >60% of longer and longer starts with shorter
+    if(shorter.length > longer.length * 0.5 && longer.startsWith(shorter)) return true;
+  }
+
+  // 11. Vessel name prefixes: "MV MAERSK GLACIER" = "MAERSK GLACIER" = "M/V MAERSK GLACIER"
+  const stripVesselPrefix = s => s.replace(/^(m\/v|mv|m\.v\.|ss|mt|m\/t)\s+/i, '').trim();
+  const va = stripVesselPrefix(na), vb = stripVesselPrefix(nb);
+  if(va.length > 4 && vb.length > 4 && va === vb) return true;
+  // One contains the other after prefix strip
+  if(va.length > 5 && vb.length > 5 && (va.includes(vb) || vb.includes(va))) return true;
+
   return false;
 }
 
