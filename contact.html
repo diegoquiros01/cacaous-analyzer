@@ -9,23 +9,26 @@
 <script>emailjs.init("_AX5FHPE2A2qFduJQ");</script>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-:root{--white:#fff;--offwhite:#f7f8fa;--cream:#f0f2f5;--cream2:#e4e8ee;--brown-dark:#0f1117;--brown:#1c2230;--brown-mid:#3a4660;--brown-light:#6b7a99;--tan:#4a6fa5;--tan-light:#7da4d4;--green:#1a6b3a;--green-light:#2e9455;--text:#0f1117;--text-mid:#3a4255;--text-light:#7a8499;--border:#d0d6e2;--border-light:#e8edf5;}
+:root{--white:#fff;--offwhite:#f7f8fa;--cream:#f0f2f5;--cream2:#e4e8ee;--brown-dark:#0f1117;--brown:#1c2230;--brown-mid:#3a4660;--brown-light:#6b7a99;--tan:#4a6fa5;--tan-light:#7da4d4;--green:#1a6b3a;--green-light:#2e9455;--text:#0f1117;--text-mid:#3a4255;--text-light:#7a8499;--border:#d0d6e2;--border-light:#e8edf5;--navy:#0d1b2a;--ink:#1c2230;--steel:#4a6fa5;--mint:#3ecfaa;--mint-dark:#28a989;--muted:#6b7a99;--red:#7a2e22;--red-light:#b04030;--border-lt:#e8edf5;--shadow:0 4px 24px rgba(13,27,42,.10);}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);min-height:100vh;}
 
-/* HEADER */
-header{background:var(--white);border-bottom:1px solid var(--border-light);position:sticky;top:0;z-index:100;}
-.header-top{display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:68px;max-width:1200px;margin:0 auto;}
-.logo-wordmark{font-family:'Raleway',sans-serif;font-size:1.6rem;font-weight:300;letter-spacing:0.18em;color:#1a1a1a;}
-.logo-tagline{font-size:0.6rem;letter-spacing:0.15em;color:#888;text-transform:uppercase;}
-.header-right{display:flex;align-items:center;gap:2rem;}
-nav ul{display:flex;gap:2rem;list-style:none;}
-nav a{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;font-weight:500;transition:color 0.2s;}
-nav a:hover,nav a.active{color:#0f1117;font-weight:600;}
+/* NAV */
+.page-nav{position:fixed;top:0;left:0;right:0;z-index:200;height:68px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border-lt);transition:box-shadow .3s;}
+.page-nav.scrolled{box-shadow:0 2px 20px rgba(13,27,42,.08);}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-brand img{height:32px;}
+.nav-brand-name{font-family:'Raleway',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.18em;text-transform:uppercase;color:var(--navy);}
+.nav-links{display:flex;align-items:center;gap:36px;list-style:none;}
+.nav-links a{font-family:'Raleway',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:var(--navy);}
+.nav-right{display:flex;align-items:center;gap:12px;}
 .lang-switch{display:flex;align-items:center;gap:0.4rem;}
-.lang-btn{background:none;border:none;cursor:pointer;font-size:0.65rem;letter-spacing:0.15em;color:var(--text-light);font-family:'Lato',sans-serif;padding:0.2rem 0.3rem;}
-.lang-btn.active{color:#1c2230;font-weight:700;border-bottom:1.5px solid #4a6fa5;}
+.lang-btn{background:none;border:none;cursor:pointer;font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.15em;color:var(--muted);padding:0.2rem 0.3rem;transition:color .2s;}
+.lang-btn:hover{color:var(--navy);}
+.lang-btn.active{color:var(--navy);font-weight:700;border-bottom:1.5px solid var(--steel);}
 .lang-sep{color:var(--border);font-size:0.7rem;}
+@media(max-width:900px){.nav-links{display:none;}}
 
 /* HERO */
 .hero{text-align:center;padding:4rem 2rem 3rem;background:var(--white);border-bottom:1px solid var(--border-light);}
@@ -120,26 +123,26 @@ input.err,select.err,textarea.err{border-color:#b04030;}
 </head>
 <body>
 
-<header>
-  <div class="header-top">
-    <div>
-      <a href="/" style="display:flex;align-items:center;text-decoration:none;"><img src="/logo.png" alt="DocsValidate" style="height:34px;width:auto;display:block;"></a>
-    </div>
-    <div class="header-right">
-      <nav><ul>
-        <li><a href="/" id="navHome">Home</a></li>
-        <li><a href="/pricing.html" id="navPricing">Pricing</a></li>
-        <li><a href="#" class="active" id="navContact">Contact</a></li>
-      </ul></nav>
-      <ul id="userBadge" style="display:flex;gap:2rem;list-style:none;align-items:baseline;"></ul>
-      <div class="lang-switch">
-        <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
-        <span class="lang-sep">|</span>
-        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
-      </div>
+<nav class="page-nav" id="pageNav">
+  <a href="/" class="nav-brand">
+    <img src="/logo.png" alt="DocsValidate" onerror="this.style.display='none'">
+    <span class="nav-brand-name">DocsValidate</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/" id="navHome">Home</a></li>
+    <li><a href="/pricing.html" id="navPricing">Pricing</a></li>
+    <li><a href="#" class="active" id="navContact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <ul id="userBadge" style="list-style:none;display:flex;gap:12px;"></ul>
+    <div class="lang-switch">
+      <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+      <span class="lang-sep">|</span>
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
     </div>
   </div>
-</header>
+</nav>
+<div style="height:68px;"></div>
 
 <section class="hero">
   <div class="hero-eyebrow" id="heroEyebrow">Get in touch</div>
@@ -626,6 +629,9 @@ function initUserBadge() {
   }).catch(() => {});
 }
 initUserBadge();
+// Nav shadow on scroll
+var pn=document.getElementById('pageNav');
+if(pn) window.addEventListener('scroll',function(){pn.classList.toggle('scrolled',window.scrollY>10);});
 </script>
 
 <footer style="background:#0d1b2a;padding:44px 5% 28px;">
