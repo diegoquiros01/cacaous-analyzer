@@ -637,6 +637,7 @@ async function startAnalysis(){
     // in multiple chunks. Merge them by _pdfSource + docType.
     setLbl(lang==='es'?'Combinando documentos':'Merging documents');
     setSub(lang==='es'?'Agrupando páginas del mismo documento...':'Grouping pages from same document...');
+    setProgress(72, lang==='es'?'Combinando...':'Merging...');
     if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Combinando documentos multi-página...':'Merging multi-page documents...');
 
     const pdfSources = {};
@@ -703,7 +704,8 @@ async function startAnalysis(){
     // ── VERIFICATION PASS: re-extract with Sonnet when Haiku missed critical fields ──
     setLbl(lang==='es'?'Verificando campos críticos':'Verifying critical fields');
     setSub(lang==='es'?'Revisando extracción...':'Checking extraction...');
-    setProgress(72, lang==='es'?'Verificando...':'Verifying...');
+    setProgress(75, lang==='es'?'Verificando...':'Verifying...');
+    var _tlbl2 = document.getElementById('techProgressLabel'); if(_tlbl2) _tlbl2.textContent = lang==='es'?'Verificando campos':'Verifying fields';
     if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Verificando campos críticos...':'Verifying critical fields...');
 
     // Define which doc types should have which fields
@@ -798,8 +800,9 @@ async function startAnalysis(){
 
     setLbl(lang==='es'?'Verificando coherencia':'Verifying coherence');
     setSub(lang==='es'?'Comparando valores entre documentos...':'Cross-checking values across documents...');
-    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Analizando coherencia entre documentos...':'Analyzing coherence across documents...');
-    setProgress(Math.round((uploadedFiles.length/total)*100), lang==='es'?'Analizando coherencia...':'Analyzing coherence...');
+    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Analizando coherencia entre documentos — esto puede tomar 30-60s...':'Analyzing coherence across documents — this may take 30-60s...');
+    setProgress(85, lang==='es'?'Analizando coherencia...':'Analyzing coherence...');
+    var _tlbl = document.getElementById('techProgressLabel'); if(_tlbl) _tlbl.textContent = lang==='es'?'Analizando coherencia':'Analyzing coherence';
 
     // Filter out failed extractions before coherence
   const cleanDocs = {};
