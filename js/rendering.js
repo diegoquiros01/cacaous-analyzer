@@ -47,6 +47,7 @@ function renderResults(){
   let tableData = smartResult?.setValues || {};
   // Always run JS comparison as ground truth
   const jsTableData = buildSetValuesFromResults(analysisResults);
+  if(location?.hostname==='localhost'||location?.hostname?.includes('docsvalidate')) console.log('[renderResults] AI setValues keys:', Object.keys(tableData).length, '| JS tableData keys:', Object.keys(jsTableData).length, '| analysisResults:', analysisResults.length);
   if(!Object.values(tableData).some(d=>d?.values?.length)){
     tableData = jsTableData;
   } else {
@@ -730,7 +731,45 @@ function renderResults(){
   const arPanel = document.getElementById('actionRequired');
   if(arPanel) arPanel.style.display = 'none';
 
-  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+  // ── Populate workspace left panel from inside renderResults ──
+  (function(){
+    var wsList = document.getElementById('wsDocList');
+    var wsScore = document.getElementById('wsScoreNum');
+    if (!wsList) return;
+    // Score from tableEntries
+    var okCount = tableEntries.filter(function(e){ return e.allSame; }).length;
+    var totalCount = tableEntries.length;
+    var pct = totalCount > 0 ? Math.round((okCount / totalCount) * 100) : (finalErrors === 0 ? 100 : 0);
+    if (wsScore) wsScore.textContent = pct + '/100';
+    // Doc list from analysisResults + perDoc (already resolved above)
+    wsList.innerHTML = '';
+    var seen = {};
+    analysisResults.forEach(function(r){
+      if (r._err) return;
+      var fn = r._filename || '';
+      var dt = r.docType || fn;
+      var key = fn || dt;
+      if (seen[key]) return;
+      seen[key] = true;
+      var isBL = (dt.toLowerCase().indexOf('bill of lading') >= 0 || dt.toLowerCase().indexOf('conocimiento') >= 0 || dt.toLowerCase().indexOf('waybill') >= 0);
+      var pds = perDoc[fn] || perDoc[dt] || {};
+      if (!pds.status) { Object.keys(perDoc).forEach(function(k){ if (fn && (k.indexOf(fn)>=0 || fn.indexOf(k)>=0)) pds = perDoc[k]; }); }
+      var st = pds.status || 'approved';
+      var cls = 'ws-doc-item';
+      var bcls = 'ws-doc-badge';
+      var btxt = '✓ Match';
+      var ico = '📄';
+      if (isBL) { cls += ' ws-doc-master'; bcls += ' master'; btxt = 'Master'; ico = '📋'; }
+      else if (st === 'rejected') { cls += ' ws-doc-err'; bcls += ' err'; btxt = '✗ Error'; ico = '🔴'; }
+      else if (st === 'warning') { cls += ' ws-doc-warn'; bcls += ' warn'; btxt = '⚠ Obs'; ico = '🟡'; }
+      else { bcls += ' ok'; }
+      var name = (dt || fn.replace(/\.[^.]+$/, '')).substring(0, 30);
+      wsList.innerHTML += '<div class="'+cls+'"><span class="ws-doc-icon">'+ico+'</span><span class="ws-doc-name">'+name+'</span><span class="'+bcls+'">'+btxt+'</span></div>';
+    });
+  })();
+
+  var _scrollTarget = document.querySelector('.ws-right') || document.getElementById('results');
+  if(_scrollTarget) _scrollTarget.scrollIntoView({behavior:'smooth',block:'start'});
   } catch(err) {
     console.error('renderResults ERROR:', err.message, err.stack);
     const dc = document.getElementById('docCards');
