@@ -2,7 +2,7 @@
 // Shared module: Verify Clerk JWTs using JWKS (public key fetched from Clerk)
 // This replaces the insecure base64-decode-only approach.
 
-const CLERK_JWKS_URL = process.env.CLERK_JWKS_URL || 'https://accounts.docsvalidate.com/.well-known/jwks.json';
+const CLERK_JWKS_URL = process.env.CLERK_JWKS_URL || 'https://clerk.docsvalidate.com/.well-known/jwks.json';
 
 let _cachedJWKS = null;
 let _cachedAt = 0;
