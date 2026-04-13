@@ -883,7 +883,7 @@ function safeStyle(id, prop, val){ const el=safeEl(id); if(el) el.style[prop]=va
 function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[method](cls); }
 
 function resetApp(){
-  uploadedFiles=[];analysisResults=[];coherenceResult=null;
+  uploadedFiles=[];analysisResults=[];coherenceResult=null;_cachedSummary=null;
   var _twr = document.getElementById('techProgressWrap'); if(_twr) _twr.style.display='none';
   var _alr = document.getElementById('activityLog'); if(_alr) _alr.innerHTML='';
   var _wdl = document.getElementById('wsDocList'); if(_wdl) _wdl.innerHTML='';
@@ -893,7 +893,7 @@ function resetApp(){
   const ab=safeEl('analyzeBtn'); if(ab){ ab.disabled=true; ab.classList.remove('ready'); }
   safeStyle('uploadSection','display','block');
   safeClass('results','remove','show');
-  safeReset('loadLog','innerHTML','');
+  safeReset('activityLog','innerHTML','');
   safeReset('docProgressList','innerHTML','');
   safeReset('trackingSection','innerHTML','');
   safeStyle('trackingSection','display','none');

@@ -149,24 +149,27 @@ exports.handler = async (event) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 55000);
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: body.model,
-        max_tokens: body.max_tokens,
-        system: body.system,
-        messages: body.messages,
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-    const data = await response.json();
+    let response, data;
+    try {
+      response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: body.model,
+          max_tokens: body.max_tokens,
+          system: body.system,
+          messages: body.messages,
+        }),
+        signal: controller.signal,
+      });
+      data = await response.json();
+    } finally {
+      clearTimeout(timeout);
+    }
 
     return {
       statusCode: response.status,

@@ -47,7 +47,7 @@ function renderResults(){
   let tableData = smartResult?.setValues || {};
   // Always run JS comparison as ground truth
   const jsTableData = buildSetValuesFromResults(analysisResults);
-  if(location?.hostname==='localhost'||location?.hostname?.includes('docsvalidate')) console.log('[renderResults] AI setValues keys:', Object.keys(tableData).length, '| JS tableData keys:', Object.keys(jsTableData).length, '| analysisResults:', analysisResults.length);
+  if(location?.hostname==='localhost') console.log('[renderResults] AI setValues keys:', Object.keys(tableData).length, '| JS tableData keys:', Object.keys(jsTableData).length, '| analysisResults:', analysisResults.length);
   if(!Object.values(tableData).some(d=>d?.values?.length)){
     tableData = jsTableData;
   } else {
@@ -749,7 +749,7 @@ function renderResults(){
       if(e.allSame) okWeight += w;
     });
     var pct = totalWeight > 0 ? Math.round((okWeight / totalWeight) * 100) : (finalErrors === 0 ? 100 : 0);
-    console.log('[Score]', 'totalWeight:', totalWeight, 'okWeight:', okWeight, 'pct:', pct, 'entries:', tableEntries.length, 'ok:', tableEntries.filter(function(e){return e.allSame}).length, 'err:', tableEntries.filter(function(e){return e.isErr}).length);
+    if(location?.hostname==='localhost') console.log('[Score]', totalWeight, okWeight, pct, tableEntries.length);
     if (wsScore) wsScore.textContent = pct + '/100';
     // Doc list from analysisResults + perDoc (already resolved above)
     wsList.innerHTML = '';
@@ -785,11 +785,11 @@ function renderResults(){
     });
   })();
 
-  // ── FIX 4: Click doc in left panel → scroll to its detail card ──
+  // ── Click doc in left panel → scroll to its detail card ──
   (function(){
     var items = document.querySelectorAll('#wsDocList .ws-doc-item');
+    var cards = document.querySelectorAll('#docCards .r-dcard');
     items.forEach(function(item, idx){
-      item.style.cursor = 'pointer';
       item.addEventListener('click', function(){
         // Highlight active doc
         items.forEach(function(el){ el.classList.remove('ws-doc-active'); });
@@ -797,11 +797,12 @@ function renderResults(){
         // Expand the per-doc section if collapsed
         var perdocBody = document.getElementById('rPerdocBody');
         if(perdocBody && !perdocBody.classList.contains('open')) toggleRPerdoc();
-        // Find and expand the matching card
-        var card = document.getElementById('dc'+idx);
+        // Find matching card — try by index first, then by name match
+        var card = cards[idx] || document.getElementById('dc'+idx);
         if(card){
-          if(!card.classList.contains('open')) toggleCard(idx);
-          setTimeout(function(){ card.scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
+          var cardIdx = card.id ? parseInt(card.id.replace('dc','')) : idx;
+          if(!card.classList.contains('open')) toggleCard(cardIdx);
+          setTimeout(function(){ card.scrollIntoView({behavior:'smooth',block:'center'}); }, 150);
         }
       });
     });
