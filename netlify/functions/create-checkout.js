@@ -7,8 +7,8 @@ const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 // Price IDs — configurable via env vars, fallback to current values
 // To update: change in Netlify env vars without redeploying code
 const PRICES = {
-  growth_monthly:       process.env.STRIPE_PRICE_GROWTH_MONTHLY || 'price_GROWTH_MONTHLY_TODO',
-  growth_annual:        process.env.STRIPE_PRICE_GROWTH_ANNUAL  || 'price_GROWTH_ANNUAL_TODO',
+  growth_monthly:       process.env.STRIPE_PRICE_GROWTH_MONTHLY || 'price_1TLuF6FZXtgfLmPeg1qVtwe6',
+  growth_annual:        process.env.STRIPE_PRICE_GROWTH_ANNUAL  || 'price_1TLuGpFZXtgfLmPe5TUpRBbu',
   professional_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY    || 'price_1TJNY8FZXtgfLmPeUZYxVebI',
   professional_annual:  process.env.STRIPE_PRICE_PRO_ANNUAL     || 'price_1TJNYSFZXtgfLmPeoLCcQrza',
   enterprise_monthly:   process.env.STRIPE_PRICE_ENT_MONTHLY    || 'price_1TJNbKFZXtgfLmPeq2WJTHT3',
