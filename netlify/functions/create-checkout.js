@@ -7,10 +7,12 @@ const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 // Price IDs — configurable via env vars, fallback to current values
 // To update: change in Netlify env vars without redeploying code
 const PRICES = {
-  professional_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY  || 'price_1TJNY8FZXtgfLmPeUZYxVebI',
-  professional_annual:  process.env.STRIPE_PRICE_PRO_ANNUAL   || 'price_1TJNYSFZXtgfLmPeoLCcQrza',
-  enterprise_monthly:   process.env.STRIPE_PRICE_ENT_MONTHLY  || 'price_1TJNbKFZXtgfLmPeq2WJTHT3',
-  enterprise_annual:    process.env.STRIPE_PRICE_ENT_ANNUAL   || 'price_1TJNcXFZXtgfLmPede2a7C4b',
+  growth_monthly:       process.env.STRIPE_PRICE_GROWTH_MONTHLY || 'price_GROWTH_MONTHLY_TODO',
+  growth_annual:        process.env.STRIPE_PRICE_GROWTH_ANNUAL  || 'price_GROWTH_ANNUAL_TODO',
+  professional_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY    || 'price_1TJNY8FZXtgfLmPeUZYxVebI',
+  professional_annual:  process.env.STRIPE_PRICE_PRO_ANNUAL     || 'price_1TJNYSFZXtgfLmPeoLCcQrza',
+  enterprise_monthly:   process.env.STRIPE_PRICE_ENT_MONTHLY    || 'price_1TJNbKFZXtgfLmPeq2WJTHT3',
+  enterprise_annual:    process.env.STRIPE_PRICE_ENT_ANNUAL     || 'price_1TJNcXFZXtgfLmPede2a7C4b',
 };
 
 const ALLOWED_ORIGINS = ['https://www.docsvalidate.com', 'https://docsvalidate.com', 'http://localhost:8888', 'http://localhost:3000'];

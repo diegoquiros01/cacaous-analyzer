@@ -26,6 +26,9 @@
 const PRICE_TO_PLAN = {};
 // Starter
 PRICE_TO_PLAN[process.env.STRIPE_PRICE_STARTER || 'price_1TDa31FZXtgfLmPehPPvJxzZ'] = 'starter';
+// Growth
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_GROWTH_MONTHLY || 'price_GROWTH_MONTHLY_TODO'] = 'growth';
+PRICE_TO_PLAN[process.env.STRIPE_PRICE_GROWTH_ANNUAL  || 'price_GROWTH_ANNUAL_TODO']  = 'growth';
 // Professional
 PRICE_TO_PLAN[process.env.STRIPE_PRICE_PRO_MONTHLY || 'price_1TJNY8FZXtgfLmPeUZYxVebI'] = 'professional';
 PRICE_TO_PLAN[process.env.STRIPE_PRICE_PRO_ANNUAL  || 'price_1TJNYSFZXtgfLmPeoLCcQrza'] = 'professional';

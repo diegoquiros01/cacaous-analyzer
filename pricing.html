@@ -24,7 +24,7 @@ body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);
 .save-badge{background:var(--green);color:white;font-size:0.6rem;letter-spacing:0.1em;padding:0.2rem 0.5rem;border-radius:20px;text-transform:uppercase;font-weight:600;opacity:0;transition:opacity 0.3s;}
 .save-badge.show{opacity:1;}
 .plans-section{max-width:1100px;margin:0 auto;padding:4rem 2rem 5rem;}
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;align-items:stretch;}
+.plans-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;align-items:stretch;}
 .plan-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:2.5rem 2rem;display:flex;flex-direction:column;position:relative;transition:transform 0.2s,box-shadow 0.2s;}
 .plan-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(74,111,165,0.12);}
 .plan-card.featured{border:2px solid var(--steel);background:var(--navy);color:#e8edf5;}
@@ -73,7 +73,8 @@ body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);
 .notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;text-align:left;}
 .note-item h4{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--steel);margin-bottom:0.4rem;font-weight:600;}
 .note-item p{font-size:0.8rem;color:var(--text-light);line-height:1.6;}
-@media(max-width:768px){.plans-grid{grid-template-columns:1fr;}.header-top{padding:0 1.5rem;}.notes-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.plans-grid{grid-template-columns:repeat(2,1fr);}.header-top{padding:0 1.5rem;}.notes-grid{grid-template-columns:1fr;}}
+@media(max-width:480px){.plans-grid{grid-template-columns:1fr;}}
 </style>
   <script async crossorigin="anonymous"
     data-clerk-publishable-key="pk_live_Y2xlcmsuZG9jc3ZhbGlkYXRlLmNvbSQ"
@@ -134,10 +135,27 @@ body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);
       <a href="/app" class="plan-cta cta-out" id="cta1"></a>
     </div>
 
+    <div class="plan-card">
+      <div class="plan-name" id="pgname"></div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="growthPrice">89</span><span class="price-per" id="pgper"></span></div>
+      <div class="plan-tag" id="pgtag"></div>
+      <div class="plan-div"></div>
+      <ul class="plan-feats">
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_1"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_2"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_3"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_4"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_5"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_6"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_7"></span></li>
+      </ul>
+      <a href="#" class="plan-cta cta-fill" id="ctag" onclick="handleSubscribe('growth'); return false;"></a>
+    </div>
+
     <div class="plan-card featured">
       <div class="plan-badge" id="popularBadge"></div>
       <div class="plan-name" id="p2name"></div>
-      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="proPrice">119</span><span class="price-per" id="p2per"></span></div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="proPrice">129</span><span class="price-per" id="p2per"></span></div>
       <div class="plan-tag" id="p2tag"></div>
       <div class="plan-div"></div>
       <ul class="plan-feats">
@@ -176,23 +194,24 @@ body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);
   <div class="sec-title" id="compareTitle"></div>
   <table class="compare-table">
     <thead><tr>
-      <th id="thFeat" style="width:40%"></th>
+      <th id="thFeat" style="width:32%"></th>
       <th id="thS"></th>
+      <th id="thG"></th>
       <th class="fc" id="thP" style="color:var(--brown)"></th>
       <th id="thE"></th>
     </tr></thead>
     <tbody>
-      <tr><td class="fn" id="cf1"></td><td>10</td><td class="fc">100</td><td id="cfUnlim"></td></tr>
-      <tr><td class="fn" id="cf2"></td><td id="cfUpTo"></td><td class="fc" id="cfUnlim2"></td><td id="cfUnlim3"></td></tr>
-      <tr><td class="fn" id="cf3"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf4"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf5"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf6"></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf7"></td><td><span class="dsh">—</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf8"></td><td><span class="dsh">—</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf9"></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf10"></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf11"></td><td id="cs1"></td><td class="fc" id="cs2"></td><td id="cs3"></td></tr>
+      <tr><td class="fn" id="cf1"></td><td>10</td><td>50</td><td class="fc">150</td><td id="cfUnlim"></td></tr>
+      <tr><td class="fn" id="cf2"></td><td id="cfUpTo"></td><td id="cfUpToG"></td><td class="fc" id="cfUnlim2"></td><td id="cfUnlim3"></td></tr>
+      <tr><td class="fn" id="cf3"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf4"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf5"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf6"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf7"></td><td><span class="dsh">—</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf8"></td><td><span class="dsh">—</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf9"></td><td><span class="dsh">—</span></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf10"></td><td><span class="dsh">—</span></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf11"></td><td id="cs1"></td><td id="csg"></td><td class="fc" id="cs2"></td><td id="cs3"></td></tr>
     </tbody>
   </table>
 </section>
@@ -219,26 +238,30 @@ const TX={
     lblMonthly:'Monthly',lblAnnual:'Annual',saveBadge:'Save 20%',
     popularBadge:'Most Popular',
     p1name:'Starter',p1tag:'Perfect for getting started and occasional validations.',
+    pgname:'Growth',pgtag:'For exporters starting to scale their validation workflow.',
     p2name:'Professional',p2tag:'For active exporters who validate multiple shipments every month.',
     p3name:'Enterprise',p3tag:'For high-volume operations — up to 1,000 validations per month.',
     perMonth:'/ month',perMonthAnnual:'/ month, billed annually',
-    cta1:'Get started free',cta2:'Start free trial',cta3:'Subscribe',
+    cta1:'Get started free',ctag:'Subscribe',cta2:'Start free trial',cta3:'Subscribe',
     f1_1:'<strong>10 validations</strong> per month',f1_2:'Up to 15 documents per set',
     f1_3:'AI extraction &amp; coherence check',f1_4:'PDF, Excel &amp; Word support',
     f1_5:'English &amp; Spanish interface',f1_6:'Carrier tracking',f1_7:'Priority support',
-    f2_1:'<strong>100 validations</strong> per month',f2_2:'Up to 15 documents per set',
+    fg_1:'<strong>50 validations</strong> per month',fg_2:'Up to 15 documents per set',
+    fg_3:'AI extraction &amp; coherence check',fg_4:'PDF, Excel &amp; Word support',
+    fg_5:'Real-time carrier tracking',fg_6:'Daily summary reports by email',fg_7:'Email support within 24h',
+    f2_1:'<strong>150 validations</strong> per month',f2_2:'Up to 15 documents per set',
     f2_3:'AI extraction &amp; coherence check',f2_4:'PDF, Excel &amp; Word support',
     f2_5:'Real-time carrier tracking',f2_6:'Daily summary reports by email',f2_7:'Email support within 24h',
-    f3_1:'<strong>Up to 300 validations</strong> per month',f3_2:'Up to 15 documents per set',
+    f3_1:'<strong>Up to 350 validations</strong> per month',f3_2:'Up to 15 documents per set',
     f3_3:'Everything in Professional',f3_4:'API access for integrations',
     f3_5:'Custom document types',f3_6:'Dedicated account manager',f3_7:'Priority support &lt; 4h',
-    compareTitle:'Full feature comparison',thFeat:'Feature',thS:'Starter',thP:'Professional',thE:'Enterprise',
+    compareTitle:'Full feature comparison',thFeat:'Feature',thS:'Starter',thG:'Growth',thP:'Professional',thE:'Enterprise',
     cf1:'Monthly validations',cf2:'Documents per set',cf3:'AI field extraction',
     cf4:'Coherence analysis',cf5:'PDF, Excel, Word',cf6:'EN &amp; ES interface',
     cf7:'Carrier tracking',cf8:'Daily email reports',cf9:'API access',
     cf10:'Custom doc types',cf11:'Support',
-    cfUnlim:'Up to 300',cfUpTo:'Up to 15',cfUnlim2:'Up to 15',cfUnlim3:'Up to 15',
-    cs1:'Community',cs2:'Email 24h',cs3:'Priority &lt;4h',
+    cfUnlim:'Up to 350',cfUpTo:'Up to 15',cfUpToG:'Up to 15',cfUnlim2:'Up to 15',cfUnlim3:'Up to 15',
+    cs1:'Community',csg:'Email 24h',cs2:'Email 24h',cs3:'Priority &lt;4h',
     faqTitle:'Good to know',
     faq1q:'What counts as a validation?',
     faq1a:'Each time you run an AI analysis on a document set counts as one validation, regardless of how many documents are in the set.',
@@ -258,26 +281,30 @@ const TX={
     lblMonthly:'Mensual',lblAnnual:'Anual',saveBadge:'Ahorra 20%',
     popularBadge:'Más Popular',
     p1name:'Básico',p1tag:'Ideal para comenzar y validaciones ocasionales.',
+    pgname:'Crecimiento',pgtag:'Para exportadores que comienzan a escalar su flujo de validación.',
     p2name:'Profesional',p2tag:'Para exportadores activos que validan múltiples embarques al mes.',
     p3name:'Empresarial',p3tag:'Para operaciones de alto volumen — hasta 1,000 validaciones al mes.',
     perMonth:'/ mes',perMonthAnnual:'/ mes, facturado anualmente',
-    cta1:'Comenzar gratis',cta2:'Iniciar prueba gratuita',cta3:'Suscribirse',
+    cta1:'Comenzar gratis',ctag:'Suscribirse',cta2:'Iniciar prueba gratuita',cta3:'Suscribirse',
     f1_1:'<strong>10 validaciones</strong> al mes',f1_2:'Hasta 15 documentos por set',
     f1_3:'Extracción IA y análisis de coherencia',f1_4:'Soporte PDF, Excel y Word',
     f1_5:'Interfaz en inglés y español',f1_6:'Tracking de naviera',f1_7:'Soporte prioritario',
-    f2_1:'<strong>100 validaciones</strong> al mes',f2_2:'Hasta 15 documentos por set',
+    fg_1:'<strong>50 validaciones</strong> al mes',fg_2:'Hasta 15 documentos por set',
+    fg_3:'Extracción IA y análisis de coherencia',fg_4:'Soporte PDF, Excel y Word',
+    fg_5:'Tracking de naviera en tiempo real',fg_6:'Reportes diarios por correo',fg_7:'Soporte por correo en 24h',
+    f2_1:'<strong>150 validaciones</strong> al mes',f2_2:'Hasta 15 documentos por set',
     f2_3:'Extracción IA y análisis de coherencia',f2_4:'Soporte PDF, Excel y Word',
     f2_5:'Tracking de naviera en tiempo real',f2_6:'Reportes diarios por correo',f2_7:'Soporte por correo en 24h',
-    f3_1:'<strong>Hasta 300 validaciones</strong> al mes',f3_2:'Hasta 15 documentos por set',
+    f3_1:'<strong>Hasta 350 validaciones</strong> al mes',f3_2:'Hasta 15 documentos por set',
     f3_3:'Todo lo del plan Profesional',f3_4:'Acceso API para integraciones',
     f3_5:'Tipos de documentos personalizados',f3_6:'Gerente de cuenta dedicado',f3_7:'Soporte prioritario &lt; 4h',
-    compareTitle:'Comparación completa de funciones',thFeat:'Función',thS:'Básico',thP:'Profesional',thE:'Empresarial',
+    compareTitle:'Comparación completa de funciones',thFeat:'Función',thS:'Básico',thG:'Crecimiento',thP:'Profesional',thE:'Empresarial',
     cf1:'Validaciones al mes',cf2:'Documentos por set',cf3:'Extracción IA',
     cf4:'Análisis de coherencia',cf5:'PDF, Excel, Word',cf6:'Interfaz EN y ES',
     cf7:'Tracking de naviera',cf8:'Reportes diarios',cf9:'Acceso API',
     cf10:'Tipos doc. personalizados',cf11:'Soporte',
-    cfUnlim:'Hasta 300',cfUpTo:'Hasta 15',cfUnlim2:'Hasta 15',cfUnlim3:'Hasta 15',
-    cs1:'Comunidad',cs2:'Correo 24h',cs3:'Prioritario &lt;4h',
+    cfUnlim:'Hasta 350',cfUpTo:'Hasta 15',cfUpToG:'Hasta 15',cfUnlim2:'Hasta 15',cfUnlim3:'Hasta 15',
+    cs1:'Comunidad',csg:'Correo 24h',cs2:'Correo 24h',cs3:'Prioritario &lt;4h',
     faqTitle:'Bueno saber',
     faq1q:'¿Qué cuenta como una validación?',
     faq1a:'Cada vez que ejecutas un análisis de IA en un set de documentos cuenta como una validación, independientemente de cuántos documentos tenga.',
@@ -301,18 +328,19 @@ function applyLang(){
   st('lblMonthly',t('lblMonthly'));st('lblAnnual',t('lblAnnual'));st('saveBadge',t('saveBadge'));
   st('popularBadge',t('popularBadge'));
   st('p1name',t('p1name'));st('p1tag',t('p1tag'));
+  st('pgname',t('pgname'));st('pgtag',t('pgtag'));
   st('p2name',t('p2name'));st('p2tag',t('p2tag'));
   st('p3name',t('p3name'));st('p3tag',t('p3tag'));
   const per=isAnnual?t('perMonthAnnual'):t('perMonth');
-  ['p1per','p2per','p3per'].forEach(id=>st(id,per));
-  st('cta1',t('cta1'));st('cta2',t('cta2'));st('cta3',t('cta3'));
-  for(let i=1;i<=7;i++){sh('f1_'+i,t('f1_'+i));sh('f2_'+i,t('f2_'+i));sh('f3_'+i,t('f3_'+i));}
+  ['p1per','pgper','p2per','p3per'].forEach(id=>st(id,per));
+  st('cta1',t('cta1'));st('ctag',t('ctag'));st('cta2',t('cta2'));st('cta3',t('cta3'));
+  for(let i=1;i<=7;i++){sh('f1_'+i,t('f1_'+i));sh('fg_'+i,t('fg_'+i));sh('f2_'+i,t('f2_'+i));sh('f3_'+i,t('f3_'+i));}
   sh('compareTitle',t('compareTitle'));st('thFeat',t('thFeat'));
-  st('thS',t('thS'));st('thP',t('thP'));st('thE',t('thE'));
+  st('thS',t('thS'));st('thG',t('thG'));st('thP',t('thP'));st('thE',t('thE'));
   for(let i=1;i<=11;i++)sh('cf'+i,t('cf'+i));
-  st('cfUnlim',t('cfUnlim'));st('cfUpTo',t('cfUpTo'));
+  st('cfUnlim',t('cfUnlim'));st('cfUpTo',t('cfUpTo'));st('cfUpToG',t('cfUpToG'));
   st('cfUnlim2',t('cfUnlim2'));st('cfUnlim3',t('cfUnlim3'));
-  st('cs1',t('cs1'));st('cs2',t('cs2'));st('cs3',t('cs3'));
+  st('cs1',t('cs1'));st('csg',t('csg'));st('cs2',t('cs2'));st('cs3',t('cs3'));
   sh('faqTitle',t('faqTitle'));
   for(let i=1;i<=4;i++){st('faq'+i+'q',t('faq'+i+'q'));st('faq'+i+'a',t('faq'+i+'a'));}
 }
@@ -329,10 +357,11 @@ function toggleBilling(){
   isAnnual=!isAnnual;
   document.getElementById('toggleWrap').classList.toggle('on',isAnnual);
   document.getElementById('saveBadge').classList.toggle('show',isAnnual);
-  document.getElementById('proPrice').textContent=isAnnual?'95':'119';
+  document.getElementById('growthPrice').textContent=isAnnual?'71':'89';
+  document.getElementById('proPrice').textContent=isAnnual?'103':'129';
   document.getElementById('entPrice').textContent=isAnnual?'151':'189';
   const per=isAnnual?t('perMonthAnnual'):t('perMonth');
-  ['p1per','p2per','p3per'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=per;});
+  ['p1per','pgper','p2per','p3per'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=per;});
 }
 
 // Apply saved language + update button states
@@ -357,7 +386,8 @@ async function handleSubscribe(plan) {
   }
 
   // Show loading state on button
-  const btn = document.getElementById(plan === 'professional' ? 'cta2' : 'cta3');
+  const btnMap = { growth: 'ctag', professional: 'cta2', enterprise: 'cta3' };
+  const btn = document.getElementById(btnMap[plan] || 'cta3');
   const origText = btn ? btn.textContent : '';
   if (btn) { btn.textContent = lang === 'es' ? 'Procesando...' : 'Processing...'; btn.style.opacity = '0.6'; }
 
