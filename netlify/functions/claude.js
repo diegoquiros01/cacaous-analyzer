@@ -5,7 +5,36 @@
 // - Server-side guest rate limit enforcement (prevents bypass)
 // - Model allowlist + token cap
 
-const { verifyClerkJWT } = require('./verify-jwt');
+// JWT verification inlined to avoid Netlify bundler caching stale module
+const _JWKS_URL = 'https://clerk.docsvalidate.com/.well-known/jwks.json';
+let _cachedJWKS = null, _cachedAt = 0;
+async function _getJWKS() {
+  if (_cachedJWKS && (Date.now() - _cachedAt) < 300000) return _cachedJWKS;
+  const r = await fetch(_JWKS_URL);
+  if (!r.ok) throw new Error('Failed to fetch JWKS: ' + r.status);
+  _cachedJWKS = await r.json(); _cachedAt = Date.now(); return _cachedJWKS;
+}
+function _b64d(s) { s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; return Uint8Array.from(atob(s),c=>c.charCodeAt(0)); }
+async function verifyClerkJWT(authHeader) {
+  try {
+    if (!authHeader?.startsWith('Bearer ')) return null;
+    const parts = authHeader.slice(7).split('.');
+    if (parts.length !== 3) return null;
+    const header = JSON.parse(new TextDecoder().decode(_b64d(parts[0])));
+    const payload = JSON.parse(new TextDecoder().decode(_b64d(parts[1])));
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) return null;
+    if (payload.nbf && payload.nbf > now + 30) return null;
+    let jwks = await _getJWKS();
+    let jwk = jwks.keys.find(k => k.kid === header.kid);
+    if (!jwk) { _cachedJWKS = null; jwks = await _getJWKS(); jwk = jwks.keys.find(k => k.kid === header.kid); if (!jwk) return null; }
+    const key = await crypto.subtle.importKey('jwk', jwk, { name:'RSASSA-PKCS1-v1_5', hash:'SHA-256' }, false, ['verify']);
+    const valid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, _b64d(parts[2]), new TextEncoder().encode(parts[0]+'.'+parts[1]));
+    if (!valid) return null;
+    const email = payload.email || payload.primary_email || payload.email_addresses?.[0]?.email_address || null;
+    return { valid: true, email, sub: payload.sub };
+  } catch (e) { console.error('JWT verification error:', e.message); return null; }
+}
 const { getStore } = require('@netlify/blobs');
 
 const ALLOWED_ORIGINS = [
