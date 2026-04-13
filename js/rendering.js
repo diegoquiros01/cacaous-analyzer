@@ -755,7 +755,15 @@ function renderResults(){
     wsList.innerHTML = '';
     var seen = {};
     var blShown = false;
-    analysisResults.forEach(function(r){
+    // Sort: BL first, then alphabetically by docType
+    var sorted = analysisResults.slice().sort(function(a,b){
+      var aBL = /bill of lading|conocimiento|waybill/i.test(a.docType||'');
+      var bBL = /bill of lading|conocimiento|waybill/i.test(b.docType||'');
+      if(aBL && !bBL) return -1;
+      if(!aBL && bBL) return 1;
+      return (a.docType||'').localeCompare(b.docType||'');
+    });
+    sorted.forEach(function(r){
       if (r._err) return;
       var fn = r._filename || '';
       var dt = r.docType || fn;
