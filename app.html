@@ -940,13 +940,14 @@ mark.diff-mark {
 
 /* Partial tip */
 .partial-tip {
-  display: flex; align-items: flex-start; gap: 0.8rem;
-  background: #f0f4ff; border: 1px solid var(--tan-light);
-  border-left: 3px solid var(--tan);
-  padding: 0.9rem 1.2rem; margin-top: 1rem; margin-bottom: 1rem;
-  font-size: 0.76rem; color: var(--text-mid); line-height: 1.6;
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--offwhite);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 11px 14px;
+  margin-top: 1rem; margin-bottom: 1rem;
+  font-size: 0.82rem; color: var(--text-light); line-height: 1.6;
 }
-.partial-tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
 
 /* Old footer styles removed — new footer uses .mkt-footer classes */
 
@@ -1712,10 +1713,11 @@ mark.diff-mark {
         <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
       </div>
 
-      <!-- Doc Types Summary (chips) -->
-      <div class="up-dt-summary" id="upDtSummary">
-        <div class="up-dt-summary-label" id="upDtSummaryLabel">SELECTED DOCUMENT TYPES</div>
-        <div class="up-dt-chips" id="upDtChips"></div>
+      <!-- Doc Types Summary (inline) -->
+      <div id="upDtSummary" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <span id="upDtInlineCount" style="font-size:0.82rem;color:var(--text-light);">13 document types selected</span>
+        <span style="color:var(--border);font-size:0.82rem;">·</span>
+        <button onclick="document.getElementById('docTypesGrid').style.display=document.getElementById('docTypesGrid').style.display==='flex'?'none':'flex';this.textContent=this.textContent==='Edit'?'Done':'Edit'" style="font-family:'Raleway',sans-serif;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--steel);background:none;border:0.5px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;">Edit</button>
       </div>
 
       <!-- Hidden: full doc type grid for editing -->
@@ -1754,7 +1756,7 @@ mark.diff-mark {
 
     <!-- Tip -->
     <div class="partial-tip" id="partialTip">
-      <span class="partial-tip-icon">💡</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px;color:var(--text-light);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
       <span id="partialTipText">You don't need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.</span>
     </div>
 
