@@ -1354,3 +1354,50 @@ function hideTechProgress() {
   var log = document.getElementById('activityLog');
   if (log) log.innerHTML = '';
 }
+
+// ── Retry failed document extraction ──
+// Re-extracts a single document that previously failed, then re-runs coherence
+async function retryDocument(filename) {
+  var entry = uploadedFiles.find(function(f){ return f.name === filename; });
+  if (!entry) { alert('File not found: ' + filename); return; }
+
+  // Show retry status on the button
+  var btn = document.querySelector('[data-retry="'+filename+'"]');
+  if (btn) { btn.disabled = true; btn.textContent = lang==='es' ? 'Reintentando...' : 'Retrying...'; }
+
+  try {
+    var docs = await extractDoc(entry);
+    var docsArr = Array.isArray(docs) ? docs : [docs];
+    docsArr.forEach(function(d){ d._filename = filename; });
+
+    // Remove old failed entries for this file
+    analysisResults = analysisResults.filter(function(r){ return r._filename !== filename; });
+    // Add new results
+    docsArr.forEach(function(d){ analysisResults.push(d); });
+
+    var hasError = docsArr.some(function(d){ return d._err; });
+    if (hasError) {
+      if (btn) { btn.disabled = false; btn.textContent = lang==='es' ? 'Falló — Reintentar' : 'Failed — Retry'; }
+      return;
+    }
+
+    // Re-run coherence with updated results
+    var cleanDocs = {};
+    analysisResults.forEach(function(r){
+      if (r._err) return;
+      var fn = r._filename || 'unknown';
+      if (!cleanDocs[fn]) cleanDocs[fn] = [];
+      cleanDocs[fn].push(r);
+    });
+    coherenceResult = await analyzeCoherence(cleanDocs);
+    _cachedSummary = coherenceResult && coherenceResult.summary ? coherenceResult.summary : null;
+
+    // Re-render results
+    renderResults();
+    if (typeof renderDocumentStack === 'function') renderDocumentStack(analysisResults, coherenceResult);
+
+  } catch(e) {
+    console.error('Retry failed:', e.message);
+    if (btn) { btn.disabled = false; btn.textContent = lang==='es' ? 'Error — Reintentar' : 'Error — Retry'; }
+  }
+}

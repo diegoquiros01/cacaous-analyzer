@@ -1,0 +1,100 @@
+/* shared.css — DocsValidate Design System
+   Imported by all pages for consistent variables, nav, and footer */
+
+:root {
+  --white: #ffffff;
+  --offwhite: #f7f8fa;
+  --cream: #f0f2f5;
+  --cream2: #e4e8ee;
+  --brown-dark: #0f1117;
+  --brown: #1c2230;
+  --brown-mid: #3a4660;
+  --brown-light: #6b7a99;
+  --tan: #4a6fa5;
+  --tan-light: #7da4d4;
+  --green: #1a6b3a;
+  --green-light: #2e9455;
+  --red: #7a2e22;
+  --red-light: #b04030;
+  --text: #0f1117;
+  --text-mid: #3a4255;
+  --text-light: #7a8499;
+  --border: #d0d6e2;
+  --border-light: #e8edf5;
+  /* New design system aliases */
+  --navy: #0d1b2a;
+  --ink: #1c2230;
+  --mid: #3a4660;
+  --muted: #6b7a99;
+  --steel: #4a6fa5;
+  --sky: #7da4d4;
+  --mint: #3ecfaa;
+  --mint-dark: #28a989;
+  --border-lt: #e8edf5;
+  --text-lt: #7a8499;
+  --shadow: 0 4px 24px rgba(13,27,42,.10);
+  --shadow-lg: 0 16px 48px rgba(13,27,42,.18);
+}
+
+/* ── NAV ── */
+.page-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 68px; padding: 0 5%;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-lt);
+  transition: box-shadow .3s;
+}
+.page-nav.scrolled { box-shadow: 0 2px 20px rgba(13,27,42,.08); }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-brand img { height: 32px; }
+.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.nav-links a {
+  font-family: 'Raleway', sans-serif; font-size: .65rem;
+  font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color .2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--navy); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.lang-switch { display: flex; align-items: center; gap: 0.4rem; }
+.lang-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: 'Raleway', sans-serif; font-size: 0.65rem;
+  font-weight: 600; letter-spacing: 0.15em;
+  color: var(--muted); padding: 0.2rem 0.3rem; transition: color .2s;
+}
+.lang-btn:hover { color: var(--navy); }
+.lang-btn.active { color: var(--navy); font-weight: 700; border-bottom: 1.5px solid var(--steel); }
+.lang-sep { color: var(--border); font-size: 0.7rem; }
+
+/* ── FOOTER ── */
+.shared-footer {
+  background: var(--navy); padding: 44px 5% 28px;
+}
+.shared-footer-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  border-top: 1px solid rgba(255,255,255,.08); padding-top: 28px;
+}
+.shared-footer-brand {
+  font-family: 'Raleway', sans-serif; font-weight: 700;
+  font-size: .8rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #fff; text-decoration: none;
+}
+.shared-footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.shared-footer-links a {
+  font-family: 'Raleway', sans-serif; font-size: .7rem;
+  font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s;
+}
+.shared-footer-links a:hover { color: #fff; }
+.shared-footer-copy {
+  font-family: 'Raleway', sans-serif; font-size: .65rem;
+  color: rgba(255,255,255,.3); letter-spacing: .06em;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px) {
+  .nav-links { display: none; }
+}

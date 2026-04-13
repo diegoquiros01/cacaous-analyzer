@@ -723,6 +723,10 @@ function renderResults(){
         ${commentHtml}
         <div class="r-dcard-fields">${fHtml}</div>
         ${issHtml?`<div style="margin-top:8px">${issHtml}</div>`:''}
+        ${r._err?`<div style="margin-top:12px;padding:10px 14px;background:rgba(122,46,34,0.05);border:1px solid rgba(122,46,34,0.15);border-radius:8px;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:0.8rem;color:var(--red-light);">${lang==='es'?'Error al extraer este documento':'Failed to extract this document'}</span>
+          <button data-retry="${r._filename}" onclick="retryDocument('${r._filename.replace(/'/g,"\\'")}')" style="margin-left:auto;padding:6px 16px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;">${lang==='es'?'Reintentar':'Retry'}</button>
+        </div>`:''}
       </div>`;
     dc.appendChild(card);
   });
