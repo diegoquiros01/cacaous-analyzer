@@ -823,8 +823,14 @@ function renderResults(){
   var aiSecEl = document.getElementById('actionItemsSection');
   if(aiSecEl && (!displayIssues || displayIssues.length === 0)) aiSecEl.style.display = 'none';
 
+  // Scroll to results — only if results are below current viewport
   var _scrollTarget = document.querySelector('.ws-right') || document.getElementById('results');
-  if(_scrollTarget) _scrollTarget.scrollIntoView({behavior:'smooth',block:'start'});
+  if(_scrollTarget) {
+    var rect = _scrollTarget.getBoundingClientRect();
+    if(rect.top > window.innerHeight || rect.top < 0) {
+      _scrollTarget.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  }
   } catch(err) {
     console.error('renderResults ERROR:', err.message, err.stack);
     const dc = document.getElementById('docCards');
