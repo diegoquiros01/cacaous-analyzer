@@ -14,7 +14,7 @@ async function saveReportManual() {
   try {
     await saveHistory();
     if (txt) txt.textContent = tx().saveReportDone || '✓ Saved';
-    if (btn) { btn.style.background = 'rgba(26,107,58,0.08)'; btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)'; }
+    if (btn) { btn.style.background = 'rgba(26,107,58,0.08)'; btn.style.borderColor = 'var(--green)'; btn.style.color = 'var(--green)'; btn.disabled = false; btn.style.opacity = '1'; }
   } catch(e) {
     if (txt) txt.textContent = lang==='es' ? 'Error' : 'Error';
     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }

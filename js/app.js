@@ -884,6 +884,7 @@ function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[me
 
 function resetApp(){
   uploadedFiles=[];analysisResults=[];coherenceResult=null;_cachedSummary=null;
+  lastFinalErrors=0;lastFinalWarnings=0;_analysisInProgress=false;
   var _twr = document.getElementById('techProgressWrap'); if(_twr) _twr.style.display='none';
   var _alr = document.getElementById('activityLog'); if(_alr) _alr.innerHTML='';
   var _wdl = document.getElementById('wsDocList'); if(_wdl) _wdl.innerHTML='';
@@ -1394,9 +1395,9 @@ async function retryDocument(filename) {
     coherenceResult = await analyzeCoherence(cleanDocs);
     _cachedSummary = coherenceResult && coherenceResult.summary ? coherenceResult.summary : null;
 
-    // Re-render results
+    // Re-render results (IIFE inside renderResults handles doc stack)
     renderResults();
-    if (typeof renderDocumentStack === 'function') renderDocumentStack(analysisResults, coherenceResult);
+    if (btn) { btn.disabled = false; btn.textContent = lang==='es' ? '✓ Reextraído' : '✓ Re-extracted'; btn.style.background = 'var(--mint)'; btn.style.color = 'var(--navy)'; }
 
   } catch(e) {
     console.error('Retry failed:', e.message);

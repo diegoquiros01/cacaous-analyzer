@@ -63,33 +63,41 @@ function updateUserBadge(user){
   });
 }
 
+var _hadResultsBeforeReports = false;
 function toggleMyReports() {
   const sec = document.getElementById('historySection');
   if (!sec) return;
   const isVisible = sec.style.display !== 'none' && sec.style.display !== '';
-  const hero = document.querySelector('.hero');
   const upload = document.getElementById('uploadSection');
   const stepper = document.getElementById('upStepper');
   const footer = document.querySelector('footer');
   const results = document.getElementById('results');
   const loading = document.getElementById('loading');
+  const techProgress = document.getElementById('techProgressWrap');
   if (isVisible) {
-    // Hide reports, show main page
+    // Hide reports, restore previous view
     sec.style.display = 'none';
-    if (hero) hero.style.display = '';
-    if (upload) upload.style.display = '';
     if (stepper) stepper.style.display = '';
     if (footer) footer.style.display = '';
+    if (_hadResultsBeforeReports && results) {
+      // Restore results view
+      results.classList.add('show');
+    } else {
+      // Restore upload view
+      if (upload) upload.style.display = '';
+    }
   } else {
+    // Remember if results were showing
+    _hadResultsBeforeReports = results && results.classList.contains('show');
     // Show reports, hide everything else
-    if (hero) hero.style.display = 'none';
     if (upload) upload.style.display = 'none';
     if (stepper) stepper.style.display = 'none';
     if (footer) footer.style.display = 'none';
     if (results) results.classList.remove('show');
-    if (loading) loading.classList.remove('show');
-    loadHistory();
+    if (loading) { loading.classList.remove('show'); loading.style.display = 'none'; }
+    if (techProgress) techProgress.style.display = 'none';
     sec.style.display = 'block';
+    loadHistory();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
