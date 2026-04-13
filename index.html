@@ -8,7 +8,6 @@
 <title>DocsValidate — Export Document Validator</title>
 
 <!-- DNS prefetch for all external origins — reduces connection latency -->
-<link rel="dns-prefetch" href="https://clerk.docsvalidate.com">
 <link rel="dns-prefetch" href="https://fonts.googleapis.com">
 <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
@@ -16,11 +15,11 @@
 <!-- Fonts: non-blocking load — Playfair added (used in hero h1 = LCP element) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap"></noscript>
 
 <!-- Hero image preload — browser fetches LCP image immediately, not after CSS parse -->
-<link rel="preload" as="image" href="/hero-2.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="hero-1.jpg" fetchpriority="high">
 
 <!-- pdf.js, xlsx, mammoth loaded on demand via loadHeavyLibs() — NOT at page open -->
 
@@ -47,46 +46,85 @@
   --text-light: #7a8499;
   --border: #d0d6e2;
   --border-light: #e8edf5;
+  /* New design aliases */
+  --navy: #0d1b2a;
+  --ink: #1c2230;
+  --mid: #3a4660;
+  --muted: #6b7a99;
+  --steel: #4a6fa5;
+  --sky: #7da4d4;
+  --mint: #3ecfaa;
+  --mint-dark: #28a989;
+  --border-lt: #e8edf5;
+  --text-lt: #7a8499;
+  --shadow: 0 4px 24px rgba(13,27,42,.10);
+  --shadow-lg: 0 16px 48px rgba(13,27,42,.18);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--text); font-weight: 300; }
 
-/* ══════════════════════════════════════
-   HEADER — exact DocsValidate style
-══════════════════════════════════════ */
-.header {
-  background: var(--white);
-  border-bottom: 1px solid var(--border-light);
-  position: sticky; top: 0; z-index: 200;
+/* ── UTILITIES ── */
+.container { max-width: 1080px; margin: 0 auto; padding: 0 5%; }
+.label {
+  font-family: 'Raleway', sans-serif;
+  font-size: .7rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--steel);
+  margin-bottom: 14px; display: block;
 }
-.header-top {
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: 7px;
+  font-family: 'Raleway', sans-serif; font-size: .78rem;
+  font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; transition: all .22s; text-decoration: none; border: none;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--navy); color: #fff; box-shadow: 0 4px 14px rgba(13,27,42,.22); }
+.btn-primary:hover { background: var(--steel); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(74,111,165,.32); }
+.btn-ghost { background: transparent; color: var(--navy); border: 1.5px solid var(--border); }
+.btn-ghost:hover { border-color: var(--steel); color: var(--steel); }
+.btn-mint { background: var(--mint); color: var(--navy); box-shadow: 0 4px 14px rgba(62,207,170,.28); }
+.btn-mint:hover { background: var(--mint-dark); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(62,207,170,.38); }
+.btn-lg { padding: 15px 32px; font-size: .82rem; border-radius: 8px; }
+.btn-xl { padding: 17px 38px; font-size: .88rem; border-radius: 9px; }
+
+/* ── NAV ── */
+nav#navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 68px; padding: 0 5%;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 3rem; height: 68px;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-lt);
+  transition: box-shadow .3s;
 }
-.logo {
-  display: flex; align-items: center; gap: 1rem;
+nav#navbar.scrolled { box-shadow: 0 2px 20px rgba(13,27,42,.08); }
+
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-brand img { height: 32px; }
+.nav-brand-name {
+  font-family: 'Raleway', sans-serif; font-weight: 700;
+  font-size: .88rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--navy);
 }
-.logo-img {
-  height: 36px;
-  width: auto;
-  display: block;
+.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.nav-links a {
+  font-family: 'Raleway', sans-serif; font-size: .65rem;
+  font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; transition: color .2s;
 }
-.logo-tagline {
-  font-size: 0.52rem; letter-spacing: 0.3em;
-  text-transform: uppercase; color: var(--text-light);
-  margin-top: 0.1rem;
+.nav-links a:hover { color: var(--navy); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.btn-signin {
+  font-family: 'Raleway', sans-serif; font-size: .65rem;
+  font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); cursor: pointer; background: none; border: none;
+  transition: color .2s; padding: 0;
 }
-.header-right { display: flex; align-items: center; gap: 2rem; }
-.nav { display: flex; gap: 2rem; list-style: none; }
-.nav a {
-  font-size: 0.65rem; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--text-mid);
-  text-decoration: none; font-weight: 400;
-  transition: color 0.2s;
-}
-.nav a:hover { color: var(--brown); }
+.btn-signin:hover { color: var(--navy); }
 .lang-switch { display: flex; align-items: center; gap: 0.5rem; }
 .lang-btn {
   background: none; border: none;
@@ -99,2069 +137,778 @@ body { font-family: 'Lato', sans-serif; background: var(--white); color: var(--t
 .lang-btn.active { color: var(--brown); font-weight: 700; border-bottom: 1.5px solid var(--tan); }
 .lang-sep { color: var(--border); font-size: 0.8rem; }
 
-/* ══════════════════════════════════════
-   HERO — DocsValidate banner style
-══════════════════════════════════════ */
+/* ── HERO ── */
 .hero {
-  position: relative; min-height: 440px;
+  min-height: 92vh;
   display: flex; align-items: center; justify-content: center;
-  text-align: center; overflow: hidden;
+  position: relative; overflow: hidden;
+  padding-top: 68px; text-align: center;
 }
-.hero-img {
+.hero-bg {
   position: absolute; inset: 0;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
   background:
-    linear-gradient(to bottom, rgba(5,8,18,0.65) 0%, rgba(5,8,18,0.55) 60%, rgba(5,8,18,0.40) 100%),
-    url('/hero-1.jpg')
-    center/cover no-repeat;
+    linear-gradient(
+      to bottom,
+      rgba(13,27,42,0.75) 0%,
+      rgba(13,27,42,0.68) 30%,
+      rgba(13,27,42,0.80) 60%,
+      rgba(13,27,42,0.88) 85%,
+      rgba(13,27,42,0.95) 100%
+    ),
+    url('hero-1.jpg') center/cover no-repeat;
 }
-.hero-content { position: relative; z-index: 1; color: var(--white); max-width: 860px; padding: 4rem 2rem; }
+.hero-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity: .4;
+}
+.hero-inner {
+  position: relative; z-index: 3;
+  text-align: center; padding: 80px 5% 80px;
+  max-width: 900px; margin: 0 auto;
+}
 .hero-eyebrow {
-  font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase;
-  color: #a8c8f0; margin-bottom: 1.4rem;
-  display: flex; align-items: center; justify-content: center; gap: 1.2rem;
-  font-weight: 600;
-  /* pill backdrop for small text */
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: inline-flex; padding: 0.4rem 1.2rem; border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.20);
+  backdrop-filter: blur(12px);
+  border-radius: 100px; padding: 6px 18px;
+  font-family: 'Raleway', sans-serif; font-size: .68rem;
+  font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: #a8c8f0; margin-bottom: 32px;
+  animation: fadeUp .6s ease both;
 }
-.hero-eyebrow::before, .hero-eyebrow::after { display: none; }
+.hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--mint); display: inline-block; }
 .hero h1 {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
-  font-weight: 500; letter-spacing: 0.02em; line-height: 1.15;
-  margin-bottom: 1.4rem;
-  text-shadow: 0 2px 24px rgba(0,0,0,1), 0 1px 4px rgba(0,0,0,0.9);
-  color: #ffffff;
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  line-height: 1.1; color: #ffffff;
+  margin-bottom: 24px;
+  animation: fadeUp .7s ease .1s both;
+  text-shadow: 0 2px 32px rgba(0,0,0,.3);
 }
-.hero h1 em { font-style: italic; font-weight: 400; color: #a8c8f0; }
+.hero h1 em { font-style: italic; color: #a8c8f0; }
 .hero-sub {
-  font-size: 0.92rem; letter-spacing: 0.03em;
-  color: rgba(255,255,255,0.96); line-height: 1.75;
-  margin-bottom: 0;
-  /* frosted pill around subtitle */
-  background: rgba(0,0,0,0.40);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 1rem 1.6rem; border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.12);
-  max-width: 620px; margin-left: auto; margin-right: auto;
-  font-weight: 400;
+  display: inline-block;
+  background: rgba(255,255,255,.12); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 100px; padding: 10px 28px;
+  font-family: 'Lato', sans-serif; font-size: .96rem; font-weight: 300;
+  color: rgba(255,255,255,.95); margin-bottom: 44px;
+  animation: fadeUp .7s ease .2s both;
 }
-.hero-bullets {
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1rem;
-  margin-top: 1.4rem;
-}
-.hero-bullets span {
-  font-size: 0.72rem; color: #ffffff; letter-spacing: 0.06em; font-weight: 500;
-  background: rgba(0,0,0,0.35); backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  padding: 0.3rem 0.8rem; border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-.hero-quote-unused {
-  margin-top: 1.5rem;
-  font-family: 'Playfair Display', serif;
-  font-style: italic; font-size: 1rem;
-  color: rgba(255,255,255,0.75);
-}
-
-/* ══════════════════════════════════════
-   PROGRESS STEPS — visual guide
-══════════════════════════════════════ */
-.progress-bar {
-  background: var(--brown-dark);
-  padding: 0;
-  display: flex;
-  position: sticky; top: 68px; z-index: 100;
-}
-.progress-step {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  gap: 0.7rem; padding: 0.85rem 1rem;
-  font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(255,255,255,0.35); font-weight: 400;
-  border-right: 1px solid rgba(255,255,255,0.08);
-  transition: all 0.3s; cursor: default;
-}
-.progress-step:last-child { border-right: none; }
-.progress-step.active { color: var(--tan-light); }
-.progress-step.done { color: rgba(255,255,255,0.55); }
-.step-num {
-  width: 20px; height: 20px; border-radius: 50%;
-  border: 1px solid currentColor;
+.hero-cta {
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.58rem; flex-shrink: 0;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 52px;
+  animation: fadeUp .7s ease .3s both;
+  position: relative; z-index: 3;
 }
-.progress-step.active .step-num { background: var(--tan); border-color: var(--tan); color: var(--brown-dark); }
-.progress-step.done .step-num { background: rgba(255,255,255,0.15); }
-
-/* ══════════════════════════════════════
-   MAIN CONTENT
-══════════════════════════════════════ */
-main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
-
-.section-label {
-  display: flex; align-items: center; gap: 1rem;
-  margin-bottom: 2rem;
-}
-.section-label-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.8rem; font-weight: 400; color: var(--tan);
-  line-height: 1; flex-shrink: 0;
-}
-.section-label-text h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem; font-weight: 500; color: var(--brown-dark);
-  margin-bottom: 0.2rem;
-}
-.section-label-text p {
-  font-size: 0.75rem; color: var(--text-light); letter-spacing: 0.04em;
-}
-.section-divider {
-  border: none; border-top: 1px solid var(--border-light);
-  margin: 2.5rem 0;
-}
-
-/* ══════════════════════════════════════
-   UPLOAD SECTION
-══════════════════════════════════════ */
-
-/* Stepper */
-.up-stepper {
-  display: flex; align-items: center;
-  background: var(--white); border-bottom: 1px solid var(--border-light);
-  padding: 0.875rem 2rem; width: 100%;
-  position: sticky; top: 68px; z-index: 90;
-  box-shadow: 0 1px 0 var(--border-light);
-}
-.up-st { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; color: var(--text-light); }
-.up-st-circ {
-  width: 24px; height: 24px; border-radius: 50%;
-  border: 1.5px solid var(--border); background: var(--white);
+.hero-trust {
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.6rem; font-weight: 700; flex-shrink: 0; color: var(--text-light);
+  gap: 0; flex-wrap: wrap;
+  animation: fadeUp .7s ease .4s both;
 }
-.up-st-lbl { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 400; }
-.up-st-line { flex: 1; height: 1px; background: var(--border-light); margin: 0 1rem; }
-/* done */
-.up-st.up-st-done { color: var(--green); }
-.up-st.up-st-done .up-st-circ { background: var(--green); border: none; color: var(--white); }
-.up-st.up-st-done .up-st-lbl { color: var(--green); font-weight: 700; }
-.up-st-line.up-st-line-done { background: linear-gradient(to right, var(--green), var(--border-light)); }
-/* active */
-.up-st.up-st-active { color: var(--brown-dark); }
-.up-st.up-st-active .up-st-circ { background: var(--white); border: 2px solid var(--brown-dark); color: var(--brown-dark); }
-.up-st.up-st-active .up-st-lbl { color: var(--brown-dark); font-weight: 700; }
+.trust-pill {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(13,27,42,0.55);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.22);
+  padding: 8px 18px; border-radius: 100px;
+  margin: 4px 5px;
+  font-family: 'Raleway', sans-serif; font-size: .68rem;
+  font-weight: 700; letter-spacing: .08em; color: rgba(255,255,255,0.95);
+}
+.trust-pill svg { color: var(--mint); flex-shrink: 0; }
+.hero-scroll {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+  z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  animation: fadeUp .7s ease .6s both;
+}
+.scroll-dot {
+  width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,.5);
+  animation: scrollBounce 1.8s ease-in-out infinite;
+}
+.scroll-dot:nth-child(2) { animation-delay: .2s; opacity: .7; }
+.scroll-dot:nth-child(3) { animation-delay: .4s; opacity: .4; }
 
-/* Panel */
-.up-panel {
-  background: var(--white); border: 1px solid var(--border-light);
-  border-radius: 4px; padding: 1.5rem; margin-bottom: 1rem;
-}
-.up-title {
-  font-family: 'Playfair Display', serif; font-size: 1.2rem;
-  font-weight: 500; color: var(--brown-dark); margin-bottom: 0.2rem;
-}
-.up-subtitle { font-size: 0.75rem; color: var(--text-light); margin-bottom: 1.25rem; }
-
-/* Drop zone */
-.upload-area {
-  border: 2px dashed var(--border); background: var(--offwhite);
-  padding: 2rem 1.5rem; text-align: center; cursor: pointer;
-  transition: all 0.2s; position: relative; border-radius: 3px;
-}
-.upload-area:hover, .upload-area.drag-over { border-color: var(--tan); background: #f0f4fa; }
-.upload-area input[type="file"] { display: none; }
-.upload-area h3 {
-  font-family: 'Playfair Display', serif; font-size: 1.1rem;
-  font-weight: 400; color: var(--brown-dark); margin-bottom: 0.25rem;
-}
-.upload-area p { font-size: 0.72rem; color: var(--text-light); line-height: 1.6; }
-.upload-cta {
-  display: inline-block; margin-top: 0.75rem; padding: 0.55rem 1.75rem;
-  background: var(--brown-dark); color: var(--white);
-  font-family: 'Lato', sans-serif; font-size: 0.65rem;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  border: none; cursor: pointer; transition: background 0.2s; border-radius: 2px;
-}
-.upload-cta:hover { background: var(--brown); }
-
-/* Doc types summary chips */
-.up-dt-summary {
-  margin-top: 0.875rem; padding: 0.65rem 0.75rem;
-  background: var(--offwhite); border: 1px solid var(--border-light); border-radius: 2px;
-}
-.up-dt-summary-label {
-  font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 700; margin-bottom: 0.5rem;
-}
-.up-dt-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.up-dt-chip {
-  padding: 0.28rem 0.6rem; background: var(--brown-dark); color: var(--white);
-  border-radius: 20px; font-size: 0.6rem; letter-spacing: 0.06em;
-  text-transform: uppercase; display: flex; align-items: center; gap: 3px;
-}
-.up-dt-chip .chip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--tan-light); }
-.up-dt-chip-edit {
-  padding: 0.28rem 0.6rem; background: transparent;
-  border: 1px dashed var(--border); color: var(--text-light);
-  border-radius: 20px; font-size: 0.6rem; letter-spacing: 0.06em;
-  text-transform: uppercase; cursor: pointer; transition: all 0.15s;
-}
-.up-dt-chip-edit:hover { border-color: var(--tan); color: var(--tan); }
-
-/* Hidden edit grid */
-.up-dt-edit {
-  display: none; flex-wrap: wrap; gap: 4px;
-  margin-top: 0.5rem; padding: 0.6rem 0.75rem;
-  background: var(--white); border: 1px solid var(--border-light); border-radius: 2px;
-}
-.up-dt-edit.open { display: flex; }
-.doc-type-btn {
-  padding: 0.35rem 0.55rem; border: 1px solid var(--border);
-  background: var(--offwhite); color: var(--text-mid);
-  font-family: 'Lato', sans-serif; font-size: 0.58rem;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  cursor: pointer; transition: all 0.15s; font-weight: 400;
-  display: flex; align-items: center; gap: 4px; border-radius: 2px;
-}
-.doc-type-btn .dt-dot {
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--border); flex-shrink: 0; transition: background 0.15s;
-}
-.doc-type-btn:hover { border-color: var(--tan); color: var(--brown); }
-.doc-type-btn.active { border-color: var(--brown-dark); background: var(--brown-dark); color: var(--white); }
-.doc-type-btn.active .dt-dot { background: var(--tan-light); }
-
-/* Files header + list */
-.up-files-hdr {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.4rem 0.75rem; margin-top: 0.5rem;
-  border-bottom: 1px solid var(--border-light);
-}
-.up-files-lbl { font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); font-weight: 700; }
-.up-files-cnt { font-size: 0.55rem; letter-spacing: 0.06em; color: var(--tan); font-weight: 700; }
-.files-list { margin-bottom: 0.3rem; }
-.file-item {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.45rem 0.75rem; background: var(--white);
-  border: 1px solid var(--border-light); border-radius: 2px;
-  margin-bottom: 4px; transition: background 0.15s;
-}
-.file-item:hover { background: var(--offwhite); }
-.file-item.fi-detected { background: #f0f7f2; border-color: #d4ede0; }
-.file-icon { font-size: 0.9rem; flex-shrink: 0; }
-.file-info { flex: 1; min-width: 0; }
-.file-name { font-size: 0.75rem; color: var(--brown-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.file-size { font-size: 0.52rem; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.1rem; }
-.file-badge { font-size: 0.55rem; font-weight: 700; color: var(--white); padding: 2px 6px; border-radius: 2px; border: none; flex-shrink: 0; }
-.badge-pdf { background: #7a5230; }
-.badge-excel { background: #217346; }
-.badge-word { background: #2b579a; }
-.badge-img { background: #5a6a8a; }
-.file-detected-type {
-  font-size: 0.65rem; color: var(--green); font-weight: 600; flex-shrink: 0;
-  display: flex; align-items: center; gap: 3px;
-}
-.file-del {
-  background: none; border: none; color: var(--text-light);
-  cursor: pointer; font-size: 0.85rem; margin-left: auto; transition: color 0.2s;
-}
-.file-del:hover { color: var(--red-light); }
-.files-count { display: none !important; }
-
-/* ANALYZE BUTTON */
-.analyze-wrap { margin-bottom: 3rem; }
-@keyframes btn-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(74,111,165,0.5); }
-  50%  { box-shadow: 0 0 0 10px rgba(74,111,165,0); }
-  100% { box-shadow: 0 0 0 0 rgba(74,111,165,0); }
-}
-@keyframes btn-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-@keyframes btn-bounce {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-3px); }
-}
-
-.analyze-btn {
-  width: 100%; padding: 1.2rem;
-  background: var(--brown-dark); border: none;
-  color: var(--white);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.75rem; letter-spacing: 0.28em; text-transform: uppercase; font-weight: 700;
-  cursor: pointer; transition: background 0.4s, transform 0.2s, box-shadow 0.3s;
-  display: flex; align-items: center; justify-content: center; gap: 1rem;
-}
-.analyze-btn.ready {
-  background: linear-gradient(135deg, var(--brown) 0%, var(--tan) 50%, var(--brown) 100%);
-  background-size: 200% auto;
-  animation: btn-pulse 2s ease-in-out infinite, btn-shimmer 3s linear infinite;
-  cursor: pointer;
-}
-.analyze-btn.ready:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(74,111,165,0.35);
-  animation: btn-shimmer 1.5s linear infinite;
-}
-.analyze-btn.ready .btn-icon {
-  animation: btn-bounce 1.5s ease-in-out infinite;
-}
-.analyze-btn:hover:not(:disabled) { background: var(--brown); }
-.analyze-btn:disabled { background: var(--cream2); color: var(--text-light); cursor: not-allowed; }
-.analyze-btn .btn-icon { font-size: 1rem; }
-
-/* ══════════════════════════════════════
-   LOADING
-══════════════════════════════════════ */
-.loading { display: none; padding: 2rem 2rem; max-width: 640px; margin: 0 auto; }
-.loading.show { display: block; }
-.loading-top { text-align: center; margin-bottom: 2.5rem; }
-.loading-icon { margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; }
-.cacao-loader {
-  position: relative; width: 80px; height: 80px;
-}
-.cacao-loader .ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: var(--tan);
-  animation: spin-ring 1.2s linear infinite;
-}
-.cacao-loader .ring2 {
-  inset: 8px;
-  border-top-color: var(--brown-mid);
-  animation: spin-ring 1.8s linear infinite reverse;
-}
-.cacao-loader .bean {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  animation: breathe 2s ease-in-out infinite;
-}
-@keyframes spin-ring { to { transform: rotate(360deg); } }
-@keyframes breathe { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(0.82);opacity:0.6} }
-.loading h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 400; color: var(--brown-dark); margin-bottom: 0.4rem; }
-.loading-sub { font-size: 0.72rem; color: var(--text-light); letter-spacing: 0.1em; }
-.progress-container { background: var(--offwhite); border: 1px solid var(--border-light); padding: 1.8rem 2rem; margin-bottom: 1.5rem; }
-.progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
-.progress-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-mid); font-weight: 700; }
-.progress-pct { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--brown-dark); line-height: 1; }
-.progress-pct span { font-size: 0.75rem; color: var(--text-light); font-family: 'Lato', sans-serif; }
-.progress-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 0.9rem; }
-.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--brown-mid), var(--tan)); transition: width 0.5s ease; width: 0%; }
-.progress-phase { font-size: 0.7rem; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; }
-.progress-phase::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--tan); flex-shrink: 0; animation: dot-pulse 1.2s ease-in-out infinite; }
-@keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-.doc-progress-list { display: flex; flex-direction: column; gap: 0.4rem; }
-.doc-progress-item { display: flex; align-items: center; gap: 1.2rem; padding: 0.6rem 1rem; background: var(--white); border: 1px solid var(--border-light); font-size: 0.73rem; color: var(--text-mid); transition: all 0.3s; }
-.doc-progress-item.done { background: rgba(61,90,62,0.05); border-color: rgba(61,90,62,0.2); }
-.doc-progress-item.active { background: rgba(74,111,165,0.08); border-color: var(--tan); }
-.doc-pi-icon { font-size: 1rem; flex-shrink: 0; width: 24px; text-align: center; }
-.doc-pi-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.doc-pi-status { font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; flex-shrink: 0; color: var(--text-light); }
-.doc-progress-item.done .doc-pi-status { color: var(--green); }
-.doc-progress-item.active .doc-pi-status { color: var(--tan); }
-
-/* ══════════════════════════════════════
-   RESULTS
-══════════════════════════════════════ */
-.results { display: none; }
-.results.show { display: block; }
-
-/* Verdict banner */
-.verdict {
-  padding: 2rem 2.5rem; margin-bottom: 2.5rem;
-  display: flex; align-items: center; gap: 2rem;
-  border-left: 6px solid; transition: all 0.3s;
-}
-.verdict.approved {
-  border-color: var(--green);
-  background: linear-gradient(135deg, #eaf5ea 0%, #f5fbf5 100%);
-  box-shadow: 0 2px 16px rgba(61,90,62,0.10);
-}
-.verdict.warning { border-color: var(--tan); background: #f0f4ff; }
-.verdict.rejected { border-color: var(--red); background: #fdf2f0; }
-.verdict-icon {
-  width: 72px; height: 72px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem; flex-shrink: 0; font-weight: 700;
-  transition: all 0.3s;
-}
-.verdict.approved .verdict-icon {
-  background: var(--green); color: var(--white);
-  box-shadow: 0 4px 16px rgba(61,90,62,0.25);
-  font-size: 2.2rem;
-}
-.verdict.warning .verdict-icon { background: var(--tan); color: var(--white); }
-.verdict.rejected .verdict-icon { background: var(--red); color: var(--white); }
-.verdict h3 {
-  font-family: 'Playfair Display', serif; font-weight: 500; margin-bottom: 0.4rem;
-}
-.verdict.approved h3 { color: var(--green); font-size: 2rem; letter-spacing: 0.01em; }
-.verdict.warning h3 { color: var(--brown-mid); font-size: 1.5rem; }
-.verdict.rejected h3 { color: var(--red); font-size: 1.5rem; }
-.verdict p { font-size: 0.82rem; color: var(--text-mid); line-height: 1.6; }
-.verdict.approved p { font-size: 0.88rem; color: var(--green); opacity: 0.85; }
-
-/* Stats row */
-.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border-light); border: 1px solid var(--border-light); margin-bottom: 3rem; }
-.stat {
-  background: var(--white); padding: 1.8rem 1rem; text-align: center;
-  position: relative;
-}
-.stat::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background: currentColor; transition: width 0.4s; }
-.stat:hover::after { width: 60%; }
-.stat-n {
-  font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 400; line-height: 1; margin-bottom: 0.4rem;
-}
-.stat-l { font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-light); }
-.stat-total { color: var(--tan); }
-.stat-ok { color: var(--green); }
-.stat-warn { color: var(--tan); }
-.stat-err { color: var(--red); }
-
-/* Section title with line */
-.result-section-title {
-  display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
-}
-.result-section-title h3 {
-  font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 500;
-  color: var(--brown-dark); white-space: nowrap;
-}
-.result-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
-.rst-badge {
-  font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.2rem 0.7rem; border: 1px solid; flex-shrink: 0;
-}
-.rst-badge.ok { border-color: var(--green); color: var(--green); background: #f2f8f2; }
-.rst-badge.warn { border-color: var(--tan); color: var(--brown-mid); }
-.rst-badge.err { border-color: var(--red); color: var(--red); background: #fdf2f0; }
-
-/* Coherence table */
-.coherence-box { background: var(--white); border: 1px solid var(--border-light); margin-bottom: 2.5rem; }
-.coherence-box-header {
-  padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-light);
-  background: var(--brown-dark); color: var(--white);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.coherence-box-header h4 {
-  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; letter-spacing: 0.05em;
-}
-.coherence-body { padding: 0; }
-
-.ctable { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
-.ctable th {
-  text-align: left; padding: 0.6rem 1rem;
-  background: var(--offwhite); border-bottom: 1px solid var(--border);
-  font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 400;
-}
-.ctable td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
-.ctable tr:last-child td { border-bottom: none; }
-.ctable tr.tr-ok td { background: rgba(61,90,62,0.03); }
-.ctable tr.tr-err td { background: rgba(122,46,34,0.04); }
-.ctable .td-field { font-weight: 700; color: var(--brown); font-size: 0.72rem; }
-.ctable .td-status { text-align: center; }
-.cstatus {
-  font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 0.2rem 0.65rem; border: 1px solid; display: inline-block;
-}
-.cstatus-ok { border-color: var(--green); color: var(--green); background: #f2f8f2; }
-.cstatus-err { border-color: var(--red); color: var(--red); background: #fdf2f0; }
-.cstatus-single { border-color: var(--border); color: var(--text-light); }
-.td-docs { font-size: 0.65rem; color: var(--text-light); }
-
-/* Inconsistency cards */
-.incons-wrap { padding: 1.5rem; border-top: 1px solid var(--border-light); }
-.incons-section-label {
-  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--red); margin-bottom: 1rem;
-  display: flex; align-items: center; gap: 0.8rem;
-}
-.incons-section-label::after { content: ''; flex: 1; height: 1px; background: rgba(122,46,34,0.2); }
-
-.icard { border: 1px solid; margin-bottom: 0.8rem; overflow: hidden; }
-.icard-err { border-color: rgba(176,64,48,0.3); }
-.icard-warn { border-color: rgba(74,111,165,0.4); }
-.icard-info { border-color: rgba(100,120,180,0.35); }
-.icard-ok   { border-color: rgba(61,90,62,0.35); }
-.icard-head {
-  padding: 0.8rem 1.2rem; display: flex; align-items: center; gap: 1rem;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-}
-.icard-err .icard-head { background: rgba(122,46,34,0.05); }
-.icard-warn .icard-head { background: rgba(74,111,165,0.07); }
-.icard-field { font-weight: 700; color: var(--brown-dark); font-size: 0.78rem; flex: 1; }
-.icard-info .icard-head { background: rgba(100,120,180,0.07); }
-.icard-ok   .icard-head { background: rgba(61,90,62,0.06); }
-.itag {
-  font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.2rem 0.65rem; border: 1px solid; flex-shrink: 0;
-}
-.itag-err { border-color: var(--red); color: var(--red); }
-.itag-warn { border-color: var(--tan); color: var(--brown-mid); }
-.itag-info { border-color: rgba(100,120,180,0.7); color: rgba(60,80,160,1); }
-.itag-ok   { border-color: var(--green); color: var(--green); background: rgba(61,90,62,0.07); }
-.icard-body { padding: 1rem 1.2rem; }
-.icard-desc { font-size: 0.78rem; color: var(--text-mid); line-height: 1.6; margin-bottom: 0.8rem; }
-.ivals { display: flex; flex-direction: column; gap: 0.3rem; }
-
-/* Per-document accordion */
-.doc-cards { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; }
-.dcard { border: 1px solid var(--border-light); overflow: hidden; }
-.dcard-head {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1.1rem 1.5rem; cursor: pointer;
-  background: var(--white); transition: background 0.15s; user-select: none;
-}
-.dcard-head:hover { background: var(--offwhite); }
-.dcard-stripe { width: 4px; height: 44px; flex-shrink: 0; border-radius: 2px; }
-.dcard-stripe.ok { background: var(--green); }
-.dcard-stripe.warn { background: var(--tan); }
-.dcard-stripe.err { background: var(--red); }
-.dcard-info { flex: 1; min-width: 0; }
-.dcard-title {
-  font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 500;
-  color: var(--brown-dark); margin-bottom: 0.15rem;
-  display: flex; align-items: center; gap: 0.6rem;
-}
-.dcard-file { font-size: 0.62rem; color: var(--text-light); letter-spacing: 0.05em; }
-.dcard-badge {
-  font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase;
-  padding: 0.22rem 0.8rem; border: 1px solid; flex-shrink: 0;
-}
-.dcard-badge.ok { border-color: var(--green); color: var(--green); }
-.dcard-badge.warn { border-color: var(--tan); color: var(--brown-mid); }
-.dcard-badge.err { border-color: var(--red); color: var(--red); }
-.dcard-chevron { color: var(--text-light); font-size: 0.7rem; transition: transform 0.2s; flex-shrink: 0; }
-.dcard.open .dcard-chevron { transform: rotate(180deg); }
-.dcard-body {
-  display: none; padding: 1.5rem;
-  background: var(--offwhite); border-top: 1px solid var(--border-light);
-}
-.dcard.open .dcard-body { display: block !important; }
-.dcard-fields-label {
-  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
-}
-.dcard-fields {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px,1fr));
-  gap: 0.5rem; margin-bottom: 1.2rem;
-}
-.dfield { padding: 0.75rem 0.9rem; background: var(--white); border: 1px solid var(--border-light); transition: all 0.2s; }
-.dfield.dfield-inconsistent {
-  background: rgba(176,64,48,0.05);
-  border-color: rgba(176,64,48,0.4);
-  border-left: 3px solid var(--red);
-}
-.dfield.dfield-warning {
-  background: rgba(74,111,165,0.06);
-  border-color: rgba(74,111,165,0.4);
-  border-left: 3px solid var(--tan);
-}
-.dfield-label { font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.3rem; }
-.dfield-label .dfield-flag {
-  display: inline-block; margin-left: 0.4rem;
-  font-size: 0.5rem; letter-spacing: 0.08em;
-  padding: 0.1rem 0.4rem; border-radius: 2px;
-  vertical-align: middle;
-}
-.dfield-inconsistent .dfield-label { color: var(--red); }
-.dfield-inconsistent .dfield-label .dfield-flag { background: var(--red); color: white; }
-.dfield-warning .dfield-label { color: var(--brown-mid); }
-.dfield-warning .dfield-label .dfield-flag { background: var(--tan); color: white; }
-.dfield-val { font-size: 0.76rem; color: var(--brown-dark); line-height: 1.4; word-break: break-word; }
-.dfield-inconsistent .dfield-val { color: var(--red); font-weight: 700; }
-.dfield-warning .dfield-val { color: var(--brown-mid); font-weight: 600; }
-.dfield-val.empty { color: var(--text-light); font-style: italic; }
-.dcard-comment {
-  background: var(--white); border-left: 3px solid var(--tan);
-  padding: 1rem 1.2rem; margin-top: 1rem;
-}
-.dcard-comment-label { font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tan); margin-bottom: 0.5rem; font-weight: 700; }
-.dcard-comment-text {
-  font-family: 'Playfair Display', serif; font-size: 0.95rem; font-style: italic;
-  color: var(--text-mid); line-height: 1.8;
-}
-
-/* Summary AI comment */
-.summary-comment {
-  background: var(--cream); border: 1px solid var(--border);
-  border-top: 3px solid var(--tan);
-  padding: 1.5rem 2rem; margin-top: 1.5rem;
-}
-.summary-comment-label { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--tan); margin-bottom: 0.6rem; font-weight: 700; }
-.summary-comment-text { font-family: 'Playfair Display', serif; font-size: 1rem; font-style: italic; color: var(--text-mid); line-height: 1.9; }
-
-/* Actions */
-.actions {
-  display: flex; gap: 1rem; align-items: center;
-  padding-top: 2.5rem; border-top: 1px solid var(--border-light); margin-top: 3rem;
-}
-.btn-dl {
-  padding: 0.85rem 2.2rem;
-  background: var(--brown-dark); border: none; color: var(--white);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;
-  cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 0.6rem;
-}
-.btn-dl:hover { background: var(--brown); }
-.btn-track {
-  padding: 0.85rem 1.8rem;
-  background: var(--brown-dark); border: 1px solid var(--brown-dark);
-  color: var(--white);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700;
-  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;
-}
-.btn-track:hover { background: var(--brown); border-color: var(--brown); }
-.btn-reset {
-  padding: 0.85rem 1.8rem;
-  background: var(--white); border: 1px solid var(--border);
-  color: var(--text-mid);
-  font-family: 'Lato', sans-serif;
-  font-size: 0.67rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 400;
-  cursor: pointer; transition: all 0.2s;
-}
-.btn-reset:hover { border-color: var(--brown); color: var(--brown); }
-
-/* ══════════════════════════════════════
-   TRACKING STATUS BANNER
-══════════════════════════════════════ */
-.tracking-status-bar {
-  display: flex; align-items: center; gap: 1.2rem;
-  padding: 1.2rem 1.5rem; border: 1px solid var(--border-light);
-  background: var(--white); border-left: 4px solid var(--border);
-  transition: all 0.3s;
-}
-.tracking-status-bar.pending  { border-left-color: var(--border); }
-.tracking-status-bar.loading  { border-left-color: var(--tan); background: #f0f4ff; }
-.tracking-status-bar.verified { border-left-color: var(--green); background: #f0f8f4; }
-.tracking-status-bar.mismatch { border-left-color: var(--tan); background: #f0f4ff; }
-.tracking-status-bar.error    { border-left-color: var(--red); background: #fdf2f0; }
-
-.tsb-icon { font-size: 1.5rem; flex-shrink: 0; }
-.tsb-content { flex: 1; }
-.tsb-title {
-  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 500;
-  color: var(--brown-dark); margin-bottom: 0.2rem;
-}
-.tsb-detail { font-size: 0.75rem; color: var(--text-light); line-height: 1.5; }
-.tsb-badge {
-  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
-  padding: 0.3rem 0.9rem; border: 1px solid; flex-shrink: 0; font-weight: 700;
-}
-.tsb-badge.pending  { border-color: var(--border); color: var(--text-light); }
-.tsb-badge.loading  { border-color: var(--tan); color: var(--brown-mid); }
-.tsb-badge.verified { border-color: var(--green); color: var(--green); }
-.tsb-badge.mismatch { border-color: var(--tan); color: var(--brown-mid); }
-.tsb-badge.error    { border-color: var(--red); color: var(--red); }
-.tsb-spinner {
-  display: inline-block; width: 10px; height: 10px;
-  border: 2px solid var(--border); border-top-color: var(--tan);
-  border-radius: 50%; animation: spin 0.8s linear infinite;
-  margin-right: 0.4rem; vertical-align: middle;
-}
-
-/* ══════════════════════════════════════
-   TRACKING
-══════════════════════════════════════ */
-.tracking-box {
-  background: var(--white); border: 1px solid var(--border-light);
-  margin-bottom: 0.8rem; overflow: hidden;
-}
-.tracking-box-header {
-  background: var(--brown-dark); color: var(--white);
-  padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem;
-}
-.tracking-box-header h4 {
-  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400;
-  flex: 1; letter-spacing: 0.03em;
-}
-.tracking-bl {
-  font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--tan-light); background: rgba(255,255,255,0.1);
-  padding: 0.2rem 0.7rem; border: 1px solid rgba(255,255,255,0.2);
-}
-.tracking-body { padding: 1.5rem; }
-.tracking-loading {
-  display: flex; align-items: center; gap: 0.8rem;
-  font-size: 0.75rem; color: var(--text-light); padding: 0.5rem 0;
-}
-.tracking-spinner {
-  width: 16px; height: 16px; border: 2px solid var(--border);
-  border-top-color: var(--tan); border-radius: 50%;
-  animation: spin 0.8s linear infinite; flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.tracking-error {
-  font-size: 0.75rem; color: var(--red); padding: 0.5rem 0.8rem;
-  background: #fdf2f0; border-left: 3px solid var(--red);
-}
-.tracking-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
-  gap: 0.5rem; margin-bottom: 1.2rem;
-}
-.tracking-field {
-  padding: 0.8rem 1rem; background: var(--offwhite); border: 1px solid var(--border-light);
-}
-.tracking-field-label {
-  font-size: 0.54rem; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--text-light); margin-bottom: 0.3rem;
-}
-.tracking-field-val {
-  font-size: 0.78rem; color: var(--brown-dark); font-weight: 400; word-break: break-word;
-}
-.tracking-field-val.highlight { color: var(--green); font-weight: 700; }
-.tracking-field-val.warn { color: var(--tan); font-weight: 700; }
-
-.tracking-events { margin-top: 1rem; }
-.tracking-events-label {
-  font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--tan); margin-bottom: 0.8rem; font-weight: 700;
-}
-.event-timeline { display: flex; flex-direction: column; gap: 0; }
-.event-item {
-  display: flex; gap: 1rem; padding: 0.6rem 0;
-  border-bottom: 1px solid var(--border-light); font-size: 0.74rem;
-  color: var(--text-mid);
-}
-.event-item:last-child { border-bottom: none; }
-.event-dot {
-  width: 8px; height: 8px; border-radius: 50%; background: var(--border);
-  margin-top: 0.35rem; flex-shrink: 0;
-}
-.event-item.latest .event-dot { background: var(--green); }
-.event-date { color: var(--text-light); font-size: 0.65rem; min-width: 90px; flex-shrink: 0; }
-.event-desc { flex: 1; }
-.event-location { color: var(--text-light); font-size: 0.65rem; }
-
-/* Tracking overall verdict in header */
-.tracking-overall {
-  font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 0.25rem 0.8rem; border: 1px solid rgba(255,255,255,0.3);
-  font-weight: 700; margin-left: auto; flex-shrink: 0;
-}
-.tracking-overall.ok  { color: #8fda90; border-color: #8fda90; }
-.tracking-overall.warn{ color: var(--tan-light); border-color: var(--tan-light); }
-.tracking-overall.err { color: #f09080; border-color: #f09080; }
-
-/* Validation checklist */
-.tracking-validation-title {
-  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--tan); font-weight: 700; margin-bottom: 0.8rem;
-}
-.tracking-data-title {
-  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 700; margin: 1.3rem 0 0.8rem;
-}
-.tracking-checklist { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.5rem; }
-.chk-item {
-  display: flex; align-items: flex-start; gap: 0.8rem;
-  padding: 0.65rem 1rem; border-left: 3px solid;
-}
-.chk-item.chk-ok   { background: rgba(61,90,62,0.05); border-color: var(--green); }
-.chk-item.chk-warn { background: rgba(74,111,165,0.07); border-color: var(--tan); }
-.chk-item.chk-err  { background: rgba(122,46,34,0.06); border-color: var(--red); }
-.chk-icon {
-  font-size: 0.8rem; font-weight: 700; flex-shrink: 0; margin-top: 0.1rem; width: 16px;
-}
-.chk-item.chk-ok   .chk-icon { color: var(--green); }
-.chk-item.chk-warn .chk-icon { color: var(--tan); }
-.chk-item.chk-err  .chk-icon { color: var(--red); }
-.chk-content { flex: 1; min-width: 0; }
-.chk-label { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.2rem; }
-.chk-val   { font-size: 0.77rem; color: var(--brown-dark); font-weight: 400; }
-.chk-diff  { margin-top: 0.4rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.68rem; }
-.chk-diff-label { color: var(--text-light); letter-spacing: 0.06em; }
-.chk-diff-val { color: var(--brown-dark); }
-.chk-diff-val.err { color: var(--red); font-weight: 700; }
-
-.tracking-match-banner {
-  display: flex; align-items: center; gap: 0.8rem;
-  padding: 0.7rem 1rem; margin-bottom: 1rem;
-  font-size: 0.75rem; font-weight: 700; border-left: 3px solid;
-}
-.tracking-match-banner.ok { background: rgba(61,90,62,0.06); border-color: var(--green); color: var(--green); }
-.tracking-match-banner.warn { background: rgba(74,111,165,0.07); border-color: var(--tan); color: var(--brown-mid); }
-.tracking-match-banner.err { background: rgba(122,46,34,0.06); border-color: var(--red); color: var(--red); }
-
-/* Critical inconsistencies banner */
-.critical-banner {
-  background: rgba(176,64,48,0.07);
-  border: 1px solid rgba(176,64,48,0.3);
-  border-left: 4px solid var(--red);
-  padding: 1.2rem 1.5rem;
-  margin-bottom: 1.2rem;
-}
-.critical-banner-title {
-  font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--red); font-weight: 700; margin-bottom: 0.8rem;
-  display: flex; align-items: center; gap: 0.6rem;
-}
-.critical-banner-title::before { content: '✗'; font-size: 0.8rem; }
-.critical-item {
-  display: flex; align-items: baseline; gap: 0.8rem;
-  padding: 0.45rem 0; border-bottom: 1px solid rgba(176,64,48,0.1);
-  font-size: 0.76rem;
-}
-.critical-item:last-child { border-bottom: none; }
-.critical-field {
-  font-weight: 700; color: var(--red); min-width: 140px; flex-shrink: 0;
-  font-size: 0.7rem; letter-spacing: 0.05em;
-}
-.critical-msg { color: var(--text-mid); line-height: 1.5; }
-.critical-item-body { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
-.critical-details { font-size: 0.72rem; color: var(--text-light); }
-.critical-doc { font-weight: 600; color: var(--text-mid); }
-.crit-detail-row { margin-bottom: 0.3rem; font-size: 0.72rem; line-height: 1.6; }
-.crit-same-code { color: var(--text-mid); font-family: monospace; font-size: 0.75rem; }
-mark.crit-diff-code {
-  background: rgba(176,64,48,0.18); color: var(--red);
-  font-weight: 700; font-family: monospace; font-size: 0.78rem;
-  padding: 0.1rem 0.35rem; border-radius: 3px;
-  border: 1px solid rgba(176,64,48,0.35);
-  text-decoration: underline; text-decoration-style: wavy;
-  text-decoration-color: var(--red);
-}
-code.critical-code { background: rgba(176,64,48,0.1); color: var(--red); padding: 0.1rem 0.3rem; border-radius: 2px; font-size: 0.75rem; }
-
-/* Diff highlighting in table */
-.diff-block { display: flex; flex-direction: column; gap: 0.3rem; }
-.diff-row { font-size: 0.74rem; line-height: 1.5; }
-.diff-doc {
-  font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--text-light); margin-right: 0.4rem;
-}
-.diff-val { color: var(--brown-dark); }
-mark.diff-mark {
-  background: rgba(176,64,48,0.15);
-  color: var(--red);
-  font-weight: 700;
-  padding: 0.05rem 0.25rem;
-  border-radius: 2px;
-  text-decoration: underline;
-  text-decoration-color: var(--red);
-  text-decoration-style: wavy;
-}
-
-/* Multi-doc notice */
-.multidoc-notice {
-  background: rgba(74,111,165,0.06); border: 1px solid var(--tan-light);
-  border-left: 3px solid var(--tan);
-  padding: 0.9rem 1.2rem; margin-bottom: 1.5rem;
-  font-size: 0.76rem; color: var(--text-mid); line-height: 1.7;
-}
-.multidoc-notice strong { color: var(--brown2); font-weight: 600; }
-.multidoc-notice .mdoc-row {
-  display: flex; gap: 1rem; align-items: baseline;
-  padding: 0.3rem 0; border-bottom: 1px solid var(--border-light);
-  font-size: 0.72rem;
-}
-.multidoc-notice .mdoc-row:last-child { border-bottom: none; }
-.multidoc-notice .mdoc-type { color: var(--brown); font-weight: 600; min-width: 160px; }
-.multidoc-notice .mdoc-sum { color: var(--green); font-weight: 700; }
-
-/* ══════════════════════════════════════
-   ACTION REQUIRED PANEL
-══════════════════════════════════════ */
-.action-required-panel {
-  border: 1px solid rgba(176,64,48,0.35);
-  border-left: 5px solid var(--red);
-  background: rgba(176,64,48,0.04);
-  margin-bottom: 2rem;
+/* ── DEMO CARD ── */
+.demo-section {
+  background: linear-gradient(180deg, #0d1b2a 0%, #f0f2f5 100%);
+  padding: 0 5% 80px;
+}
+.demo-wrapper {
+  max-width: 960px; margin: 0 auto;
+  animation: fadeUp .8s ease .1s both;
+}
+.demo-card {
+  background: var(--white); border-radius: 18px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(74,111,165,.07);
   overflow: hidden;
 }
-.ar-header {
-  display: flex; align-items: center; gap: 0.9rem;
-  background: rgba(176,64,48,0.09);
-  padding: 0.85rem 1.4rem;
-  border-bottom: 1px solid rgba(176,64,48,0.15);
-  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--red);
+.demo-topbar {
+  background: var(--navy); padding: 13px 18px;
+  display: flex; align-items: center; gap: 7px;
 }
-.ar-header-icon { font-size: 1rem; }
-.ar-body { padding: 1rem 1.4rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.ar-item {
-  display: flex; align-items: flex-start; gap: 0.9rem;
-  padding: 0.7rem 1rem; background: var(--white);
-  border: 1px solid rgba(176,64,48,0.15);
-  border-left: 3px solid var(--red);
-  font-size: 0.78rem; line-height: 1.55; color: var(--text-mid);
+.dot { width: 11px; height: 11px; border-radius: 50%; }
+.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.demo-topbar-title {
+  flex: 1; text-align: center;
+  font-family: 'Raleway', sans-serif; font-size: .64rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.35);
 }
-.ar-item-warn {
-  border-left-color: var(--tan);
-  border-color: rgba(74,111,165,0.3);
+.demo-body {
+  padding: 28px 32px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
 }
-.ar-doc {
-  font-size: 0.57rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--white); background: var(--red);
-  padding: 0.15rem 0.5rem; border-radius: 2px;
-  flex-shrink: 0; margin-top: 0.18rem; white-space: nowrap;
-  max-width: 160px; overflow: hidden; text-overflow: ellipsis;
+.demo-col-title {
+  font-family: 'Raleway', sans-serif; font-size: .66rem;
+  font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-lt); margin-bottom: 12px;
 }
-.ar-doc-warn { background: var(--tan); }
-.ar-field { font-weight: 700; color: var(--brown-dark); margin-right: 0.3rem; }
-.ar-msg { color: var(--text-mid); }
-
-/* Partial tip */
-.partial-tip {
-  display: flex; align-items: flex-start; gap: 0.8rem;
-  background: #f0f4ff; border: 1px solid var(--tan-light);
-  border-left: 3px solid var(--tan);
-  padding: 0.9rem 1.2rem; margin-top: 1rem; margin-bottom: 1rem;
-  font-size: 0.76rem; color: var(--text-mid); line-height: 1.6;
-}
-.partial-tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
-
-/* ══════════════════════════════════════
-   FOOTER
-══════════════════════════════════════ */
-footer {
-  background: var(--brown-dark); color: rgba(255,255,255,0.6);
-  padding: 2.5rem 3rem; display: flex; align-items: center; justify-content: space-between;
-}
-.footer-logo {
-  font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700;
-  letter-spacing: 0.12em; color: var(--white); text-transform: uppercase;
-}
-.footer-copy { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; }
-.footer-links { display: flex; gap: 1.5rem; list-style: none; }
-.footer-links a { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
-.footer-links a:hover { color: var(--tan-light); }
-
-/* ══════════════════════════════════════
-   STEP 3 — NEW RESULTS DESIGN
-══════════════════════════════════════ */
-
-/* Status pill */
-.status-pill {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 5px 14px; border-radius: 20px;
-  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em;
-  margin-bottom: 1.2rem; border: 1px solid;
-}
-.status-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-.status-pill.spl-ok   { color: var(--green);    border-color: rgba(26,107,58,0.3);  background: rgba(26,107,58,0.06); }
-.status-pill.spl-warn { color: var(--tan);      border-color: rgba(74,111,165,0.3); background: rgba(74,111,165,0.06); }
-.status-pill.spl-err  { color: var(--red-light);border-color: rgba(176,64,48,0.3);  background: rgba(176,64,48,0.06); }
-
-/* Results header — Commercial / Transport */
-.rh-wrap {
-  display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
-  border: 1px solid var(--border-light); border-radius: 2px;
-  background: var(--white); margin-bottom: 0.8rem; overflow: hidden;
-}
-.rh-col { padding: 1.1rem 1.4rem; }
-.rh-col-label {
-  font-size: 0.52rem; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--text-light); margin-bottom: 0.7rem;
-}
-.rh-divider { width: 1px; background: var(--border-light); }
-.rh-values { display: flex; gap: 1.8rem; margin-bottom: 0.5rem; }
-.rh-val-group { display: flex; flex-direction: column; gap: 2px; }
-.rh-val-label {
-  font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-light);
-}
-.rh-val-big {
-  font-family: 'Playfair Display', serif; font-size: 1.25rem;
-  font-weight: 500; color: var(--brown-dark);
-}
-.rh-val-med {
-  font-family: 'Playfair Display', serif; font-size: 0.95rem;
-  font-weight: 400; color: var(--text-mid);
-}
-.rh-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-.rh-chip {
-  font-size: 0.58rem; padding: 3px 10px; border-radius: 20px;
-  background: var(--cream); color: var(--text-mid);
-  letter-spacing: 0.04em;
-}
-.rh-bl-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
-.rh-bl-prefix {
-  font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 700;
-}
-.rh-bl-number {
-  font-family: 'Playfair Display', serif; font-size: 1.15rem;
-  font-weight: 500; color: var(--brown-dark); letter-spacing: 0.03em;
-}
-.rh-meta { display: flex; flex-direction: column; gap: 0.25rem; }
-.rh-meta-row { font-size: 0.72rem; color: var(--text-light); line-height: 1.4; }
-.rh-meta-row strong { color: var(--text-mid); font-weight: 600; }
-
-/* Verdict row */
-.rv-wrap {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.65rem 1.2rem; border: 1px solid var(--border-light);
-  border-radius: 2px; background: var(--white); margin-bottom: 0.8rem;
-}
-.rv-left { display: flex; align-items: center; gap: 0.5rem; }
-.rv-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
-.rv-dot.rvd-ok   { background: var(--green); }
-.rv-dot.rvd-warn { background: var(--tan); }
-.rv-dot.rvd-err  { background: var(--red); }
-.rv-text { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em; }
-.rv-wrap.rv-ok   .rv-text { color: var(--green); }
-.rv-wrap.rv-warn .rv-text { color: var(--brown-mid); }
-.rv-wrap.rv-err  .rv-text { color: var(--red); }
-.rv-right {
-  font-size: 0.65rem; color: var(--text-light); letter-spacing: 0.06em;
-  display: flex; gap: 1rem;
-}
-.rv-stat { display: flex; align-items: center; gap: 0.3rem; }
-.rv-stat-n { font-weight: 700; }
-.rv-stat.rvs-err .rv-stat-n { color: var(--red); }
-.rv-stat.rvs-ok .rv-stat-n { color: var(--green); }
-
-@media(max-width:768px){
-  .rh-wrap { grid-template-columns: 1fr; }
-  .rh-divider { width: auto; height: 1px; }
-}
-
-/* Summary card */
-.r-summary-card {
-  background: var(--white);
-  border: 1px solid var(--border-light);
-  border-left: 3px solid var(--border);
-  border-radius: 4px; padding: 1.2rem 1.4rem;
-  margin-bottom: 1.2rem;
-}
-.r-summary-card.sc-ok   { border-left-color: var(--green); }
-.r-summary-card.sc-warn { border-left-color: var(--tan); }
-.r-summary-card.sc-err  { border-left-color: var(--red); }
-.r-summary-text {
-  font-family: 'Lato', sans-serif; font-style: normal;
-  font-size: 0.85rem; color: var(--text-mid); line-height: 1.75; font-weight: 300;
-}
-
-/* Stats row */
-.r-stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.2rem; }
-.r-stat-card { background: var(--offwhite); border-radius: 4px; padding: 0.9rem 0.75rem; text-align: center; border: 1px solid var(--border-light); position: relative; border-top: 3px solid var(--border-light); }
-.r-stat-card:nth-child(1) { border-top-color: var(--tan); }
-.r-stat-card:nth-child(2) { border-top-color: var(--green); }
-.r-stat-card:nth-child(3) { border-top-color: var(--tan); }
-.r-stat-card:nth-child(4) { border-top-color: var(--red); }
-.r-stat-n { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 400; line-height: 1; margin-bottom: 3px; }
-.r-stat-l { font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); }
-.r-stat-n.rn-tot  { color: var(--tan); }
-.r-stat-n.rn-ok   { color: var(--green); }
-.r-stat-n.rn-warn { color: var(--tan); }
-.r-stat-n.rn-err  { color: var(--red); }
-
-/* Section micro-label */
-.r-sec-label {
-  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--text-light);
-  margin: 1.4rem 0 0.55rem;
-}
-
-/* Alert list */
-.r-alert-list { display: flex; flex-direction: column; gap: 5px; }
-.r-alert {
-  border: 1px solid var(--border-light);
-  border-left: 3px solid; border-radius: 4px; overflow: hidden;
-  cursor: pointer; transition: background 0.15s;
-}
-.r-alert.ra-err  { border-left-color: var(--red);  background: rgba(176,64,48,0.02); }
-.r-alert.ra-warn { border-left-color: var(--tan);  background: rgba(74,111,165,0.02); }
-.r-alert:hover   { background: var(--offwhite); }
-
-.r-alert-head {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 0.72rem 1rem;
-}
-.r-alert-main  { flex: 1; min-width: 0; }
-.r-alert-field { font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-.ra-err  .r-alert-field { color: var(--red); }
-.ra-warn .r-alert-field { color: var(--brown-mid); }
-.r-alert-msg   { font-size: 0.76rem; color: var(--text-light); line-height: 1.45; }
-.r-alert-tag {
-  font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase;
-  font-weight: 700; padding: 2px 7px; border: 1px solid; flex-shrink: 0;
-  border-radius: 2px; white-space: nowrap; margin-top: 1px;
-}
-.ra-err  .r-alert-tag { border-color: var(--red);      color: var(--red); }
-.ra-warn .r-alert-tag { border-color: var(--tan);      color: var(--brown-mid); }
-.r-alert-chev { font-size: 0.6rem; color: var(--text-light); flex-shrink: 0; transition: transform 0.2s; margin-top: 3px; }
-.r-alert.open .r-alert-chev { transform: rotate(180deg); }
-.r-alert-dismiss {
-  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
-  background: none; border: 1px solid var(--border); color: var(--text-light);
-  padding: 0.2rem 0.6rem; border-radius: 2px; cursor: pointer;
-  margin-left: auto; margin-right: 0.4rem; white-space: nowrap; transition: all 0.2s;
-}
-.r-alert-dismiss:hover { border-color: var(--green); color: var(--green); background: rgba(26,107,58,0.05); }
-.r-alert.dismissed { opacity: 0.4; pointer-events: none; }
-.r-alert.dismissed .r-alert-head { text-decoration: line-through; }
-.r-alert-dismissed-label {
-  font-size: 0.55rem; color: var(--green); letter-spacing: 0.1em;
-  text-transform: uppercase; margin-left: auto; margin-right: 0.4rem; font-weight: 700;
-}
-
-.r-alert-body {
-  display: none; padding: 0.7rem 1rem 0.9rem;
-  border-top: 1px solid var(--border-light);
-  background: var(--white);
-}
-.r-alert.open .r-alert-body { display: block; }
-
-/* Diff table inside alert body */
-.r-diff-wrap { background: var(--offwhite); border-radius: 3px; padding: 0.8rem; margin-top: 4px; }
-.r-diff-label { font-size: 0.54rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); font-weight: 700; margin-bottom: 8px; }
-.r-diff-rows { display: flex; flex-direction: column; gap: 5px; }
-.r-diff-row {
+.doc-list { display: flex; flex-direction: column; gap: 7px; }
+.doc-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 6px 10px; border-radius: 3px; font-size: 0.76rem;
+  padding: 9px 12px; border-radius: 7px;
+  background: var(--offwhite); border: 1px solid var(--border-lt);
+  font-family: 'Lato', sans-serif; font-size: .85rem; color: var(--ink);
 }
-.r-diff-row.rdr-ok  { background: rgba(26,107,58,0.07);  color: var(--green); }
-.r-diff-row.rdr-err { background: rgba(176,64,48,0.08);  color: var(--red);   font-weight: 600; border: 1px solid rgba(176,64,48,0.2); }
-.r-diff-row.rdr-neu { background: var(--cream);           color: var(--text-mid); }
-.r-diff-doc { font-size: 0.65rem; opacity: 0.75; min-width: 160px; font-weight: 400; }
-.r-diff-val { font-family: 'Lato', monospace; letter-spacing: 0.03em; }
-.r-diff-icon { margin-left: auto; font-size: 0.75rem; flex-shrink: 0; }
-.r-diff-note {
-  margin-top: 8px; padding: 7px 10px;
-  background: var(--white); border: 1px solid var(--border-light); border-radius: 3px;
-  font-size: 0.72rem; color: var(--text-light); line-height: 1.5;
+.doc-row .doc-icon { font-size: .95rem; }
+.doc-row .doc-name { flex: 1; font-weight: 400; }
+.badge-mkt {
+  font-family: 'Raleway', sans-serif; font-size: .58rem;
+  font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 100px;
 }
-.char-diff {
-  background: rgba(176,64,48,0.15); color: var(--red);
-  font-weight: 700; border-radius: 2px; padding: 0 3px;
-  text-decoration: underline; text-underline-offset: 2px;
-  text-decoration-color: var(--red);
-}
+.badge-mkt.badge-ok   { background: rgba(26,107,58,.10);  color: #1a6b3a; }
+.badge-mkt.badge-warn { background: rgba(74,111,165,.10); color: #2a4f80; }
+.badge-mkt.badge-err  { background: rgba(122,46,34,.10);  color: #7a2e22; }
 
-/* Collapsible table */
-.r-table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 0.55rem; margin-bottom: 1.4rem; }
-.r-table-head {
+.result-list-mkt { display: flex; flex-direction: column; gap: 9px; }
+.result-item-mkt {
+  padding: 11px 14px; border-radius: 7px;
+  background: var(--offwhite); border-left: 3px solid transparent;
+}
+.result-item-mkt.ri-ok   { border-color: var(--mint); }
+.result-item-mkt.ri-warn { border-color: var(--steel); }
+.result-item-mkt.ri-err  { border-color: #b04030; }
+.ri-field { font-family: 'Raleway', sans-serif; font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-lt); margin-bottom: 2px; }
+.ri-val   { font-size: .88rem; font-weight: 700; color: var(--ink); }
+.ri-note  { font-size: .78rem; color: var(--text-lt); margin-top: 1px; }
+
+.demo-score {
+  grid-column: 1/-1;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--ink) 100%);
+  border-radius: 10px; padding: 18px 24px;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.8rem 1.2rem; background: var(--brown-dark);
-  cursor: pointer; user-select: none;
+  gap: 20px; flex-wrap: wrap;
 }
-.r-table-head-left { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 400; color: var(--white); letter-spacing: 0.02em; }
-.r-table-head-right { display: flex; align-items: center; gap: 8px; }
-.r-badge {
-  font-size: 0.54rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 2px 8px; border: 1px solid; border-radius: 2px;
-}
-.r-badge.rb-ok   { border-color: rgba(90,200,120,0.5);  color: rgba(160,255,180,0.9); }
-.r-badge.rb-err  { border-color: rgba(255,120,100,0.5); color: rgba(255,160,140,0.9); }
-.r-badge.rb-warn { border-color: rgba(160,190,255,0.5); color: rgba(180,210,255,0.9); }
-.r-chev { font-size: 0.6rem; color: rgba(255,255,255,0.4); transition: transform 0.2s; }
-.r-chev.open { transform: rotate(180deg); }
-.r-table-body { display: none; }
-.r-table-body.open { display: block; }
-
-.r-ctable { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-.r-ctable th { text-align: left; padding: 7px 12px; font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-light); border-bottom: 1px solid var(--border); background: var(--offwhite); font-weight: 400; }
-.r-ctable td { padding: 8px 12px; border-bottom: 1px solid var(--border-light); color: var(--text-mid); vertical-align: middle; }
-.r-ctable tr:last-child td { border-bottom: none; }
-.r-ctable tr.rt-ok  td { background: var(--white); }
-.r-ctable tr.rt-err td { background: rgba(176,64,48,0.04); }
-.r-ctable tr.rt-err td:first-child { color: var(--red); font-weight: 700; }
-.r-ctable tr.rt-warn td:first-child { color: var(--brown-mid); font-weight: 600; }
-.r-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
-.r-dot.d-ok   { background: var(--green); }
-.r-dot.d-err  { background: var(--red); }
-.r-dot.d-warn { background: var(--tan); }
-.r-dot.d-neu  { background: var(--border); }
-
-/* Collapsible per-doc */
-.r-perdoc-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 0.55rem; margin-bottom: 1.4rem; }
-.r-perdoc-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.8rem 1.2rem; background: var(--offwhite);
-  cursor: pointer; user-select: none;
-  border-bottom: 1px solid var(--border-light);
-}
-.r-perdoc-head-left { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 400; color: var(--brown-dark); }
-.r-perdoc-body { display: none; }
-.r-perdoc-body.open { display: block; }
-
-/* Action Items */
-.r-actions-wrap { margin-top: 0.6rem; margin-bottom: 0.2rem; }
-.r-action-item { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.65rem 1rem; background: var(--white); border: 1px solid var(--border-light); border-left: 3px solid var(--tan); border-radius: 0 4px 4px 0; margin-bottom: 0.4rem; font-size: 0.78rem; color: var(--text-mid); line-height: 1.55; }
-.r-action-num { font-family: 'Raleway', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; color: var(--tan); flex-shrink: 0; padding-top: 2px; min-width: 16px; }
-.r-action-text { flex: 1; }
-
-/* Invoice financial panel */
-.inv-panel { background: var(--offwhite); border: 1px solid var(--border-light); border-radius: 4px; padding: 0.8rem 1rem; margin-bottom: 0.7rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; }
-.inv-panel-row { display: flex; flex-direction: column; gap: 2px; }
-.inv-panel-label { font-family: 'Raleway', sans-serif; font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); }
-.inv-panel-value { font-size: 0.82rem; font-weight: 600; color: var(--brown-dark); }
-.inv-panel-total { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.2rem; }
-.inv-panel-total .inv-panel-value { font-size: 1rem; color: var(--tan); }
-
-/* Doc cards inside perdoc */
-.r-dcard { border-bottom: 1px solid var(--border-light); cursor: pointer; }
-.r-dcard:last-child { border-bottom: none; }
-.r-dcard-head { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1.1rem; transition: background 0.15s; }
-.r-dcard-head:hover { background: var(--offwhite); }
-.r-dcard-stripe { width: 3px; height: 34px; border-radius: 2px; flex-shrink: 0; }
-.r-dcard-stripe.ds-ok   { background: var(--green); }
-.r-dcard-stripe.ds-warn { background: var(--tan); }
-.r-dcard-stripe.ds-err  { background: var(--red); }
-.r-dcard-info { flex: 1; }
-.r-dcard-type { font-size: 0.8rem; font-weight: 700; color: var(--brown-dark); }
-.r-dcard-file { font-size: 0.62rem; color: var(--text-light); margin-top: 1px; }
-.r-dcard-badge { font-size: 0.54rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; padding: 2px 8px; border: 1px solid; border-radius: 2px; flex-shrink: 0; }
-.r-dcard-badge.db-ok   { border-color: var(--green); color: var(--green); }
-.r-dcard-badge.db-warn { border-color: var(--tan);   color: var(--brown-mid); }
-.r-dcard-badge.db-err  { border-color: var(--red);   color: var(--red); }
-.r-dcard-chev { font-size: 0.6rem; color: var(--text-light); transition: transform 0.2s; flex-shrink: 0; }
-.r-dcard.open .r-dcard-chev { transform: rotate(180deg); }
-.r-dcard-view { font-size: 0.62rem; font-family: 'Raleway', sans-serif; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tan); border: 1px solid var(--tan); border-radius: 3px; padding: 3px 9px; flex-shrink: 0; transition: background 0.15s, color 0.15s; cursor: pointer; }
-.r-dcard-view:hover { background: var(--tan); color: var(--white); }
-.r-dcard-body { display: none; padding: 0.8rem 1.1rem 1rem 2.4rem; background: var(--offwhite); border-top: 1px solid var(--border-light); }
-.r-dcard.open .r-dcard-body { display: block; }
-.r-dcard-comment { font-size: 0.76rem; color: var(--text-light); font-style: italic; line-height: 1.6; margin-bottom: 0.7rem; }
-.r-dcard-fields { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 5px; }
-.r-dfield { padding: 6px 9px; background: var(--white); border: 1px solid var(--border-light); border-radius: 2px; }
-.r-dfield.rf-err  { background: rgba(176,64,48,0.05); border-color: rgba(176,64,48,0.3); border-left: 2px solid var(--red); }
-.r-dfield.rf-warn { background: rgba(74,111,165,0.05); border-color: rgba(74,111,165,0.25); border-left: 2px solid var(--tan); }
-.r-dfield-label { font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-light); margin-bottom: 2px; }
-.r-dfield.rf-err  .r-dfield-label { color: var(--red); }
-.r-dfield.rf-warn .r-dfield-label { color: var(--brown-mid); }
-.r-dfield-val { font-size: 0.74rem; color: var(--brown-dark); word-break: break-word; }
-.r-dfield.rf-err  .r-dfield-val { color: var(--red); font-weight: 700; }
-.r-dfield.rf-warn .r-dfield-val { color: var(--brown-mid); font-weight: 600; }
-.r-dfield-val.dv-empty { color: var(--text-light); font-style: italic; }
-
-/* Consistency Matrix */
-.mx-table {
-  width: 100%; border-collapse: collapse; font-size: 0.72rem;
-  border: 1px solid var(--border-light);
-}
-.mx-table th {
-  padding: 0.45rem 0.6rem; text-align: center;
-  font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--text-light); font-weight: 600;
-  background: var(--brown-dark); color: rgba(255,255,255,0.8);
-  border: 1px solid rgba(255,255,255,0.1);
-  white-space: nowrap;
-}
-.mx-table th:first-child { text-align: left; min-width: 110px; }
-.mx-table th.mx-master { background: var(--brown); color: var(--white); }
-.mx-table td {
-  padding: 0.4rem 0.6rem; text-align: center;
-  border: 1px solid var(--border-light); font-size: 0.7rem;
-}
-.mx-table td:first-child {
-  text-align: left; font-weight: 600; color: var(--brown-dark);
-  font-size: 0.68rem; background: var(--offwhite);
-}
-.mx-table td.mx-master-val {
-  text-align: left; font-size: 0.68rem; color: var(--brown-dark);
-  background: var(--offwhite); max-width: 140px; overflow: hidden;
-  text-overflow: ellipsis; white-space: nowrap;
-}
-.mx-ok { background: rgba(26,107,58,0.06); color: var(--green); font-weight: 700; }
-.mx-diff { background: rgba(176,64,48,0.08); color: var(--red); font-weight: 700; }
-.mx-na { color: var(--border); }
-.mx-legend {
-  font-size: 0.6rem; color: var(--text-light); margin-top: 0.4rem;
-  letter-spacing: 0.03em;
+.score-block .score-lbl { font-family: 'Raleway', sans-serif; font-size: .62rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-bottom: 3px; }
+.score-block .score-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #fff; line-height: 1.1; }
+.score-verdict {
+  background: rgba(62,207,170,.15); border: 1px solid rgba(62,207,170,.3);
+  color: var(--mint); padding: 8px 18px; border-radius: 100px;
+  font-family: 'Raleway', sans-serif; font-size: .72rem; font-weight: 700;
+  letter-spacing: .08em;
 }
 
-/* Split Panel */
-.sp-wrap {
-  display: grid; grid-template-columns: 35% 65%; gap: 0;
-  border: 1px solid var(--border-light); border-radius: 4px;
-  overflow: hidden; margin-bottom: 1.4rem; min-height: 360px;
+/* ── MARKETING SECTIONS COMMON ── */
+section.mkt-section { padding: 90px 5%; }
+section.mkt-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+  color: var(--navy); line-height: 1.2; margin-bottom: 16px;
 }
-.sp-left {
-  border-right: 1px solid var(--border-light);
-  overflow-y: auto; max-height: 600px;
-  background: var(--white);
+.section-sub { font-size: 1rem; color: var(--text-lt); max-width: 520px; line-height: 1.65; margin-bottom: 56px; }
+
+/* ── HOW IT WORKS ── */
+.how-section { background: var(--white); }
+.steps-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border-lt);
+  gap: 1px; background: var(--border-lt);
 }
-.sp-right {
-  background: var(--offwhite); overflow-y: auto; max-height: 600px;
+.step-mkt {
+  background: var(--white); padding: 32px 24px;
+  transition: background .2s;
 }
-.sp-right-empty {
+.step-mkt:hover { background: var(--offwhite); }
+.step-num-mkt {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--navy); color: #fff;
+  font-family: 'Raleway', sans-serif; font-weight: 700; font-size: .88rem;
   display: flex; align-items: center; justify-content: center;
-  height: 100%; min-height: 300px;
-  font-size: 0.78rem; color: var(--text-light); font-style: italic;
+  margin-bottom: 16px;
 }
+.step-icon-mkt { font-size: 1.4rem; margin-bottom: 12px; }
+.step-mkt h3 { font-family: 'Raleway', sans-serif; font-size: .95rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.step-mkt p  { font-size: .88rem; color: var(--text-lt); line-height: 1.6; }
 
-/* Left panel: section labels */
-.sp-section {
-  font-size: 0.52rem; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; padding: 0.5rem 0.9rem;
-  background: var(--offwhite); border-bottom: 1px solid var(--border-light);
+/* ── FEATURES ── */
+.features-section { background: var(--cream); }
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+.feature-card {
+  background: var(--white); border-radius: 14px; padding: 28px 24px;
+  border: 1px solid var(--border-lt);
+  transition: box-shadow .25s, transform .25s;
 }
-.sp-section.sp-sec-err  { color: var(--red); }
-.sp-section.sp-sec-warn { color: var(--brown-mid); }
-.sp-section.sp-sec-ok   { color: var(--green); }
+.feature-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+.feature-icon-box {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: rgba(74,111,165,.08); color: var(--steel);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; margin-bottom: 18px;
+}
+.feature-card h3 { font-family: 'Raleway', sans-serif; font-size: .92rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.feature-card p  { font-size: .88rem; color: var(--text-lt); line-height: 1.65; }
 
-/* Left panel: field rows */
-.sp-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--border-light);
-  cursor: pointer; transition: background 0.12s; font-size: 0.78rem;
+/* ── DOCUMENTS ── */
+.docs-section { background: var(--navy); }
+.docs-section .label { color: rgba(168,200,240,.6); }
+.docs-section h2 { color: #fff; }
+.docs-section .section-sub { color: rgba(255,255,255,.45); }
+.chips-cloud { display: flex; flex-wrap: wrap; gap: 9px; }
+.chip {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 17px; border-radius: 100px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10);
+  font-family: 'Raleway', sans-serif; font-size: .72rem;
+  font-weight: 600; letter-spacing: .06em; color: rgba(255,255,255,.7);
+  transition: all .2s; cursor: default;
 }
-.sp-row:hover { background: var(--offwhite); }
-.sp-row.active.sp-row-err  { background: rgba(176,64,48,0.06); }
-.sp-row.active.sp-row-warn { background: rgba(74,111,165,0.06); }
-.sp-row.active.sp-row-ok   { background: rgba(26,107,58,0.05); }
-.sp-row-dot {
-  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-}
-.sp-row-dot.dot-err  { background: var(--red); }
-.sp-row-dot.dot-warn { background: var(--tan); }
-.sp-row-dot.dot-ok   { background: var(--green); }
-.sp-row-dot.dot-neu  { background: var(--border); }
-.sp-row-name { flex: 1; color: var(--text); }
-.sp-row.sp-row-err .sp-row-name  { color: var(--red); font-weight: 700; }
-.sp-row.sp-row-warn .sp-row-name { color: var(--brown-mid); font-weight: 600; }
-.sp-row-badge {
-  font-size: 0.48rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 1px 6px; border: 1px solid; border-radius: 2px;
-  font-weight: 700; flex-shrink: 0;
-}
-.sp-row-badge.sb-err  { border-color: var(--red); color: var(--red); }
-.sp-row-badge.sb-warn { border-color: var(--tan); color: var(--brown-mid); }
-.sp-row-chev { font-size: 0.5rem; color: var(--text-light); flex-shrink: 0; }
+.chip:hover { background: rgba(74,111,165,.22); border-color: rgba(107,153,204,.35); color: #fff; }
+.chip .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--mint); flex-shrink: 0; }
 
-/* Right panel content */
-/* Field blocks in right panel */
-.sp-field-block { border-bottom: 1px solid var(--border-light); }
-.sp-field-block:last-child { border-bottom: none; }
+/* ── SOCIAL PROOF ── */
+.proof-section { background: var(--white); }
+.proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.proof-left h2 { margin-bottom: 16px; }
+.proof-left p { font-size: .96rem; color: var(--text-lt); line-height: 1.7; max-width: 420px; margin-bottom: 36px; }
+.stats-grid-mkt { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.stat-box { background: var(--cream); border-radius: 12px; padding: 20px 18px; border: 1px solid var(--border-lt); }
+.stat-num { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--navy); line-height: 1; margin-bottom: 5px; }
+.stat-num span { color: var(--steel); }
+.stat-lbl-mkt { font-family: 'Raleway', sans-serif; font-size: .72rem; font-weight: 600; letter-spacing: .06em; color: var(--text-lt); }
+.quote-card {
+  background: var(--cream); border-radius: 14px; padding: 28px 24px;
+  border: 1px solid var(--border-lt);
+}
+.quote-mark { font-family: 'Playfair Display', serif; font-size: 4rem; line-height: .5; color: var(--border); margin-bottom: 6px; }
+.quote-text { font-size: .98rem; color: var(--ink); line-height: 1.7; margin-bottom: 22px; }
+.quote-author { display: flex; align-items: center; gap: 12px; }
+.q-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--steel); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Raleway', sans-serif; font-weight: 700; font-size: .9rem; }
+.q-name { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: .82rem; color: var(--navy); }
+.q-role { font-size: .78rem; color: var(--text-lt); }
 
-.sp-detail-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border-light);
-  background: var(--white); position: sticky; top: 0; z-index: 1;
+/* ── CTA FINAL ── */
+.cta-section {
+  background: linear-gradient(135deg, var(--steel) 0%, var(--navy) 100%);
+  text-align: center; position: relative; overflow: hidden;
+  padding: 90px 5%;
 }
-.sp-detail-field {
-  font-family: 'Playfair Display', serif; font-size: 1.1rem;
-  font-weight: 500; color: var(--brown-dark); flex: 1;
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 55% 60% at 50% 0%, rgba(62,207,170,.14) 0%, transparent 70%);
 }
-.sp-detail-tag {
-  font-size: 0.52rem; letter-spacing: 0.1em; text-transform: uppercase;
-  font-weight: 700; padding: 2px 8px; border: 1px solid; border-radius: 2px;
-}
-.sp-detail-tag.sdt-err  { border-color: var(--red); color: var(--red); }
-.sp-detail-tag.sdt-warn { border-color: var(--tan); color: var(--brown-mid); }
-.sp-detail-tag.sdt-ok   { border-color: var(--green); color: var(--green); }
-.sp-detail-body { padding: 1.2rem; }
-.sp-detail-msg {
-  font-size: 0.82rem; color: var(--text-mid); line-height: 1.7;
-  margin-bottom: 1rem;
-}
-.sp-detail-note {
-  margin-top: 0.8rem; padding: 0.6rem 0.9rem;
-  background: var(--white); border: 1px solid var(--border-light);
-  border-left: 3px solid var(--tan); border-radius: 0 3px 3px 0;
-  font-size: 0.75rem; color: var(--text-light); line-height: 1.5;
-  font-style: italic;
-}
-.sp-detail-value {
-  font-size: 0.82rem; color: var(--brown-dark); padding: 0.4rem 0;
-}
+.cta-inner { position: relative; max-width: 640px; margin: 0 auto; }
+.cta-section .label { color: rgba(168,200,240,.55); margin-bottom: 14px; }
+.cta-section h2 { color: #fff; margin-bottom: 16px; font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 3.2vw, 2.8rem); }
+.cta-section p { color: rgba(255,255,255,.6); font-size: 1rem; line-height: 1.7; margin-bottom: 44px; }
+.cta-btns { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.btn-outline-white { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.3); }
+.btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,.07); color: #fff; }
 
-/* Dismissed row */
-.sp-row.dismissed { opacity: 0.35; text-decoration: line-through; }
-
-/* Mobile: collapse to single column */
-@media(max-width:768px){
-  .sp-wrap { grid-template-columns: 1fr; min-height: auto; }
-  .sp-left { border-right: none; border-bottom: 1px solid var(--border-light); max-height: 280px; }
-  .sp-right { max-height: none; }
+/* ── MARKETING FOOTER ── */
+footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
+.footer-inner {
+  max-width: 1080px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  border-top: 1px solid rgba(255,255,255,.08); padding-top: 28px;
 }
+.footer-brand {
+  font-family: 'Raleway', sans-serif; font-weight: 700;
+  font-size: .8rem; letter-spacing: .22em; text-transform: uppercase;
+  color: #fff; text-decoration: none;
+}
+.footer-links-mkt { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-links-mkt a {
+  font-family: 'Raleway', sans-serif; font-size: .7rem;
+  font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s;
+}
+.footer-links-mkt a:hover { color: #fff; }
+.footer-right-mkt {
+  font-family: 'Raleway', sans-serif; font-size: .65rem;
+  color: rgba(255,255,255,.3); letter-spacing: .06em;
+}
+.footer-lang {
+  font-family: 'Raleway', sans-serif; font-size: .65rem;
+  font-weight: 700; letter-spacing: .1em;
+  color: rgba(255,255,255,.4);
+}
+.footer-lang span { cursor: pointer; transition: color .2s; }
+.footer-lang span:hover { color: #fff; }
+.footer-lang .active { color: rgba(255,255,255,.8); }
 
-@media(max-width:680px){
-  .header-top{padding:0 1.2rem;}
-  .nav{display:none;}
-  main{padding:2.5rem 1rem;}
-  .hero h1{font-size:2.2rem;}
-  footer{flex-direction:column;gap:1.2rem;text-align:center;}
-  .progress-step span:not(.step-num){display:none;}
-  .r-stat-row{grid-template-columns:repeat(2,1fr);}
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(22px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+@keyframes scrollBounce {
+  0%,100% { transform: translateY(0); opacity:1; }
+  50%      { transform: translateY(6px); opacity:.4; }
+}
+.reveal { opacity:0; transform:translateY(28px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+
+/* ── MARKETING RESPONSIVE ── */
+@media(max-width:900px){
+  .demo-body { grid-template-columns:1fr; }
+  .steps-grid { grid-template-columns:1fr 1fr; }
+  .features-grid { grid-template-columns:1fr 1fr; }
+  .proof-grid { grid-template-columns:1fr; gap:40px; }
+  .nav-links { display:none; }
+}
+@media(max-width:640px){
+  .steps-grid { grid-template-columns:1fr; }
+  .features-grid { grid-template-columns:1fr; }
+  .stats-grid-mkt { grid-template-columns:1fr 1fr; }
+  section.mkt-section { padding:72px 5%; }
+  .hero h1 { font-size: 2.4rem; }
 }
 
 </style>
-  <!-- Clerk Auth — async, does not block render -->
-  <!-- Clerk deferred — loads after HTML parsed, init happens on idle via requestIdleCallback -->
-  <script>
-  // Inject Clerk script only after first user interaction or after 2s — whichever comes first
-  // This prevents Clerk from competing with the hero image and fonts on first paint
-  let _clerkInjected = false;
-  function injectClerk() {
-    if (_clerkInjected) return;
-    _clerkInjected = true;
-    const s = document.createElement('script');
-    s.async = true;
-    s.defer = true;
-    s.crossOrigin = 'anonymous';
-    s.dataset.clerkPublishableKey = 'pk_live_Y2xlcmsuZG9jc3ZhbGlkYXRlLmNvbSQ';
-    s.src = 'https://clerk.docsvalidate.com/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
-    document.head.appendChild(s);
-  }
-  // Load Clerk after 2s idle, or immediately on first interaction
-  setTimeout(injectClerk, 2000);
-  ['mousedown','touchstart','keydown','scroll'].forEach(e =>
-    document.addEventListener(e, injectClerk, { once: true, passive: true })
-  );
-  </script>
   <!-- Hero images loaded on demand -->
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
-<header class="header">
-  <div class="header-top">
-    <div class="logo">
-      <a href="/" onclick="if(typeof resetApp==='function'){event.preventDefault();resetApp();}" style="display:flex;align-items:center;text-decoration:none;cursor:pointer;">
-        <img src="/logo.png" alt="DocsValidate" class="logo-img">
-      </a>
-      <div class="logo-tagline" id="logoTagline" style="font-size:0.65rem;letter-spacing:0.12em;color:#888;font-weight:400;text-transform:uppercase;margin-left:0.5rem;">DocsValidate.com</div>
+<!-- ══ NAV ══ -->
+<nav id="navbar">
+  <a href="/" class="nav-brand">
+    <img src="/logo.png" alt="DocsValidate" onerror="this.style.display='none'">
+    <span class="nav-brand-name" id="logoTagline">DocsValidate</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#documents">Documents</a></li>
+    <li><a href="/pricing.html">Pricing</a></li>
+    <li><a href="/contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <ul id="userBadge" style="list-style:none;display:flex;gap:12px;">
+      <li><button class="btn-signin" onclick="window.location='/app';return false;">Sign in</button></li>
+    </ul>
+    <div class="lang-switch">
+      <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+      <span class="lang-sep">|</span>
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
     </div>
-    <div class="header-right">
-      <nav><ul class="nav">
-        <li><a href="/">Home</a></li>
-        <li><a href="/pricing.html" onclick="if(_analysisInProgress){window.open(this.href,'_blank');return false;}">Pricing</a></li>
-        <li><a href="/contact.html">Contact</a></li>
-      </ul></nav>
-      <ul id="userBadge" class="nav">
-        <li><a href="#" onclick="openClerkSignIn();return false;">Sign in</a></li>
-      </ul>
-      <div class="lang-switch">
-        <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
-        <span class="lang-sep">|</span>
-        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
-      </div>
-    </div>
+    <a href="/app" class="btn btn-primary">Start free &rarr;</a>
   </div>
-</header>
+</nav>
 
 <!-- ══ HERO ══ -->
-<div class="hero">
-  <div class="hero-img"></div>
-  <div class="hero-content">
-    <div class="hero-eyebrow" id="heroEyebrow">AI-Powered Documents Validation</div>
-    <h1 id="heroTitle">Validate your shipment documents<br><em>in seconds — not hours</em></h1>
-    <div class="hero-sub" id="heroSub">AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.</div>
-    <div class="hero-bullets" id="heroBullets">
-      <span>✓ Containers & seals verified</span>
-      <span>✓ Weights &amp; quantities matched</span>
-      <span>✓ All parties cross-checked</span>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow" id="heroEyebrow"><span></span>AI-Powered Documents Validation</div>
+
+    <h1 id="heroTitle">Validate your shipment documents<br><em>in seconds &mdash; not hours</em></h1>
+
+    <p class="hero-sub" id="heroSub">
+      AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.
+    </p>
+
+    <div style="
+      background: rgba(13,27,42,0.45);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 28px 36px 24px;
+      display: inline-flex; flex-direction: column; align-items: center; gap: 20px;
+      position: relative; z-index: 3;
+    ">
+      <div class="hero-cta" id="heroBullets">
+        <a href="/app" class="btn btn-mint btn-xl" style="box-shadow: 0 0 0 3px rgba(62,207,170,0.3), 0 8px 32px rgba(62,207,170,0.35);">
+          Analyze Documents for Free &rarr;
+        </a>
+        <a href="#how" class="btn btn-ghost btn-lg" style="color:#fff;border-color:rgba(255,255,255,.3);">
+          See how it works
+        </a>
+      </div>
+
+      <div class="hero-trust">
+        <div class="trust-pill">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Results in 30s
+        </div>
+        <div class="trust-pill">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          No credit card
+        </div>
+        <div class="trust-pill">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          PDF &middot; Excel &middot; Word &middot; Images
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-dot"></div>
+    <div class="scroll-dot"></div>
+    <div class="scroll-dot"></div>
+  </div>
+</section>
+
+<!-- ══ DEMO CARD ══ -->
+<div class="demo-section">
+  <div class="demo-wrapper reveal">
+    <div class="demo-card">
+      <div class="demo-topbar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="demo-topbar-title">DocsValidate &middot; Shipment Analysis &middot; Lote 24-2026 &middot; Aromacacao S.A.</div>
+      </div>
+      <div class="demo-body">
+
+        <div>
+          <div class="demo-col-title">Documents (6 uploaded)</div>
+          <div class="doc-list">
+            <div class="doc-row"><span class="doc-icon">&#128196;</span><span class="doc-name">Bill of Lading</span><span class="badge-mkt badge-ok">&#10003; Master</span></div>
+            <div class="doc-row"><span class="doc-icon">&#128203;</span><span class="doc-name">Commercial Invoice</span><span class="badge-mkt badge-ok">&#10003; Match</span></div>
+            <div class="doc-row"><span class="doc-icon">&#128230;</span><span class="doc-name">Packing List</span><span class="badge-mkt badge-warn">&#9888; Weight &Delta;</span></div>
+            <div class="doc-row"><span class="doc-icon">&#127807;</span><span class="doc-name">Phytosanitary Cert.</span><span class="badge-mkt badge-ok">&#10003; Match</span></div>
+            <div class="doc-row"><span class="doc-icon">&#128278;</span><span class="doc-name">Certificate of Origin</span><span class="badge-mkt badge-ok">&#10003; Match</span></div>
+            <div class="doc-row"><span class="doc-icon">&#127793;</span><span class="doc-name">Organic Cert. (COI)</span><span class="badge-mkt badge-err">&#10007; Lot mismatch</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="demo-col-title">Validation results</div>
+          <div class="result-list-mkt">
+            <div class="result-item-mkt ri-ok">
+              <div class="ri-field">Container number</div>
+              <div class="ri-val">CSNU 742183-5</div>
+              <div class="ri-note">Consistent across 5/6 documents</div>
+            </div>
+            <div class="result-item-mkt ri-ok">
+              <div class="ri-field">Seal number</div>
+              <div class="ri-val">SH-884421</div>
+              <div class="ri-note">Matches Bill of Lading</div>
+            </div>
+            <div class="result-item-mkt ri-warn">
+              <div class="ri-field">Net weight</div>
+              <div class="ri-val">&Delta; 12 kg discrepancy</div>
+              <div class="ri-note">Packing List (2,488 kg) vs Invoice (2,500 kg)</div>
+            </div>
+            <div class="result-item-mkt ri-err">
+              <div class="ri-field">Lot number &mdash; COI</div>
+              <div class="ri-val">COI shows: Lote 23-2026</div>
+              <div class="ri-note">Expected: Lote 24-2026 per B/L</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="demo-score">
+          <div class="score-block">
+            <div class="score-lbl">Consistency score</div>
+            <div class="score-val">72 / 100</div>
+          </div>
+          <div class="score-block">
+            <div class="score-lbl">Issues found</div>
+            <div class="score-val" style="color:#f0a040;">2 issues</div>
+          </div>
+          <div class="score-block">
+            <div class="score-lbl">Verdict</div>
+            <div class="score-val" style="font-size:1.1rem;">&#9888; Review before shipping</div>
+          </div>
+          <div class="score-verdict">&#128737; Catch errors before customs</div>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══ PROGRESS BAR ══ -->
-<div class="progress-bar" id="progressBar" style="display:none;">
-  <div class="progress-step active" id="ps1">
-    <span class="step-num">1</span>
-    <span id="ps1txt">Select Documents</span>
-  </div>
-  <div class="progress-step" id="ps2">
-    <span class="step-num">2</span>
-    <span id="ps2txt">AI Analysis</span>
-  </div>
-  <div class="progress-step" id="ps3">
-    <span class="step-num">3</span>
-    <span id="ps3txt">Review Results</span>
-  </div>
-  <div class="progress-step" id="ps4">
-    <span class="step-num">4</span>
-    <span id="ps4txt">Download Report</span>
-  </div>
-</div>
-
-<main>
-
-  <!-- ══ VALIDATION HISTORY ══ -->
-  <div id="historySection" style="display:none;margin-bottom:2.5rem;">
-    <div class="section-label">
-      <div class="section-label-num" style="font-size:1.6rem;">📋</div>
-      <div class="section-label-text">
-        <h2 id="histTitle">Your Recent Validations</h2>
-        <p id="histSub">Click any row to see the summary</p>
+<!-- ══ HOW IT WORKS ══ -->
+<section class="how-section mkt-section" id="how">
+  <div class="container">
+    <div class="reveal" style="max-width:640px; margin:0 auto 52px; text-align:center;">
+      <span class="label">How it works</span>
+      <h2>From upload to report<br>in four simple steps</h2>
+      <p class="section-sub" style="margin:0 auto;">No training. No integration. No setup. Upload your documents and get a full coherence report in seconds.</p>
+    </div>
+    <div class="steps-grid reveal">
+      <div class="step-mkt">
+        <div class="step-icon-mkt">&#128194;</div>
+        <div class="step-num-mkt">1</div>
+        <h3>Upload your documents</h3>
+        <p>Drag and drop your full export set &mdash; B/L, invoice, packing list, certificates. PDF, Excel, Word or images.</p>
       </div>
-    </div>
-    <div style="display:flex;gap:0.6rem;align-items:center;margin-bottom:0.8rem;flex-wrap:wrap;">
-      <input type="text" id="histSearch" oninput="searchHistory()" placeholder="Search BL or vessel..."
-        style="flex:1;min-width:200px;max-width:300px;padding:0.5rem 0.8rem;border:1px solid var(--border);
-        font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--text);background:var(--white);">
-      <select id="histStatusFilter" onchange="searchHistory()"
-        style="padding:0.45rem 0.6rem;border:1px solid var(--border);font-family:'Lato',sans-serif;
-        font-size:0.72rem;color:var(--text-mid);background:var(--white);border-radius:2px;cursor:pointer;">
-        <option value="" id="histFilterAll">All statuses</option>
-        <option value="approved" id="histFilterOk">✓ Approved</option>
-        <option value="warning" id="histFilterWarn">⚠ Observations</option>
-        <option value="rejected" id="histFilterErr">✗ Rejected</option>
-      </select>
-    </div>
-    <div id="histList" style="border:1px solid var(--border-light);overflow:hidden;"></div>
-    <!-- histDetail removed — clicking a report now loads full results directly -->
-    <div style="margin-top:1.5rem;">
-      <button onclick="toggleMyReports()" style="padding:0.6rem 1.5rem;background:none;border:1px solid var(--border);color:var(--text-mid);font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;border-radius:2px;">
-        ← <span id="histBackBtn">Back to Home</span>
-      </button>
+      <div class="step-mkt">
+        <div class="step-icon-mkt">&#129302;</div>
+        <div class="step-num-mkt">2</div>
+        <h3>AI extracts every field</h3>
+        <p>Claude AI reads and structures every data field &mdash; container numbers, weights, lots, parties, ports and more.</p>
+      </div>
+      <div class="step-mkt">
+        <div class="step-icon-mkt">&#128269;</div>
+        <div class="step-num-mkt">3</div>
+        <h3>Cross-reference &amp; validate</h3>
+        <p>Each field is compared across documents. The Bill of Lading is always the master reference. Mismatches flagged instantly.</p>
+      </div>
+      <div class="step-mkt">
+        <div class="step-icon-mkt">&#128202;</div>
+        <div class="step-num-mkt">4</div>
+        <h3>Download your report</h3>
+        <p>A clean validation report with your consistency score, issue list, and clear action items &mdash; ready to share.</p>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- ══ STEP 1: UPLOAD ══ -->
-  <div id="uploadSection">
-
-    <!-- Stepper -->
-    <div class="up-stepper" id="upStepper">
-      <div class="up-st up-st-done" id="upSt1"><span class="up-st-circ">✓</span><span class="up-st-lbl" id="upSt1Lbl">Doc Types</span></div>
-      <div class="up-st-line up-st-line-done" id="upStLine1"></div>
-      <div class="up-st up-st-active" id="upSt2"><span class="up-st-circ">2</span><span class="up-st-lbl" id="upSt2Lbl">Upload</span></div>
-      <div class="up-st-line" id="upStLine2"></div>
-      <div class="up-st" id="upSt3"><span class="up-st-circ">3</span><span class="up-st-lbl" id="upSt3Lbl">Analyze</span></div>
+<!-- ══ FEATURES ══ -->
+<section class="features-section mkt-section" id="features">
+  <div class="container">
+    <div class="reveal" style="max-width:640px; margin:0 auto 52px; text-align:center;">
+      <span class="label">Features</span>
+      <h2>Everything you need to ship<br>with confidence</h2>
+      <p class="section-sub" style="margin:0 auto;">Built specifically for commodity exporters &mdash; cacao, coffee, organic products &mdash; by someone who lives trade documentation every day.</p>
     </div>
-
-    <!-- Panel -->
-    <div class="up-panel">
-      <h2 class="up-title" id="uploadPanelTitle">Upload your documents</h2>
-      <p class="up-subtitle" id="uploadPanelSub">11 types selected · Drag files or browse</p>
-
-      <!-- Drop Zone -->
-      <div class="upload-area" id="uploadZone">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-        <h3 id="uploadTitle">Drag all shipment documents here</h3>
-        <p id="uploadSub">PDF · JPG · PNG · Excel (.xlsx) · Word (.docx)</p>
-        <p style="font-size:0.68rem;color:#b0b8cc;margin-top:0.15rem;" id="uploadSub2">All documents from the same shipment set</p>
-        <button class="upload-cta" id="uploadCta" aria-label="Select files to upload" onclick="document.getElementById('fileInput').click()">
-          <span id="browseFilesText">Select Files</span>
-        </button>
-        <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon-box">&#9878;&#65039;</div>
+        <h3>Weight &amp; Quantity Matching</h3>
+        <p>Net weight, gross weight, and lot quantities are automatically compared across all documents. Even small discrepancies are flagged before customs.</p>
       </div>
-
-      <!-- Doc Types Summary (chips) -->
-      <div class="up-dt-summary" id="upDtSummary">
-        <div class="up-dt-summary-label" id="upDtSummaryLabel">SELECTED DOCUMENT TYPES</div>
-        <div class="up-dt-chips" id="upDtChips"></div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon-box">&#128274;</div>
+        <h3>Container &amp; Seal Verification</h3>
+        <p>Container numbers and seal numbers are validated against the Bill of Lading as master &mdash; never overridden by majority voting.</p>
       </div>
-
-      <!-- Hidden: full doc type grid for editing -->
-      <div id="docTypesGrid" class="up-dt-edit" style="display:none;">
-        <button class="doc-type-btn active" data-en="Certificate of Origin" data-es="Cert. de Origen"><span class="dt-dot"></span><span class="dt-label">Certificate of Origin</span></button>
-        <button class="doc-type-btn active" data-en="Commercial Invoice" data-es="Factura Comercial"><span class="dt-dot"></span><span class="dt-label">Commercial Invoice</span></button>
-        <button class="doc-type-btn active" data-en="Packing List" data-es="Packing List"><span class="dt-dot"></span><span class="dt-label">Packing List</span></button>
-        <button class="doc-type-btn active" data-en="Phytosanitary Certificate" data-es="Cert. Fitosanitario"><span class="dt-dot"></span><span class="dt-label">Phytosanitary Certificate</span></button>
-        <button class="doc-type-btn active" data-en="Bill of Lading" data-es="Bill of Lading"><span class="dt-dot"></span><span class="dt-label">Bill of Lading</span></button>
-        <button class="doc-type-btn active" data-en="Quality Certificate" data-es="Cert. de Calidad"><span class="dt-dot"></span><span class="dt-label">Quality Certificate</span></button>
-        <button class="doc-type-btn active" data-en="ISF" data-es="ISF"><span class="dt-dot"></span><span class="dt-label">ISF</span></button>
-        <button class="doc-type-btn active" data-en="Declaration Letter" data-es="Carta Declaración"><span class="dt-dot"></span><span class="dt-label">Declaration Letter</span></button>
-        <button class="doc-type-btn active" data-en="3rd Party Quality Report" data-es="Reporte de Calidad (Tercero)"><span class="dt-dot"></span><span class="dt-label">3rd Party Quality Report</span></button>
-        <button class="doc-type-btn active" data-en="Import Permit" data-es="Permiso de Importación"><span class="dt-dot"></span><span class="dt-label">Import Permit</span></button>
-        <button class="doc-type-btn active" data-en="Organic Certificate (COI)" data-es="Certificado Orgánico (COI)"><span class="dt-dot"></span><span class="dt-label">Organic Certificate (COI)</span></button>
-        <button class="doc-type-btn active" data-en="Fumigation Certificate" data-es="Cert. de Fumigación"><span class="dt-dot"></span><span class="dt-label">Fumigation Certificate</span></button>
-        <button class="doc-type-btn active" data-en="Shipping Notification" data-es="Notificación de Embarque"><span class="dt-dot"></span><span class="dt-label">Shipping Notification</span></button>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon-box">&#127970;</div>
+        <h3>Party Cross-Check</h3>
+        <p>Shipper, consignee, notify party, and agent names are compared across invoice, B/L, Certificate of Origin, and all other documents.</p>
       </div>
-
-      <!-- Analyze button -->
-      <div class="analyze-wrap" style="margin-top:0.875rem;margin-bottom:0;">
-        <button class="analyze-btn" id="analyzeBtn" aria-label="Start document analysis" disabled onclick="startAnalysis()">
-          <span class="btn-icon">◆</span>
-          <span id="analyzeBtnTxt">Analyze Full Set with AI</span>
-        </button>
+      <div class="feature-card reveal">
+        <div class="feature-icon-box">&#127807;</div>
+        <h3>Organic &amp; Phyto Certificates</h3>
+        <p>Deep support for COI (Kiwa BCS), Phytosanitary, TRACES NT, and certification documents specific to organic commodity exports.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon-box">&#128205;</div>
+        <h3>Port &amp; Routing Validation</h3>
+        <p>Port of loading, port of discharge, and vessel name consistency is confirmed across all shipping and commercial documents.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon-box">&#128196;</div>
+        <h3>One-Click PDF Report</h3>
+        <p>Download a clean, professional validation report you can share with your team, customs broker, or buyer in seconds.</p>
       </div>
     </div>
-
-    <!-- Files list (below panel) -->
-    <div class="up-files-hdr" id="filesListHeader" style="display:none;">
-      <span class="up-files-lbl" id="filesAddedLabel">Files added</span>
-      <span class="up-files-cnt" id="filesAddedCount"></span>
-    </div>
-    <div class="files-list" id="filesList"></div>
-    <div class="files-count" id="filesCount" style="display:none"></div>
-
-    <!-- Tip -->
-    <div class="partial-tip" id="partialTip">
-      <span class="partial-tip-icon">💡</span>
-      <span id="partialTipText">You don't need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.</span>
-    </div>
-
   </div>
+</section>
 
-  <!-- ══ LOADING ══ -->
-  <div class="loading" id="loading">
-    <div class="loading-top" style="margin-bottom:1.5rem;">
-      <h2 id="loadTitle" style="margin-bottom:0.3rem;">Analyzing your set</h2>
-      <div class="loading-sub" id="loadSub">Starting extraction...</div>
+<!-- ══ DOCUMENTS SUPPORTED ══ -->
+<section class="docs-section mkt-section" id="documents">
+  <div class="container">
+    <div class="reveal" style="max-width:600px; margin-bottom:48px;">
+      <span class="label">Supported documents</span>
+      <h2>Works with every document<br>in your export set</h2>
+      <p class="section-sub">DocsValidate understands all major trade documents out of the box &mdash; no template configuration required.</p>
     </div>
-
-    <div class="progress-container">
-      <div class="progress-header">
-        <div class="progress-label" id="progressLabel">Extracting documents</div>
-        <div class="progress-pct"><span id="progressPct">0</span><span>%</span></div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="progressFill"></div>
-      </div>
-      <div class="progress-phase" id="progressPhase">Initializing...</div>
+    <div class="chips-cloud reveal">
+      <div class="chip"><span class="chip-dot"></span>Bill of Lading</div>
+      <div class="chip"><span class="chip-dot"></span>Commercial Invoice</div>
+      <div class="chip"><span class="chip-dot"></span>Packing List</div>
+      <div class="chip"><span class="chip-dot"></span>Certificate of Origin</div>
+      <div class="chip"><span class="chip-dot"></span>Phytosanitary Certificate</div>
+      <div class="chip"><span class="chip-dot"></span>Organic Certificate (COI)</div>
+      <div class="chip"><span class="chip-dot"></span>Fumigation Certificate</div>
+      <div class="chip"><span class="chip-dot"></span>Quality Certificate</div>
+      <div class="chip"><span class="chip-dot"></span>3rd Party Quality Report</div>
+      <div class="chip"><span class="chip-dot"></span>ISF / CBP Filing</div>
+      <div class="chip"><span class="chip-dot"></span>Import Permit</div>
+      <div class="chip"><span class="chip-dot"></span>TRACES NT</div>
     </div>
-
-    <div class="doc-progress-list" id="docProgressList"></div>
   </div>
+</section>
 
-  <!-- ══ RESULTS ══ -->
-  <div class="results" id="results">
-
-    <div class="section-label" style="margin-bottom:1.5rem;">
-      <div class="section-label-num">03</div>
-      <div class="section-label-text">
-        <h2 id="s3title">Analysis Results</h2>
-        <p id="s3sub">Internal coherence review across all documents</p>
+<!-- ══ SOCIAL PROOF ══ -->
+<section class="proof-section mkt-section">
+  <div class="container">
+    <div class="proof-grid">
+      <div class="proof-left reveal">
+        <span class="label">Why exporters choose us</span>
+        <h2>Fewer errors.<br>Faster shipments.</h2>
+        <p>Manual document review takes hours and still misses things. DocsValidate catches mismatches in seconds &mdash; so your team can focus on the shipment, not the paperwork.</p>
+        <a href="/app" class="btn btn-primary btn-lg">Start validating for free &rarr;</a>
       </div>
-    </div>
-
-    <!-- ① RESULTS HEADER — Commercial / Transport split -->
-    <div id="resultsHeader" class="rh-wrap" style="display:none;">
-      <div class="rh-col rh-commercial">
-        <div class="rh-col-label">COMMERCIAL</div>
-        <div class="rh-values">
-          <div class="rh-val-group">
-            <span class="rh-val-label">Total Value</span>
-            <span class="rh-val-big" id="rhTotal">—</span>
+      <div class="proof-right">
+        <div class="stats-grid-mkt reveal">
+          <div class="stat-box">
+            <div class="stat-num">30<span>s</span></div>
+            <div class="stat-lbl-mkt">Avg. analysis time</div>
           </div>
-          <div class="rh-val-group">
-            <span class="rh-val-label">Price / MT</span>
-            <span class="rh-val-med" id="rhPrice">—</span>
+          <div class="stat-box">
+            <div class="stat-num">12<span>+</span></div>
+            <div class="stat-lbl-mkt">Document types</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">100<span>%</span></div>
+            <div class="stat-lbl-mkt">Field-level comparison</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">0</div>
+            <div class="stat-lbl-mkt">Manual setup required</div>
           </div>
         </div>
-        <div class="rh-chips" id="rhChips"></div>
-      </div>
-      <div class="rh-divider"></div>
-      <div class="rh-col rh-transport">
-        <div class="rh-col-label">TRANSPORT</div>
-        <div class="rh-bl-row">
-          <span class="rh-bl-prefix">B/L</span>
-          <span class="rh-bl-number" id="rhBL">—</span>
-        </div>
-        <div class="rh-meta">
-          <div class="rh-meta-row" id="rhVessel"></div>
-          <div class="rh-meta-row" id="rhRoute"></div>
-          <div class="rh-meta-row" id="rhLots"></div>
+        <div class="quote-card reveal reveal-delay-1">
+          <div class="quote-mark">&ldquo;</div>
+          <p class="quote-text">Before DocsValidate, I'd spend 2&ndash;3 hours cross-checking every shipment. Now I catch inconsistencies before they reach customs &mdash; in under a minute.</p>
+          <div class="quote-author">
+            <div class="q-avatar">A</div>
+            <div>
+              <div class="q-name">Aromacacao S.A.</div>
+              <div class="q-role">Organic Cacao Exporter &middot; Ecuador</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- ① VERDICT ROW -->
-    <div id="statusPill" class="rv-wrap" style="display:none;">
-      <div class="rv-left">
-        <span class="rv-dot" id="rvDot"></span>
-        <span class="rv-text" id="statusPillText">Set approved</span>
-      </div>
-      <div class="rv-right" id="rvStats"></div>
-    </div>
-
-    <!-- Keep old IDs hidden for JS compat -->
-    <div id="blStrip" style="display:none;"><span id="blStripPrefix"></span><span id="blStripNumber"></span><span id="blStripExtra"></span></div>
-    <div id="finPanel" style="display:none;"><span class="fin-comm-label"></span><span id="finTotal"></span><span id="finPrice"></span><span id="finPriceWrap"></span><span id="finTerms"></span><span id="finTermsWrap"></span><span id="finSource"></span></div>
-
-    <!-- ② SUMMARY CARD (AI text) -->
-    <div id="summaryCard" class="r-summary-card sc-ok" style="display:none;">
-      <div class="r-summary-text" id="summaryCardText"></div>
-    </div>
-
-    <!-- ③ STATS ROW -->
-    <div class="r-stat-row" id="statsRow"></div>
-
-    <!-- ③b CONSISTENCY MATRIX -->
-    <div id="matrixSection" style="display:none;margin-bottom:1.4rem;">
-      <div class="r-sec-label" id="matrixLabel">Consistency Matrix</div>
-      <div style="overflow-x:auto;">
-        <table id="matrixTable" class="mx-table">
-          <!-- Populated by JS -->
-        </table>
-      </div>
-      <div class="mx-legend" id="matrixLegend"></div>
-    </div>
-
-    <!-- ④ MULTI-DOC NOTICE -->
-    <div id="multiDocNotice" style="display:none;" class="multidoc-notice"></div>
-
-    <!-- ⑤ SPLIT PANEL — field list + detail -->
-    <div id="splitPanel" class="sp-wrap" style="display:none;">
-      <div class="sp-left" id="spLeft"></div>
-      <div class="sp-right" id="spRight">
-        <div class="sp-right-empty" id="spRightEmpty">
-          <span id="spEmptyText">Select a field to see details</span>
-        </div>
-        <div class="sp-right-content" id="spRightContent" style="display:none;"></div>
-      </div>
-    </div>
-
-    <!-- Legacy alert IDs kept for backward compat -->
-    <div id="alertsSection" style="display:none;">
-      <div id="alertsErrGroup" style="display:none;">
-        <div class="r-sec-label" id="alertsErrLabel"></div>
-        <div class="r-alert-list" id="alertsErrBody"></div>
-      </div>
-      <div id="alertsWarnGroup" style="display:none;">
-        <div class="r-sec-label" id="alertsWarnLabel"></div>
-        <div class="r-alert-list" id="alertsWarnBody"></div>
-      </div>
-    </div>
-
-    <!-- ⑥ ACTION ITEMS -->
-    <div id="actionItemsSection" style="display:none;margin-top:1.2rem;">
-      <div class="r-sec-label" id="actionItemsLabel">Action Items</div>
-      <div class="r-actions-wrap" id="actionItemsList"></div>
-    </div>
-
-    <!-- ⑦ TRACKING -->
-    <div id="trackingStatusBanner" style="display:none;margin-bottom:1.5rem;">
-      <div class="tracking-status-bar" id="trackingStatusBar">
-        <div class="tsb-icon" id="tsbIcon">🚢</div>
-        <div class="tsb-content">
-          <div class="tsb-title" id="tsbTitle">Carrier Verification</div>
-          <div class="tsb-detail" id="tsbDetail">Not yet queried</div>
-        </div>
-        <div class="tsb-badge" id="tsbBadge">—</div>
-      </div>
-    </div>
-    <div class="result-section-title" id="trackingSectionTitle" style="display:none;">
-      <h3 id="trackingTitle">Shipment Tracking</h3>
-    </div>
-    <div id="trackingSection" style="display:none;margin-bottom:2rem;"></div>
-
-    <!-- ⑧ PER DOCUMENT — collapsible -->
-    <div class="r-sec-label" id="perDocSectionLabel" style="margin-top:1.4rem;">Document detail</div>
-    <div class="r-perdoc-wrap">
-      <div class="r-perdoc-head" onclick="toggleRPerdoc()">
-        <div class="r-perdoc-head-left" id="perDocTitle">Documents analyzed</div>
-        <button class="r-dcard-view" id="rPerdocBtn" onclick="event.stopPropagation();toggleRPerdoc()">View</button>
-      </div>
-      <div class="r-perdoc-body" id="rPerdocBody">
-        <div id="docCards"></div>
-      </div>
-    </div>
-
-    <!-- legacy hidden elements for JS compat -->
-    <div id="actionRequired" style="display:none;"></div>
-    <div id="arBody" style="display:none;"></div>
-    <div id="verdictEl" style="display:none;"></div>
-    <div id="verdictIcon" style="display:none;"></div>
-    <div id="verdictTitle" style="display:none;"></div>
-    <div id="verdictDesc" style="display:none;"></div>
-    <!-- table stubs — kept for JS compat, not shown -->
-    <div id="coherenceWrap" style="display:none;">
-      <div id="rTableBody"><div id="criticalBanner"></div><table><tbody id="ctbody"></tbody></table><div id="inconsSec"></div></div>
-    </div>
-    <span id="coherenceBadge" style="display:none;"></span>
-    <span id="rTableChev" style="display:none;"></span>
-    <span id="coherenceTitle" style="display:none;"></span>
-    <span id="ctableTitle" style="display:none;"></span>
-    <span id="th1" style="display:none;"></span><span id="th2" style="display:none;"></span>
-    <span id="th3" style="display:none;"></span><span id="th4" style="display:none;"></span>
-
-    <!-- ⑨ ACTIONS -->
-    <div class="actions" style="margin-top:1.5rem;">
-      <button class="btn-dl" id="btnDlPdf" aria-label="Download PDF report" onclick="downloadPdfReport()">
-        ↓ <span id="dlPdfTxt">Download PDF Report</span>
-      </button>
-      <button class="btn-reset" style="background:none;border:1px solid var(--border);color:var(--text-mid);" id="btnDl" aria-label="Download TXT report" onclick="downloadReport()">
-        ↓ <span id="dlTxt">Download TXT</span>
-      </button>
-      <button class="btn-reset" style="background:none;border:1px solid var(--tan);color:var(--tan);" id="btnSaveReport" aria-label="Save report to account" onclick="saveReportManual()">
-        💾 <span id="saveReportTxt">Save Report</span>
-      </button>
-      <button class="btn-reset" id="btnReset" aria-label="Start new analysis" onclick="resetApp()">
-        ↺ <span id="resetTxt">New Analysis</span>
-      </button>
-    </div>
-
   </div>
+</section>
 
-</main>
-
-
-<footer>
-  <div class="footer-logo">
-    <a href="/" onclick="if(typeof resetApp==='function'){event.preventDefault();resetApp();}" style="text-decoration:none;color:var(--white);">DocsValidate</a>
+<!-- ══ CTA FINAL ══ -->
+<section class="cta-section">
+  <div class="cta-inner reveal">
+    <span class="label">Get started today</span>
+    <h2>Worried about customs delays?</h2>
+    <p>Your first analysis is free. No credit card. No commitment. Upload your shipment set and see the difference in 30 seconds.</p>
+    <div class="cta-btns">
+      <a href="/app" class="btn btn-mint btn-xl">
+        Verify Docs Free &rarr;
+      </a>
+      <a href="/pricing.html" class="btn btn-outline-white btn-lg">View pricing</a>
+    </div>
   </div>
-  <ul class="footer-links">
-    <li><a href="/">DocsValidate.com</a></li>
-    <li><a href="https://www.instagram.com/docsvalidate/" target="_blank" rel="noopener">Instagram</a></li>
-    <li><a href="https://www.tiktok.com/@docsvalidate" target="_blank" rel="noopener">TikTok</a></li>
-  </ul>
-  <div class="footer-copy">© 2025–2026 DocsValidate · All Rights Reserved</div>
+</section>
+
+
+
+<!-- ══ FOOTER ══ -->
+<footer class="mkt-footer">
+  <div class="footer-inner">
+    <a href="/" class="footer-brand">DocsValidate</a>
+    <div class="footer-links-mkt">
+      <a href="/pricing.html">Pricing</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/terms.html">Terms of Use</a>
+      <a href="https://www.instagram.com/docsvalidate/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@docsvalidate" target="_blank" rel="noopener">TikTok</a>
+    </div>
+    <div class="footer-lang">
+      <span onclick="setLang('en')" class="active">EN</span> | <span onclick="setLang('es')">ES</span>
+    </div>
+    <div class="footer-right-mkt">&copy; 2025&ndash;2026 DocsValidate &middot; All Rights Reserved</div>
+  </div>
 </footer>
 
+
+<!-- ══ SCROLL REVEAL & NAV SHADOW ══ -->
 <script>
-// ── Global shared state ──────────────────────────────────
-let lang = localStorage.getItem('dv_lang') || 'en';
-let uploadedFiles = [];
-let analysisResults = [];
-let coherenceResult = null;
-const GUEST_LIMIT = 3;
-let _cachedSummary = null;
-let lastFinalErrors = 0, lastFinalWarnings = 0;
-let _heavyLibsLoaded = false;
-let _heavyLibsLoading = null;
-let _analysisInProgress = false;
-const MAKE_WEBHOOK = 'https://hook.us2.make.com/6c916cohvzywegwgbw5ijbxcvbwts2n9';
-const HERO_IMAGES = ['/hero-1.jpg', '/hero-2.jpg'];
-
-// ── Translation system ───────────────────────────────────
-const TX = {
-  en: {
-    logoTagline:'DocsValidate.com',
-    heroEyebrow:'AI-Powered Documents Validation',
-    heroTitle:'Validate your shipment documents<br><em>in seconds — not hours</em>',
-    heroSub:'AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.',
-    heroBullets:['✓ Containers & seals verified','✓ Weights & quantities matched','✓ All parties cross-checked'],
-    heroQuote:'',
-    ps1:'Select Documents', ps2:'AI Analysis', ps3:'Review Results', ps4:'Download Report',
-    s1title:'Document Types', s1sub:'Select the types included in this shipment set',
-    s2title:'Upload Documents', s2sub:'Drag all shipment documents — PDF, Images, Excel, Word',
-    uploadTitle:'Drag all shipment documents here',
-    uploadSub:'PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>All documents from the same shipment set',
-    uploadCta:'Select Files',
-    stepDocTypes:'Document Types', stepUpload:'Upload Files', stepAnalyze:'Analyze',
-    uploadPanelTitle:'Upload your documents',
-    browseFiles:'Browse files',
-    analyzeBtnTxt:'Analyze Full Set with AI',
-    loadTitle:'Analyzing your set', loadSub:'Starting extraction...',
-    s3title:'Analysis Results', s3sub:'Internal coherence review across all documents',
-    coherenceTitle:'Consistency Table',
-    ctableTitle:'Field-by-field comparison across all documents',
-    th1:'Field', th2:'Status', th3:'Value(s) Found', th4:'Found In',
-    perDocTitle:'Per Document Detail',
-    dlPdfTxt:'Download PDF Report', dlTxt:'Download TXT', saveReportTxt:'Save Report', saveReportDone:'✓ Saved', resetTxt:'New Analysis', trackTxt:'Track Shipment',
-    trackingTitle:'Shipment Tracking',
-    trackingLoading:'Querying carrier...',
-    trackingError:'Could not retrieve tracking data. Check the BL number and try again.',
-    trackingNobl:'No BL number found in the documents.',
-    trackingStatus:'Status', trackingVessel:'Vessel', trackingVoyage:'Voyage',
-    trackingETA:'ETA', trackingATD:'ATD (Departure)', trackingPOL:'Port of Loading',
-    trackingPOD:'Port of Discharge', trackingContainer:'Container',
-    trackingEvents:'Recent Events', trackingLatest:'Latest',
-    trackingMatchOk:'✓ Tracking data matches document information',
-    trackingMatchWarn:'⚠ Some tracking data differs from documents — review carefully',
-    trackingMatchErr:'✗ Tracking data does not match documents',
-    partialTip:'You don\'t need to upload all documents at once — you can run a partial analysis with just the documents you have available at any given time.',
-    statDocs:'Documents', statOk:'No Issues', statWarn:'Observations', statErr:'Inconsistencies',
-    verdictApproved:'Set Approved — Coherence Verified',
-    verdictApprovedDesc:'All values are consistent across all documents. The shipment can proceed.',
-    verdictWarning:'Set with Observations',
-    verdictWarningDesc: n=>`${n} minor observation(s). Please review before proceeding.`,
-    verdictRejected:'Set Rejected — Inconsistencies Found',
-    verdictRejectedDesc: n=>`${n} critical inconsistency(ies) found. Values do not match across documents.`,
-    badgeOk:'✓ Consistent', badgeErr:'✗ Inconsistent', badgeSingle:'· Single Source',
-    cbOk:'Consistent ✓', cbWarn:'Observations', cbErr: n=>`${n} inconsistency(ies)`,
-    statusOk:'OK', statusWarn:'Observations', statusErr:'Inconsistent',
-    errCrit:'Critical Error', errWarn:'Observation',
-    notFound:'— (not found)',
-    inconsLabel:'Inconsistency detail',
-    fieldsLabel:'Extracted Fields', obsLabel:'Observations', analysisLabel:'✦ Analysis', summaryLabel:'✦ Set Summary',
-    actionItemsLabel:'Action Items',
-    finLabelCommercial:'Commercial Value', finLabelPrice:'Price / Unit', finLabelTerms:'Terms', finLabelSource:'Source',
-    blLabelPrefix:'B/L', blLabelLot:'Lot',
-    rhCommercial:'COMMERCIAL', rhTransport:'TRANSPORT',
-    rhTotalValue:'Total Value', rhPriceMT:'Price / MT',
-    perDocViewBtn:'View', perDocCloseBtn:'Close',
-    docCardViewBtn:'View', docCardCloseBtn:'Close',
-    FL:{containers:'Containers',seals:'Seals',lots:'Lots',bags:'Bag Count',netWeight:'Net Weight',grossWeight:'Gross Weight',shipper:'Shipper',consignee:'Consignee',vessel:'Vessel',portOfLoading:'Port of Loading',portOfDischarge:'Port of Discharge',destinationCountry:'Destination Country',originCountry:'Country of Origin',blNumber:'BL Number',invoiceNumber:'Invoice Number',voyageNumber:'Voyage Number',hsCode:'HS Code',qualityGrade:'Quality Grade',coiCertNumber:'COI Cert. Number',coiCertifier:'Certifying Body',coiStandard:'Organic Standard',coiAuthorizedQty:'COI Auth. Quantity',coiTransactionCert:'Transaction Cert. (TC#)',coiLots:'COI Lots'},
-    DOCFIELDS:[['Type','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Containers','containerNumbers'],['Seals','sealNumbers'],['Lots','lotNumbers'],['Bags','bagCount'],['Net Weight','netWeight'],['Gross Weight','grossWeight'],['Product','productDescription'],['Origin','originCountry'],['Destination','destinationCountry'],['Port of Loading','portOfLoading'],['Port of Discharge','portOfDischarge'],['Vessel','vesselName'],['BL Number','blNumber'],['Invoice No.','invoiceNumber'],['Date','exportDate'],['Lab / Certifier','labName'],['Lab Cert #','labCertNumber'],['Moisture','moistureContent'],['Quality Grade','qualityGrade'],['Test Results','testResults'],['Permit Number','permitNumber'],['Permit Authority','permitAuthority'],['Permit Valid From','permitValidFrom'],['Permit Valid Until','permitValidUntil'],['Importer of Record','importerOfRecord'],['COI Cert. Number','coiCertNumber'],['Certifying Body','coiCertifier'],['Organic Standard','coiStandard'],['COI Operator','coiOperator'],['COI Products','coiProducts'],['COI Valid From','coiValidFrom'],['COI Valid Until','coiValidUntil'],['COI Auth. Quantity','coiAuthorizedQty'],['Transaction Cert. TC#','coiTransactionCert'],['COI Lots','coiLots']],
-    rptTitle:'DocsValidate — COHERENCE ANALYSIS REPORT',
-    rptStatus:'Status',rptDocs:'Documents',rptIncons:'Inconsistencies',rptObs:'Observations',
-    rptCoherence:'COHERENCE TABLE',rptDetail:'DETAIL PER DOCUMENT',rptDetailIss:'DETAILED INCONSISTENCIES',
-    rptFile:'File',rptShipper:'Shipper',rptConsignee:'Consignee',rptContainers:'Containers',
-    rptSeals:'Seals',rptLots:'Lots',rptBags:'Bags',rptNet:'Net Weight',rptGross:'Gross Weight',
-    rptVessel:'Vessel',rptPOL:'Port of Loading',rptPOD:'Port of Discharge',rptBL:'BL Number',
-    rptInv:'Invoice No.',rptComment:'Comment',rptDate:'Date',
-    rptFooter:'© DocsValidate · AI-Powered Export Validation',rptNotFound:'not found',
-    loadSteps:['Comparing containers, lots, bags, weights...','Verifying shipper, consignee, ports, vessel...','Identifying inconsistencies in detail...','Generating report...'],
-    filesCount: n=>`${n} document${n===1?'':'s'} selected`,
-    loadTitle:'Analyzing your set',
-    loadSubInit:'Starting extraction...',
-    progressLabelInit:'Extracting documents',
-    progressPhaseInit:'Initializing...',
-    tsbTitleInit:'Carrier Verification',
-    tsbDetailInit:'Not yet queried',
-    verdictTitleInit:'Set Approved',
-    verdictDescInit:'All values are consistent.',
-    coherenceBoxTitle:'Field-by-field comparison across all documents',
-    inconsistencyDetail:'Inconsistency Detail',
-    authTitle:'Create your free account',
-    authDesc:"You've used your 3 free trial analyses. Sign up for free to get 20 analyses per month — no credit card required.",
-    authBtn:'Sign up free',
-    authTerms:'I have read and agree to the',
-    authTermsLink:'Terms of Service',
-    authTermsErr:'Please accept the Terms of Service to continue.',
-    authSignIn:'Already have an account?',
-    authSignInLink:'Sign in',
-    upgradeTitle:"You've reached your limit",
-    upgradeBtnTxt:'View plans',
-    rptSubtitle:'AI-Powered Export Validation',
-    libLoadErr:'Failed to load required libraries. Please check your connection and try again.',
-    histTitle:'Your Recent Validations', histSub:'Click any row to see the summary',
-    histSearch:'Search BL or vessel...', histEmpty:'No validations yet — run your first analysis above.',
-    histDate:'Date', histBL:'BL Number', histVessel:'Vessel', histStatus:'Status', histDocs:'Docs',
-    spCritical:'Critical Inconsistencies', spObservations:'Observations', spVerified:'Verified Fields',
-    spSelectField:'Select a field to see details', spDismissed:'✓ Dismissed', spNotAnIssue:'Not an issue',
-    spFixRequired:'Fix required', spVerify:'Verify', spConsistent:'Consistent', spValuePerDoc:'Value per document',
-    matrixLabel:'Consistency Matrix — Key Fields',
-    matrixLegend:'OK = consistent with B/L | — = field not present | DIFF = different value',
-  },
-  es: {
-    logoTagline:'DocsValidate.com',
-    heroEyebrow:'Validación de Documentos con IA',
-    heroTitle:'Valida tus documentos de embarque<br><em>en segundos — no en horas.</em>',
-    heroSub:'La IA detecta inconsistencias en contenedores, pesos, sellos, lotes y partes antes de que causen demoras.',
-    heroBullets:['✓ Contenedores y sellos verificados','✓ Pesos y cantidades comparados','✓ Todas las partes cruzadas'],
-    heroQuote:'',
-    ps1:'Seleccionar Documentos', ps2:'Análisis IA', ps3:'Ver Resultados', ps4:'Descargar Reporte',
-    s1title:'Tipos de Documento', s1sub:'Selecciona los tipos incluidos en este set de embarque',
-    s2title:'Cargar Documentos', s2sub:'Arrastra todos los documentos del embarque — PDF, Imágenes, Excel, Word',
-    uploadTitle:'Arrastra todos los documentos del set aquí',
-    uploadSub:'PDF · JPG · PNG · <strong>Excel (.xlsx / .xls)</strong> · <strong>Word (.docx / .doc)</strong><br>Todos los documentos del mismo embarque',
-    uploadCta:'Seleccionar Archivos',
-    stepDocTypes:'Tipos de Documento', stepUpload:'Cargar Archivos', stepAnalyze:'Analizar',
-    uploadPanelTitle:'Carga tus documentos',
-    browseFiles:'Seleccionar archivos',
-    analyzeBtnTxt:'Analizar Set Completo con IA',
-    loadTitle:'Analizando el set', loadSub:'Iniciando extracción...',
-    s3title:'Resultados del Análisis', s3sub:'Revisión de coherencia interna entre todos los documentos',
-    coherenceTitle:'Tabla de Consistencia',
-    ctableTitle:'Comparación campo por campo entre todos los documentos',
-    th1:'Campo', th2:'Estado', th3:'Valor(es) Encontrado(s)', th4:'Encontrado En',
-    perDocTitle:'Detalle por Documento',
-    dlPdfTxt:'Descargar Reporte PDF', dlTxt:'Descargar TXT', saveReportTxt:'Guardar Reporte', saveReportDone:'✓ Guardado', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
-    trackingTitle:'Tracking del Embarque',
-    trackingLoading:'Consultando naviera...',
-    trackingError:'No se pudo obtener el tracking. Verifica el número de BL e intenta de nuevo.',
-    trackingNobl:'No se encontró número de BL en los documentos.',
-    trackingStatus:'Estado', trackingVessel:'Buque', trackingVoyage:'Viaje',
-    trackingETA:'ETA', trackingATD:'ATD (Salida)', trackingPOL:'Puerto de Carga',
-    trackingPOD:'Puerto de Descarga', trackingContainer:'Contenedor',
-    trackingEvents:'Eventos Recientes', trackingLatest:'Último',
-    trackingMatchOk:'✓ El tracking coincide con la información de los documentos',
-    trackingMatchWarn:'⚠ Algunos datos del tracking difieren de los documentos — revisar',
-    trackingMatchErr:'✗ El tracking no coincide con los documentos',
-    partialTip:'No necesitas subir todos los documentos a la vez — puedes hacer un análisis parcial con los documentos que tengas disponibles en ese momento.',
-    statDocs:'Documentos', statOk:'Sin Problemas', statWarn:'Observaciones', statErr:'Inconsistencias',
-    verdictApproved:'Set Aprobado — Coherencia Verificada',
-    verdictApprovedDesc:'Todos los valores son coherentes entre los documentos. El embarque puede proceder.',
-    verdictWarning:'Set con Observaciones',
-    verdictWarningDesc: n=>`${n} observación(es) menor(es). Revisar antes de proceder.`,
-    verdictRejected:'Set Rechazado — Inconsistencias Encontradas',
-    verdictRejectedDesc: n=>`${n} inconsistencia(s) crítica(s) detectada(s). Los valores no coinciden entre documentos.`,
-    badgeOk:'✓ Coincide', badgeErr:'✗ Inconsistente', badgeSingle:'· Un Documento',
-    cbOk:'Coherente ✓', cbWarn:'Con observaciones', cbErr: n=>`${n} inconsistencia(s)`,
-    statusOk:'OK', statusWarn:'Observaciones', statusErr:'Inconsistente',
-    errCrit:'Error Crítico', errWarn:'Observación',
-    notFound:'— (no encontrado)',
-    inconsLabel:'Detalle de inconsistencias encontradas',
-    fieldsLabel:'Campos Extraídos', obsLabel:'Observaciones', analysisLabel:'✦ Análisis', summaryLabel:'✦ Resumen del Set',
-    actionItemsLabel:'Acciones Requeridas',
-    finLabelCommercial:'Valor Comercial', finLabelPrice:'Precio / Unidad', finLabelTerms:'Términos', finLabelSource:'Fuente',
-    blLabelPrefix:'N° BL', blLabelLot:'Lote',
-    rhCommercial:'COMERCIAL', rhTransport:'TRANSPORTE',
-    rhTotalValue:'Valor Total', rhPriceMT:'Precio / TM',
-    perDocViewBtn:'Ver', perDocCloseBtn:'Cerrar',
-    docCardViewBtn:'Ver', docCardCloseBtn:'Cerrar',
-    FL:{containers:'Contenedores',seals:'Precintos/Sellos',lots:'Lotes',bags:'Cantidad de Sacos',netWeight:'Peso Neto',grossWeight:'Peso Bruto',shipper:'Shipper',consignee:'Consignee',vessel:'Buque',portOfLoading:'Puerto de Carga',portOfDischarge:'Puerto de Descarga',destinationCountry:'País de Destino',originCountry:'País de Origen',blNumber:'N° de BL',invoiceNumber:'N° de Factura',voyageNumber:'N° de Viaje',hsCode:'Código HS',qualityGrade:'Grado de Calidad',coiCertNumber:'N° Certificado COI',coiCertifier:'Organismo Certificador',coiStandard:'Estándar Orgánico',coiAuthorizedQty:'Cantidad Autorizada COI',coiTransactionCert:'Cert. Transacción (TC#)',coiLots:'Lotes en COI'},
-    DOCFIELDS:[['Tipo','docType'],['Shipper','shipper'],['Consignee','consigneeName'],['Notify','notify'],['Contenedores','containerNumbers'],['Precintos','sealNumbers'],['Lotes','lotNumbers'],['Sacos','bagCount'],['Peso Neto','netWeight'],['Peso Bruto','grossWeight'],['Producto','productDescription'],['Origen','originCountry'],['Destino','destinationCountry'],['Puerto Carga','portOfLoading'],['Puerto Descarga','portOfDischarge'],['Buque','vesselName'],['N° BL','blNumber'],['N° Factura','invoiceNumber'],['Fecha','exportDate'],['Lab / Certificador','labName'],['N° Cert. Lab','labCertNumber'],['Humedad','moistureContent'],['Grado de Calidad','qualityGrade'],['Resultados','testResults'],['N° Permiso Importación','permitNumber'],['Autoridad Emisora','permitAuthority'],['Permiso Válido Desde','permitValidFrom'],['Permiso Válido Hasta','permitValidUntil'],['Importador de Registro','importerOfRecord'],['N° Certificado COI','coiCertNumber'],['Organismo Certificador','coiCertifier'],['Estándar Orgánico','coiStandard'],['Operador Certificado','coiOperator'],['Productos COI','coiProducts'],['COI Válido Desde','coiValidFrom'],['COI Válido Hasta','coiValidUntil'],['Cantidad Autorizada COI','coiAuthorizedQty'],['Cert. Transacción TC#','coiTransactionCert'],['Lotes en COI','coiLots']],
-    rptTitle:'DocsValidate — REPORTE DE ANÁLISIS DE COHERENCIA',
-    rptStatus:'Estado',rptDocs:'Documentos',rptIncons:'Inconsistencias',rptObs:'Observaciones',
-    rptCoherence:'TABLA DE COHERENCIA',rptDetail:'DETALLE POR DOCUMENTO',rptDetailIss:'INCONSISTENCIAS DETALLADAS',
-    rptFile:'Archivo',rptShipper:'Shipper',rptConsignee:'Consignee',rptContainers:'Contenedores',
-    rptSeals:'Precintos',rptLots:'Lotes',rptBags:'Sacos',rptNet:'Peso Neto',rptGross:'Peso Bruto',
-    rptVessel:'Buque',rptPOL:'Puerto Carga',rptPOD:'Puerto Descarga',rptBL:'N° BL',
-    rptInv:'N° Factura',rptComment:'Comentario',rptDate:'Fecha',
-    rptFooter:'© DocsValidate · Analizador de Documentos',rptNotFound:'no encontrado',
-    loadSteps:['Comparando contenedores, lotes, sacos, pesos...','Verificando shipper, consignee, puertos, buque...','Identificando inconsistencias con detalle...','Generando reporte...'],
-    filesCount: n=>`${n} documento${n===1?'':'s'} seleccionado${n===1?'':'s'}`,
-    loadTitle:'Analizando el set',
-    loadSubInit:'Iniciando extracción...',
-    progressLabelInit:'Extrayendo documentos',
-    progressPhaseInit:'Inicializando...',
-    tsbTitleInit:'Verificación de Naviera',
-    tsbDetailInit:'Aún no consultado',
-    verdictTitleInit:'Set Aprobado',
-    verdictDescInit:'Todos los valores son consistentes.',
-    coherenceBoxTitle:'Comparación campo por campo entre todos los documentos',
-    inconsistencyDetail:'Detalle de Inconsistencias',
-    authTitle:'Crea tu cuenta gratuita',
-    authDesc:'Has usado tus 3 análisis de prueba. Crea una cuenta gratis para obtener 20 análisis al mes — sin tarjeta de crédito.',
-    authBtn:'Registrarse gratis',
-    authTerms:'He leído y acepto los',
-    authTermsLink:'Términos de Servicio',
-    authTermsErr:'Por favor acepta los Términos de Servicio para continuar.',
-    authSignIn:'¿Ya tienes cuenta?',
-    authSignInLink:'Inicia sesión',
-    upgradeTitle:'Has alcanzado tu límite',
-    upgradeBtnTxt:'Ver planes',
-    rptSubtitle:'Validación de Documentos con IA',
-    libLoadErr:'No se pudieron cargar las librerías necesarias. Verifica tu conexión e intenta de nuevo.',
-    histTitle:'Tus Validaciones Recientes', histSub:'Haz clic en una fila para ver el resumen',
-    histSearch:'Buscar BL o buque...', histEmpty:'Aún no tienes validaciones — ejecuta tu primer análisis arriba.',
-    histDate:'Fecha', histBL:'N° BL', histVessel:'Buque', histStatus:'Estado', histDocs:'Docs',
-    spCritical:'Inconsistencias Críticas', spObservations:'Observaciones', spVerified:'Campos Verificados',
-    spSelectField:'Selecciona un campo para ver el detalle', spDismissed:'✓ Descartado', spNotAnIssue:'No es error',
-    spFixRequired:'Corregir', spVerify:'Verificar', spConsistent:'Consistente', spValuePerDoc:'Valor por documento',
-    matrixLabel:'Matriz de Consistencia — Campos Clave',
-    matrixLegend:'OK = consistente con B/L | — = campo no presente | DIFF = valor diferente',
+(function(){
+  // Nav shadow on scroll
+  var navEl = document.getElementById('navbar');
+  if (navEl) {
+    window.addEventListener('scroll', function() {
+      navEl.classList.toggle('scrolled', window.scrollY > 10);
+    });
   }
-};
-
-const tx = ()=>TX[lang];
-
+  // Scroll reveal for marketing sections
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.10 });
+  document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+})();
 </script>
 
-<!-- Module files -->
-<script src="js/extraction.js"></script>
-<script src="js/coherence.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/rendering.js"></script>
-<script src="js/pdf.js"></script>
-<script src="js/history.js"></script>
-<script src="js/app.js"></script>
+<!-- ══ LANG SWITCH ══ -->
+<script>
+(function(){
+  var lang = localStorage.getItem('dv_lang') || 'en';
 
-<!-- ══ AUTH MODAL ══ -->
-<div id="authModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(26,15,8,0.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;">
-  <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
-    <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
-    <div style="font-size:2rem;margin-bottom:1rem;">🫘</div>
-    <h3 id="authModalTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;">Create your free account</h3>
-    <p id="authModalDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
-    <div id="clerkSignInDiv"></div>
-    <!-- Terms checkbox -->
-    <label id="termsLabel" style="display:flex;align-items:flex-start;gap:10px;text-align:left;margin-bottom:1.2rem;cursor:pointer;">
-      <input type="checkbox" id="termsCheck" style="margin-top:3px;min-width:15px;height:15px;accent-color:var(--brown-dark);cursor:pointer;"/>
-      <span id="termsText" style="font-size:0.78rem;color:var(--text-mid);line-height:1.5;">I have read and agree to the <a href="/terms.html" target="_blank" style="color:var(--brown-mid);text-decoration:underline;">Terms of Service</a></span>
-    </label>
-    <p id="termsError" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.8rem;text-align:left;"></p>
+  var UI = {
+    en: {
+      heroEyebrow: 'AI-Powered Documents Validation',
+      heroTitle: 'Validate your shipment documents<br><em>in seconds &mdash; not hours</em>',
+      heroSub: 'AI detects mismatches across containers, weights, seals, lots and parties before they cause delays.',
+      heroCta: 'Analyze Documents for Free &rarr;',
+      heroGhost: 'See how it works',
+      ctaLabel: 'Get started today',
+      ctaH2: 'Worried about customs delays?',
+      ctaP: 'Your first analysis is free. No credit card. No commitment. Upload your shipment set and see the difference in 30 seconds.',
+      ctaMint: 'Verify Docs Free &rarr;',
+      ctaPricing: 'View pricing',
+      navStart: 'Start free &rarr;',
+      navSignIn: 'Sign in'
+    },
+    es: {
+      heroEyebrow: 'Validaci\u00f3n de Documentos con IA',
+      heroTitle: 'Valida tus documentos de embarque<br><em>en segundos &mdash; no en horas.</em>',
+      heroSub: 'La IA detecta inconsistencias en contenedores, pesos, sellos, lotes y partes antes de que causen demoras.',
+      heroCta: 'Analizar Documentos Gratis &rarr;',
+      heroGhost: 'C\u00f3mo funciona',
+      ctaLabel: 'Empieza hoy',
+      ctaH2: '\u00bfPreocupado por demoras en aduana?',
+      ctaP: 'Tu primer an\u00e1lisis es gratis. Sin tarjeta. Sin compromiso. Sube tu set y ve la diferencia en 30 segundos.',
+      ctaMint: 'Verificar Docs Gratis &rarr;',
+      ctaPricing: 'Ver planes',
+      navStart: 'Empezar gratis &rarr;',
+      navSignIn: 'Iniciar sesi\u00f3n'
+    }
+  };
 
-    <button id="signupBtn" onclick="handleSignupClick()" style="width:100%;padding:1rem;background:var(--brown-dark);color:var(--tan-light);border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;opacity:0.5;transition:opacity 0.2s;">
-      <span id="authModalBtn">Sign up free</span>
-    </button>
-    <p id="authSignInP" style="font-size:0.72rem;color:var(--text-light);">Already have an account? <a href="#" onclick="openClerkSignIn()" style="color:var(--brown-mid);">Sign in</a></p>
-  </div>
-</div>
+  function applyLang(l) {
+    lang = l;
+    localStorage.setItem('dv_lang', l);
+    var t = UI[l] || UI.en;
 
-<!-- ══ UPGRADE MODAL ══ -->
-<div id="upgradeModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(26,15,8,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
-  <div style="background:var(--white);border-radius:4px;padding:2.5rem;max-width:420px;width:90%;position:relative;text-align:center;">
-    <button onclick="closeUpgradeModal()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-light);">✕</button>
-    <div style="font-size:2rem;margin-bottom:1rem;">⚡</div>
-    <h3 id="upgradeTitle" style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown-dark);margin-bottom:0.8rem;font-weight:400;"></h3>
-    <p id="upgradeDesc" style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;margin-bottom:1.8rem;"></p>
-    <a id="upgradeBtn" href="/pricing.html" style="display:block;width:100%;padding:1rem;background:var(--brown-dark);color:#ffffff;border:none;border-radius:2px;font-family:'Lato',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;margin-bottom:0.8rem;text-decoration:none;text-align:center;">
-      <span id="upgradeBtnTxt">View plans</span>
-    </a>
-  </div>
-</div>
+    var el;
+    if ((el = document.getElementById('heroEyebrow'))) el.innerHTML = '<span></span>' + t.heroEyebrow;
+    if ((el = document.getElementById('heroTitle'))) el.innerHTML = t.heroTitle;
+    if ((el = document.getElementById('heroSub'))) el.innerHTML = t.heroSub;
+
+    // Nav lang buttons
+    document.getElementById('btnEN').classList.toggle('active', l === 'en');
+    document.getElementById('btnES').classList.toggle('active', l === 'es');
+
+    // Footer lang
+    document.querySelectorAll('.footer-lang span').forEach(function(s){
+      s.classList.toggle('active', s.textContent.trim() === l.toUpperCase());
+    });
+  }
+
+  window.setLang = function(l) { applyLang(l); };
+  applyLang(lang);
+})();
+</script>
+
 </body>
 </html>

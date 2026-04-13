@@ -67,10 +67,18 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# ── Redirects: www → apex (avoids double DNS lookup if using www as primary)
-# Uncomment if you want docsvalidate.com to redirect to www.docsvalidate.com
-# [[redirects]]
-#   from = "https://docsvalidate.com/*"
-#   to   = "https://www.docsvalidate.com/:splat"
-#   status = 301
-#   force  = true
+# ── Clean URLs — serve .html files without extension
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/pricing"
+  to = "/pricing.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
