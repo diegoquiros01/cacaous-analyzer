@@ -1283,14 +1283,27 @@ function renderDocumentStack(results, coherenceResult) {
     flatResults = allResults;
   }
 
+  // Deduplicate by filename — show each file once
+  var seenFiles = {};
   flatResults.forEach(function(doc) {
     if (doc._err) return;
     var fn = doc._filename || '';
     var dt = doc.docType || fn;
+    // Skip duplicates (multi-doc PDFs produce multiple entries per file)
+    var key = fn || dt;
+    if (seenFiles[key]) return;
+    seenFiles[key] = true;
+
     var isBL = dt.toLowerCase().indexOf('bill of lading') >= 0 || dt.toLowerCase().indexOf('conocimiento') >= 0 || dt.toLowerCase().indexOf('waybill') >= 0;
 
-    // Check per-doc status
-    var pds = perDoc[fn] || {};
+    // Check per-doc status — try multiple key formats
+    var pds = perDoc[fn] || perDoc[dt] || {};
+    // Also try matching by partial filename
+    if (!pds.status) {
+      Object.keys(perDoc).forEach(function(k) {
+        if (fn && (k.indexOf(fn) >= 0 || fn.indexOf(k) >= 0)) pds = perDoc[k];
+      });
+    }
     var status = pds.status || 'approved';
     var hasErr = status === 'rejected';
     var hasWarn = status === 'warning';
@@ -1316,7 +1329,9 @@ function renderDocumentStack(results, coherenceResult) {
     }
 
     var icon = isBL ? '📋' : hasErr ? '🔴' : hasWarn ? '🟡' : '📄';
-    var displayName = dt.length > 28 ? dt.substring(0, 28) + '…' : dt;
+    // Prefer short doc type name, fallback to filename without extension
+    var shortName = dt || fn.replace(/\.[^.]+$/, '');
+    var displayName = shortName.length > 30 ? shortName.substring(0, 30) + '…' : shortName;
 
     list.innerHTML += '<div class="' + cls + '">'
       + '<span class="ws-doc-icon">' + icon + '</span>'
