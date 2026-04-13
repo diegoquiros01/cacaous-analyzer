@@ -367,6 +367,19 @@ Also include an "extraFields" object for any fields present in the document that
 {"docType":"detected type","shipper":"exporter name or null","consigneeName":"consignee name or null","consigneeAddress":"address or null","notify":"notify party or null","containerNumbers":["MSCU1234567"],"sealNumbers":["123456"],"lotNumbers":["LOT-001"],"bagCount":"500 or null","bagUnit":"bags","netWeight":"25000 or null","netWeightUnit":"kg","grossWeight":"25500 or null","grossWeightUnit":"kg","productDescription":"description or null","originCountry":"country or null","destinationCountry":"country or null","portOfLoading":"port or null","portOfDischarge":"port or null","exportDate":"date or null","expiryDate":"date or null","invoiceNumber":"number or null","blNumber":"number or null","vesselName":"vessel name or null","voyageNumber":"voyage number or null","labName":"lab or certifier name if 3rd party quality report else null","labCertNumber":"lab cert number or null","moistureContent":"moisture % if quality report or null","qualityGrade":"grade/classification or null","phytoCertNumber":"phyto cert number or null","phytoInspectionDate":"inspection date or null","phytoIssueDate":"issue date or null","importPermitNumber":"import permit number or null","importPermitValidUntil":"permit expiry date or null","importerOfRecord":"importer of record or null","coiCertNumber":"COI or NOP certificate number or null","coiCertifier":"certifying body name (e.g. CCOF, Ecocert, Control Union) or null","coiStandard":"organic standard (e.g. USDA NOP, EU Organic) or null","coiOperator":"certified operator name and address or null","coiProducts":"certified products listed in COI or null","coiValidFrom":"COI issue date or null","coiValidUntil":"COI expiry date or null","coiTransactionCert":"transaction certificate number (TC#) or null","coiLots":"lot numbers in COI or null","totalAmount":"total commercial value with currency symbol e.g. USD 374625.00 or null — extract from ANY document that states a shipment value (invoice, shipping notification, letter of declaration, etc.)","pricePerUnit":"unit price with unit e.g. 14985.00 USD/MT or 3.22 USD/kg or null — extract from any document","paymentTerms":"payment terms e.g. CAD, LC, TT or null — extract from any document","incoterms":"incoterm e.g. FOB, CIF, CFR or null — extract from any document","bankBeneficiary":"beneficiary name for payment or null — extract from any document","bankAccount":"account number or null — extract from any document"}`;
 
 
+  // Detect doc type from filename for more specific extraction instructions
+  const detectedType = detectDocType(entry.name) || (entry._detectedDocType || '');
+  const isPhyto = /phyto|fito|fitosanit/i.test(detectedType) || /phyto|fito|fitosanit/i.test(entry.name);
+  const isFumig = /fumig|gas.?clear|quarantine/i.test(detectedType) || /fumig|gas.?clear|quarantine/i.test(entry.name);
+
+  // Build specific extraction hint based on detected doc type
+  let extractHint = 'Extract all data from this cacao/coffee export document.';
+  if (isPhyto) {
+    extractHint = 'This is a PHYTOSANITARY CERTIFICATE. CRITICAL: Extract containerNumbers (look in "Marcas y números", "Marks and numbers", stamps, or any field showing 4-letter + 6-7 digit codes like CMAU6436204). Also extract: lotNumbers, vesselName, blNumber, shipper, consigneeName, destinationCountry, portOfLoading, bagCount, netWeight. Look carefully at ALL text in the document including stamps, seals, and margin notes.';
+  } else if (isFumig) {
+    extractHint = 'This is a FUMIGATION / GAS CLEARANCE CERTIFICATE. Extract: destinationCountry (from "Country/city of destination" or "Destino"), blNumber (from "Bl/Cont." — if pure digits, it is a BL number NOT a container), lotNumbers, bagCount, netWeight, vesselName, shipper, consigneeName, voyageNumber.';
+  }
+
   let content;
   if(entry.textContent){
     content='Extract all data from this cacao/coffee export document:\n\n' + entry.textContent;
@@ -376,7 +389,7 @@ Also include an "extraFields" object for any fields present in the document that
     content=[];
     if(mt==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
     else content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
-    content.push({type:'text',text:'Extract all data from this cacao/coffee export document.'});
+    content.push({type:'text',text:extractHint});
   }
   try{
     // Use Sonnet for large PDFs (multi-doc bundles), Haiku for smaller docs

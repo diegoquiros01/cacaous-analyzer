@@ -710,7 +710,7 @@ async function startAnalysis(){
 
     // Define which doc types should have which fields
     const shouldHave = {
-      containers: ['packing','lista de empaque','bill of lading','conocimiento','bl','waybill'],
+      containers: ['packing','lista de empaque','bill of lading','conocimiento','bl','waybill','phyto','fitosanit','fito'],
       invoiceNumber: ['invoice','factura','fact','packing','bill of lading','conocimiento','certificate of origin','certificado de origen','cert orig'],
       totalAmount: ['invoice','factura','fact'],
       lotNumbers: ['packing','bill of lading','conocimiento','certificate of origin','certificado de origen','phyto','fitosanit','quality','calidad'],
@@ -766,9 +766,16 @@ async function startAnalysis(){
               content = [];
               if(mt==='application/pdf') content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}});
               else content.push({type:'image',source:{type:'base64',media_type:mt,data:b64}});
-              content.push({type:'text',text:'Extract all data from this cacao/coffee export document. Pay special attention to: containerNumbers, invoiceNumber, lotNumbers, totalAmount.'});
+              // Use doc-type specific hint for re-extraction
+              var reHint = 'Extract all data from this cacao/coffee export document. Pay special attention to: containerNumbers, invoiceNumber, lotNumbers, totalAmount.';
+              var reDt = (doc.docType||'').toLowerCase();
+              var reFn = (doc._filename||'').toLowerCase();
+              if(/phyto|fito|fitosanit/.test(reDt) || /phyto|fito|fitosanit/.test(reFn)) {
+                reHint = 'This is a PHYTOSANITARY CERTIFICATE. CRITICAL: Look very carefully for container numbers (4 letters + 6-7 digits like CMAU6436204) in ANY part of the document — stamps, margins, "Marcas y números", "Marks and numbers", header fields. Also extract lotNumbers, vesselName, blNumber, shipper, destinationCountry, netWeight.';
+              }
+              content.push({type:'text',text:reHint});
             }
-            const retrySystem = 'You are an expert in cacao and coffee export documents. Extract ALL fields from this document. Return a JSON object. Pay special attention to: containerNumbers (format: 4 letters + 6-7 digits), sealNumbers, invoiceNumber, lotNumbers, bagCount, netWeight, grossWeight, totalAmount, pricePerUnit, vesselName, portOfLoading, portOfDischarge, blNumber, voyageNumber, shipper, consigneeName, destinationCountry, originCountry. Use null for fields not found.';
+            var retrySystem = 'You are an expert in cacao and coffee export documents. Extract ALL fields from this document. Return a JSON object. Pay special attention to: containerNumbers (format: 4 letters + 6-7 digits — look in ALL parts of the document including stamps, margins, and "Marcas" fields), sealNumbers, invoiceNumber, lotNumbers, bagCount, netWeight, grossWeight, totalAmount, pricePerUnit, vesselName, portOfLoading, portOfDischarge, blNumber, voyageNumber, shipper, consigneeName, destinationCountry, originCountry. Use null for fields not found.';
             const raw = await callClaude(retrySystem, content, 3000);
             let parsed;
             try {
