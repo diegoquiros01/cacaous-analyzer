@@ -1,4 +1,4 @@
-// netlify/functions/claude.js
+// netlify/functions/claude.js — rebuilt 2026-04-13
 // Proxy for Anthropic API with:
 // - Origin validation (only docsvalidate.com can call this)
 // - Clerk JWT cryptographic signature verification via JWKS
