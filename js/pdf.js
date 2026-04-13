@@ -19,88 +19,66 @@ async function downloadPdfReport() {
     setStep(4);
     await loadHtml2Pdf();
 
-    // Clone the ws-right panel (the actual rendered results) for PDF
     var wsRight = document.querySelector('.ws-right');
     if (!wsRight) { alert('No results to export'); return; }
 
-    // Create a clean container for PDF rendering
-    var container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    container.style.width = '190mm';
-    container.style.background = '#fff';
-
-    // Build PDF content: header + cloned results
     var blNum = (analysisResults.find(function(r){return r.blNumber})||{}).blNumber || '';
-    var vessel = (analysisResults.find(function(r){return r.vesselName})||{}).vesselName || '';
-    var voyage = (analysisResults.find(function(r){return r.voyageNumber})||{}).voyageNumber || '';
-    var date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
 
-    // Header
-    var header = document.createElement('div');
-    header.style.cssText = 'font-family:Helvetica,Arial,sans-serif;padding:0 0 8px;border-bottom:2px solid #0d1b2a;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;';
-    header.innerHTML = '<div style="font-size:16px;font-weight:700;letter-spacing:0.1em;color:#0d1b2a;">DOCSVALIDATE</div>'
-      + '<div style="text-align:right;font-size:9px;color:#7a8499;line-height:1.5;">'
-      + date + (blNum ? '<br><b style="color:#0d1b2a;">B/L: '+blNum+'</b>' : '')
-      + (vessel ? '<br>'+vessel+(voyage?' · Voy. '+voyage:'') : '')
-      + '</div>';
-    container.appendChild(header);
+    // Temporarily expand all collapsed sections
+    var perdocBody = document.getElementById('rPerdocBody');
+    var wasOpen = perdocBody && perdocBody.classList.contains('open');
+    if (perdocBody && !wasOpen) { perdocBody.classList.add('open'); perdocBody.style.display = 'block'; }
 
-    // Clone the results content
-    var clone = wsRight.cloneNode(true);
-
-    // Remove interactive elements from clone (buttons, click handlers)
-    clone.querySelectorAll('button, .r-dcard-view, [onclick]').forEach(function(el){
-      if (el.tagName === 'BUTTON' && (el.textContent||'').match(/View|Close|Ver|Cerrar|Fix|Not an|Verify|Dismiss/i)) {
-        el.remove();
+    var closedCards = [];
+    document.querySelectorAll('#docCards .r-dcard').forEach(function(card){
+      if (!card.classList.contains('open')) {
+        card.classList.add('open');
+        var body = card.querySelector('.r-dcard-body');
+        if (body) body.style.display = 'block';
+        closedCards.push(card);
       }
     });
 
-    // Expand all collapsed sections for PDF
-    clone.querySelectorAll('.r-perdoc-body').forEach(function(el){ el.classList.add('open'); el.style.display='block'; });
-    clone.querySelectorAll('.r-dcard-body').forEach(function(el){ el.style.display='block'; });
-    clone.querySelectorAll('.r-dcard').forEach(function(el){ el.classList.add('open'); });
+    // Temporarily hide action buttons
+    var actionsEl = wsRight.querySelector('.actions');
+    var actionsDisplay = '';
+    if (actionsEl) { actionsDisplay = actionsEl.style.display; actionsEl.style.display = 'none'; }
 
-    // Remove the "03 Analysis Results" section label (redundant in PDF)
-    var secLabel = clone.querySelector('.section-label');
-    if (secLabel) secLabel.remove();
+    // Temporarily hide the "03 Analysis Results" section label
+    var secLabel = wsRight.querySelector('.section-label');
+    var secLabelDisplay = '';
+    if (secLabel) { secLabelDisplay = secLabel.style.display; secLabel.style.display = 'none'; }
 
-    // Fix sticky elements for print
-    clone.querySelectorAll('[style*="sticky"]').forEach(function(el){ el.style.position='static'; });
+    // Fix matrix sticky for capture
+    var stickyEls = wsRight.querySelectorAll('.mx-table td, .mx-table th');
+    stickyEls.forEach(function(el){ el.dataset.origPos = el.style.position; el.style.position = 'static'; });
+    var mxWrap = wsRight.querySelector('.mx-scroll-wrap');
+    var mxOverflow = '';
+    if (mxWrap) { mxOverflow = mxWrap.style.overflow; mxWrap.style.overflow = 'visible'; }
 
-    // Make matrix table non-sticky for PDF
-    clone.querySelectorAll('.mx-table td, .mx-table th').forEach(function(el){ el.style.position='static'; });
-    var mxWrap = clone.querySelector('.mx-scroll-wrap');
-    if (mxWrap) mxWrap.style.overflow = 'visible';
-
-    // Set font family on clone
-    clone.style.fontFamily = 'Helvetica, Arial, sans-serif';
-    clone.style.fontSize = '10px';
-    clone.style.padding = '0';
-    clone.style.maxWidth = '190mm';
-
-    container.appendChild(clone);
-
-    // Footer
-    var footer = document.createElement('div');
-    footer.style.cssText = 'border-top:1px solid #d0d6e2;padding-top:8px;margin-top:16px;font-size:7px;color:#7a8499;text-align:center;letter-spacing:0.08em;font-family:Helvetica,Arial,sans-serif;';
-    footer.textContent = 'Validated by DocsValidate · ' + (tx().rptSubtitle || 'AI-Powered Export Validation') + ' · ' + date;
-    container.appendChild(footer);
-
-    document.body.appendChild(container);
-
+    // Generate PDF directly from the visible element
     var filename = 'docsvalidate-report-' + (blNum || Date.now()) + '.pdf';
     await html2pdf().set({
-      margin: [8, 8, 8, 8],
+      margin: [6, 6, 6, 6],
       filename: filename,
       image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+      html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: wsRight.scrollWidth },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    }).from(container).save();
+    }).from(wsRight).save();
 
-    document.body.removeChild(container);
+    // Restore original state
+    if (actionsEl) actionsEl.style.display = actionsDisplay;
+    if (secLabel) secLabel.style.display = secLabelDisplay;
+    stickyEls.forEach(function(el){ el.style.position = el.dataset.origPos || ''; });
+    if (mxWrap) mxWrap.style.overflow = mxOverflow;
+    closedCards.forEach(function(card){
+      card.classList.remove('open');
+      var body = card.querySelector('.r-dcard-body');
+      if (body) body.style.display = 'none';
+    });
+    if (perdocBody && !wasOpen) { perdocBody.classList.remove('open'); perdocBody.style.display = 'none'; }
+
   } catch(e) {
     console.error('PDF generation error:', e);
     alert('PDF error: ' + e.message);
