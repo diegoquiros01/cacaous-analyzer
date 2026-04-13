@@ -710,7 +710,7 @@ async function startAnalysis(){
 
     // Define which doc types should have which fields
     const shouldHave = {
-      containers: ['packing','lista de empaque','bill of lading','conocimiento','bl','waybill','phyto','fitosanit','fito'],
+      containers: ['packing','lista de empaque','bill of lading','conocimiento','bl','waybill'],
       invoiceNumber: ['invoice','factura','fact','packing','bill of lading','conocimiento','certificate of origin','certificado de origen','cert orig'],
       totalAmount: ['invoice','factura','fact'],
       lotNumbers: ['packing','bill of lading','conocimiento','certificate of origin','certificado de origen','phyto','fitosanit','quality','calidad'],
