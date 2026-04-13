@@ -749,6 +749,7 @@ function renderResults(){
       if(e.allSame) okWeight += w;
     });
     var pct = totalWeight > 0 ? Math.round((okWeight / totalWeight) * 100) : (finalErrors === 0 ? 100 : 0);
+    console.log('[Score]', 'totalWeight:', totalWeight, 'okWeight:', okWeight, 'pct:', pct, 'entries:', tableEntries.length, 'ok:', tableEntries.filter(function(e){return e.allSame}).length, 'err:', tableEntries.filter(function(e){return e.isErr}).length);
     if (wsScore) wsScore.textContent = pct + '/100';
     // Doc list from analysisResults + perDoc (already resolved above)
     wsList.innerHTML = '';
