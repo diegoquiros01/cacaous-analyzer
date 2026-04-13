@@ -99,15 +99,16 @@ function renderHistory(rows) {
     return;
   }
   const statusBadge = (s) => {
-    const colors = { approved:'var(--green)', warning:'var(--tan)', rejected:'var(--red)' };
+    const colors = { approved:'var(--mint-dark)', warning:'var(--steel)', rejected:'var(--red-light)' };
+    const bgs = { approved:'rgba(62,207,170,0.1)', warning:'rgba(74,111,165,0.1)', rejected:'rgba(176,64,48,0.08)' };
     const labels = { approved: t.statusOk, warning: t.statusWarn, rejected: t.statusErr };
-    return '<span style="font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border:1px solid '+
-      (colors[s]||'var(--border)')+';color:'+(colors[s]||'var(--text-light)')+';font-weight:700;border-radius:2px;">'+
+    return '<span style="font-family:Raleway,sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border:1px solid '+
+      (colors[s]||'var(--border)')+';color:'+(colors[s]||'var(--text-light)')+';background:'+(bgs[s]||'transparent')+';font-weight:700;border-radius:100px;">'+
       (labels[s]||s)+'</span>';
   };
   const delSelLabel = lang==='es' ? 'Eliminar seleccionados' : 'Delete selected';
   const selectAllLabel = lang==='es' ? 'Todos' : 'All';
-  const header = '<div style="display:flex;align-items:center;padding:0.5rem 1rem;background:var(--brown-dark);color:rgba(255,255,255,0.6);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;">'
+  const header = '<div style="display:flex;align-items:center;padding:0.6rem 1rem;background:var(--navy);color:rgba(255,255,255,0.6);font-family:Raleway,sans-serif;font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;border-radius:8px 8px 0 0;">'
     + '<span style="flex:0 0 28px;"><input type="checkbox" id="histSelectAll" onchange="toggleSelectAllReports(this.checked)" style="cursor:pointer;accent-color:var(--tan);"></span>'
     + '<span style="flex:0 0 100px;">'+t.histDate+'</span>'
     + '<span style="flex:1;">'+t.histBL+'</span>'
@@ -116,7 +117,7 @@ function renderHistory(rows) {
     + '<span style="flex:0 0 50px;text-align:center;">'+t.histDocs+'</span>'
     + '<span style="flex:0 0 30px;"></span>'
     + '</div>'
-    + '<div id="histBulkActions" style="display:none;padding:0.4rem 1rem;background:var(--cream);border-bottom:1px solid var(--border-light);"><button onclick="deleteSelectedReports()" style="background:none;border:1px solid var(--red);color:var(--red);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.8rem;cursor:pointer;border-radius:2px;">' + delSelLabel + '</button></div>';
+    + '<div id="histBulkActions" style="display:none;padding:0.4rem 1rem;background:var(--cream);border-bottom:1px solid var(--border-light);"><button onclick="deleteSelectedReports()" style="background:none;border:1px solid var(--red);color:var(--red);font-family:Raleway,sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.8rem;cursor:pointer;border-radius:6px;">' + delSelLabel + '</button></div>';
   // Escape HTML to prevent XSS from API data (BL numbers, vessel names, etc.)
   const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const rowsHtml = rows.map(r => {
@@ -131,7 +132,7 @@ function renderHistory(rows) {
       + ' onmouseover="this.style.background=\'var(--offwhite)\'" onmouseout="this.style.background=\'var(--white)\'">'
       + '<span style="flex:0 0 28px;" onclick="event.stopPropagation();"><input type="checkbox" class="hist-check" data-id="'+safeId+'" onchange="updateBulkActions()" style="cursor:pointer;accent-color:var(--tan);"></span>'
       + '<span style="flex:0 0 100px;color:var(--text-light);font-size:0.72rem;">'+esc(dateStr)+'</span>'
-      + '<span style="flex:1;font-weight:600;color:var(--brown-dark);">'+safeBL+'</span>'
+      + '<span style="flex:1;font-weight:600;color:var(--navy);">'+safeBL+'</span>'
       + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+safeVessel+'</span>'
       + '<span style="flex:0 0 80px;text-align:center;">'+statusBadge(r.status)+'</span>'
       + '<span style="flex:0 0 50px;text-align:center;color:var(--text-light);">'+esc(String(r.doc_count||0))+'</span>'

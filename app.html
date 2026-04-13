@@ -1691,21 +1691,21 @@ mark.diff-mark {
     </div>
     <div style="display:flex;gap:0.6rem;align-items:center;margin-bottom:0.8rem;flex-wrap:wrap;">
       <input type="text" id="histSearch" oninput="searchHistory()" placeholder="Search BL or vessel..."
-        style="flex:1;min-width:200px;max-width:300px;padding:0.5rem 0.8rem;border:1px solid var(--border);
-        font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--text);background:var(--white);">
+        style="flex:1;min-width:200px;max-width:300px;padding:0.55rem 0.9rem;border:1px solid var(--border);
+        font-family:'Lato',sans-serif;font-size:0.78rem;color:var(--text);background:var(--white);border-radius:6px;">
       <select id="histStatusFilter" onchange="searchHistory()"
-        style="padding:0.45rem 0.6rem;border:1px solid var(--border);font-family:'Lato',sans-serif;
-        font-size:0.72rem;color:var(--text-mid);background:var(--white);border-radius:2px;cursor:pointer;">
+        style="padding:0.5rem 0.7rem;border:1px solid var(--border);font-family:'Lato',sans-serif;
+        font-size:0.72rem;color:var(--text-mid);background:var(--white);border-radius:6px;cursor:pointer;">
         <option value="" id="histFilterAll">All statuses</option>
         <option value="approved" id="histFilterOk">✓ Approved</option>
         <option value="warning" id="histFilterWarn">⚠ Observations</option>
         <option value="rejected" id="histFilterErr">✗ Rejected</option>
       </select>
     </div>
-    <div id="histList" style="border:1px solid var(--border-light);overflow:hidden;"></div>
+    <div id="histList" style="border:1px solid var(--border-light);border-radius:8px;overflow:hidden;"></div>
     <!-- histDetail removed — clicking a report now loads full results directly -->
     <div style="margin-top:1.5rem;">
-      <button onclick="toggleMyReports()" style="padding:0.6rem 1.5rem;background:none;border:1px solid var(--border);color:var(--text-mid);font-family:'Lato',sans-serif;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;border-radius:2px;">
+      <button onclick="toggleMyReports()" style="padding:0.6rem 1.5rem;background:none;border:1.5px solid var(--border);color:var(--steel);font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border-radius:7px;">
         ← <span id="histBackBtn">Back to Home</span>
       </button>
     </div>
