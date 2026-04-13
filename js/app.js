@@ -866,8 +866,7 @@ async function startAnalysis(){
   setStep(3);
   if(analysisResults.length > 0){
     renderResults();
-    // Populate workspace left panel
-    if(typeof renderDocumentStack==='function') renderDocumentStack(analysisResults, coherenceResult);
+    // Note: workspace left panel is now populated inside renderResults() (IIFE at the end)
     // Save to history AFTER renderResults sets lastFinalErrors/lastFinalWarnings
     // Report saved manually via "Save Report" button — not auto-saved
   } else {
