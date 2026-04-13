@@ -773,6 +773,52 @@ function renderResults(){
     });
   })();
 
+  // ── FIX 4: Click doc in left panel → scroll to its detail card ──
+  (function(){
+    var items = document.querySelectorAll('#wsDocList .ws-doc-item');
+    items.forEach(function(item, idx){
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', function(){
+        // Highlight active doc
+        items.forEach(function(el){ el.classList.remove('ws-doc-active'); });
+        item.classList.add('ws-doc-active');
+        // Expand the per-doc section if collapsed
+        var perdocBody = document.getElementById('rPerdocBody');
+        if(perdocBody && !perdocBody.classList.contains('open')) toggleRPerdoc();
+        // Find and expand the matching card
+        var card = document.getElementById('dc'+idx);
+        if(card){
+          if(!card.classList.contains('open')) toggleCard(idx);
+          setTimeout(function(){ card.scrollIntoView({behavior:'smooth',block:'center'}); }, 100);
+        }
+      });
+    });
+  })();
+
+  // ── FIX 5: Auto-expand document detail when there are errors ──
+  if(finalErrors > 0){
+    var perdocBody = document.getElementById('rPerdocBody');
+    var perdocBtn = document.getElementById('rPerdocBtn');
+    if(perdocBody && !perdocBody.classList.contains('open')){
+      perdocBody.classList.add('open');
+      if(perdocBtn) perdocBtn.textContent = lang==='es'?'Cerrar':'Close';
+    }
+  }
+
+  // ── FIX 6: Empty states ──
+  // Hide coherence table header row if table is empty
+  var ctbodyEl = document.getElementById('ctbody');
+  if(ctbodyEl && ctbodyEl.innerHTML.trim() === ''){
+    var coherenceWrap = document.getElementById('coherenceWrap');
+    if(coherenceWrap) coherenceWrap.style.display = 'none';
+  }
+  // Hide "Critical Inconsistencies" section if no errors
+  var critBannerEl = document.getElementById('criticalBanner');
+  if(critBannerEl && finalErrors === 0) critBannerEl.style.display = 'none';
+  // Hide action items if empty
+  var aiSecEl = document.getElementById('actionItemsSection');
+  if(aiSecEl && (!displayIssues || displayIssues.length === 0)) aiSecEl.style.display = 'none';
+
   var _scrollTarget = document.querySelector('.ws-right') || document.getElementById('results');
   if(_scrollTarget) _scrollTarget.scrollIntoView({behavior:'smooth',block:'start'});
   } catch(err) {
