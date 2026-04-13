@@ -1258,6 +1258,9 @@ function renderDocumentStack(results, coherenceResult) {
     });
   }
   var score = totalFields > 0 ? Math.round((okFields / totalFields) * 100) : 0;
+  // Fallback: if no setValues but overall status is approved, score is 100
+  if (score === 0 && coherenceResult && coherenceResult.overallStatus === 'approved') score = 100;
+  if (score === 0 && coherenceResult && coherenceResult.overallStatus === 'warning') score = 75;
   if (scoreEl) scoreEl.textContent = score + '/100';
 
   // Build doc list from coherenceResult.perDocumentStatus or analysisResults

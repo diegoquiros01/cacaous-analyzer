@@ -1401,6 +1401,12 @@ mark.diff-mark {
 }
 
 /* ── APP WORKSPACE (step 4 only) ── */
+/* Break out of main's max-width */
+.results.show {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 0;
+}
 .app-workspace {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -1476,6 +1482,7 @@ mark.diff-mark {
 .ws-right {
   padding: 28px 32px;
   overflow-y: auto;
+  max-width: 900px;
 }
 .icard-v2 {
   border-radius: 10px; margin-bottom: 12px; overflow: hidden;
