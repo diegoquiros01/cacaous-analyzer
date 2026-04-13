@@ -18,216 +18,87 @@ async function downloadPdfReport() {
   try {
     setStep(4);
     await loadHtml2Pdf();
-    const t = tx();
 
-    // HTML escape function to prevent injection in PDF templates
-    const _e = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    // Clone the ws-right panel (the actual rendered results) for PDF
+    var wsRight = document.querySelector('.ws-right');
+    if (!wsRight) { alert('No results to export'); return; }
 
-    const date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
-    const status = coherenceResult?.overallStatus || 'warning';
-    const issues = coherenceResult?.coherenceIssues || [];
-    const finalErr = lastFinalErrors;
-    const finalWarn = lastFinalWarnings;
-    const okDocs = Math.max(0, analysisResults.length - finalErr);
-    const blNum = _e(analysisResults.find(r=>r.blNumber)?.blNumber || '');
-    const vessel = _e(analysisResults.find(r=>r.vesselName)?.vesselName || '');
-    const voyage = _e(analysisResults.find(r=>r.voyageNumber)?.voyageNumber || '');
-    const portL = _e(analysisResults.find(r=>r.portOfLoading)?.portOfLoading || '');
-    const portD = _e(analysisResults.find(r=>r.portOfDischarge)?.portOfDischarge || '');
-    const lots = [...new Set(analysisResults.flatMap(r=>r.lotNumbers||[]).filter(Boolean))].map(_e);
-    const summary = _e(coherenceResult?.summary || '');
-    const actionItems = (coherenceResult?.actionItems || []).map(_e);
-    const totalAmt = _e(analysisResults.find(r=>r.totalAmount)?.totalAmount || '');
-    const priceUnit = _e(analysisResults.find(r=>r.pricePerUnit)?.pricePerUnit || '');
-    const incoterm = _e(analysisResults.find(r=>r.incoterms)?.incoterms || '');
-    const payTerms = _e(analysisResults.find(r=>r.paymentTerms)?.paymentTerms || '');
-
-    const sc = {
-      approved: { bg:'#1a6b3a', label: lang==='es'?'APROBADO':'APPROVED' },
-      warning:  { bg:'#8a6a00', label: lang==='es'?'CON OBSERVACIONES':'WITH OBSERVATIONS' },
-      rejected: { bg:'#7a2e22', label: lang==='es'?'RECHAZADO':'REJECTED' },
-    }[status] || { bg:'#8a6a00', label:'WARNING' };
-
-    const cleanDoc = s => _e((s||'').replace(/\.[^.]+$/,'').replace(/_page(\d+)/,' p.$1'));
-
-    // Use _spFields (from split panel) — always populated
-    const fields = (typeof _spFields !== 'undefined' && _spFields.length > 0) ? _spFields : [];
-
-    // Build coherence table from _spFields
-    let tableRows = '';
-    fields.forEach(f => {
-      const icon = f.severity==='err' ? '✗' : f.severity==='warn' ? '⚠' : '✓';
-      const color = f.severity==='err' ? '#7a2e22' : f.severity==='warn' ? '#8a6a00' : '#1a6b3a';
-      const bg = f.severity==='err' ? '#fdf2f0' : f.severity==='warn' ? '#fdf8ee' : '#fff';
-      let valCell = '';
-      if (f.severity==='ok') {
-        valCell = _e(f.majVal || '—');
-      } else if (f.values && f.values.length > 0) {
-        valCell = f.values.map(v => {
-          const isOut = f.majVal && (v.value||'').trim() !== f.majVal;
-          return '<div style="margin-bottom:2px;' + (isOut?'color:#7a2e22;font-weight:700;':'') + '">'
-            + '<span style="color:#7a8499;font-size:8px;">' + cleanDoc(v.doc) + ':</span> '
-            + _e(v.value||'—') + (isOut?' ✗':'') + '</div>';
-        }).join('');
-      }
-      tableRows += '<tr style="background:'+bg+';">'
-        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:10px;color:'+color+';white-space:nowrap;">' + icon + ' ' + _e(f.label) + '</td>'
-        + '<td style="padding:6px 10px;border-bottom:1px solid #e8edf5;font-size:9px;line-height:1.6;">' + valCell + '</td>'
-        + '</tr>';
-    });
-
-    // Per-document rows
-    let docRows = '';
-    const perDoc = coherenceResult?.perDocumentStatus || {};
-    analysisResults.forEach(r => {
-      const ds = perDoc[r._filename] || {};
-      const icon = ds.status==='approved' ? '✓' : ds.status==='rejected' ? '✗' : '⚠';
-      const color = ds.status==='approved' ? '#1a6b3a' : ds.status==='rejected' ? '#7a2e22' : '#8a6a00';
-      docRows += '<tr>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:10px;font-weight:600;">' + _e(translateDocType(ds.docType||r.docType)||r._filename) + '</td>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:9px;color:#7a8499;">' + _e(r._filename) + '</td>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;text-align:center;color:'+color+';font-weight:700;font-size:11px;">' + icon + '</td>'
-        + '<td style="padding:4px 10px;border-bottom:1px solid #e8edf5;font-size:8px;color:#7a8499;">' + _e(ds.comment||'') + '</td>'
-        + '</tr>';
-    });
-
-    // Action items
-    let aiHtml = '';
-    if (actionItems.length > 0) {
-      aiHtml = '<div style="margin-top:14px;page-break-inside:avoid;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a2e22;margin-bottom:6px;">'
-        + (t.actionItemsLabel || 'Action Items') + '</div>';
-      actionItems.forEach((item, i) => {
-        aiHtml += '<div style="padding:3px 0;font-size:9px;line-height:1.5;border-bottom:1px solid #f0f2f5;">'
-          + '<span style="color:#7a2e22;font-weight:700;">' + (i+1) + '.</span> '
-          + '<span style="color:#3a4255;">' + item + '</span></div>';
-      });
-      aiHtml += '</div>';
-    }
-
-    // Commercial + Transport info line
-    const infoLine = [totalAmt, priceUnit, incoterm, payTerms].filter(Boolean).join(' · ');
-    const routeLine = [portL, portD].filter(Boolean).join(' → ');
-    const lotsLine = lots.length ? (lang==='es'?'Lotes: ':'Lots: ') + lots.join(', ') : '';
-
-    // Build consistency matrix HTML before the template
-    let matrixHtml = '';
-    try {
-      const blDoc = findBLDoc(analysisResults);
-      if (blDoc) {
-        const otherDocs = analysisResults.filter(r => r !== blDoc && !r._err);
-        if (otherDocs.length > 0) {
-          const mxFields = [
-            {key:'shipper',label:FL('shipper')},{key:'consigneeName',label:FL('consignee')},
-            {key:'lotNumbers',label:FL('lots'),isArr:true},{key:'bagCount',label:FL('bags')},
-            {key:'netWeight',label:FL('netWeight')},{key:'grossWeight',label:FL('grossWeight')},
-            {key:'containerNumbers',label:FL('containers'),isArr:true},
-            {key:'sealNumbers',label:FL('seals'),isArr:true},
-            {key:'vesselName',label:FL('vessel')},{key:'portOfLoading',label:FL('portOfLoading')},
-            {key:'portOfDischarge',label:FL('portOfDischarge')},{key:'destinationCountry',label:FL('destinationCountry')},
-            {key:'blNumber',label:FL('blNumber')},{key:'invoiceNumber',label:FL('invoiceNumber')},
-            {key:'voyageNumber',label:FL('voyageNumber')},
-          ];
-          const gv = (doc,key,isArr) => { const v=doc[key]; if(isArr) return (Array.isArray(v)?v:v?[v]:[]).filter(Boolean).sort().join(', '); return v?String(v).trim():''; };
-          const sn = r => (translateDocType(r.docType)||r._filename||'').replace(/\.[^.]+$/,'').substring(0,18);
-          matrixHtml = '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">'+(t.matrixLabel||'Consistency Matrix')+'</div>';
-          matrixHtml += '<table style="width:100%;border-collapse:collapse;margin-bottom:4px;font-size:7px;"><thead><tr style="background:#1c2230;">';
-          matrixHtml += '<th style="padding:3px 5px;text-align:left;color:white;font-size:6px;letter-spacing:0.06em;text-transform:uppercase;">'+(lang==='es'?'Campo':'Field')+'</th>';
-          matrixHtml += '<th style="padding:3px 5px;text-align:left;color:white;font-size:6px;background:#3a4660;">B/L</th>';
-          otherDocs.forEach(d => { matrixHtml += '<th style="padding:3px 5px;text-align:center;color:white;font-size:5.5px;letter-spacing:0.04em;white-space:nowrap;">'+sn(d)+'</th>'; });
-          matrixHtml += '</tr></thead><tbody>';
-          mxFields.forEach(f => {
-            const blVal = gv(blDoc,f.key,f.isArr);
-            if (!blVal) return;
-            matrixHtml += '<tr><td style="padding:2px 5px;border-bottom:1px solid #e8edf5;font-weight:600;font-size:7px;">'+f.label+'</td>';
-            matrixHtml += '<td style="padding:2px 5px;border-bottom:1px solid #e8edf5;font-size:6.5px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+blVal.substring(0,25)+(blVal.length>25?'...':'')+'</td>';
-            otherDocs.forEach(d => {
-              const dv = gv(d,f.key,f.isArr);
-              if (!dv) { matrixHtml += '<td style="padding:2px 5px;border-bottom:1px solid #e8edf5;text-align:center;color:#d0d6e2;">—</td>'; return; }
-              const match = isTrivialDifference(blVal, dv);
-              matrixHtml += '<td style="padding:2px 5px;border-bottom:1px solid #e8edf5;text-align:center;font-weight:700;color:'+(match?'#1a6b3a':'#7a2e22')+';font-size:7px;">'+(match?'OK':'DIFF')+'</td>';
-            });
-            matrixHtml += '</tr>';
-          });
-          matrixHtml += '</tbody></table>';
-          matrixHtml += '<div style="font-size:6px;color:#7a8499;margin-bottom:10px;">'+(t.matrixLegend||'OK = consistent with B/L | — = field not present | DIFF = different value')+'</div>';
-        }
-      }
-    } catch(e) { console.warn('PDF matrix error:', e.message); }
-
-    const html = `<div style="width:190mm;font-family:Helvetica,Arial,sans-serif;color:#0f1117;font-size:10px;line-height:1.4;">
-<!-- Header -->
-<table style="width:100%;border-bottom:2px solid #1c2230;margin-bottom:10px;"><tr>
-<td style="font-size:16px;font-weight:700;letter-spacing:0.1em;padding-bottom:8px;">DOCSVALIDATE</td>
-<td style="text-align:right;font-size:9px;color:#7a8499;padding-bottom:8px;line-height:1.5;">
-${date}<br>${blNum?'<b style="color:#0f1117;">B/L: '+blNum+'</b><br>':''}${vessel}${voyage?' · Voy. '+voyage:''}
-</td>
-</tr></table>
-
-<!-- Status + Stats -->
-<table style="width:100%;margin-bottom:10px;"><tr>
-<td style="width:140px;vertical-align:top;">
-<div style="background:${sc.bg};color:white;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;display:inline-block;">${sc.label}</div>
-</td>
-<td style="vertical-align:top;">
-<table style="width:100%;border-collapse:collapse;"><tr>
-<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#4a6fa5;">${analysisResults.length}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statDocs}</div></td>
-<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#1a6b3a;">${okDocs}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statOk}</div></td>
-<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#8a6a00;">${finalWarn}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statWarn}</div></td>
-<td style="text-align:center;padding:6px;background:#f7f8fa;border:1px solid #e8edf5;"><div style="font-size:18px;color:#7a2e22;">${finalErr}</div><div style="font-size:7px;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;">${t.statErr}</div></td>
-</tr></table>
-</td>
-</tr></table>
-
-<!-- Transport + Commercial info -->
-${(routeLine||lotsLine||infoLine) ? '<div style="background:#f7f8fa;border:1px solid #e8edf5;padding:7px 10px;margin-bottom:10px;font-size:9px;color:#3a4255;line-height:1.6;">'
-  + (routeLine ? '<b>'+routeLine+'</b><br>' : '')
-  + (lotsLine ? lotsLine + '<br>' : '')
-  + (infoLine ? infoLine : '')
-  + '</div>' : ''}
-
-<!-- AI Summary -->
-${summary ? '<div style="border-left:3px solid #4a6fa5;padding:8px 12px;margin-bottom:12px;font-size:9.5px;line-height:1.7;color:#3a4255;font-style:italic;background:#f7f8fa;">'+summary+'</div>' : ''}
-
-<!-- Consistency Matrix -->
-${matrixHtml}
-
-
-${aiHtml}
-
-<!-- Per Document -->
-<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px;border-bottom:1px solid #e8edf5;padding-bottom:3px;">${t.perDocTitle || 'Per Document Detail'}</div>
-<table style="width:100%;border-collapse:collapse;margin-bottom:14px;">
-<thead><tr style="background:#f0f2f5;">
-<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${lang==='es'?'Tipo':'Type'}</th>
-<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${lang==='es'?'Archivo':'File'}</th>
-<th style="padding:4px 10px;text-align:center;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${t.th2}</th>
-<th style="padding:4px 10px;text-align:left;font-size:7px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">${lang==='es'?'Notas':'Notes'}</th>
-</tr></thead>
-<tbody>${docRows}</tbody>
-</table>
-
-<!-- Footer -->
-<div style="border-top:1px solid #d0d6e2;padding-top:6px;margin-top:12px;font-size:7px;color:#7a8499;text-align:center;letter-spacing:0.08em;">
-Validated by DocsValidate · ${t.rptSubtitle || 'AI-Powered Export Validation'} · ${date}
-</div>
-</div>`;
-
-    const container = document.createElement('div');
+    // Create a clean container for PDF rendering
+    var container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.left = '-9999px';
     container.style.top = '0';
-    container.innerHTML = html;
+    container.style.width = '190mm';
+    container.style.background = '#fff';
+
+    // Build PDF content: header + cloned results
+    var blNum = (analysisResults.find(function(r){return r.blNumber})||{}).blNumber || '';
+    var vessel = (analysisResults.find(function(r){return r.vesselName})||{}).vesselName || '';
+    var voyage = (analysisResults.find(function(r){return r.voyageNumber})||{}).voyageNumber || '';
+    var date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
+
+    // Header
+    var header = document.createElement('div');
+    header.style.cssText = 'font-family:Helvetica,Arial,sans-serif;padding:0 0 8px;border-bottom:2px solid #0d1b2a;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;';
+    header.innerHTML = '<div style="font-size:16px;font-weight:700;letter-spacing:0.1em;color:#0d1b2a;">DOCSVALIDATE</div>'
+      + '<div style="text-align:right;font-size:9px;color:#7a8499;line-height:1.5;">'
+      + date + (blNum ? '<br><b style="color:#0d1b2a;">B/L: '+blNum+'</b>' : '')
+      + (vessel ? '<br>'+vessel+(voyage?' · Voy. '+voyage:'') : '')
+      + '</div>';
+    container.appendChild(header);
+
+    // Clone the results content
+    var clone = wsRight.cloneNode(true);
+
+    // Remove interactive elements from clone (buttons, click handlers)
+    clone.querySelectorAll('button, .r-dcard-view, [onclick]').forEach(function(el){
+      if (el.tagName === 'BUTTON' && (el.textContent||'').match(/View|Close|Ver|Cerrar|Fix|Not an|Verify|Dismiss/i)) {
+        el.remove();
+      }
+    });
+
+    // Expand all collapsed sections for PDF
+    clone.querySelectorAll('.r-perdoc-body').forEach(function(el){ el.classList.add('open'); el.style.display='block'; });
+    clone.querySelectorAll('.r-dcard-body').forEach(function(el){ el.style.display='block'; });
+    clone.querySelectorAll('.r-dcard').forEach(function(el){ el.classList.add('open'); });
+
+    // Remove the "03 Analysis Results" section label (redundant in PDF)
+    var secLabel = clone.querySelector('.section-label');
+    if (secLabel) secLabel.remove();
+
+    // Fix sticky elements for print
+    clone.querySelectorAll('[style*="sticky"]').forEach(function(el){ el.style.position='static'; });
+
+    // Make matrix table non-sticky for PDF
+    clone.querySelectorAll('.mx-table td, .mx-table th').forEach(function(el){ el.style.position='static'; });
+    var mxWrap = clone.querySelector('.mx-scroll-wrap');
+    if (mxWrap) mxWrap.style.overflow = 'visible';
+
+    // Set font family on clone
+    clone.style.fontFamily = 'Helvetica, Arial, sans-serif';
+    clone.style.fontSize = '10px';
+    clone.style.padding = '0';
+    clone.style.maxWidth = '190mm';
+
+    container.appendChild(clone);
+
+    // Footer
+    var footer = document.createElement('div');
+    footer.style.cssText = 'border-top:1px solid #d0d6e2;padding-top:8px;margin-top:16px;font-size:7px;color:#7a8499;text-align:center;letter-spacing:0.08em;font-family:Helvetica,Arial,sans-serif;';
+    footer.textContent = 'Validated by DocsValidate · ' + (tx().rptSubtitle || 'AI-Powered Export Validation') + ' · ' + date;
+    container.appendChild(footer);
+
     document.body.appendChild(container);
 
-    const filename = 'docsvalidate-report-' + (blNum || Date.now()) + '.pdf';
+    var filename = 'docsvalidate-report-' + (blNum || Date.now()) + '.pdf';
     await html2pdf().set({
       margin: [8, 8, 8, 8],
-      filename,
-      image: { type: 'jpeg', quality: 0.92 },
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.95 },
       html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    }).from(container.firstElementChild).save();
+    }).from(container).save();
 
     document.body.removeChild(container);
   } catch(e) {
