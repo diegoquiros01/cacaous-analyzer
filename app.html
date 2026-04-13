@@ -938,6 +938,16 @@ mark.diff-mark {
 .ar-field { font-weight: 700; color: var(--brown-dark); margin-right: 0.3rem; }
 .ar-msg { color: var(--text-mid); }
 
+/* User badge nav links */
+#userBadge a {
+  font-family: 'Raleway', sans-serif;
+  font-size: .65rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted, #6b7a99);
+  text-decoration: none; transition: color .2s;
+}
+#userBadge a:hover { color: var(--navy, #0d1b2a); }
+
 /* Partial tip */
 .partial-tip {
   display: flex; align-items: flex-start; gap: 10px;
@@ -1622,12 +1632,11 @@ mark.diff-mark {
   border-bottom:1px solid var(--border-light);
   box-shadow:0 2px 12px rgba(13,27,42,0.06);
 ">
-  <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+  <a href="/" style="display:flex;align-items:center;text-decoration:none;">
     <img src="logo.png" alt="DocsValidate" style="height:32px;" onerror="this.style.display='none'">
-    <span style="font-family:'Raleway',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.18em;text-transform:uppercase;color:var(--navy);">DocsValidate</span>
   </a>
   <div style="display:flex;align-items:center;gap:16px;">
-    <ul id="userBadge" style="list-style:none;display:flex;gap:12px;"></ul>
+    <ul id="userBadge" style="list-style:none;display:flex;gap:16px;align-items:center;font-family:'Raleway',sans-serif;font-size:.65rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;"></ul>
     <div class="lang-switch">
       <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
       <span class="lang-sep">|</span>
