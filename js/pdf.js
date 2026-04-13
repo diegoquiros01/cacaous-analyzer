@@ -23,8 +23,9 @@ async function downloadPdfReport() {
     if (!wsRight) { alert('No results to export'); return; }
 
     var blNum = (analysisResults.find(function(r){return r.blNumber})||{}).blNumber || '';
+    var date = new Date().toLocaleString(lang==='es'?'es-ES':'en-US');
 
-    // Temporarily expand all collapsed sections
+    // Temporarily expand all collapsed sections in the live DOM
     var perdocBody = document.getElementById('rPerdocBody');
     var wasOpen = perdocBody && perdocBody.classList.contains('open');
     if (perdocBody && !wasOpen) { perdocBody.classList.add('open'); perdocBody.style.display = 'block'; }
@@ -39,39 +40,70 @@ async function downloadPdfReport() {
       }
     });
 
-    // Temporarily hide action buttons
-    var actionsEl = wsRight.querySelector('.actions');
-    var actionsDisplay = '';
-    if (actionsEl) { actionsDisplay = actionsEl.style.display; actionsEl.style.display = 'none'; }
+    // Clone into an offscreen container with fixed width
+    var container = document.createElement('div');
+    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:900px;background:#fff;padding:20px;font-family:Lato,Helvetica,Arial,sans-serif;';
 
-    // Temporarily hide the "03 Analysis Results" section label
-    var secLabel = wsRight.querySelector('.section-label');
-    var secLabelDisplay = '';
-    if (secLabel) { secLabelDisplay = secLabel.style.display; secLabel.style.display = 'none'; }
+    // Header
+    container.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #0d1b2a;padding-bottom:8px;margin-bottom:16px;">'
+      + '<div style="font-size:18px;font-weight:700;letter-spacing:0.1em;color:#0d1b2a;">DOCSVALIDATE</div>'
+      + '<div style="text-align:right;font-size:10px;color:#7a8499;line-height:1.5;">' + date
+      + (blNum ? '<br><b style="color:#0d1b2a;">B/L: '+blNum+'</b>' : '') + '</div></div>';
 
-    // Fix matrix sticky for capture
-    var stickyEls = wsRight.querySelectorAll('.mx-table td, .mx-table th');
-    stickyEls.forEach(function(el){ el.dataset.origPos = el.style.position; el.style.position = 'static'; });
-    var mxWrap = wsRight.querySelector('.mx-scroll-wrap');
-    var mxOverflow = '';
-    if (mxWrap) { mxOverflow = mxWrap.style.overflow; mxWrap.style.overflow = 'visible'; }
+    // Clone the content
+    var clone = wsRight.cloneNode(true);
+    clone.style.cssText = 'padding:0;max-width:none;overflow:visible;';
 
-    // Generate PDF directly from the visible element
+    // Remove action buttons and section label from clone
+    var cloneActions = clone.querySelector('.actions');
+    if (cloneActions) cloneActions.remove();
+    var cloneSec = clone.querySelector('.section-label');
+    if (cloneSec) cloneSec.remove();
+
+    // Remove interactive buttons
+    clone.querySelectorAll('.r-dcard-view, .r-alert-btn, [onclick*="toggleCard"], [onclick*="toggleR"]').forEach(function(el){ el.remove(); });
+
+    // Ensure all sections expanded in clone
+    clone.querySelectorAll('.r-perdoc-body').forEach(function(el){ el.style.display='block'; el.classList.add('open'); });
+    clone.querySelectorAll('.r-dcard').forEach(function(el){ el.classList.add('open'); });
+    clone.querySelectorAll('.r-dcard-body').forEach(function(el){ el.style.display='block'; });
+
+    // Fix sticky positions in clone
+    clone.querySelectorAll('.mx-table td, .mx-table th').forEach(function(el){ el.style.position='static'; });
+    var cloneMx = clone.querySelector('.mx-scroll-wrap');
+    if (cloneMx) cloneMx.style.overflow = 'visible';
+
+    // Copy computed styles for key elements
+    var styleDefs = document.querySelector('style');
+    if (styleDefs) {
+      var styleClone = document.createElement('style');
+      styleClone.textContent = styleDefs.textContent;
+      container.appendChild(styleClone);
+    }
+
+    container.appendChild(clone);
+
+    // Footer
+    var footer = document.createElement('div');
+    footer.style.cssText = 'border-top:1px solid #d0d6e2;padding-top:8px;margin-top:20px;font-size:8px;color:#7a8499;text-align:center;letter-spacing:0.08em;';
+    footer.textContent = 'Validated by DocsValidate · AI-Powered Export Validation · ' + date;
+    container.appendChild(footer);
+
+    document.body.appendChild(container);
+
     var filename = 'docsvalidate-report-' + (blNum || Date.now()) + '.pdf';
     await html2pdf().set({
       margin: [6, 6, 6, 6],
       filename: filename,
       image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: wsRight.scrollWidth },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    }).from(wsRight).save();
+    }).from(container).save();
 
-    // Restore original state
-    if (actionsEl) actionsEl.style.display = actionsDisplay;
-    if (secLabel) secLabel.style.display = secLabelDisplay;
-    stickyEls.forEach(function(el){ el.style.position = el.dataset.origPos || ''; });
-    if (mxWrap) mxWrap.style.overflow = mxOverflow;
+    document.body.removeChild(container);
+
+    // Restore collapsed state in live DOM
     closedCards.forEach(function(card){
       card.classList.remove('open');
       var body = card.querySelector('.r-dcard-body');
