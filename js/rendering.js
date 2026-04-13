@@ -754,14 +754,21 @@ function renderResults(){
     // Doc list from analysisResults + perDoc (already resolved above)
     wsList.innerHTML = '';
     var seen = {};
+    var blShown = false;
     analysisResults.forEach(function(r){
       if (r._err) return;
       var fn = r._filename || '';
       var dt = r.docType || fn;
-      var key = fn || dt;
-      if (seen[key]) return;
-      seen[key] = true;
+      // Dedup by filename AND by docType — prevents duplicate BL from split PDFs
+      var keyFn = fn || dt;
+      var keyDt = (dt||'').toLowerCase().replace(/[^a-z]/g,'').substring(0,20);
+      if (seen[keyFn] || seen['dt:'+keyDt]) return;
+      seen[keyFn] = true;
+      if(keyDt) seen['dt:'+keyDt] = true;
       var isBL = (dt.toLowerCase().indexOf('bill of lading') >= 0 || dt.toLowerCase().indexOf('conocimiento') >= 0 || dt.toLowerCase().indexOf('waybill') >= 0);
+      // Only show one BL entry
+      if (isBL && blShown) return;
+      if (isBL) blShown = true;
       var pds = perDoc[fn] || perDoc[dt] || {};
       if (!pds.status) { Object.keys(perDoc).forEach(function(k){ if (fn && (k.indexOf(fn)>=0 || fn.indexOf(k)>=0)) pds = perDoc[k]; }); }
       var st = pds.status || 'approved';

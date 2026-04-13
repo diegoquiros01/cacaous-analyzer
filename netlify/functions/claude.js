@@ -146,6 +146,9 @@ exports.handler = async (event) => {
       body.max_tokens = 8000;
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 55000);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -159,8 +162,10 @@ exports.handler = async (event) => {
         system: body.system,
         messages: body.messages,
       }),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeout);
     const data = await response.json();
 
     return {

@@ -1,5 +1,13 @@
 # netlify.toml — Performance & Cache Configuration
 
+# ── Functions: extend timeout for Claude API calls (coherence can take 30-60s)
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@netlify/blobs"]
+
+[functions."claude"]
+  timeout = 60
+
 # ── Images: cache 1 year (they don't change, versioned by filename if needed)
 [[headers]]
   for = "/*.jpg"
