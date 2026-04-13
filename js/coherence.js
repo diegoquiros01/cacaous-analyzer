@@ -545,8 +545,12 @@ function normalizeValue(v){
   // Strip prefixes
   s = s.replace(/\b(puerto\s+de|port\s+of|harbor\s+of|puerto)\s+/g, '');
   // Strip country/state suffixes (comma, hyphen, or space before country)
-  s = s.replace(/[-,]?\s*(ecuador|colombia|venezuela|peru|usa|u\.s\.a?\.?|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom|estados\s*unidos|united\s*states)\b.*/g, '');
-  s = s.replace(/,?\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '');
+  // Strip country suffixes only when preceded by other content (comma, hyphen, or word chars)
+  // This preserves standalone country names like "USA" or "Ecuador"
+  s = s.replace(/(\S)[-,]\s*(ecuador|colombia|venezuela|peru|usa|u\.s\.a?\.?|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom|estados\s*unidos|united\s*states)\b.*/g, '$1')
+       .replace(/(\S)\s+(ecuador|colombia|venezuela|peru|usa|u\.s\.a?\.?|mexico|panama|costa rica|guatemala|china|netherlands|germany|france|spain|italy|united kingdom|estados\s*unidos|united\s*states)\s*$/g, '$1');
+  s = s.replace(/,\s*(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\b.*/g, '')
+       .replace(/\s+(ny|nj|ca|fl|tx|ga|sc|nc|va|pa|wa)\s*$/g, '');
   // Known port area normalizations
   s = s.replace(/\bjersey\s*city\b/g, 'new york');
   s = s.replace(/\bnewark\b/g, 'new york');

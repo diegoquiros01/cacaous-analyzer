@@ -1242,3 +1242,120 @@ function recalcVerdict() {
 
 // Initialize scroll sync
 initScrollSync();
+
+// ── Document Stack for workspace left panel ──
+function renderDocumentStack(results, coherenceResult) {
+  var list = document.getElementById('wsDocList');
+  var scoreEl = document.getElementById('wsScoreNum');
+  if (!list) return;
+
+  // Calculate score
+  var totalFields = 0, okFields = 0;
+  if (coherenceResult && coherenceResult.setValues) {
+    Object.values(coherenceResult.setValues).forEach(function(sv) {
+      totalFields++;
+      if (sv.status === 'consistent') okFields++;
+    });
+  }
+  var score = totalFields > 0 ? Math.round((okFields / totalFields) * 100) : 0;
+  if (scoreEl) scoreEl.textContent = score + '/100';
+
+  // Build doc list from coherenceResult.perDocumentStatus or analysisResults
+  list.innerHTML = '';
+  var perDoc = coherenceResult && coherenceResult.perDocumentStatus ? coherenceResult.perDocumentStatus : {};
+  var allResults = Array.isArray(results) ? results : [];
+
+  // Flatten results if they are nested by filename
+  var flatResults = [];
+  if (typeof results === 'object' && !Array.isArray(results)) {
+    Object.entries(results).forEach(function(entry) {
+      var fn = entry[0];
+      var arr = entry[1];
+      (Array.isArray(arr) ? arr : [arr]).forEach(function(d) {
+        d._filename = d._filename || fn;
+        flatResults.push(d);
+      });
+    });
+  } else {
+    flatResults = allResults;
+  }
+
+  flatResults.forEach(function(doc) {
+    if (doc._err) return;
+    var fn = doc._filename || '';
+    var dt = doc.docType || fn;
+    var isBL = dt.toLowerCase().indexOf('bill of lading') >= 0 || dt.toLowerCase().indexOf('conocimiento') >= 0 || dt.toLowerCase().indexOf('waybill') >= 0;
+
+    // Check per-doc status
+    var pds = perDoc[fn] || {};
+    var status = pds.status || 'approved';
+    var hasErr = status === 'rejected';
+    var hasWarn = status === 'warning';
+
+    var cls = 'ws-doc-item';
+    var badgeCls = 'ws-doc-badge';
+    var badgeText = '✓ Match';
+
+    if (isBL) {
+      cls += ' ws-doc-master';
+      badgeCls += ' master';
+      badgeText = 'Master';
+    } else if (hasErr) {
+      cls += ' ws-doc-err';
+      badgeCls += ' err';
+      badgeText = '✗ Error';
+    } else if (hasWarn) {
+      cls += ' ws-doc-warn';
+      badgeCls += ' warn';
+      badgeText = '⚠ Obs';
+    } else {
+      badgeCls += ' ok';
+    }
+
+    var icon = isBL ? '📋' : hasErr ? '🔴' : hasWarn ? '🟡' : '📄';
+    var displayName = dt.length > 28 ? dt.substring(0, 28) + '…' : dt;
+
+    list.innerHTML += '<div class="' + cls + '">'
+      + '<span class="ws-doc-icon">' + icon + '</span>'
+      + '<span class="ws-doc-name">' + displayName + '</span>'
+      + '<span class="' + badgeCls + '">' + badgeText + '</span>'
+      + '</div>';
+  });
+}
+
+// ── Inconsistency Cards v2 ──
+function renderInconsistencyCardsV2(inconsistencies, containerId) {
+  var container = document.getElementById(containerId);
+  if (!container || !inconsistencies || !inconsistencies.length) return;
+
+  container.innerHTML = '';
+
+  inconsistencies.forEach(function(inc) {
+    var isCritical = inc.type === 'error';
+    var cls = isCritical ? 'err' : 'warn';
+    var fieldLabel = inc.field || 'Field';
+
+    var docsHtml = '';
+    if (inc.details && Array.isArray(inc.details)) {
+      inc.details.forEach(function(d) {
+        var isMaster = (d.doc || '').toLowerCase().indexOf('bl') >= 0 || (d.doc || '').toLowerCase().indexOf('lading') >= 0;
+        var isDiff = isCritical && !isMaster;
+        docsHtml += '<div class="icard-v2-doc">'
+          + '<div class="icard-v2-doc-name">' + (d.doc || '').replace(/\.[^.]+$/, '') + '</div>'
+          + '<div class="icard-v2-doc-val ' + (isMaster ? 'is-master' : isDiff ? 'is-diff' : '') + '">'
+          + (d.value || '— not found')
+          + '</div></div>';
+      });
+    }
+
+    container.innerHTML += '<div class="icard-v2 ' + cls + '">'
+      + '<div class="icard-v2-header">'
+      + '<span class="icard-v2-field">' + fieldLabel + '</span>'
+      + (isCritical
+        ? '<span style="font-size:.65rem;color:var(--red-light);margin-left:auto;">Critical</span>'
+        : '<span style="font-size:.65rem;color:var(--steel);margin-left:auto;">Observation</span>')
+      + '</div>'
+      + '<div class="icard-v2-body">' + docsHtml + '</div>'
+      + '</div>';
+  });
+}

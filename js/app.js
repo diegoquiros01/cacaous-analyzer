@@ -369,6 +369,9 @@ function setProgress(pct, phase){
   document.getElementById('progressFill').style.width = pct+'%';
   document.getElementById('progressPct').textContent = Math.round(pct);
   if(phase) document.getElementById('progressPhase').textContent = phase;
+  // Sync to tech progress bar
+  var _tpf = document.getElementById('techProgressFill'); if(_tpf) _tpf.style.width = pct+'%';
+  var _tpp = document.getElementById('techProgressPct'); if(_tpp) _tpp.textContent = Math.round(pct);
 }
 
 function buildDocList(){
@@ -576,6 +579,11 @@ async function startAnalysis(){
   const loadingSec = document.getElementById('loading');
   if(uploadSec) uploadSec.style.display='none';
   if(loadingSec) loadingSec.classList.add('show');
+  // Show tech progress, hide old cacao loader
+  var _tw = document.getElementById('techProgressWrap');
+  if (_tw) { _tw.style.display = 'block'; if(loadingSec) { loadingSec.style.display = 'none'; loadingSec.classList.remove('show'); } }
+  var _al = document.getElementById('activityLog');
+  if (_al) _al.innerHTML = '';
   setStep(2);
   analysisResults = [];
   coherenceResult = null;
@@ -597,6 +605,7 @@ async function startAnalysis(){
     buildDocList();
     setProgress(0, lang==='es'?'Inicializando...':'Initializing...');
     setLbl(lang==='es'?'Extrayendo documentos':'Extracting documents');
+    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Iniciando extracción de '+uploadedFiles.length+' documento(s)...':'Starting extraction of '+uploadedFiles.length+' document(s)...');
 
     const extractedDocs = {};
     // Extract all documents in parallel — much faster than sequential
@@ -615,6 +624,7 @@ async function startAnalysis(){
         setDocStatus(i, 'done', docsArr.filter(d=>!d._err).length > 1 ? docsArr.filter(d=>!d._err).length : null);
         const done = Object.keys(extractedDocs).length;
         setProgress(10 + Math.round((done/uploadedFiles.length)*60), `${done}/${uploadedFiles.length} ${lang==='es'?'listos':'done'}`);
+        if(typeof addActivityEntry==='function') addActivityEntry('✓ ' + e.name + (docsArr.filter(d=>!d._err).length > 1 ? ' ('+docsArr.filter(d=>!d._err).length+' docs)' : ''), 'done');
       }).catch(err => {
         extractedDocs[e.name] = [{docType:e.name,_err:true,_filename:e.name}];
         setDocStatus(i, 'done');
@@ -627,6 +637,7 @@ async function startAnalysis(){
     // in multiple chunks. Merge them by _pdfSource + docType.
     setLbl(lang==='es'?'Combinando documentos':'Merging documents');
     setSub(lang==='es'?'Agrupando páginas del mismo documento...':'Grouping pages from same document...');
+    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Combinando documentos multi-página...':'Merging multi-page documents...');
 
     const pdfSources = {};
     analysisResults.forEach(doc => {
@@ -693,6 +704,7 @@ async function startAnalysis(){
     setLbl(lang==='es'?'Verificando campos críticos':'Verifying critical fields');
     setSub(lang==='es'?'Revisando extracción...':'Checking extraction...');
     setProgress(72, lang==='es'?'Verificando...':'Verifying...');
+    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Verificando campos críticos...':'Verifying critical fields...');
 
     // Define which doc types should have which fields
     const shouldHave = {
@@ -786,6 +798,7 @@ async function startAnalysis(){
 
     setLbl(lang==='es'?'Verificando coherencia':'Verifying coherence');
     setSub(lang==='es'?'Comparando valores entre documentos...':'Cross-checking values across documents...');
+    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'Analizando coherencia entre documentos...':'Analyzing coherence across documents...');
     setProgress(Math.round((uploadedFiles.length/total)*100), lang==='es'?'Analizando coherencia...':'Analyzing coherence...');
 
     // Filter out failed extractions before coherence
@@ -826,6 +839,7 @@ async function startAnalysis(){
     }
     // Save to history — moved after renderResults (see below)
     setProgress(100, lang==='es'?'Análisis completo ✓':'Analysis complete ✓');
+    if(typeof addActivityEntry==='function') addActivityEntry(lang==='es'?'✓ Análisis completo':'✓ Analysis complete', 'done');
     await new Promise(r => setTimeout(r, 600));
     _analysisInProgress = false;
 
@@ -838,15 +852,19 @@ async function startAnalysis(){
     setSub(userMsg);
     await new Promise(r => setTimeout(r, 2000));
     if(loadingSec) loadingSec.classList.remove('show');
+    var _tw2 = document.getElementById('techProgressWrap'); if (_tw2) _tw2.style.display = 'none';
     if(uploadSec) uploadSec.style.display='block';
     setStep(1);
     return;
   }
 
   if(loadingSec) loadingSec.classList.remove('show');
+  var _tw3 = document.getElementById('techProgressWrap'); if (_tw3) _tw3.style.display = 'none';
   setStep(3);
   if(analysisResults.length > 0){
     renderResults();
+    // Populate workspace left panel
+    if(typeof renderDocumentStack==='function') renderDocumentStack(analysisResults, coherenceResult);
     // Save to history AFTER renderResults sets lastFinalErrors/lastFinalWarnings
     // Report saved manually via "Save Report" button — not auto-saved
   } else {
@@ -864,6 +882,10 @@ function safeClass(id, method, cls){ const el=safeEl(id); if(el) el.classList[me
 
 function resetApp(){
   uploadedFiles=[];analysisResults=[];coherenceResult=null;
+  var _twr = document.getElementById('techProgressWrap'); if(_twr) _twr.style.display='none';
+  var _alr = document.getElementById('activityLog'); if(_alr) _alr.innerHTML='';
+  var _wdl = document.getElementById('wsDocList'); if(_wdl) _wdl.innerHTML='';
+  var _wsn = document.getElementById('wsScoreNum'); if(_wsn) _wsn.innerHTML='&mdash;';
   safeReset('filesList','innerHTML','');
   safeStyle('filesCount','display','none');
   const ab=safeEl('analyzeBtn'); if(ab){ ab.disabled=true; ab.classList.remove('ready'); }
@@ -1291,3 +1313,44 @@ if(document.readyState === 'loading'){
 window.addEventListener('beforeunload', e => {
   if (_analysisInProgress) { e.preventDefault(); e.returnValue = ''; }
 });
+
+// ── Activity Log + Tech Progress helpers ──
+// These augment the existing loading UI — they don't replace anything.
+function addActivityEntry(text, status) {
+  status = status || 'active';
+  var log = document.getElementById('activityLog');
+  if (!log) return;
+  var prev = log.querySelector('.activity-entry.active');
+  if (prev) {
+    prev.classList.remove('active');
+    prev.classList.add('done');
+    var dot = prev.querySelector('.activity-dot');
+    if (dot) dot.style.animation = 'none';
+  }
+  var entry = document.createElement('div');
+  entry.className = 'activity-entry ' + status;
+  entry.innerHTML = '<span class="activity-dot"></span><span>' + text + '</span>';
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function setTechProgress(pct, label) {
+  var fill = document.getElementById('techProgressFill');
+  var pctEl = document.getElementById('techProgressPct');
+  var lblEl = document.getElementById('techProgressLabel');
+  if (fill)  fill.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct;
+  if (lblEl && label) lblEl.textContent = label;
+}
+
+function showTechProgress() {
+  var el = document.getElementById('techProgressWrap');
+  if (el) el.style.display = 'block';
+}
+
+function hideTechProgress() {
+  var el = document.getElementById('techProgressWrap');
+  if (el) el.style.display = 'none';
+  var log = document.getElementById('activityLog');
+  if (log) log.innerHTML = '';
+}

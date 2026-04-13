@@ -19,16 +19,16 @@ function detectDocType(filename) {
   const rules = [
     [/\b(BL|WAYBILL|BILL\s*(OF\s*)?LADING|CONOCIMIENTO)\b/, 'Bill of Lading'],
     [/\b(FACT|INVOICE|INV\b)/, 'Commercial Invoice'],
-    [/\b(PACK|PACKING)\b/, 'Packing List'],
-    [/\b(FITO|PHYTO|FITOSANIT)\b/, 'Phytosanitary Certificate'],
-    [/\b(CERT\s*ORIG|ORIGEN|ORIGIN|CERTIFICADO\s*DE\s*ORIG)\b/, 'Certificate of Origin'],
+    [/\b(PACK|PACKING)/, 'Packing List'],
+    [/\b(FITO|PHYTO|FITOSANIT)/, 'Phytosanitary Certificate'],
+    [/\b(CERT\s*ORIG|ORIGEN|ORIGIN|CERTIFICADO\s*DE\s*ORIG)/, 'Certificate of Origin'],
     [/\b(FUMIG|FUMIGACION|FUMIGATION|GAS\s*CLEAR)/, 'Fumigation Certificate'],
     [/\b(CALIDAD|QUALITY|QC)\b/, 'Quality Certificate'],
     [/\b(ISF|CUSTOMS)\b/, 'ISF'],
-    [/\b(DECL|LETTER\s*OF|CARTA)\b/, 'Declaration Letter'],
-    [/\b(COI|ORGANIC|ORG[AÁ]NICO)\b/, 'Organic Certificate (COI)'],
-    [/\b(SHIPPING\s*NOT|SHIP\s*NOT|SHIPP\s*NOT)\b/, 'Shipping Notification'],
-    [/\b(PERM|PERMIT|PERMISO)\b/, 'Import Permit'],
+    [/\b(DECL|LETTER\s*OF|CARTA)/, 'Declaration Letter'],
+    [/\b(COI|ORGANIC|ORG[AÁ]NICO)/, 'Organic Certificate (COI)'],
+    [/\b(SHIPPING\s*NOT|SHIP\s*NOT|SHIPP\s*NOT)/, 'Shipping Notification'],
+    [/\b(PERM|PERMIT|PERMISO)/, 'Import Permit'],
     [/\b(UNIDAD|UNIT)\b/, 'Shipping Notification'],
   ];
   for (const [re, type] of rules) {
@@ -512,7 +512,8 @@ function cleanExtractedFields(doc) {
   }
   // Validate seal numbers — alphanumeric only, max 20 chars
   if (Array.isArray(doc.sealNumbers)) {
-    doc.sealNumbers = doc.sealNumbers.filter(s => s && String(s).trim().length > 0)
-      .map(s => String(s).trim().replace(/[^a-zA-Z0-9\-]/g, '').substring(0, 20));
+    doc.sealNumbers = doc.sealNumbers
+      .map(s => s ? String(s).trim().replace(/[^a-zA-Z0-9\-]/g, '').substring(0, 20) : '')
+      .filter(s => s.length > 0);
   }
 }
