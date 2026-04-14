@@ -1,0 +1,51 @@
+#!/bin/bash
+# Pre-commit hook: protects critical results module files
+# To bypass: commit with APPROVE=results in the message
+# Example: git commit -m "fix: something APPROVE=results"
+
+PROTECTED_FILES=(
+  "js/rendering.js"
+  "js/coherence.js"
+  "js/extraction.js"
+  "js/pdf.js"
+  "netlify/functions/claude.js"
+  "netlify/functions/verify-jwt.js"
+  "netlify/functions/stripe-webhook.js"
+)
+
+# Get list of staged files
+STAGED=$(git diff --cached --name-only)
+
+# Check if any protected file is being modified
+BLOCKED=""
+for file in "${PROTECTED_FILES[@]}"; do
+  if echo "$STAGED" | grep -q "^${file}$"; then
+    BLOCKED="$BLOCKED\n  - $file"
+  fi
+done
+
+if [ -z "$BLOCKED" ]; then
+  exit 0
+fi
+
+# Check if commit message contains approval code
+# We read from .git/COMMIT_EDITMSG if available, otherwise check env
+MSG=$(cat .git/COMMIT_EDITMSG 2>/dev/null || echo "")
+
+# For -m commits, the message isn't in COMMIT_EDITMSG yet at pre-commit stage
+# So we use an environment variable as bypass
+if [ "$DOCSVALIDATE_APPROVE" = "results" ]; then
+  echo "✓ Protected files approved via DOCSVALIDATE_APPROVE=results"
+  exit 0
+fi
+
+echo ""
+echo "⚠️  PROTECTED MODULE — Changes blocked"
+echo ""
+echo "These files are protected (results/analysis module):"
+echo -e "$BLOCKED"
+echo ""
+echo "To approve changes, commit with:"
+echo "  DOCSVALIDATE_APPROVE=results git commit -m \"your message\""
+echo ""
+exit 1
