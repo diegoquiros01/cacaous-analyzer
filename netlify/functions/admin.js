@@ -86,10 +86,19 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
-  // 1. Auth check — verify JWT signature + admin email
+  // 1. Auth check — verify JWT signature + admin email or user ID
   const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
   const clerk = await verifyClerkJWT(authHeader);
-  if (!clerk?.valid || !clerk.email || clerk.email.toLowerCase() !== (ADMIN_EMAIL || '').toLowerCase()) {
+  if (!clerk?.valid) {
+    console.error('Admin auth failed: JWT invalid');
+    return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Forbidden' }) };
+  }
+  // Check admin by email OR by Clerk user ID (fallback when email not in JWT)
+  const ADMIN_USER_ID = process.env.ADMIN_USER_ID || '';
+  const emailMatch = clerk.email && ADMIN_EMAIL && clerk.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const userIdMatch = clerk.sub && ADMIN_USER_ID && clerk.sub === ADMIN_USER_ID;
+  if (!emailMatch && !userIdMatch) {
+    console.error('Admin auth failed: email=' + (clerk.email||'null') + ' sub=' + (clerk.sub||'null') + ' expected=' + ADMIN_EMAIL);
     return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Forbidden' }) };
   }
 
