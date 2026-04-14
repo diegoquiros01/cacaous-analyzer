@@ -34,8 +34,8 @@ MSG=$(cat .git/COMMIT_EDITMSG 2>/dev/null || echo "")
 
 # For -m commits, the message isn't in COMMIT_EDITMSG yet at pre-commit stage
 # So we use an environment variable as bypass
-if [ "$DOCSVALIDATE_APPROVE" = "results" ]; then
-  echo "✓ Protected files approved via DOCSVALIDATE_APPROVE=results"
+if [ "$DV_CODE" = "7411" ]; then
+  echo "✓ Protected files approved (code 7411)"
   exit 0
 fi
 
@@ -46,6 +46,6 @@ echo "These files are protected (results/analysis module):"
 echo -e "$BLOCKED"
 echo ""
 echo "To approve changes, commit with:"
-echo "  DOCSVALIDATE_APPROVE=results git commit -m \"your message\""
+echo "  DV_CODE=7411 git commit -m \"your message\""
 echo ""
 exit 1
