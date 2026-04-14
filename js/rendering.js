@@ -782,7 +782,7 @@ function renderResults(){
       var st = pds.status || 'approved';
       var cls = 'ws-doc-item';
       var bcls = 'ws-doc-badge';
-      var btxt = '✓ Match';
+      var btxt = lang==='es'?'✓ Coincide':'✓ Match';
       var ico = '📄';
       if (isBL) { cls += ' ws-doc-master'; bcls += ' master'; btxt = 'Master'; ico = '📋'; }
       else if (st === 'rejected') { cls += ' ws-doc-err'; bcls += ' err'; btxt = '✗ Error'; ico = '🔴'; }
@@ -1427,7 +1427,7 @@ function renderDocumentStack(results, coherenceResult) {
 
     var cls = 'ws-doc-item';
     var badgeCls = 'ws-doc-badge';
-    var badgeText = '✓ Match';
+    var badgeText = lang==='es'?'✓ Coincide':'✓ Match';
 
     if (isBL) {
       cls += ' ws-doc-master';

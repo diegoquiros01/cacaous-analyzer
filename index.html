@@ -547,15 +547,15 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       <div class="hero-trust">
         <div class="trust-pill">
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Results in 30s
+          <span id="trustPill1">Results in 30s</span>
         </div>
         <div class="trust-pill">
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          No credit card
+          <span id="trustPill2">No credit card</span>
         </div>
         <div class="trust-pill">
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          PDF &middot; Excel &middot; Word &middot; Images
+          <span id="trustPill3">PDF &middot; Excel &middot; Word &middot; Images</span>
         </div>
       </div>
     </div>
@@ -581,7 +581,7 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       <div class="demo-body">
 
         <div>
-          <div class="demo-col-title">Documents (6 uploaded)</div>
+          <div class="demo-col-title" id="demoDocsTitle">Documents (6 uploaded)</div>
           <div class="doc-list">
             <div class="doc-row"><span class="doc-icon">&#128196;</span><span class="doc-name">Bill of Lading</span><span class="badge-mkt badge-ok">&#10003; Master</span></div>
             <div class="doc-row"><span class="doc-icon">&#128203;</span><span class="doc-name">Commercial Invoice</span><span class="badge-mkt badge-ok">&#10003; Match</span></div>
@@ -593,7 +593,7 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
         </div>
 
         <div>
-          <div class="demo-col-title">Validation results</div>
+          <div class="demo-col-title" id="demoResultsTitle">Validation results</div>
           <div class="result-list-mkt">
             <div class="result-item-mkt ri-ok">
               <div class="ri-field">Container number</div>
@@ -620,18 +620,18 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 
         <div class="demo-score">
           <div class="score-block">
-            <div class="score-lbl">Consistency score</div>
+            <div class="score-lbl" id="demoScoreLabel">Consistency score</div>
             <div class="score-val">72 / 100</div>
           </div>
           <div class="score-block">
-            <div class="score-lbl">Issues found</div>
+            <div class="score-lbl" id="demoIssuesLabel">Issues found</div>
             <div class="score-val" style="color:#f0a040;">2 issues</div>
           </div>
           <div class="score-block">
             <div class="score-lbl">Verdict</div>
-            <div class="score-val" style="font-size:1.1rem;">&#9888; Review before shipping</div>
+            <div class="score-val" style="font-size:1.1rem;" id="demoVerdict">&#9888; Review before shipping</div>
           </div>
-          <div class="score-verdict">&#128737; Catch errors before customs</div>
+          <div class="score-verdict" id="demoCatch">&#128737; Catch errors before customs</div>
         </div>
 
       </div>
@@ -643,34 +643,34 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <section class="how-section mkt-section" id="how">
   <div class="container">
     <div class="reveal" style="max-width:640px; margin:0 auto 52px; text-align:center;">
-      <span class="label">How it works</span>
-      <h2>From upload to report<br>in four simple steps</h2>
-      <p class="section-sub" style="margin:0 auto;">No training. No integration. No setup. Upload your documents and get a full coherence report in seconds.</p>
+      <span class="label" id="howLabel">How it works</span>
+      <h2 id="howTitle">From upload to report<br>in four simple steps</h2>
+      <p class="section-sub" style="margin:0 auto;" id="howSub">No training. No integration. No setup. Upload your documents and get a full coherence report in seconds.</p>
     </div>
     <div class="steps-grid reveal">
       <div class="step-mkt">
         <div class="step-icon-mkt">&#128194;</div>
         <div class="step-num-mkt">1</div>
-        <h3>Upload your documents</h3>
-        <p>Drag and drop your full export set &mdash; B/L, invoice, packing list, certificates. PDF, Excel, Word or images.</p>
+        <h3 id="howStep1Title">Upload your documents</h3>
+        <p id="howStep1Desc">Drag and drop your full export set &mdash; B/L, invoice, packing list, certificates. PDF, Excel, Word or images.</p>
       </div>
       <div class="step-mkt">
         <div class="step-icon-mkt">&#129302;</div>
         <div class="step-num-mkt">2</div>
-        <h3>AI extracts every field</h3>
-        <p>AI reads and structures every data field &mdash; container numbers, weights, lots, parties, ports and more.</p>
+        <h3 id="howStep2Title">AI extracts every field</h3>
+        <p id="howStep2Desc">AI reads and structures every data field &mdash; container numbers, weights, lots, parties, ports and more.</p>
       </div>
       <div class="step-mkt">
         <div class="step-icon-mkt">&#128269;</div>
         <div class="step-num-mkt">3</div>
-        <h3>Cross-reference &amp; validate</h3>
-        <p>Each field is compared across documents. The Bill of Lading is always the master reference. Mismatches flagged instantly.</p>
+        <h3 id="howStep3Title">Cross-reference &amp; validate</h3>
+        <p id="howStep3Desc">Each field is compared across documents. The Bill of Lading is always the master reference. Mismatches flagged instantly.</p>
       </div>
       <div class="step-mkt">
         <div class="step-icon-mkt">&#128202;</div>
         <div class="step-num-mkt">4</div>
-        <h3>Download your report</h3>
-        <p>A clean validation report with your consistency score, issue list, and clear action items &mdash; ready to share.</p>
+        <h3 id="howStep4Title">Download your report</h3>
+        <p id="howStep4Desc">A clean validation report with your consistency score, issue list, and clear action items &mdash; ready to share.</p>
       </div>
     </div>
   </div>
@@ -680,40 +680,40 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <section class="features-section mkt-section" id="features">
   <div class="container">
     <div class="reveal" style="max-width:640px; margin:0 auto 52px; text-align:center;">
-      <span class="label">Features</span>
-      <h2>Everything you need to ship<br>with confidence</h2>
-      <p class="section-sub" style="margin:0 auto;">Built specifically for commodity exporters &mdash; cacao, coffee, organic products &mdash; by someone who lives trade documentation every day.</p>
+      <span class="label" id="featLabel">Features</span>
+      <h2 id="featTitle">Everything you need to ship<br>with confidence</h2>
+      <p class="section-sub" style="margin:0 auto;" id="featSub">Built specifically for commodity exporters &mdash; cacao, coffee, organic products &mdash; by someone who lives trade documentation every day.</p>
     </div>
     <div class="features-grid">
       <div class="feature-card reveal">
         <div class="feature-icon-box">&#9878;&#65039;</div>
-        <h3>Weight &amp; Quantity Matching</h3>
-        <p>Net weight, gross weight, and lot quantities are automatically compared across all documents. Even small discrepancies are flagged before customs.</p>
+        <h3 id="feat1Title">Weight &amp; Quantity Matching</h3>
+        <p id="feat1Desc">Net weight, gross weight, and lot quantities are automatically compared across all documents. Even small discrepancies are flagged before customs.</p>
       </div>
       <div class="feature-card reveal reveal-delay-1">
         <div class="feature-icon-box">&#128274;</div>
-        <h3>Container &amp; Seal Verification</h3>
-        <p>Container numbers and seal numbers are validated against the Bill of Lading as master &mdash; never overridden by majority voting.</p>
+        <h3 id="feat2Title">Container &amp; Seal Verification</h3>
+        <p id="feat2Desc">Container numbers and seal numbers are validated against the Bill of Lading as master &mdash; never overridden by majority voting.</p>
       </div>
       <div class="feature-card reveal reveal-delay-2">
         <div class="feature-icon-box">&#127970;</div>
-        <h3>Party Cross-Check</h3>
-        <p>Shipper, consignee, notify party, and agent names are compared across invoice, B/L, Certificate of Origin, and all other documents.</p>
+        <h3 id="feat3Title">Party Cross-Check</h3>
+        <p id="feat3Desc">Shipper, consignee, notify party, and agent names are compared across invoice, B/L, Certificate of Origin, and all other documents.</p>
       </div>
       <div class="feature-card reveal">
         <div class="feature-icon-box">&#127807;</div>
-        <h3>Organic &amp; Phyto Certificates</h3>
-        <p>Deep support for COI (Kiwa BCS), Phytosanitary, TRACES NT, and certification documents specific to organic commodity exports.</p>
+        <h3 id="feat4Title">Organic &amp; Phyto Certificates</h3>
+        <p id="feat4Desc">Deep support for COI (Kiwa BCS), Phytosanitary, TRACES NT, and certification documents specific to organic commodity exports.</p>
       </div>
       <div class="feature-card reveal reveal-delay-1">
         <div class="feature-icon-box">&#128205;</div>
-        <h3>Port &amp; Routing Validation</h3>
-        <p>Port of loading, port of discharge, and vessel name consistency is confirmed across all shipping and commercial documents.</p>
+        <h3 id="feat5Title">Port &amp; Routing Validation</h3>
+        <p id="feat5Desc">Port of loading, port of discharge, and vessel name consistency is confirmed across all shipping and commercial documents.</p>
       </div>
       <div class="feature-card reveal reveal-delay-2">
         <div class="feature-icon-box">&#128196;</div>
-        <h3>One-Click PDF Report</h3>
-        <p>Download a clean, professional validation report you can share with your team, customs broker, or buyer in seconds.</p>
+        <h3 id="feat6Title">One-Click PDF Report</h3>
+        <p id="feat6Desc">Download a clean, professional validation report you can share with your team, customs broker, or buyer in seconds.</p>
       </div>
     </div>
   </div>
@@ -723,23 +723,23 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <section class="docs-section mkt-section" id="documents">
   <div class="container">
     <div class="reveal" style="max-width:600px; margin-bottom:48px;">
-      <span class="label">Supported documents</span>
-      <h2>Works with every document<br>in your export set</h2>
-      <p class="section-sub">DocsValidate understands all major trade documents out of the box &mdash; no template configuration required.</p>
+      <span class="label" id="docsLabel">Supported documents</span>
+      <h2 id="docsTitle">Works with every document<br>in your export set</h2>
+      <p class="section-sub" id="docsSub">DocsValidate understands all major trade documents out of the box &mdash; no template configuration required.</p>
     </div>
     <div class="chips-cloud reveal">
-      <div class="chip"><span class="chip-dot"></span>Bill of Lading</div>
-      <div class="chip"><span class="chip-dot"></span>Commercial Invoice</div>
-      <div class="chip"><span class="chip-dot"></span>Packing List</div>
-      <div class="chip"><span class="chip-dot"></span>Certificate of Origin</div>
-      <div class="chip"><span class="chip-dot"></span>Phytosanitary Certificate</div>
-      <div class="chip"><span class="chip-dot"></span>Organic Certificate (COI)</div>
-      <div class="chip"><span class="chip-dot"></span>Fumigation Certificate</div>
-      <div class="chip"><span class="chip-dot"></span>Quality Certificate</div>
-      <div class="chip"><span class="chip-dot"></span>3rd Party Quality Report</div>
-      <div class="chip"><span class="chip-dot"></span>ISF / CBP Filing</div>
-      <div class="chip"><span class="chip-dot"></span>Import Permit</div>
-      <div class="chip"><span class="chip-dot"></span>TRACES NT</div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip1">Bill of Lading</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip2">Commercial Invoice</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip3">Packing List</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip4">Certificate of Origin</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip5">Phytosanitary Certificate</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip6">Organic Certificate (COI)</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip7">Fumigation Certificate</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip8">Quality Certificate</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip9">3rd Party Quality Report</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip10">ISF / CBP Filing</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip11">Import Permit</span></div>
+      <div class="chip"><span class="chip-dot"></span><span id="docChip12">TRACES NT</span></div>
     </div>
   </div>
 </section>
@@ -749,33 +749,33 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
   <div class="container">
     <div class="proof-grid">
       <div class="proof-left reveal">
-        <span class="label">Why exporters choose us</span>
-        <h2>Fewer errors.<br>Faster shipments.</h2>
-        <p>Manual document review takes hours and still misses things. DocsValidate catches mismatches in seconds &mdash; so your team can focus on the shipment, not the paperwork.</p>
-        <a href="/app" class="btn btn-primary btn-lg">Start validating for free &rarr;</a>
+        <span class="label" id="proofLabel">Why exporters choose us</span>
+        <h2 id="proofTitle">Fewer errors.<br>Faster shipments.</h2>
+        <p id="proofDesc">Manual document review takes hours and still misses things. DocsValidate catches mismatches in seconds &mdash; so your team can focus on the shipment, not the paperwork.</p>
+        <a href="/app" class="btn btn-primary btn-lg" id="proofBtn">Start validating for free &rarr;</a>
       </div>
       <div class="proof-right">
         <div class="stats-grid-mkt reveal">
           <div class="stat-box">
             <div class="stat-num">30<span>s</span></div>
-            <div class="stat-lbl-mkt">Avg. analysis time</div>
+            <div class="stat-lbl-mkt" id="statLbl1">Avg. analysis time</div>
           </div>
           <div class="stat-box">
             <div class="stat-num">12<span>+</span></div>
-            <div class="stat-lbl-mkt">Document types</div>
+            <div class="stat-lbl-mkt" id="statLbl2">Document types</div>
           </div>
           <div class="stat-box">
             <div class="stat-num">100<span>%</span></div>
-            <div class="stat-lbl-mkt">Field-level comparison</div>
+            <div class="stat-lbl-mkt" id="statLbl3">Field-level comparison</div>
           </div>
           <div class="stat-box">
             <div class="stat-num">0</div>
-            <div class="stat-lbl-mkt">Manual setup required</div>
+            <div class="stat-lbl-mkt" id="statLbl4">Manual setup required</div>
           </div>
         </div>
         <div class="quote-card reveal reveal-delay-1">
           <div class="quote-mark">&ldquo;</div>
-          <p class="quote-text">Before DocsValidate, I'd spend 2&ndash;3 hours cross-checking every shipment. Now I catch inconsistencies before they reach customs &mdash; in under a minute.</p>
+          <p class="quote-text" id="proofQuote">Before DocsValidate, I'd spend 2&ndash;3 hours cross-checking every shipment. Now I catch inconsistencies before they reach customs &mdash; in under a minute.</p>
           <div class="quote-author">
             <div class="q-avatar">E</div>
             <div>
@@ -792,14 +792,14 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <!-- ══ CTA FINAL ══ -->
 <section class="cta-section">
   <div class="cta-inner reveal">
-    <span class="label">Get started today</span>
-    <h2>Worried about customs delays?</h2>
-    <p>Your first analysis is free. No credit card. No commitment. Upload your shipment set and see the difference in 30 seconds.</p>
+    <span class="label" id="ctaLabel">Get started today</span>
+    <h2 id="ctaTitle">Worried about customs delays?</h2>
+    <p id="ctaDesc">Your first analysis is free. No credit card. No commitment. Upload your shipment set and see the difference in 30 seconds.</p>
     <div class="cta-btns">
-      <a href="/app" class="btn btn-mint btn-xl">
+      <a href="/app" class="btn btn-mint btn-xl" id="ctaBtn1">
         Verify Docs Free &rarr;
       </a>
-      <a href="/pricing.html" class="btn btn-outline-white btn-lg">View pricing</a>
+      <a href="/pricing.html" class="btn btn-outline-white btn-lg" id="ctaBtn2">View pricing</a>
     </div>
   </div>
 </section>
@@ -811,9 +811,9 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
   <div class="footer-inner">
     <a href="/" class="footer-brand">DocsValidate</a>
     <div class="footer-links-mkt">
-      <a href="/pricing.html">Pricing</a>
-      <a href="/contact.html">Contact</a>
-      <a href="/terms.html">Terms of Use</a>
+      <a href="/pricing.html" id="footPricing">Pricing</a>
+      <a href="/contact.html" id="footContact">Contact</a>
+      <a href="/terms.html" id="footTerms">Terms of Use</a>
       <a href="https://www.instagram.com/docsvalidate/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://www.tiktok.com/@docsvalidate" target="_blank" rel="noopener">TikTok</a>
     </div>
@@ -866,7 +866,59 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       ctaMint: 'Verify Docs Free &rarr;',
       ctaPricing: 'View pricing',
       navStart: 'Start free &rarr;',
-      navSignIn: 'Sign in'
+      navSignIn: 'Sign in',
+      trustPill1: 'Results in 30s',
+      trustPill2: 'No credit card',
+      trustPill3: 'PDF \u00b7 Excel \u00b7 Word \u00b7 Images',
+      demoDocsTitle: 'Documents (6 uploaded)',
+      demoResultsTitle: 'Validation results',
+      demoScoreLabel: 'Consistency score',
+      demoIssuesLabel: 'Issues found',
+      demoVerdict: '\u26a0 Review before shipping',
+      demoCatch: '\ud83d\udee1 Catch errors before customs',
+      howLabel: 'How it works',
+      howTitle: 'From upload to report<br>in four simple steps',
+      howSub: 'No training. No integration. No setup. Upload your documents and get a full coherence report in seconds.',
+      howStep1Title: 'Upload your documents',
+      howStep1Desc: 'Drag and drop your full export set \u2014 B/L, invoice, packing list, certificates. PDF, Excel, Word or images.',
+      howStep2Title: 'AI extracts every field',
+      howStep2Desc: 'AI reads and structures every data field \u2014 container numbers, weights, lots, parties, ports and more.',
+      howStep3Title: 'Cross-reference & validate',
+      howStep3Desc: 'Each field is compared across documents. The Bill of Lading is always the master reference. Mismatches flagged instantly.',
+      howStep4Title: 'Download your report',
+      howStep4Desc: 'A clean validation report with your consistency score, issue list, and clear action items \u2014 ready to share.',
+      featLabel: 'Features',
+      featTitle: 'Everything you need to ship<br>with confidence',
+      featSub: 'Built specifically for commodity exporters \u2014 cacao, coffee, organic products \u2014 by someone who lives trade documentation every day.',
+      feat1Title: 'Weight & Quantity Matching',
+      feat1Desc: 'Net weight, gross weight, and lot quantities are automatically compared across all documents. Even small discrepancies are flagged before customs.',
+      feat2Title: 'Container & Seal Verification',
+      feat2Desc: 'Container numbers and seal numbers are validated against the Bill of Lading as master \u2014 never overridden by majority voting.',
+      feat3Title: 'Party Cross-Check',
+      feat3Desc: 'Shipper, consignee, notify party, and agent names are compared across invoice, B/L, Certificate of Origin, and all other documents.',
+      feat4Title: 'Organic & Phyto Certificates',
+      feat4Desc: 'Deep support for COI (Kiwa BCS), Phytosanitary, TRACES NT, and certification documents specific to organic commodity exports.',
+      feat5Title: 'Port & Routing Validation',
+      feat5Desc: 'Port of loading, port of discharge, and vessel name consistency is confirmed across all shipping and commercial documents.',
+      feat6Title: 'One-Click PDF Report',
+      feat6Desc: 'Download a clean, professional validation report you can share with your team, customs broker, or buyer in seconds.',
+      docsLabel: 'Supported documents',
+      docsTitle: 'Works with every document<br>in your export set',
+      docsSub: 'DocsValidate understands all major trade documents out of the box \u2014 no template configuration required.',
+      docChip1: 'Bill of Lading', docChip2: 'Commercial Invoice', docChip3: 'Packing List',
+      docChip4: 'Certificate of Origin', docChip5: 'Phytosanitary Certificate', docChip6: 'Organic Certificate (COI)',
+      docChip7: 'Fumigation Certificate', docChip8: 'Quality Certificate', docChip9: '3rd Party Quality Report',
+      docChip10: 'ISF / CBP Filing', docChip11: 'Import Permit', docChip12: 'TRACES NT',
+      proofLabel: 'Why exporters choose us',
+      proofTitle: 'Fewer errors.<br>Faster shipments.',
+      proofDesc: 'Manual document review takes hours and still misses things. DocsValidate catches mismatches in seconds \u2014 so your team can focus on the shipment, not the paperwork.',
+      proofBtn: 'Start validating for free \u2192',
+      statLbl1: 'Avg. analysis time', statLbl2: 'Document types', statLbl3: 'Field-level comparison', statLbl4: 'Manual setup required',
+      proofQuote: 'Before DocsValidate, I\u2019d spend 2\u20133 hours cross-checking every shipment. Now I catch inconsistencies before they reach customs \u2014 in under a minute.',
+      ctaDesc: 'Your first analysis is free. No credit card. No commitment. Upload your shipment set and see the difference in 30 seconds.',
+      ctaBtn1: 'Verify Docs Free \u2192',
+      ctaBtn2: 'View pricing',
+      footPricing: 'Pricing', footContact: 'Contact', footTerms: 'Terms of Use'
     },
     es: {
       heroEyebrow: 'Validaci\u00f3n de Documentos con IA',
@@ -875,12 +927,64 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       heroCta: 'Analizar Documentos Gratis &rarr;',
       heroGhost: 'C\u00f3mo funciona',
       ctaLabel: 'Empieza hoy',
-      ctaH2: '\u00bfPreocupado por demoras en aduana?',
+      ctaH2: '\u00bfPreocupado por demoras aduaneras?',
       ctaP: 'Tu primer an\u00e1lisis es gratis. Sin tarjeta. Sin compromiso. Sube tu set y ve la diferencia en 30 segundos.',
       ctaMint: 'Verificar Docs Gratis &rarr;',
       ctaPricing: 'Ver planes',
       navStart: 'Empezar gratis &rarr;',
-      navSignIn: 'Iniciar sesi\u00f3n'
+      navSignIn: 'Iniciar sesi\u00f3n',
+      trustPill1: 'Resultados en 30s',
+      trustPill2: 'Sin tarjeta de cr\u00e9dito',
+      trustPill3: 'PDF \u00b7 Excel \u00b7 Word \u00b7 Im\u00e1genes',
+      demoDocsTitle: 'Documentos (6 cargados)',
+      demoResultsTitle: 'Resultados de validaci\u00f3n',
+      demoScoreLabel: 'Puntuaci\u00f3n de consistencia',
+      demoIssuesLabel: 'Problemas encontrados',
+      demoVerdict: '\u26a0 Revisar antes de embarcar',
+      demoCatch: '\ud83d\udee1 Detecta errores antes de aduanas',
+      howLabel: 'C\u00f3mo funciona',
+      howTitle: 'Del upload al reporte<br>en cuatro simples pasos',
+      howSub: 'Sin entrenamiento. Sin integraci\u00f3n. Sin configuraci\u00f3n. Sube tus documentos y obt\u00e9n un reporte completo en segundos.',
+      howStep1Title: 'Sube tus documentos',
+      howStep1Desc: 'Arrastra tu set completo de exportaci\u00f3n \u2014 B/L, factura, packing list, certificados. PDF, Excel, Word o im\u00e1genes.',
+      howStep2Title: 'La IA extrae cada campo',
+      howStep2Desc: 'La IA lee y estructura cada campo \u2014 contenedores, pesos, lotes, partes, puertos y m\u00e1s.',
+      howStep3Title: 'Cruza y valida',
+      howStep3Desc: 'Cada campo se compara entre documentos. El Bill of Lading es siempre la referencia maestra. Las diferencias se marcan instant\u00e1neamente.',
+      howStep4Title: 'Descarga tu reporte',
+      howStep4Desc: 'Un reporte de validaci\u00f3n limpio con tu puntuaci\u00f3n de consistencia, lista de problemas y acciones claras \u2014 listo para compartir.',
+      featLabel: 'Caracter\u00edsticas',
+      featTitle: 'Todo lo que necesitas para embarcar<br>con confianza',
+      featSub: 'Construido espec\u00edficamente para exportadores de commodities \u2014 cacao, caf\u00e9, productos org\u00e1nicos \u2014 por alguien que vive la documentaci\u00f3n de comercio exterior todos los d\u00edas.',
+      feat1Title: 'Comparaci\u00f3n de Pesos y Cantidades',
+      feat1Desc: 'Peso neto, peso bruto y cantidades de lotes se comparan autom\u00e1ticamente entre todos los documentos. Hasta las peque\u00f1as discrepancias se detectan antes de aduanas.',
+      feat2Title: 'Verificaci\u00f3n de Contenedores y Sellos',
+      feat2Desc: 'Los n\u00fameros de contenedor y sellos se validan contra el Bill of Lading como referencia maestra \u2014 nunca se sobreescriben por mayor\u00eda.',
+      feat3Title: 'Cruce de Partes',
+      feat3Desc: 'Shipper, consignee, notify y agente se comparan entre factura, B/L, Certificado de Origen y todos los dem\u00e1s documentos.',
+      feat4Title: 'Certificados Org\u00e1nicos y Fitosanitarios',
+      feat4Desc: 'Soporte profundo para COI (Kiwa BCS), Fitosanitario, TRACES NT y documentos de certificaci\u00f3n espec\u00edficos para exportaciones org\u00e1nicas.',
+      feat5Title: 'Validaci\u00f3n de Puertos y Rutas',
+      feat5Desc: 'Puerto de carga, puerto de descarga y nombre del buque se verifican en todos los documentos de embarque y comerciales.',
+      feat6Title: 'Reporte PDF en Un Clic',
+      feat6Desc: 'Descarga un reporte de validaci\u00f3n profesional que puedes compartir con tu equipo, agente aduanal o comprador en segundos.',
+      docsLabel: 'Documentos soportados',
+      docsTitle: 'Funciona con cada documento<br>de tu set de exportaci\u00f3n',
+      docsSub: 'DocsValidate entiende todos los documentos principales de comercio exterior \u2014 sin configuraci\u00f3n de plantillas.',
+      docChip1: 'Bill of Lading', docChip2: 'Factura Comercial', docChip3: 'Packing List',
+      docChip4: 'Certificado de Origen', docChip5: 'Certificado Fitosanitario', docChip6: 'Certificado Org\u00e1nico (COI)',
+      docChip7: 'Certificado de Fumigaci\u00f3n', docChip8: 'Certificado de Calidad', docChip9: 'Reporte de Calidad 3ros',
+      docChip10: 'ISF / CBP Filing', docChip11: 'Permiso de Importaci\u00f3n', docChip12: 'TRACES NT',
+      proofLabel: 'Por qu\u00e9 los exportadores nos eligen',
+      proofTitle: 'Menos errores.<br>Embarques m\u00e1s r\u00e1pidos.',
+      proofDesc: 'La revisi\u00f3n manual de documentos toma horas y a\u00fan as\u00ed se escapan errores. DocsValidate detecta inconsistencias en segundos \u2014 para que tu equipo se enfoque en el embarque, no en el papeleo.',
+      proofBtn: 'Empezar a validar gratis \u2192',
+      statLbl1: 'Tiempo promedio de an\u00e1lisis', statLbl2: 'Tipos de documento', statLbl3: 'Comparaci\u00f3n campo a campo', statLbl4: 'Configuraci\u00f3n manual requerida',
+      proofQuote: 'Antes de DocsValidate, pasaba 2\u20133 horas cruzando cada embarque. Ahora detecto inconsistencias antes de que lleguen a aduanas \u2014 en menos de un minuto.',
+      ctaDesc: 'Tu primer an\u00e1lisis es gratis. Sin tarjeta. Sin compromiso. Sube tu set y ve la diferencia en 30 segundos.',
+      ctaBtn1: 'Verificar Docs Gratis \u2192',
+      ctaBtn2: 'Ver planes',
+      footPricing: 'Precios', footContact: 'Contacto', footTerms: 'T\u00e9rminos de Uso'
     }
   };
 
@@ -888,11 +992,81 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
     lang = l;
     localStorage.setItem('dv_lang', l);
     var t = UI[l] || UI.en;
+    var fb = UI.en;
 
     var el;
+    var st = function(id, txt) { var e = document.getElementById(id); if(e && txt !== undefined) e.textContent = txt; };
+    var sh = function(id, html) { var e = document.getElementById(id); if(e && html !== undefined) e.innerHTML = html; };
+
     if ((el = document.getElementById('heroEyebrow'))) el.innerHTML = '<span></span>' + t.heroEyebrow;
     if ((el = document.getElementById('heroTitle'))) el.innerHTML = t.heroTitle;
     if ((el = document.getElementById('heroSub'))) el.innerHTML = t.heroSub;
+
+    // Trust pills
+    st('trustPill1', t.trustPill1 || fb.trustPill1);
+    st('trustPill2', t.trustPill2 || fb.trustPill2);
+    st('trustPill3', t.trustPill3 || fb.trustPill3);
+
+    // Demo card
+    st('demoDocsTitle', t.demoDocsTitle || fb.demoDocsTitle);
+    st('demoResultsTitle', t.demoResultsTitle || fb.demoResultsTitle);
+    st('demoScoreLabel', t.demoScoreLabel || fb.demoScoreLabel);
+    st('demoIssuesLabel', t.demoIssuesLabel || fb.demoIssuesLabel);
+    sh('demoVerdict', t.demoVerdict || fb.demoVerdict);
+    st('demoCatch', t.demoCatch || fb.demoCatch);
+
+    // How it works
+    st('howLabel', t.howLabel || fb.howLabel);
+    sh('howTitle', t.howTitle || fb.howTitle);
+    st('howSub', t.howSub || fb.howSub);
+    st('howStep1Title', t.howStep1Title || fb.howStep1Title);
+    st('howStep1Desc', t.howStep1Desc || fb.howStep1Desc);
+    st('howStep2Title', t.howStep2Title || fb.howStep2Title);
+    st('howStep2Desc', t.howStep2Desc || fb.howStep2Desc);
+    st('howStep3Title', t.howStep3Title || fb.howStep3Title);
+    st('howStep3Desc', t.howStep3Desc || fb.howStep3Desc);
+    st('howStep4Title', t.howStep4Title || fb.howStep4Title);
+    st('howStep4Desc', t.howStep4Desc || fb.howStep4Desc);
+
+    // Features
+    st('featLabel', t.featLabel || fb.featLabel);
+    sh('featTitle', t.featTitle || fb.featTitle);
+    st('featSub', t.featSub || fb.featSub);
+    for (var i = 1; i <= 6; i++) {
+      st('feat' + i + 'Title', t['feat' + i + 'Title'] || fb['feat' + i + 'Title']);
+      st('feat' + i + 'Desc', t['feat' + i + 'Desc'] || fb['feat' + i + 'Desc']);
+    }
+
+    // Documents
+    st('docsLabel', t.docsLabel || fb.docsLabel);
+    sh('docsTitle', t.docsTitle || fb.docsTitle);
+    st('docsSub', t.docsSub || fb.docsSub);
+    for (var j = 1; j <= 12; j++) {
+      st('docChip' + j, t['docChip' + j] || fb['docChip' + j]);
+    }
+
+    // Social proof
+    st('proofLabel', t.proofLabel || fb.proofLabel);
+    sh('proofTitle', t.proofTitle || fb.proofTitle);
+    st('proofDesc', t.proofDesc || fb.proofDesc);
+    st('proofBtn', t.proofBtn || fb.proofBtn);
+    st('statLbl1', t.statLbl1 || fb.statLbl1);
+    st('statLbl2', t.statLbl2 || fb.statLbl2);
+    st('statLbl3', t.statLbl3 || fb.statLbl3);
+    st('statLbl4', t.statLbl4 || fb.statLbl4);
+    st('proofQuote', t.proofQuote || fb.proofQuote);
+
+    // CTA
+    st('ctaLabel', t.ctaLabel || fb.ctaLabel);
+    st('ctaTitle', t.ctaH2 || fb.ctaH2);
+    st('ctaDesc', t.ctaDesc || fb.ctaDesc);
+    st('ctaBtn1', t.ctaBtn1 || fb.ctaBtn1);
+    st('ctaBtn2', t.ctaBtn2 || fb.ctaBtn2);
+
+    // Footer
+    st('footPricing', t.footPricing || fb.footPricing);
+    st('footContact', t.footContact || fb.footContact);
+    st('footTerms', t.footTerms || fb.footTerms);
 
     // Nav lang buttons
     document.getElementById('btnEN').classList.toggle('active', l === 'en');

@@ -1746,7 +1746,7 @@ mark.diff-mark {
       <div id="upDtSummary" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
         <span id="upDtInlineCount" style="font-size:0.82rem;color:var(--text-light);">13 document types selected</span>
         <span style="color:var(--border);font-size:0.82rem;">·</span>
-        <button onclick="document.getElementById('docTypesGrid').style.display=document.getElementById('docTypesGrid').style.display==='flex'?'none':'flex';this.textContent=this.textContent==='Edit'?'Done':'Edit'" style="font-family:'Raleway',sans-serif;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--steel);background:none;border:0.5px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;">Edit</button>
+        <button onclick="document.getElementById('docTypesGrid').style.display=document.getElementById('docTypesGrid').style.display==='flex'?'none':'flex';this.textContent=this.textContent===(lang==='es'?'Listo':'Done')?(lang==='es'?'Editar':'Edit'):(lang==='es'?'Listo':'Done')" style="font-family:'Raleway',sans-serif;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--steel);background:none;border:0.5px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;">Edit</button>
       </div>
 
       <!-- Hidden: full doc type grid for editing -->
@@ -1821,7 +1821,7 @@ mark.diff-mark {
       <div class="tech-progress-bar-fill" id="techProgressFill"></div>
     </div>
     <div class="activity-log">
-      <div class="activity-log-title">Activity log</div>
+      <div class="activity-log-title" id="activityLogTitle">Activity log</div>
       <div id="activityLog"></div>
     </div>
   </div>
@@ -1830,11 +1830,11 @@ mark.diff-mark {
   <div class="results" id="results">
   <div class="app-workspace">
     <aside class="ws-left">
-      <div class="ws-left-title">Documents analyzed</div>
+      <div class="ws-left-title" id="wsLeftTitle">Documents analyzed</div>
       <div id="wsDocList"></div>
       <div class="ws-score-box">
         <div class="ws-score-num" id="wsScoreNum">&mdash;</div>
-        <div class="ws-score-lbl">Consistency Score</div>
+        <div class="ws-score-lbl" id="wsScoreLbl">Consistency Score</div>
       </div>
     </aside>
     <div class="ws-right">
@@ -2126,6 +2126,7 @@ const TX = {
     spFixRequired:'Fix required', spVerify:'Verify', spConsistent:'Consistent', spValuePerDoc:'Value per document',
     matrixLabel:'Consistency Matrix — Key Fields',
     matrixLegend:'OK = consistent with B/L | — = field not present | DIFF = different value',
+    wsLeftTitle:'Documents analyzed', wsScoreLbl:'Consistency Score', activityLogTitle:'Activity log', histBackBtn:'← Back to Home',
   },
   es: {
     logoTagline:'DocsValidate.com',
@@ -2226,6 +2227,7 @@ const TX = {
     spFixRequired:'Corregir', spVerify:'Verificar', spConsistent:'Consistente', spValuePerDoc:'Valor por documento',
     matrixLabel:'Matriz de Consistencia — Campos Clave',
     matrixLegend:'OK = consistente con B/L | — = campo no presente | DIFF = valor diferente',
+    wsLeftTitle:'Documentos analizados', wsScoreLbl:'Puntuación de Consistencia', activityLogTitle:'Registro de actividad', histBackBtn:'← Volver a Inicio',
   }
 };
 

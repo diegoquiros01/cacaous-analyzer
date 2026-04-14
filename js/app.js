@@ -138,6 +138,12 @@ function applyLang(){
       } catch(e) { console.warn('Lang re-render error:', e.message); }
     }, 10);
   }
+  // ── Workspace panel labels ─────────────────────
+  st('wsLeftTitle', t.wsLeftTitle);
+  st('wsScoreLbl', t.wsScoreLbl);
+  st('activityLogTitle', t.activityLogTitle);
+  st('histBackBtn', t.histBackBtn);
+
   // ── History labels ──────────────────────────────
   st('histTitle', t.histTitle); st('histSub', t.histSub);
   const histInput = document.getElementById('histSearch');
