@@ -3,7 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricing — DocsValidate</title>
+<title>Pricing — DocsValidate | Export Document Validation Plans</title>
+<meta name="description" content="DocsValidate pricing plans from Free to Enterprise. Validate Bills of Lading, Phytosanitary Certificates, Packing Lists and more. Plans start at $0/month for cacao and coffee exporters.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DocsValidate">
+<meta property="og:title" content="Pricing — DocsValidate | Export Document Validation Plans">
+<meta property="og:description" content="Validate Bills of Lading, Phytosanitary Certificates, Packing Lists and more. Plans from Free to $189/mo.">
+<meta property="og:url" content="https://docsvalidate.com/pricing.html">
+<meta property="og:image" content="https://docsvalidate.com/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_ES">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Pricing — DocsValidate | Export Validation Plans">
+<meta name="twitter:description" content="Validate Bills of Lading, Phytosanitary Certificates and more. Plans from Free to $189/mo.">
+<meta name="twitter:image" content="https://docsvalidate.com/og-image.png">
+
+<!-- Canonical & hreflang -->
+<link rel="canonical" href="https://docsvalidate.com/pricing.html">
+<link rel="alternate" hreflang="en" href="https://docsvalidate.com/pricing.html">
+<link rel="alternate" hreflang="es" href="https://docsvalidate.com/es/pricing.html">
+<link rel="alternate" hreflang="x-default" href="https://docsvalidate.com/pricing.html">
+
+<!-- JSON-LD: Product offers -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "DocsValidate Pricing",
+  "description": "Export document validation plans",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Starter",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "10 validations per month, up to 15 documents per set, AI extraction and coherence check"
+    },
+    {
+      "@type": "Offer",
+      "name": "Growth",
+      "price": "89",
+      "priceCurrency": "USD",
+      "description": "50 validations per month, real-time carrier tracking, daily summary reports"
+    },
+    {
+      "@type": "Offer",
+      "name": "Professional",
+      "price": "129",
+      "priceCurrency": "USD",
+      "description": "150 validations per month, real-time carrier tracking, daily summary reports, email support"
+    },
+    {
+      "@type": "Offer",
+      "name": "Enterprise",
+      "price": "189",
+      "priceCurrency": "USD",
+      "description": "Up to 350 validations per month, API access, custom document types, dedicated account manager"
+    }
+  ]
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/shared.css">
 <style>
@@ -104,14 +167,14 @@ body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);
 <div style="height:68px;"></div>
 
 <section class="hero">
-  <div class="hero-eyebrow" id="heroEyebrow"></div>
-  <h1 id="heroTitle"></h1>
-  <p id="heroDesc"></p>
+  <div class="hero-eyebrow" id="heroEyebrow">Simple, transparent pricing</div>
+  <h1 id="heroTitle">Validate your shipments<br><em>without the headache</em></h1>
+  <p id="heroDesc">Choose the plan that fits your export volume. No hidden fees, no setup costs — cancel anytime.</p>
   <div class="billing-toggle">
-    <span id="lblMonthly"></span>
+    <span id="lblMonthly">Monthly</span>
     <div class="toggle-wrap" id="toggleWrap" onclick="toggleBilling()"><div class="toggle-knob"></div></div>
-    <span id="lblAnnual"></span>
-    <span class="save-badge" id="saveBadge"></span>
+    <span id="lblAnnual">Annual</span>
+    <span class="save-badge" id="saveBadge">Save 20%</span>
   </div>
 </section>
 
@@ -119,115 +182,116 @@ body{font-family:'Lato',sans-serif;background:var(--offwhite);color:var(--text);
   <div class="plans-grid">
 
     <div class="plan-card">
-      <div class="plan-name" id="p1name"></div>
-      <div class="plan-price"><span class="price-amt">0</span><span class="price-per" id="p1per"></span></div>
-      <div class="plan-tag" id="p1tag"></div>
+      <div class="plan-name" id="p1name">Starter</div>
+      <div class="plan-price"><span class="price-amt">0</span><span class="price-per" id="p1per">/ month</span></div>
+      <div class="plan-tag" id="p1tag">Perfect for getting started and occasional validations.</div>
       <div class="plan-div"></div>
       <ul class="plan-feats">
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_1"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_2"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_3"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_4"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_5"></span></li>
-        <li><svg class="feat-icon dash" viewBox="0 0 16 16" fill="none"><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_6"></span></li>
-        <li><svg class="feat-icon dash" viewBox="0 0 16 16" fill="none"><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_7"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_1"><strong>10 validations</strong> per month</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_2">Up to 15 documents per set</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_3">AI extraction &amp; coherence check</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_4">PDF, Excel &amp; Word support</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_5">English &amp; Spanish interface</span></li>
+        <li><svg class="feat-icon dash" viewBox="0 0 16 16" fill="none"><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_6">Carrier tracking</span></li>
+        <li><svg class="feat-icon dash" viewBox="0 0 16 16" fill="none"><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f1_7">Priority support</span></li>
       </ul>
-      <a href="/app" class="plan-cta cta-out" id="cta1"></a>
+      <a href="/app" class="plan-cta cta-out" id="cta1">Get started free</a>
     </div>
 
     <div class="plan-card">
-      <div class="plan-name" id="pgname"></div>
-      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="growthPrice">89</span><span class="price-per" id="pgper"></span></div>
-      <div class="plan-tag" id="pgtag"></div>
+      <div class="plan-name" id="pgname">Growth</div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="growthPrice">89</span><span class="price-per" id="pgper">/ month</span></div>
+      <div class="plan-tag" id="pgtag">For exporters starting to scale their validation workflow.</div>
       <div class="plan-div"></div>
       <ul class="plan-feats">
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_1"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_2"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_3"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_4"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_5"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_6"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_7"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_1"><strong>50 validations</strong> per month</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_2">Up to 15 documents per set</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_3">AI extraction &amp; coherence check</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_4">PDF, Excel &amp; Word support</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_5">Real-time carrier tracking</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_6">Daily summary reports by email</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="fg_7">Email support within 24h</span></li>
       </ul>
-      <a href="#" class="plan-cta cta-fill" id="ctag" onclick="handleSubscribe('growth'); return false;"></a>
+      <a href="#" class="plan-cta cta-fill" id="ctag" onclick="handleSubscribe('growth'); return false;">Subscribe</a>
     </div>
 
     <div class="plan-card featured">
-      <div class="plan-badge" id="popularBadge"></div>
-      <div class="plan-name" id="p2name"></div>
-      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="proPrice">129</span><span class="price-per" id="p2per"></span></div>
-      <div class="plan-tag" id="p2tag"></div>
+      <div class="plan-badge" id="popularBadge">Most Popular</div>
+      <div class="plan-name" id="p2name">Professional</div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="proPrice">129</span><span class="price-per" id="p2per">/ month</span></div>
+      <div class="plan-tag" id="p2tag">For active exporters who validate multiple shipments every month.</div>
       <div class="plan-div"></div>
       <ul class="plan-feats">
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_1"></span></li>
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_2"></span></li>
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_3"></span></li>
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_4"></span></li>
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_5"></span></li>
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_6"></span></li>
-        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_7"></span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_1"><strong>150 validations</strong> per month</span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_2">Up to 15 documents per set</span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_3">AI extraction &amp; coherence check</span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_4">PDF, Excel &amp; Word support</span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_5">Real-time carrier tracking</span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_6">Daily summary reports by email</span></li>
+        <li><svg class="feat-icon check-white" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f2_7">Email support within 24h</span></li>
       </ul>
-      <a href="#" class="plan-cta cta-dark" id="cta2" onclick="handleSubscribe('professional'); return false;"></a>
+      <a href="#" class="plan-cta cta-dark" id="cta2" onclick="handleSubscribe('professional'); return false;">Start free trial</a>
     </div>
 
     <div class="plan-card">
-      <div class="plan-name" id="p3name"></div>
-      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="entPrice">189</span><span class="price-per" id="p3per"></span></div>
-      <div class="plan-tag" id="p3tag"></div>
+      <div class="plan-name" id="p3name">Enterprise</div>
+      <div class="plan-price"><span class="price-cur">$</span><span class="price-amt" id="entPrice">189</span><span class="price-per" id="p3per">/ month</span></div>
+      <div class="plan-tag" id="p3tag">For high-volume operations — up to 1,000 validations per month.</div>
       <div class="plan-div"></div>
       <ul class="plan-feats">
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_1"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_2"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_3"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_4"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_5"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_6"></span></li>
-        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_7"></span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_1"><strong>Up to 350 validations</strong> per month</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_2">Up to 15 documents per set</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_3">Everything in Professional</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_4">API access for integrations</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_5">Custom document types</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_6">Dedicated account manager</span></li>
+        <li><svg class="feat-icon check" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="f3_7">Priority support &lt; 4h</span></li>
       </ul>
-      <a href="#" class="plan-cta cta-fill" id="cta3" onclick="handleSubscribe('enterprise'); return false;"></a>
+      <a href="#" class="plan-cta cta-fill" id="cta3" onclick="handleSubscribe('enterprise'); return false;">Subscribe</a>
     </div>
 
   </div>
 </section>
 
 <section class="compare-section">
-  <div class="sec-title" id="compareTitle"></div>
+  <div class="sec-title" id="compareTitle">Full feature comparison</div>
   <table class="compare-table">
     <thead><tr>
-      <th id="thFeat" style="width:32%"></th>
-      <th id="thS"></th>
-      <th id="thG"></th>
-      <th class="fc" id="thP" style="color:var(--brown)"></th>
-      <th id="thE"></th>
+      <th id="thFeat" style="width:32%">Feature</th>
+      <th id="thS">Starter</th>
+      <th id="thG">Growth</th>
+      <th class="fc" id="thP" style="color:var(--brown)">Professional</th>
+      <th id="thE">Enterprise</th>
     </tr></thead>
     <tbody>
-      <tr><td class="fn" id="cf1"></td><td>10</td><td>50</td><td class="fc">150</td><td id="cfUnlim"></td></tr>
-      <tr><td class="fn" id="cf2"></td><td id="cfUpTo"></td><td id="cfUpToG"></td><td class="fc" id="cfUnlim2"></td><td id="cfUnlim3"></td></tr>
-      <tr><td class="fn" id="cf3"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf4"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf5"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf6"></td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf7"></td><td><span class="dsh">—</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf8"></td><td><span class="dsh">—</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf9"></td><td><span class="dsh">—</span></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf10"></td><td><span class="dsh">—</span></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
-      <tr><td class="fn" id="cf11"></td><td id="cs1"></td><td id="csg"></td><td class="fc" id="cs2"></td><td id="cs3"></td></tr>
+      <tr><td class="fn" id="cf1">Monthly validations</td><td>10</td><td>50</td><td class="fc">150</td><td id="cfUnlim">Up to 350</td></tr>
+      <tr><td class="fn" id="cf2">Documents per set</td><td id="cfUpTo">Up to 15</td><td id="cfUpToG">Up to 15</td><td class="fc" id="cfUnlim2">Up to 15</td><td id="cfUnlim3">Up to 15</td></tr>
+      <tr><td class="fn" id="cf3">AI field extraction</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf4">Coherence analysis</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf5">PDF, Excel, Word</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf6">EN &amp; ES interface</td><td><span class="chk">✓</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf7">Carrier tracking</td><td><span class="dsh">—</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf8">Daily email reports</td><td><span class="dsh">—</span></td><td><span class="chk">✓</span></td><td class="fc"><span class="chk">✓</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf9">API access</td><td><span class="dsh">—</span></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf10">Custom doc types</td><td><span class="dsh">—</span></td><td><span class="dsh">—</span></td><td class="fc"><span class="dsh">—</span></td><td><span class="chk">✓</span></td></tr>
+      <tr><td class="fn" id="cf11">Support</td><td id="cs1">Community</td><td id="csg">Email 24h</td><td class="fc" id="cs2">Email 24h</td><td id="cs3">Priority &lt;4h</td></tr>
     </tbody>
   </table>
 </section>
 
 <section class="notes-section">
-  <div class="sec-title" id="faqTitle"></div>
+  <div class="sec-title" id="faqTitle">Good to know</div>
   <div class="notes-grid">
-    <div class="note-item"><h4 id="faq1q"></h4><p id="faq1a"></p></div>
-    <div class="note-item"><h4 id="faq2q"></h4><p id="faq2a"></p></div>
-    <div class="note-item"><h4 id="faq3q"></h4><p id="faq3a"></p></div>
-    <div class="note-item"><h4 id="faq4q"></h4><p id="faq4a"></p></div>
+    <div class="note-item"><h4 id="faq1q">What counts as a validation?</h4><p id="faq1a">Each time you run an AI analysis on a document set counts as one validation, regardless of how many documents are in the set.</p></div>
+    <div class="note-item"><h4 id="faq2q">Can I upgrade or downgrade?</h4><p id="faq2a">Yes, you can change your plan at any time. Changes take effect at the start of the next billing cycle.</p></div>
+    <div class="note-item"><h4 id="faq3q">Is there a free trial?</h4><p id="faq3a">The Professional plan includes a 14-day free trial. No credit card required to get started.</p></div>
+    <div class="note-item"><h4 id="faq4q">What payment methods do you accept?</h4><p id="faq4a">We accept all major credit cards via Stripe. Annual plans can also be paid by bank transfer.</p></div>
   </div>
 </section>
 
 <script>
-let lang=localStorage.getItem('dv_lang')||'en', isAnnual=false;
+let lang=window.location.pathname.startsWith('/es')?'es':(localStorage.getItem('dv_lang')||'en'), isAnnual=false;
+if(lang==='es') document.documentElement.lang='es';
 const TX={
   en:{
     logoTagline:'AI-Validation',
@@ -365,8 +429,11 @@ function applyLang(){
 }
 
 function setLang(l){
-  lang=l;
   localStorage.setItem('dv_lang', l);
+  var path=window.location.pathname;
+  if(l==='es'&&!path.startsWith('/es')){window.location.href='/es'+path;return;}
+  if(l==='en'&&path.startsWith('/es')){window.location.href=path.replace(/^\/es\/?/,'/')||'/';return;}
+  lang=l;
   document.getElementById('btnES').classList.toggle('active',l==='es');
   document.getElementById('btnEN').classList.toggle('active',l==='en');
   applyLang();
@@ -383,9 +450,10 @@ function toggleBilling(){
   ['p1per','pgper','p2per','p3per'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=per;});
 }
 
-// Apply saved language + update button states
+// Apply saved language + update button states + fix nav hrefs for /es/
 document.getElementById('btnES').classList.toggle('active',lang==='es');
 document.getElementById('btnEN').classList.toggle('active',lang==='en');
+(function(){var p=lang==='es'?'/es':'';var h=document.getElementById('navHome');if(h)h.href=p+'/';var c=document.getElementById('navContact');if(c)c.href=p+'/contact.html';var b=document.querySelector('.nav-brand');if(b)b.href=p+'/';})();
 applyLang();
 
 // ── SUBSCRIPTION FLOW ─────────────────────────────────────

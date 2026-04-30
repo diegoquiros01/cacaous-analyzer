@@ -1,11 +1,68 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AI-powered export document validator. Cross-check Bills of Lading, Packing Lists, Phytosanitary Certificates and more in seconds.">
+<meta name="description" content="AI-powered export document validation. Cross-check Bills of Lading, Packing Lists, Phytosanitary Certificates, COIs and more in seconds. Built for cacao and coffee exporters.">
 <meta http-equiv="x-dns-prefetch-control" content="on">
-<title>DocsValidate — Export Document Validator</title>
+<title>DocsValidate — Export Document Validation Software</title>
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DocsValidate">
+<meta property="og:title" content="DocsValidate — Export Document Validation Software">
+<meta property="og:description" content="AI-powered export document validation. Cross-check Bills of Lading, Packing Lists, Phytosanitary Certificates, COIs and more in seconds.">
+<meta property="og:url" content="https://docsvalidate.com/">
+<meta property="og:image" content="https://docsvalidate.com/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_ES">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DocsValidate — Export Document Validation Software">
+<meta name="twitter:description" content="AI-powered export document validation. Cross-check Bills of Lading, Phytosanitary Certificates and more in seconds.">
+<meta name="twitter:image" content="https://docsvalidate.com/og-image.png">
+
+<!-- Canonical & hreflang -->
+<link rel="canonical" href="https://docsvalidate.com/">
+<link rel="alternate" hreflang="en" href="https://docsvalidate.com/">
+<link rel="alternate" hreflang="es" href="https://docsvalidate.com/es/">
+<link rel="alternate" hreflang="x-default" href="https://docsvalidate.com/">
+
+<!-- JSON-LD: SoftwareApplication + Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "DocsValidate",
+      "description": "AI-powered export document validation software. Cross-check Bills of Lading, Commercial Invoices, Packing Lists, Phytosanitary Certificates and Certificates of Origin in seconds.",
+      "url": "https://docsvalidate.com",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "AggregateOffer",
+        "lowPrice": "0",
+        "highPrice": "189",
+        "priceCurrency": "USD",
+        "offerCount": "4"
+      }
+    },
+    {
+      "@type": "Organization",
+      "name": "DocsValidate",
+      "url": "https://docsvalidate.com",
+      "logo": "https://docsvalidate.com/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "hello@docsvalidate.com",
+        "contactType": "customer service"
+      }
+    }
+  ]
+}
+</script>
 
 <!-- DNS prefetch for all external origins — reduces connection latency -->
 <link rel="dns-prefetch" href="https://fonts.googleapis.com">
@@ -851,7 +908,8 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <!-- ══ LANG SWITCH ══ -->
 <script>
 (function(){
-  var lang = localStorage.getItem('dv_lang') || 'en';
+  var lang = window.location.pathname.startsWith('/es') ? 'es' : (localStorage.getItem('dv_lang') || 'en');
+  if (lang === 'es') document.documentElement.lang = 'es';
 
   var UI = {
     en: {
@@ -1076,9 +1134,28 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
     document.querySelectorAll('.footer-lang span').forEach(function(s){
       s.classList.toggle('active', s.textContent.trim() === l.toUpperCase());
     });
+
+    // Update nav hrefs for /es/ prefix
+    var prefix = l === 'es' ? '/es' : '';
+    var pricingLink = document.querySelector('a[href*="pricing"]');
+    if (pricingLink) pricingLink.href = prefix + '/pricing.html';
+    var contactLink = document.querySelector('a[href*="contact"]');
+    if (contactLink) contactLink.href = prefix + '/contact.html';
+    document.documentElement.lang = l;
   }
 
-  window.setLang = function(l) { applyLang(l); };
+  window.setLang = function(l) {
+    localStorage.setItem('dv_lang', l);
+    var path = window.location.pathname;
+    if (l === 'es' && !path.startsWith('/es')) {
+      window.location.href = '/es' + (path === '/' ? '/' : path);
+      return;
+    } else if (l === 'en' && path.startsWith('/es')) {
+      window.location.href = path.replace(/^\/es\/?/, '/') || '/';
+      return;
+    }
+    applyLang(l);
+  };
   applyLang(lang);
 })();
 </script>

@@ -90,3 +90,34 @@
   from = "/contact"
   to = "/contact.html"
   status = 200
+
+# ── Spanish (/es/) rewrites — serve same files, JS detects /es/ prefix
+[[redirects]]
+  from = "/es"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/es/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/es/pricing"
+  to = "/pricing.html"
+  status = 200
+
+[[redirects]]
+  from = "/es/contact"
+  to = "/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/es/terms"
+  to = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from = "/es/*"
+  to = "/:splat"
+  status = 200

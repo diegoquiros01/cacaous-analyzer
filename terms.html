@@ -4,6 +4,29 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Terms of Service — DocsValidate</title>
+  <meta name="description" content="DocsValidate Terms of Service. AI-powered export document validation is a review aid, not legal or compliance advice. Read our full terms, liability limitations, and data policies.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="DocsValidate">
+  <meta property="og:title" content="Terms of Service — DocsValidate">
+  <meta property="og:description" content="Read DocsValidate's Terms of Service for AI-powered export document validation.">
+  <meta property="og:url" content="https://docsvalidate.com/terms.html">
+  <meta property="og:image" content="https://docsvalidate.com/og-image.png">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="es_ES">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Terms of Service — DocsValidate">
+  <meta name="twitter:description" content="Read DocsValidate's Terms of Service for AI-powered export document validation.">
+
+  <!-- Canonical & hreflang -->
+  <link rel="canonical" href="https://docsvalidate.com/terms.html">
+  <link rel="alternate" hreflang="en" href="https://docsvalidate.com/terms.html">
+  <link rel="alternate" hreflang="es" href="https://docsvalidate.com/es/terms.html">
+  <link rel="alternate" hreflang="x-default" href="https://docsvalidate.com/terms.html">
+
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
   <style>
@@ -52,6 +75,11 @@
       filter:brightness(0) invert(1);
       opacity:0.9;
     }
+    .nav-right{
+      display:flex;
+      align-items:center;
+      gap:1.5rem;
+    }
     .nav-back{
       font-family:'Raleway',sans-serif;
       font-size:0.78rem;
@@ -64,6 +92,17 @@
       transition:opacity 0.2s;
     }
     .nav-back:hover{opacity:0.7;}
+    .lang-switch{display:flex;align-items:center;gap:0.5rem;}
+    .lang-btn{
+      background:none;border:none;
+      font-family:'Lato',sans-serif;
+      font-size:0.62rem;letter-spacing:0.18em;font-weight:400;
+      color:rgba(255,255,255,.4);cursor:pointer;
+      text-transform:uppercase;transition:color .2s;padding:0;
+    }
+    .lang-btn.active{color:#fff;font-weight:700;}
+    .lang-btn:hover{color:rgba(255,255,255,.8);}
+    .lang-sep{color:rgba(255,255,255,.2);font-size:.6rem;}
 
     /* HERO */
     .hero{
@@ -253,17 +292,24 @@
 
 <!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">
+  <a href="/" class="nav-logo" id="navLogo">
     <img src="/logo.png" alt="DocsValidate">
   </a>
-  <a href="/" class="nav-back">← Back to App</a>
+  <div class="nav-right">
+    <a href="/" class="nav-back" id="navBack">&larr; Back to App</a>
+    <div class="lang-switch">
+      <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
+      <span class="lang-sep">|</span>
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <p class="hero-label">Legal</p>
-  <h1>Terms of Service</h1>
-  <p class="hero-meta">Effective Date: March 22, 2026 &nbsp;·&nbsp; DocsValidate</p>
+  <p class="hero-label" id="heroLabel">Legal</p>
+  <h1 id="heroTitle">Terms of Service</h1>
+  <p class="hero-meta" id="heroMeta">Effective Date: March 22, 2026 &nbsp;&middot;&nbsp; DocsValidate</p>
 </div>
 
 <!-- CONTENT -->
@@ -271,230 +317,364 @@
 
   <!-- SUMMARY BOX -->
   <div class="critical-box">
-    <p class="cb-label">Plain-Language Summary</p>
-    <p>DocsValidate is an AI-assisted tool that helps you review export documents for potential inconsistencies. It is <strong>not a customs broker, freight forwarder, legal advisor, or compliance officer.</strong> Our analysis is a starting point — always verify critical information with qualified professionals before acting on it. By using this service, you agree to these terms in full.</p>
+    <p class="cb-label" id="cbLabel">Plain-Language Summary</p>
+    <p id="cbText">DocsValidate is an AI-assisted tool that helps you review export documents for potential inconsistencies. It is <strong>not a customs broker, freight forwarder, legal advisor, or compliance officer.</strong> Our analysis is a starting point — always verify critical information with qualified professionals before acting on it. By using this service, you agree to these terms in full.</p>
   </div>
 
   <!-- TABLE OF CONTENTS -->
   <div class="toc">
-    <p class="toc-title">Contents</p>
+    <p class="toc-title" id="tocTitle">Contents</p>
     <ol>
-      <li><a href="#acceptance">Acceptance of Terms</a></li>
-      <li><a href="#service">Description of Service</a></li>
-      <li><a href="#disclaimer">Validation Disclaimer & Limitation of Liability</a></li>
-      <li><a href="#accounts">Accounts & Subscriptions</a></li>
-      <li><a href="#data">Your Data & Privacy</a></li>
-      <li><a href="#acceptable-use">Acceptable Use</a></li>
-      <li><a href="#ip">Intellectual Property</a></li>
-      <li><a href="#payments">Payments & Refunds</a></li>
-      <li><a href="#termination">Termination</a></li>
-      <li><a href="#warranties">Disclaimers of Warranties</a></li>
-      <li><a href="#liability">Limitation of Liability</a></li>
-      <li><a href="#indemnification">Indemnification</a></li>
-      <li><a href="#governing-law">Governing Law</a></li>
-      <li><a href="#changes">Changes to Terms</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="#acceptance" id="toc1">Acceptance of Terms</a></li>
+      <li><a href="#service" id="toc2">Description of Service</a></li>
+      <li><a href="#disclaimer" id="toc3">Validation Disclaimer &amp; Limitation of Liability</a></li>
+      <li><a href="#accounts" id="toc4">Accounts &amp; Subscriptions</a></li>
+      <li><a href="#data" id="toc5">Your Data &amp; Privacy</a></li>
+      <li><a href="#acceptable-use" id="toc6">Acceptable Use</a></li>
+      <li><a href="#ip" id="toc7">Intellectual Property</a></li>
+      <li><a href="#payments" id="toc8">Payments &amp; Refunds</a></li>
+      <li><a href="#termination" id="toc9">Termination</a></li>
+      <li><a href="#warranties" id="toc10">Disclaimers of Warranties</a></li>
+      <li><a href="#liability" id="toc11">Limitation of Liability</a></li>
+      <li><a href="#indemnification" id="toc12">Indemnification</a></li>
+      <li><a href="#governing-law" id="toc13">Governing Law</a></li>
+      <li><a href="#changes" id="toc14">Changes to Terms</a></li>
+      <li><a href="#contact" id="toc15">Contact</a></li>
     </ol>
   </div>
 
   <!-- 1 -->
   <section id="acceptance">
     <h2>01</h2>
-    <h3>Acceptance of Terms</h3>
-    <p>By creating an account, clicking "I agree," or otherwise accessing or using DocsValidate (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you are using the Service on behalf of a company or other legal entity, you represent that you have authority to bind that entity to these Terms.</p>
-    <p>If you do not agree to these Terms, do not use the Service.</p>
+    <h3 id="s1title">Acceptance of Terms</h3>
+    <p id="s1p1">By creating an account, clicking "I agree," or otherwise accessing or using DocsValidate (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you are using the Service on behalf of a company or other legal entity, you represent that you have authority to bind that entity to these Terms.</p>
+    <p id="s1p2">If you do not agree to these Terms, do not use the Service.</p>
   </section>
 
   <!-- 2 -->
   <section id="service">
     <h2>02</h2>
-    <h3>Description of Service</h3>
-    <p>DocsValidate provides an AI-powered document review platform that analyzes sets of export and trade documents — including but not limited to Bills of Lading, Commercial Invoices, Packing Lists, Phytosanitary Certificates, and Certificates of Origin — and flags potential inconsistencies across them.</p>
-    <p>The Service operates by:</p>
-    <ul>
-      <li>Accepting document uploads in PDF, image, Excel, and Word formats</li>
-      <li>Using AI models to extract structured data from each document</li>
-      <li>Comparing extracted data across documents to identify potential mismatches</li>
-      <li>Generating a validation report with a list of observations and potential errors</li>
-    </ul>
+    <h3 id="s2title">Description of Service</h3>
+    <p id="s2p1">DocsValidate provides an AI-powered document review platform that analyzes sets of export and trade documents — including but not limited to Bills of Lading, Commercial Invoices, Packing Lists, Phytosanitary Certificates, and Certificates of Origin — and flags potential inconsistencies across them.</p>
+    <p id="s2p2">The Service operates by:</p>
+    <ul id="s2list"></ul>
     <div class="highlight">
-      <p><strong>The Service is a validation aid, not a definitive compliance determination.</strong> It does not constitute legal, customs, trade compliance, or financial advice.</p>
+      <p id="s2highlight"></p>
     </div>
   </section>
 
-  <!-- 3 — THE CORE SECTION -->
+  <!-- 3 -->
   <section id="disclaimer">
     <h2>03</h2>
-    <h3>Validation Disclaimer & Limitation of Liability</h3>
-    <p>This section is critical. Please read it carefully.</p>
-
-    <p><strong>3.1 Nature of the Analysis.</strong> The validation output produced by DocsValidate is generated by artificial intelligence models that analyze the text and data extracted from your uploaded documents. This output is inherently probabilistic, not deterministic. It may contain errors, omissions, or misinterpretations.</p>
-
-    <p><strong>3.2 Document Quality Limitations.</strong> The accuracy of our analysis depends entirely on the quality, legibility, and completeness of the documents you upload. We cannot be responsible for errors in the analysis that result from:</p>
-    <ul>
-      <li>Low-resolution, blurry, or poorly scanned documents</li>
-      <li>Documents with handwritten content that is difficult to interpret</li>
-      <li>Partially visible, cropped, or redacted documents</li>
-      <li>Documents in languages or formats that reduce extraction accuracy</li>
-      <li>Incorrect, incomplete, or fraudulent source documents</li>
-      <li>Uploading the wrong documents or an incomplete document set</li>
-    </ul>
-
-    <p><strong>3.3 No Guarantee of Accuracy.</strong> DocsValidate does not guarantee that:</p>
-    <ul>
-      <li>All inconsistencies in your documents will be detected</li>
-      <li>Items flagged as inconsistencies are in fact errors</li>
-      <li>A "clean" validation report means your documents are compliant with any applicable law, regulation, or contractual requirement</li>
-      <li>The AI's interpretation of any document field matches the interpretation of customs authorities, banks, carriers, or other parties</li>
-    </ul>
-
-    <p><strong>3.4 No Professional Advice.</strong> Nothing in our validation output constitutes legal, customs, trade compliance, logistics, financial, or professional advice of any kind. You should always consult qualified customs brokers, freight forwarders, trade attorneys, or other relevant professionals before making decisions based on your export documents.</p>
-
-    <p><strong>3.5 User Responsibility.</strong> You acknowledge and agree that:</p>
-    <ul>
-      <li>You are solely responsible for verifying the accuracy and completeness of your export documents</li>
-      <li>You are solely responsible for any actions, decisions, or omissions based on the DocsValidate output</li>
-      <li>Any financial loss, cargo delay, regulatory penalty, customs hold, or other consequence arising from document errors is your responsibility, regardless of whether DocsValidate reviewed those documents</li>
-      <li>The Service is a tool to assist your review process, not a replacement for it</li>
-    </ul>
-
-    <p><strong>3.6 No Liability for Downstream Consequences.</strong> DocsValidate, its owners, operators, employees, contractors, and technology providers shall have no liability whatsoever for any:</p>
-    <ul>
-      <li>Cargo delays, demurrage charges, or detention fees</li>
-      <li>Customs seizures, fines, or regulatory penalties</li>
-      <li>Rejection of documents by banks, carriers, customs authorities, or buyers</li>
-      <li>Commercial losses, lost contracts, or loss of business</li>
-      <li>Consequential, incidental, indirect, or punitive damages of any kind</li>
-    </ul>
-    <p>that arise from your use of, or reliance on, the Service — even if DocsValidate has been advised of the possibility of such damages.</p>
+    <h3 id="s3title">Validation Disclaimer &amp; Limitation of Liability</h3>
+    <p id="s3intro">This section is critical. Please read it carefully.</p>
+    <div id="s3body"></div>
   </section>
 
   <!-- 4 -->
   <section id="accounts">
     <h2>04</h2>
-    <h3>Accounts & Subscriptions</h3>
-    <p>You may use up to 3 validations without registration. To access additional validations, you must create a free account. Paid subscription plans ("Professional" and "Enterprise") unlock higher monthly validation limits and additional features.</p>
-    <p>You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="/cdn-cgi/l/email-protection#2149444d4d4e61454e425257404d48454055440f424e4c"><span class="__cf_email__" data-cfemail="e28a878e8e8da2868d819194838e8b86839687cc818d8f">[email&#160;protected]</span></a> if you suspect unauthorized access to your account.</p>
-    <p>Subscription limits reset monthly. Unused validations do not roll over to the next billing period.</p>
+    <h3 id="s4title">Accounts &amp; Subscriptions</h3>
+    <p id="s4p1">You may use up to 3 validations without registration. To access additional validations, you must create a free account. Paid subscription plans ("Professional" and "Enterprise") unlock higher monthly validation limits and additional features.</p>
+    <p id="s4p2">You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a> if you suspect unauthorized access to your account.</p>
+    <p id="s4p3">Subscription limits reset monthly. Unused validations do not roll over to the next billing period.</p>
   </section>
 
   <!-- 5 -->
   <section id="data">
     <h2>05</h2>
-    <h3>Your Data & Privacy</h3>
-    <p>When you upload documents, they are transmitted to our servers and to our AI processing providers for analysis. We do not permanently store the content of your documents beyond what is necessary to produce the analysis report during your session.</p>
-    <p>By uploading documents, you confirm that you have the right to share them and that doing so does not violate any confidentiality obligations, applicable law, or third-party rights.</p>
-    <p>Do not upload documents containing sensitive personal data (such as passport numbers, national IDs, or financial account details) beyond what is strictly required for the trade document itself.</p>
-    <p>Our full Privacy Policy is available at <a href="/privacy">docsvalidate.com/privacy</a>.</p>
+    <h3 id="s5title">Your Data &amp; Privacy</h3>
+    <p id="s5p1">When you upload documents, they are transmitted to our servers and to our AI processing providers for analysis. We do not permanently store the content of your documents beyond what is necessary to produce the analysis report during your session.</p>
+    <p id="s5p2">By uploading documents, you confirm that you have the right to share them and that doing so does not violate any confidentiality obligations, applicable law, or third-party rights.</p>
+    <p id="s5p3">Do not upload documents containing sensitive personal data (such as passport numbers, national IDs, or financial account details) beyond what is strictly required for the trade document itself.</p>
+    <p id="s5p4">Our full Privacy Policy is available at <a href="/privacy">docsvalidate.com/privacy</a>.</p>
   </section>
 
   <!-- 6 -->
   <section id="acceptable-use">
     <h2>06</h2>
-    <h3>Acceptable Use</h3>
-    <p>You agree not to use the Service to:</p>
-    <ul>
-      <li>Upload fraudulent, forged, or falsified documents</li>
-      <li>Attempt to circumvent customs regulations or trade sanctions</li>
-      <li>Reverse-engineer, scrape, or extract our AI models or data processing logic</li>
-      <li>Share your account credentials with others or resell access to the Service</li>
-      <li>Submit automated requests that exceed normal usage patterns</li>
-      <li>Upload content that violates applicable law or infringes third-party rights</li>
-    </ul>
-    <p>We reserve the right to suspend or terminate accounts that violate these rules without notice or refund.</p>
+    <h3 id="s6title">Acceptable Use</h3>
+    <p id="s6p1">You agree not to use the Service to:</p>
+    <ul id="s6list"></ul>
+    <p id="s6p2">We reserve the right to suspend or terminate accounts that violate these rules without notice or refund.</p>
   </section>
 
   <!-- 7 -->
   <section id="ip">
     <h2>07</h2>
-    <h3>Intellectual Property</h3>
-    <p>DocsValidate and all its underlying technology, design, software, prompts, and content are the intellectual property of DocsValidate and its licensors. You are granted a limited, non-exclusive, non-transferable license to use the Service for your own internal business purposes.</p>
-    <p>You retain ownership of the documents you upload and the data within them. By uploading documents, you grant us a limited license to process them for the purpose of delivering the Service.</p>
+    <h3 id="s7title">Intellectual Property</h3>
+    <p id="s7p1">DocsValidate and all its underlying technology, design, software, prompts, and content are the intellectual property of DocsValidate and its licensors. You are granted a limited, non-exclusive, non-transferable license to use the Service for your own internal business purposes.</p>
+    <p id="s7p2">You retain ownership of the documents you upload and the data within them. By uploading documents, you grant us a limited license to process them for the purpose of delivering the Service.</p>
   </section>
 
   <!-- 8 -->
   <section id="payments">
     <h2>08</h2>
-    <h3>Payments & Refunds</h3>
-    <p>Paid plans are billed monthly or annually (where applicable) via Stripe. All fees are in US Dollars and are non-refundable except as required by applicable law, or at our sole discretion in cases of service outages attributable to DocsValidate.</p>
-    <p>You may cancel your subscription at any time. Cancellation takes effect at the end of your current billing period; you retain access until then.</p>
-    <p>We reserve the right to change our pricing with 30 days' notice to active subscribers via email.</p>
+    <h3 id="s8title">Payments &amp; Refunds</h3>
+    <p id="s8p1">Paid plans are billed monthly or annually (where applicable) via Stripe. All fees are in US Dollars and are non-refundable except as required by applicable law, or at our sole discretion in cases of service outages attributable to DocsValidate.</p>
+    <p id="s8p2">You may cancel your subscription at any time. Cancellation takes effect at the end of your current billing period; you retain access until then.</p>
+    <p id="s8p3">We reserve the right to change our pricing with 30 days' notice to active subscribers via email.</p>
   </section>
 
   <!-- 9 -->
   <section id="termination">
     <h2>09</h2>
-    <h3>Termination</h3>
-    <p>You may delete your account at any time by contacting <a href="/cdn-cgi/l/email-protection#bdcec8cdcdd2cfc9fdd9d2dececbdcd1d4d9dcc9d893ded2d0"><span class="__cf_email__" data-cfemail="e3909693938c9197a3878c809095828f8a87829786cd808c8e">[email&#160;protected]</span></a>.</p>
-    <p>We reserve the right to suspend or terminate your access to the Service at any time for violation of these Terms, non-payment, or any other reason at our discretion. In cases of termination for cause, no refund will be issued for unused subscription time.</p>
+    <h3 id="s9title">Termination</h3>
+    <p id="s9p1">You may delete your account at any time by contacting <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a>.</p>
+    <p id="s9p2">We reserve the right to suspend or terminate your access to the Service at any time for violation of these Terms, non-payment, or any other reason at our discretion. In cases of termination for cause, no refund will be issued for unused subscription time.</p>
   </section>
 
   <!-- 10 -->
   <section id="warranties">
     <h2>10</h2>
-    <h3>Disclaimers of Warranties</h3>
-    <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
-    <p>WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT DEFECTS WILL BE CORRECTED. WE DO NOT WARRANT THE ACCURACY, COMPLETENESS, OR RELIABILITY OF ANY ANALYSIS OUTPUT.</p>
+    <h3 id="s10title">Disclaimers of Warranties</h3>
+    <p id="s10p1">THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+    <p id="s10p2">WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT DEFECTS WILL BE CORRECTED. WE DO NOT WARRANT THE ACCURACY, COMPLETENESS, OR RELIABILITY OF ANY ANALYSIS OUTPUT.</p>
   </section>
 
   <!-- 11 -->
   <section id="liability">
     <h2>11</h2>
-    <h3>Limitation of Liability</h3>
-    <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DOCSVALIDATE'S TOTAL CUMULATIVE LIABILITY TO YOU FOR ANY CLAIMS ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID TO DOCSVALIDATE IN THE THREE (3) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED US DOLLARS (USD $100).</p>
-    <p>IN NO EVENT SHALL DOCSVALIDATE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
+    <h3 id="s11title">Limitation of Liability</h3>
+    <p id="s11p1">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DOCSVALIDATE'S TOTAL CUMULATIVE LIABILITY TO YOU FOR ANY CLAIMS ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID TO DOCSVALIDATE IN THE THREE (3) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED US DOLLARS (USD $100).</p>
+    <p id="s11p2">IN NO EVENT SHALL DOCSVALIDATE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.</p>
   </section>
 
   <!-- 12 -->
   <section id="indemnification">
     <h2>12</h2>
-    <h3>Indemnification</h3>
-    <p>You agree to indemnify, defend, and hold harmless DocsValidate and its owners, operators, employees, and contractors from any claims, damages, losses, liabilities, costs, and expenses (including reasonable legal fees) arising from:</p>
-    <ul>
-      <li>Your use of the Service</li>
-      <li>Your violation of these Terms</li>
-      <li>Your violation of any applicable law or regulation</li>
-      <li>Any third-party claim arising from documents you uploaded or actions you took based on the Service's output</li>
-    </ul>
+    <h3 id="s12title">Indemnification</h3>
+    <p id="s12p1">You agree to indemnify, defend, and hold harmless DocsValidate and its owners, operators, employees, and contractors from any claims, damages, losses, liabilities, costs, and expenses (including reasonable legal fees) arising from:</p>
+    <ul id="s12list"></ul>
   </section>
 
   <!-- 13 -->
   <section id="governing-law">
     <h2>13</h2>
-    <h3>Governing Law</h3>
-    <p>These Terms shall be governed by and construed in accordance with the laws of the United States. Any dispute arising from these Terms or your use of the Service shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association, except that either party may seek injunctive relief in a court of competent jurisdiction.</p>
-    <p>If any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full force and effect.</p>
+    <h3 id="s13title">Governing Law</h3>
+    <p id="s13p1">These Terms shall be governed by and construed in accordance with the laws of the United States. Any dispute arising from these Terms or your use of the Service shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association, except that either party may seek injunctive relief in a court of competent jurisdiction.</p>
+    <p id="s13p2">If any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full force and effect.</p>
   </section>
 
   <!-- 14 -->
   <section id="changes">
     <h2>14</h2>
-    <h3>Changes to Terms</h3>
-    <p>We reserve the right to modify these Terms at any time. If we make material changes, we will notify you by email or by a prominent notice in the Service at least 14 days before the changes take effect. Your continued use of the Service after changes become effective constitutes acceptance of the new Terms.</p>
+    <h3 id="s14title">Changes to Terms</h3>
+    <p id="s14p1">We reserve the right to modify these Terms at any time. If we make material changes, we will notify you by email or by a prominent notice in the Service at least 14 days before the changes take effect. Your continued use of the Service after changes become effective constitutes acceptance of the new Terms.</p>
   </section>
 
   <!-- 15 -->
   <section id="contact">
     <h2>15</h2>
-    <h3>Contact</h3>
-    <p>If you have questions about these Terms, please contact us at:</p>
+    <h3 id="s15title">Contact</h3>
+    <p id="s15p1">If you have questions about these Terms, please contact us at:</p>
     <div class="highlight">
       <p>
         <strong>DocsValidate</strong><br/>
-        Email: <a href="/cdn-cgi/l/email-protection#83ebe6efefecc3e7ece0f0f5e2efeae7e2f7e6ade0ecee"><span class="__cf_email__" data-cfemail="2048454c4c4f60444f435356414c49444154450e434f4d">[email&#160;protected]</span></a><br/>
+        Email: <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a><br/>
         Website: <a href="https://docsvalidate.com">docsvalidate.com</a>
       </p>
     </div>
   </section>
 
   <hr/>
-  <p style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:#7a8499;letter-spacing:0.05em;">Last updated: March 22, 2026</p>
+  <p id="lastUpdated" style="font-family:'Raleway',sans-serif;font-size:0.8rem;color:#7a8499;letter-spacing:0.05em;">Last updated: March 22, 2026</p>
 
 </div><!-- /.page -->
 
 <footer>
-  <p>© 2026 DocsValidate · <a href="/">docsvalidate.com</a> · <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a></p>
+  <p>&copy; 2026 DocsValidate &middot; <a href="/">docsvalidate.com</a> &middot; <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a></p>
 </footer>
+
+<script>
+var lang = window.location.pathname.startsWith('/es') ? 'es' : (localStorage.getItem('dv_lang') || 'en');
+if (lang === 'es') document.documentElement.lang = 'es';
+
+var TX = {
+en: {
+  navBack:'\u2190 Back to App',
+  heroLabel:'Legal',
+  heroTitle:'Terms of Service',
+  heroMeta:'Effective Date: March 22, 2026 \u00a0\u00b7\u00a0 DocsValidate',
+  cbLabel:'Plain-Language Summary',
+  cbText:'DocsValidate is an AI-assisted tool that helps you review export documents for potential inconsistencies. It is <strong>not a customs broker, freight forwarder, legal advisor, or compliance officer.</strong> Our analysis is a starting point \u2014 always verify critical information with qualified professionals before acting on it. By using this service, you agree to these terms in full.',
+  tocTitle:'Contents',
+  toc1:'Acceptance of Terms',toc2:'Description of Service',toc3:'Validation Disclaimer & Limitation of Liability',
+  toc4:'Accounts & Subscriptions',toc5:'Your Data & Privacy',toc6:'Acceptable Use',
+  toc7:'Intellectual Property',toc8:'Payments & Refunds',toc9:'Termination',
+  toc10:'Disclaimers of Warranties',toc11:'Limitation of Liability',toc12:'Indemnification',
+  toc13:'Governing Law',toc14:'Changes to Terms',toc15:'Contact',
+  s1title:'Acceptance of Terms',
+  s1p1:'By creating an account, clicking "I agree," or otherwise accessing or using DocsValidate (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you are using the Service on behalf of a company or other legal entity, you represent that you have authority to bind that entity to these Terms.',
+  s1p2:'If you do not agree to these Terms, do not use the Service.',
+  s2title:'Description of Service',
+  s2p1:'DocsValidate provides an AI-powered document review platform that analyzes sets of export and trade documents \u2014 including but not limited to Bills of Lading, Commercial Invoices, Packing Lists, Phytosanitary Certificates, and Certificates of Origin \u2014 and flags potential inconsistencies across them.',
+  s2p2:'The Service operates by:',
+  s2list:'<li>Accepting document uploads in PDF, image, Excel, and Word formats</li><li>Using AI models to extract structured data from each document</li><li>Comparing extracted data across documents to identify potential mismatches</li><li>Generating a validation report with a list of observations and potential errors</li>',
+  s2highlight:'<strong>The Service is a validation aid, not a definitive compliance determination.</strong> It does not constitute legal, customs, trade compliance, or financial advice.',
+  s3title:'Validation Disclaimer & Limitation of Liability',
+  s3intro:'This section is critical. Please read it carefully.',
+  s3body:'<p><strong>3.1 Nature of the Analysis.</strong> The validation output produced by DocsValidate is generated by artificial intelligence models that analyze the text and data extracted from your uploaded documents. This output is inherently probabilistic, not deterministic. It may contain errors, omissions, or misinterpretations.</p><p><strong>3.2 Document Quality Limitations.</strong> The accuracy of our analysis depends entirely on the quality, legibility, and completeness of the documents you upload. We cannot be responsible for errors in the analysis that result from:</p><ul><li>Low-resolution, blurry, or poorly scanned documents</li><li>Documents with handwritten content that is difficult to interpret</li><li>Partially visible, cropped, or redacted documents</li><li>Documents in languages or formats that reduce extraction accuracy</li><li>Incorrect, incomplete, or fraudulent source documents</li><li>Uploading the wrong documents or an incomplete document set</li></ul><p><strong>3.3 No Guarantee of Accuracy.</strong> DocsValidate does not guarantee that:</p><ul><li>All inconsistencies in your documents will be detected</li><li>Items flagged as inconsistencies are in fact errors</li><li>A "clean" validation report means your documents are compliant with any applicable law, regulation, or contractual requirement</li><li>The AI\'s interpretation of any document field matches the interpretation of customs authorities, banks, carriers, or other parties</li></ul><p><strong>3.4 No Professional Advice.</strong> Nothing in our validation output constitutes legal, customs, trade compliance, logistics, financial, or professional advice of any kind. You should always consult qualified customs brokers, freight forwarders, trade attorneys, or other relevant professionals before making decisions based on your export documents.</p><p><strong>3.5 User Responsibility.</strong> You acknowledge and agree that:</p><ul><li>You are solely responsible for verifying the accuracy and completeness of your export documents</li><li>You are solely responsible for any actions, decisions, or omissions based on the DocsValidate output</li><li>Any financial loss, cargo delay, regulatory penalty, customs hold, or other consequence arising from document errors is your responsibility, regardless of whether DocsValidate reviewed those documents</li><li>The Service is a tool to assist your review process, not a replacement for it</li></ul><p><strong>3.6 No Liability for Downstream Consequences.</strong> DocsValidate, its owners, operators, employees, contractors, and technology providers shall have no liability whatsoever for any:</p><ul><li>Cargo delays, demurrage charges, or detention fees</li><li>Customs seizures, fines, or regulatory penalties</li><li>Rejection of documents by banks, carriers, customs authorities, or buyers</li><li>Commercial losses, lost contracts, or loss of business</li><li>Consequential, incidental, indirect, or punitive damages of any kind</li></ul><p>that arise from your use of, or reliance on, the Service \u2014 even if DocsValidate has been advised of the possibility of such damages.</p>',
+  s4title:'Accounts & Subscriptions',
+  s4p1:'You may use up to 3 validations without registration. To access additional validations, you must create a free account. Paid subscription plans ("Professional" and "Enterprise") unlock higher monthly validation limits and additional features.',
+  s4p2:'You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a> if you suspect unauthorized access to your account.',
+  s4p3:'Subscription limits reset monthly. Unused validations do not roll over to the next billing period.',
+  s5title:'Your Data & Privacy',
+  s5p1:'When you upload documents, they are transmitted to our servers and to our AI processing providers for analysis. We do not permanently store the content of your documents beyond what is necessary to produce the analysis report during your session.',
+  s5p2:'By uploading documents, you confirm that you have the right to share them and that doing so does not violate any confidentiality obligations, applicable law, or third-party rights.',
+  s5p3:'Do not upload documents containing sensitive personal data (such as passport numbers, national IDs, or financial account details) beyond what is strictly required for the trade document itself.',
+  s5p4:'Our full Privacy Policy is available at <a href="/privacy">docsvalidate.com/privacy</a>.',
+  s6title:'Acceptable Use',
+  s6p1:'You agree not to use the Service to:',
+  s6list:'<li>Upload fraudulent, forged, or falsified documents</li><li>Attempt to circumvent customs regulations or trade sanctions</li><li>Reverse-engineer, scrape, or extract our AI models or data processing logic</li><li>Share your account credentials with others or resell access to the Service</li><li>Submit automated requests that exceed normal usage patterns</li><li>Upload content that violates applicable law or infringes third-party rights</li>',
+  s6p2:'We reserve the right to suspend or terminate accounts that violate these rules without notice or refund.',
+  s7title:'Intellectual Property',
+  s7p1:'DocsValidate and all its underlying technology, design, software, prompts, and content are the intellectual property of DocsValidate and its licensors. You are granted a limited, non-exclusive, non-transferable license to use the Service for your own internal business purposes.',
+  s7p2:'You retain ownership of the documents you upload and the data within them. By uploading documents, you grant us a limited license to process them for the purpose of delivering the Service.',
+  s8title:'Payments & Refunds',
+  s8p1:'Paid plans are billed monthly or annually (where applicable) via Stripe. All fees are in US Dollars and are non-refundable except as required by applicable law, or at our sole discretion in cases of service outages attributable to DocsValidate.',
+  s8p2:'You may cancel your subscription at any time. Cancellation takes effect at the end of your current billing period; you retain access until then.',
+  s8p3:'We reserve the right to change our pricing with 30 days\' notice to active subscribers via email.',
+  s9title:'Termination',
+  s9p1:'You may delete your account at any time by contacting <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a>.',
+  s9p2:'We reserve the right to suspend or terminate your access to the Service at any time for violation of these Terms, non-payment, or any other reason at our discretion. In cases of termination for cause, no refund will be issued for unused subscription time.',
+  s10title:'Disclaimers of Warranties',
+  s10p1:'THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.',
+  s10p2:'WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT DEFECTS WILL BE CORRECTED. WE DO NOT WARRANT THE ACCURACY, COMPLETENESS, OR RELIABILITY OF ANY ANALYSIS OUTPUT.',
+  s11title:'Limitation of Liability',
+  s11p1:'TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DOCSVALIDATE\'S TOTAL CUMULATIVE LIABILITY TO YOU FOR ANY CLAIMS ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID TO DOCSVALIDATE IN THE THREE (3) MONTHS PRECEDING THE CLAIM, OR (B) ONE HUNDRED US DOLLARS (USD $100).',
+  s11p2:'IN NO EVENT SHALL DOCSVALIDATE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.',
+  s12title:'Indemnification',
+  s12p1:'You agree to indemnify, defend, and hold harmless DocsValidate and its owners, operators, employees, and contractors from any claims, damages, losses, liabilities, costs, and expenses (including reasonable legal fees) arising from:',
+  s12list:'<li>Your use of the Service</li><li>Your violation of these Terms</li><li>Your violation of any applicable law or regulation</li><li>Any third-party claim arising from documents you uploaded or actions you took based on the Service\'s output</li>',
+  s13title:'Governing Law',
+  s13p1:'These Terms shall be governed by and construed in accordance with the laws of the United States. Any dispute arising from these Terms or your use of the Service shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association, except that either party may seek injunctive relief in a court of competent jurisdiction.',
+  s13p2:'If any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full force and effect.',
+  s14title:'Changes to Terms',
+  s14p1:'We reserve the right to modify these Terms at any time. If we make material changes, we will notify you by email or by a prominent notice in the Service at least 14 days before the changes take effect. Your continued use of the Service after changes become effective constitutes acceptance of the new Terms.',
+  s15title:'Contact',
+  s15p1:'If you have questions about these Terms, please contact us at:',
+  lastUpdated:'Last updated: March 22, 2026'
+},
+es: {
+  navBack:'\u2190 Volver a la App',
+  heroLabel:'Legal',
+  heroTitle:'T\u00e9rminos de Servicio',
+  heroMeta:'Fecha de vigencia: 22 de marzo de 2026 \u00a0\u00b7\u00a0 DocsValidate',
+  cbLabel:'Resumen en lenguaje sencillo',
+  cbText:'DocsValidate es una herramienta asistida por IA que te ayuda a revisar documentos de exportaci\u00f3n en busca de posibles inconsistencias. <strong>No es un agente aduanal, transitario, asesor legal ni oficial de cumplimiento.</strong> Nuestro an\u00e1lisis es un punto de partida \u2014 siempre verifica la informaci\u00f3n cr\u00edtica con profesionales calificados antes de actuar. Al usar este servicio, aceptas estos t\u00e9rminos en su totalidad.',
+  tocTitle:'\u00cdndice',
+  toc1:'Aceptaci\u00f3n de los T\u00e9rminos',toc2:'Descripci\u00f3n del Servicio',toc3:'Descargo de Validaci\u00f3n y Limitaci\u00f3n de Responsabilidad',
+  toc4:'Cuentas y Suscripciones',toc5:'Tus Datos y Privacidad',toc6:'Uso Aceptable',
+  toc7:'Propiedad Intelectual',toc8:'Pagos y Reembolsos',toc9:'Terminaci\u00f3n',
+  toc10:'Exclusi\u00f3n de Garant\u00edas',toc11:'Limitaci\u00f3n de Responsabilidad',toc12:'Indemnizaci\u00f3n',
+  toc13:'Ley Aplicable',toc14:'Cambios a los T\u00e9rminos',toc15:'Contacto',
+  s1title:'Aceptaci\u00f3n de los T\u00e9rminos',
+  s1p1:'Al crear una cuenta, hacer clic en "Acepto" o de cualquier otra forma acceder o usar DocsValidate (el "Servicio"), aceptas quedar vinculado por estos T\u00e9rminos de Servicio ("T\u00e9rminos"). Si usas el Servicio en nombre de una empresa u otra entidad legal, declaras que tienes autoridad para vincular a dicha entidad a estos T\u00e9rminos.',
+  s1p2:'Si no est\u00e1s de acuerdo con estos T\u00e9rminos, no uses el Servicio.',
+  s2title:'Descripci\u00f3n del Servicio',
+  s2p1:'DocsValidate proporciona una plataforma de revisi\u00f3n de documentos con IA que analiza conjuntos de documentos de exportaci\u00f3n y comercio \u2014 incluyendo, entre otros, Conocimientos de Embarque (Bills of Lading), Facturas Comerciales, Listas de Empaque, Certificados Fitosanitarios y Certificados de Origen \u2014 y se\u00f1ala posibles inconsistencias entre ellos.',
+  s2p2:'El Servicio opera de la siguiente manera:',
+  s2list:'<li>Acepta carga de documentos en formatos PDF, imagen, Excel y Word</li><li>Usa modelos de IA para extraer datos estructurados de cada documento</li><li>Compara los datos extra\u00eddos entre documentos para identificar posibles discrepancias</li><li>Genera un informe de validaci\u00f3n con una lista de observaciones y posibles errores</li>',
+  s2highlight:'<strong>El Servicio es una ayuda de validaci\u00f3n, no una determinaci\u00f3n definitiva de cumplimiento.</strong> No constituye asesor\u00eda legal, aduanera, de cumplimiento comercial ni financiera.',
+  s3title:'Descargo de Validaci\u00f3n y Limitaci\u00f3n de Responsabilidad',
+  s3intro:'Esta secci\u00f3n es cr\u00edtica. Por favor l\u00e9ela cuidadosamente.',
+  s3body:'<p><strong>3.1 Naturaleza del An\u00e1lisis.</strong> El resultado de validaci\u00f3n producido por DocsValidate es generado por modelos de inteligencia artificial que analizan el texto y los datos extra\u00eddos de tus documentos cargados. Este resultado es inherentemente probabil\u00edstico, no determin\u00edstico. Puede contener errores, omisiones o interpretaciones incorrectas.</p><p><strong>3.2 Limitaciones de Calidad de Documentos.</strong> La precisi\u00f3n de nuestro an\u00e1lisis depende enteramente de la calidad, legibilidad e integridad de los documentos que cargas. No podemos ser responsables de errores en el an\u00e1lisis que resulten de:</p><ul><li>Documentos de baja resoluci\u00f3n, borrosos o mal escaneados</li><li>Documentos con contenido manuscrito dif\u00edcil de interpretar</li><li>Documentos parcialmente visibles, recortados o redactados</li><li>Documentos en idiomas o formatos que reducen la precisi\u00f3n de extracci\u00f3n</li><li>Documentos fuente incorrectos, incompletos o fraudulentos</li><li>Carga de documentos incorrectos o un conjunto incompleto</li></ul><p><strong>3.3 Sin Garant\u00eda de Precisi\u00f3n.</strong> DocsValidate no garantiza que:</p><ul><li>Se detectar\u00e1n todas las inconsistencias en tus documentos</li><li>Los elementos marcados como inconsistencias sean de hecho errores</li><li>Un informe de validaci\u00f3n "limpio" signifique que tus documentos cumplen con cualquier ley, regulaci\u00f3n o requisito contractual aplicable</li><li>La interpretaci\u00f3n de la IA de cualquier campo coincida con la interpretaci\u00f3n de autoridades aduaneras, bancos, navieras u otras partes</li></ul><p><strong>3.4 Sin Asesor\u00eda Profesional.</strong> Nada en nuestro resultado de validaci\u00f3n constituye asesor\u00eda legal, aduanera, de cumplimiento comercial, log\u00edstica, financiera o profesional de ning\u00fan tipo. Siempre debes consultar a agentes aduanales, transitarios, abogados de comercio u otros profesionales calificados antes de tomar decisiones basadas en tus documentos de exportaci\u00f3n.</p><p><strong>3.5 Responsabilidad del Usuario.</strong> Reconoces y aceptas que:</p><ul><li>Eres el \u00fanico responsable de verificar la precisi\u00f3n e integridad de tus documentos de exportaci\u00f3n</li><li>Eres el \u00fanico responsable de cualquier acci\u00f3n, decisi\u00f3n u omisi\u00f3n basada en el resultado de DocsValidate</li><li>Cualquier p\u00e9rdida financiera, retraso de carga, sanci\u00f3n regulatoria, retenci\u00f3n aduanera u otra consecuencia derivada de errores en documentos es tu responsabilidad, independientemente de si DocsValidate revis\u00f3 esos documentos</li><li>El Servicio es una herramienta para asistir tu proceso de revisi\u00f3n, no un reemplazo del mismo</li></ul><p><strong>3.6 Sin Responsabilidad por Consecuencias Derivadas.</strong> DocsValidate, sus propietarios, operadores, empleados, contratistas y proveedores de tecnolog\u00eda no tendr\u00e1n ninguna responsabilidad por:</p><ul><li>Retrasos de carga, cargos por sobrestad\u00eda o detenci\u00f3n</li><li>Incautaciones aduaneras, multas o sanciones regulatorias</li><li>Rechazo de documentos por bancos, navieras, autoridades aduaneras o compradores</li><li>P\u00e9rdidas comerciales, contratos perdidos o p\u00e9rdida de negocio</li><li>Da\u00f1os consecuentes, incidentales, indirectos o punitivos de cualquier tipo</li></ul><p>que surjan de tu uso o dependencia del Servicio \u2014 incluso si DocsValidate ha sido informado de la posibilidad de tales da\u00f1os.</p>',
+  s4title:'Cuentas y Suscripciones',
+  s4p1:'Puedes usar hasta 3 validaciones sin registro. Para acceder a validaciones adicionales, debes crear una cuenta gratuita. Los planes de suscripci\u00f3n de pago ("Profesional" y "Empresarial") desbloquean l\u00edmites mensuales m\u00e1s altos y funciones adicionales.',
+  s4p2:'Eres responsable de mantener la seguridad de tus credenciales de cuenta. Debes notificarnos inmediatamente a <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a> si sospechas de acceso no autorizado a tu cuenta.',
+  s4p3:'Los l\u00edmites de suscripci\u00f3n se reinician mensualmente. Las validaciones no utilizadas no se acumulan para el siguiente per\u00edodo de facturaci\u00f3n.',
+  s5title:'Tus Datos y Privacidad',
+  s5p1:'Cuando cargas documentos, estos se transmiten a nuestros servidores y a nuestros proveedores de procesamiento de IA para su an\u00e1lisis. No almacenamos permanentemente el contenido de tus documentos m\u00e1s all\u00e1 de lo necesario para producir el informe de an\u00e1lisis durante tu sesi\u00f3n.',
+  s5p2:'Al cargar documentos, confirmas que tienes derecho a compartirlos y que hacerlo no viola ninguna obligaci\u00f3n de confidencialidad, ley aplicable o derechos de terceros.',
+  s5p3:'No cargues documentos que contengan datos personales sensibles (como n\u00fameros de pasaporte, c\u00e9dulas de identidad o datos de cuentas financieras) m\u00e1s all\u00e1 de lo estrictamente necesario para el documento comercial en s\u00ed.',
+  s5p4:'Nuestra Pol\u00edtica de Privacidad completa est\u00e1 disponible en <a href="/privacy">docsvalidate.com/privacy</a>.',
+  s6title:'Uso Aceptable',
+  s6p1:'Aceptas no usar el Servicio para:',
+  s6list:'<li>Cargar documentos fraudulentos, falsificados o adulterados</li><li>Intentar eludir regulaciones aduaneras o sanciones comerciales</li><li>Realizar ingenier\u00eda inversa, scraping o extracci\u00f3n de nuestros modelos de IA o l\u00f3gica de procesamiento</li><li>Compartir tus credenciales con otros o revender el acceso al Servicio</li><li>Enviar solicitudes automatizadas que excedan los patrones de uso normales</li><li>Cargar contenido que viole la ley aplicable o infrinja derechos de terceros</li>',
+  s6p2:'Nos reservamos el derecho de suspender o cancelar cuentas que violen estas reglas sin previo aviso ni reembolso.',
+  s7title:'Propiedad Intelectual',
+  s7p1:'DocsValidate y toda su tecnolog\u00eda subyacente, dise\u00f1o, software, prompts y contenido son propiedad intelectual de DocsValidate y sus licenciantes. Se te otorga una licencia limitada, no exclusiva e intransferible para usar el Servicio para tus propios fines comerciales internos.',
+  s7p2:'Conservas la propiedad de los documentos que cargas y los datos contenidos en ellos. Al cargar documentos, nos otorgas una licencia limitada para procesarlos con el fin de prestar el Servicio.',
+  s8title:'Pagos y Reembolsos',
+  s8p1:'Los planes de pago se facturan mensual o anualmente (seg\u00fan corresponda) a trav\u00e9s de Stripe. Todas las tarifas son en d\u00f3lares estadounidenses y no son reembolsables excepto seg\u00fan lo requiera la ley aplicable, o a nuestra sola discreci\u00f3n en casos de interrupciones del servicio atribuibles a DocsValidate.',
+  s8p2:'Puedes cancelar tu suscripci\u00f3n en cualquier momento. La cancelaci\u00f3n entra en vigor al final de tu per\u00edodo de facturaci\u00f3n actual; conservas el acceso hasta entonces.',
+  s8p3:'Nos reservamos el derecho de cambiar nuestros precios con 30 d\u00edas de aviso a suscriptores activos por correo electr\u00f3nico.',
+  s9title:'Terminaci\u00f3n',
+  s9p1:'Puedes eliminar tu cuenta en cualquier momento contactando a <a href="mailto:hello@docsvalidate.com">hello@docsvalidate.com</a>.',
+  s9p2:'Nos reservamos el derecho de suspender o cancelar tu acceso al Servicio en cualquier momento por violaci\u00f3n de estos T\u00e9rminos, falta de pago o cualquier otro motivo a nuestra discreci\u00f3n. En casos de terminaci\u00f3n por causa, no se emitir\u00e1 reembolso por tiempo de suscripci\u00f3n no utilizado.',
+  s10title:'Exclusi\u00f3n de Garant\u00edas',
+  s10p1:'EL SERVICIO SE PROPORCIONA "TAL CUAL" Y "SEG\u00daN DISPONIBILIDAD" SIN GARANT\u00cdAS DE NING\u00daN TIPO, EXPRESAS O IMPL\u00cdCITAS, INCLUYENDO PERO NO LIMITADO A GARANT\u00cdAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROP\u00d3SITO PARTICULAR O NO INFRACCI\u00d3N.',
+  s10p2:'NO GARANTIZAMOS QUE EL SERVICIO SER\u00c1 ININTERRUMPIDO, LIBRE DE ERRORES O QUE LOS DEFECTOS SER\u00c1N CORREGIDOS. NO GARANTIZAMOS LA PRECISI\u00d3N, INTEGRIDAD O FIABILIDAD DE NING\u00daN RESULTADO DE AN\u00c1LISIS.',
+  s11title:'Limitaci\u00f3n de Responsabilidad',
+  s11p1:'EN LA M\u00c1XIMA MEDIDA PERMITIDA POR LA LEY APLICABLE, LA RESPONSABILIDAD ACUMULADA TOTAL DE DOCSVALIDATE HACIA TI POR CUALQUIER RECLAMACI\u00d3N DERIVADA DE O RELACIONADA CON ESTOS T\u00c9RMINOS O EL SERVICIO NO EXCEDER\u00c1 EL MAYOR DE (A) EL MONTO QUE PAGASTE A DOCSVALIDATE EN LOS TRES (3) MESES ANTERIORES A LA RECLAMACI\u00d3N, O (B) CIEN D\u00d3LARES ESTADOUNIDENSES (USD $100).',
+  s11p2:'EN NING\u00daN CASO DOCSVALIDATE SER\u00c1 RESPONSABLE POR DA\u00d1OS INDIRECTOS, INCIDENTALES, ESPECIALES, CONSECUENTES, EJEMPLARES O PUNITIVOS, INCLUSO SI SE LE HA INFORMADO DE LA POSIBILIDAD DE TALES DA\u00d1OS.',
+  s12title:'Indemnizaci\u00f3n',
+  s12p1:'Aceptas indemnizar, defender y mantener indemne a DocsValidate y sus propietarios, operadores, empleados y contratistas de cualquier reclamaci\u00f3n, da\u00f1o, p\u00e9rdida, responsabilidad, costo y gasto (incluyendo honorarios legales razonables) que surjan de:',
+  s12list:'<li>Tu uso del Servicio</li><li>Tu violaci\u00f3n de estos T\u00e9rminos</li><li>Tu violaci\u00f3n de cualquier ley o regulaci\u00f3n aplicable</li><li>Cualquier reclamaci\u00f3n de terceros derivada de documentos que cargaste o acciones que tomaste basadas en el resultado del Servicio</li>',
+  s13title:'Ley Aplicable',
+  s13p1:'Estos T\u00e9rminos se regir\u00e1n e interpretar\u00e1n de acuerdo con las leyes de los Estados Unidos. Cualquier disputa que surja de estos T\u00e9rminos o tu uso del Servicio se resolver\u00e1 mediante arbitraje vinculante de acuerdo con las reglas de la Asociaci\u00f3n Americana de Arbitraje, excepto que cualquiera de las partes puede buscar medidas cautelares en un tribunal de jurisdicci\u00f3n competente.',
+  s13p2:'Si alguna disposici\u00f3n de estos T\u00e9rminos se considera inaplicable, las disposiciones restantes continuar\u00e1n en pleno vigor y efecto.',
+  s14title:'Cambios a los T\u00e9rminos',
+  s14p1:'Nos reservamos el derecho de modificar estos T\u00e9rminos en cualquier momento. Si realizamos cambios materiales, te notificaremos por correo electr\u00f3nico o mediante un aviso destacado en el Servicio al menos 14 d\u00edas antes de que los cambios entren en vigor. Tu uso continuado del Servicio despu\u00e9s de que los cambios sean efectivos constituye la aceptaci\u00f3n de los nuevos T\u00e9rminos.',
+  s15title:'Contacto',
+  s15p1:'Si tienes preguntas sobre estos T\u00e9rminos, cont\u00e1ctanos en:',
+  lastUpdated:'\u00daltima actualizaci\u00f3n: 22 de marzo de 2026'
+}
+};
+
+function t(k){ return TX[lang][k] || TX.en[k] || ''; }
+
+function applyLang(){
+  var sh=function(id,v){var e=document.getElementById(id);if(e&&v!==undefined)e.innerHTML=v;};
+  var st=function(id,v){var e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;};
+
+  st('navBack', t('navBack'));
+  st('heroLabel', t('heroLabel'));
+  st('heroTitle', t('heroTitle'));
+  sh('heroMeta', t('heroMeta'));
+  st('cbLabel', t('cbLabel'));
+  sh('cbText', t('cbText'));
+  st('tocTitle', t('tocTitle'));
+  for(var i=1;i<=15;i++) st('toc'+i, t('toc'+i));
+
+  // Simple text sections
+  var simple=['s1title','s1p1','s1p2','s2title','s2p1','s2p2','s3title','s3intro',
+    's4title','s4p1','s4p3','s5title','s5p1','s5p2','s5p3',
+    's6title','s6p1','s6p2','s7title','s7p1','s7p2',
+    's8title','s8p1','s8p2','s8p3','s9title','s9p2',
+    's10title','s10p1','s10p2','s11title','s11p1','s11p2',
+    's12title','s12p1','s13title','s13p1','s13p2',
+    's14title','s14p1','s15title','s15p1','lastUpdated'];
+  simple.forEach(function(k){ st(k, t(k)); });
+
+  // HTML sections (contain links or rich formatting)
+  var html=['s2list','s2highlight','s3body','s4p2','s5p4','s6list','s9p1','s12list'];
+  html.forEach(function(k){ sh(k, t(k)); });
+
+  // Lang buttons
+  document.getElementById('btnES').classList.toggle('active', lang==='es');
+  document.getElementById('btnEN').classList.toggle('active', lang==='en');
+
+  // Nav hrefs for /es/
+  var prefix = lang==='es' ? '/es' : '';
+  document.getElementById('navLogo').href = prefix + '/';
+  document.getElementById('navBack').href = prefix + '/';
+
+  document.documentElement.lang = lang;
+}
+
+function setLang(l){
+  localStorage.setItem('dv_lang', l);
+  var path=window.location.pathname;
+  if(l==='es'&&!path.startsWith('/es')){window.location.href='/es'+path;return;}
+  if(l==='en'&&path.startsWith('/es')){window.location.href=path.replace(/^\/es\/?/,'/')||'/';return;}
+  lang=l;
+  applyLang();
+}
+
+applyLang();
+</script>
 
 </body>
 </html>

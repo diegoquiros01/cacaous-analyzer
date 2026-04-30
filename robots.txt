@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /app.html
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /test.html
+Disallow: /docsvalidate-home-final.html
+Disallow: /api/
+
+Sitemap: https://docsvalidate.com/sitemap.xml

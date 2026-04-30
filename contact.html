@@ -3,7 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact — DocsValidate</title>
+<title>Contact — DocsValidate | Export Document Validation Support</title>
+<meta name="description" content="Contact DocsValidate for questions about export document validation, pricing plans, demos, or technical support. We help cacao, coffee and commodity exporters across LATAM.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DocsValidate">
+<meta property="og:title" content="Contact — DocsValidate">
+<meta property="og:description" content="Questions about export document validation? Request a demo, start a free trial, or get technical support.">
+<meta property="og:url" content="https://docsvalidate.com/contact.html">
+<meta property="og:image" content="https://docsvalidate.com/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_ES">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact — DocsValidate">
+<meta name="twitter:description" content="Questions about export document validation? Request a demo or get support.">
+<meta name="twitter:image" content="https://docsvalidate.com/og-image.png">
+
+<!-- Canonical & hreflang -->
+<link rel="canonical" href="https://docsvalidate.com/contact.html">
+<link rel="alternate" hreflang="en" href="https://docsvalidate.com/contact.html">
+<link rel="alternate" hreflang="es" href="https://docsvalidate.com/es/contact.html">
+<link rel="alternate" hreflang="x-default" href="https://docsvalidate.com/contact.html">
+
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>emailjs.init("_AX5FHPE2A2qFduJQ");</script>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -104,7 +128,6 @@ input.err,select.err,textarea.err{border-color:#b04030;}
   .form-row{grid-template-columns:1fr;}
 }
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -304,7 +327,8 @@ input.err,select.err,textarea.err{border-color:#b04030;}
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-let lang = localStorage.getItem('dv_lang') || 'en';
+let lang = window.location.pathname.startsWith('/es') ? 'es' : (localStorage.getItem('dv_lang') || 'en');
+if (lang === 'es') document.documentElement.lang = 'es';
 let currentType = 'general';
 let priority = 'low';
 
@@ -439,12 +463,18 @@ function applyLang(){
 }
 
 function setLang(l){
-  lang=l;
   localStorage.setItem('dv_lang', l);
+  var path=window.location.pathname;
+  if(l==='es'&&!path.startsWith('/es')){window.location.href='/es'+path;return;}
+  if(l==='en'&&path.startsWith('/es')){window.location.href=path.replace(/^\/es\/?/,'/')||'/';return;}
+  lang=l;
   document.getElementById('btnES').classList.toggle('active',l==='es');
   document.getElementById('btnEN').classList.toggle('active',l==='en');
   applyLang();
 }
+
+// Fix nav hrefs for /es/ prefix
+(function(){var p=lang==='es'?'/es':'';var h=document.getElementById('navHome');if(h)h.href=p+'/';var pr=document.getElementById('navPricing');if(pr)pr.href=p+'/pricing.html';var b=document.querySelector('.nav-brand');if(b)b.href=p+'/';})();
 
 // Initialize after DOM is fully loaded
 if(document.readyState === 'loading'){
