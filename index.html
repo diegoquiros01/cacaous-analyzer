@@ -552,22 +552,22 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
     <img src="/logo.png" alt="DocsValidate" onerror="this.style.display='none'">
   </a>
   <ul class="nav-links">
-    <li><a href="#how">How it works</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#documents">Documents</a></li>
-    <li><a href="/pricing.html">Pricing</a></li>
-    <li><a href="/contact.html">Contact</a></li>
+    <li><a href="#how" id="navHow">How it works</a></li>
+    <li><a href="#features" id="navFeatures">Features</a></li>
+    <li><a href="#documents" id="navDocuments">Documents</a></li>
+    <li><a href="/pricing.html" id="navPricing">Pricing</a></li>
+    <li><a href="/contact.html" id="navContact">Contact</a></li>
   </ul>
   <div class="nav-right">
     <ul id="userBadge" style="list-style:none;display:flex;gap:12px;">
-      <li><button class="btn-signin" onclick="window.location='/app';return false;">Sign in</button></li>
+      <li><button class="btn-signin" id="navSignIn" onclick="window.location='/app';return false;">Sign in</button></li>
     </ul>
     <div class="lang-switch">
       <button class="lang-btn" id="btnES" onclick="setLang('es')">ES</button>
       <span class="lang-sep">|</span>
       <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
     </div>
-    <a href="/app" class="btn btn-primary">Start free &rarr;</a>
+    <a href="/app" class="btn btn-primary" id="navStart">Start free &rarr;</a>
   </div>
 </nav>
 
@@ -593,10 +593,10 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       position: relative; z-index: 3;
     ">
       <div class="hero-cta" id="heroBullets">
-        <a href="/app" class="btn btn-mint btn-xl" style="box-shadow: 0 0 0 3px rgba(62,207,170,0.3), 0 8px 32px rgba(62,207,170,0.35);">
+        <a href="/app" class="btn btn-mint btn-xl" id="heroCtaBtn" style="box-shadow: 0 0 0 3px rgba(62,207,170,0.3), 0 8px 32px rgba(62,207,170,0.35);">
           Analyze Documents for Free &rarr;
         </a>
-        <a href="#how" class="btn btn-ghost btn-lg" style="color:#fff;border-color:rgba(255,255,255,.3);">
+        <a href="#how" class="btn btn-ghost btn-lg" id="heroGhostBtn" style="color:#fff;border-color:rgba(255,255,255,.3);">
           See how it works
         </a>
       </div>
@@ -923,6 +923,11 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       ctaP: 'Your first analysis is free. No credit card. No commitment. Upload your shipment set and see the difference in 30 seconds.',
       ctaMint: 'Verify Docs Free &rarr;',
       ctaPricing: 'View pricing',
+      navHow: 'How it works',
+      navFeatures: 'Features',
+      navDocuments: 'Documents',
+      navPricing: 'Pricing',
+      navContact: 'Contact',
       navStart: 'Start free &rarr;',
       navSignIn: 'Sign in',
       trustPill1: 'Results in 30s',
@@ -989,6 +994,11 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       ctaP: 'Tu primer an\u00e1lisis es gratis. Sin tarjeta. Sin compromiso. Sube tu set y ve la diferencia en 30 segundos.',
       ctaMint: 'Verificar Docs Gratis &rarr;',
       ctaPricing: 'Ver planes',
+      navHow: 'C\u00f3mo funciona',
+      navFeatures: 'Caracter\u00edsticas',
+      navDocuments: 'Documentos',
+      navPricing: 'Precios',
+      navContact: 'Contacto',
       navStart: 'Empezar gratis &rarr;',
       navSignIn: 'Iniciar sesi\u00f3n',
       trustPill1: 'Resultados en 30s',
@@ -1055,6 +1065,19 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
     var el;
     var st = function(id, txt) { var e = document.getElementById(id); if(e && txt !== undefined) e.textContent = txt; };
     var sh = function(id, html) { var e = document.getElementById(id); if(e && html !== undefined) e.innerHTML = html; };
+
+    // Nav links
+    st('navHow', t.navHow || fb.navHow);
+    st('navFeatures', t.navFeatures || fb.navFeatures);
+    st('navDocuments', t.navDocuments || fb.navDocuments);
+    st('navPricing', t.navPricing || fb.navPricing);
+    st('navContact', t.navContact || fb.navContact);
+    st('navSignIn', t.navSignIn || fb.navSignIn);
+    sh('navStart', t.navStart || fb.navStart);
+
+    // Hero CTA buttons
+    sh('heroCtaBtn', t.heroCta || fb.heroCta);
+    st('heroGhostBtn', t.heroGhost || fb.heroGhost);
 
     if ((el = document.getElementById('heroEyebrow'))) el.innerHTML = '<span></span>' + t.heroEyebrow;
     if ((el = document.getElementById('heroTitle'))) el.innerHTML = t.heroTitle;
