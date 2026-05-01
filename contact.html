@@ -254,21 +254,21 @@ input.err,select.err,textarea.err{border-color:#b04030;}
       <div class="form-row">
         <div class="form-group">
           <label id="lblName">Full name <span class="required">*</span></label>
-          <input type="text" id="fName" placeholder="Dan Smith">
+          <input type="text" id="fName" placeholder="Dan Smith" aria-required="true">
         </div>
         <div class="form-group">
-          <label id="lblEmail">Email <span class="required">*</span></label>
-          <input type="email" id="fEmail" placeholder="Dan@docsvalidate.com">
+          <label id="lblEmail" for="fEmail">Email <span class="required">*</span></label>
+          <input type="email" id="fEmail" placeholder="Dan@docsvalidate.com" aria-required="true">
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label id="lblCompany">Company</label>
+          <label id="lblCompany" for="fCompany">Company</label>
           <input type="text" id="fCompany" placeholder="DocsValidate USA">
         </div>
         <div class="form-group">
-          <label id="lblCountry">Country</label>
+          <label id="lblCountry" for="fCountry">Country</label>
           <input type="text" id="fCountry" placeholder="USA">
         </div>
       </div>
@@ -287,7 +287,7 @@ input.err,select.err,textarea.err{border-color:#b04030;}
         </div>
         <div class="form-group">
           <label id="lblMsg">Message <span class="required">*</span></label>
-          <textarea id="fMsg" id="optUnsure" placeholder="Tell us about your export volume, document types, or any questions you have..."></textarea>
+          <textarea id="fMsg" aria-required="true" placeholder="Tell us about your export volume, document types, or any questions you have..."></textarea>
         </div>
       </div>
 
@@ -297,7 +297,7 @@ input.err,select.err,textarea.err{border-color:#b04030;}
         <div class="form-row">
           <div class="form-group">
             <label id="lblPlanCurrent">Current plan <span class="required">*</span></label>
-            <select id="fPlanCurrent">
+            <select id="fPlanCurrent" aria-required="true">
               <option value="">— Select —</option>
               <option value="pro" id="optSPro">Professional</option>
               <option value="ent" id="optSEnt">Enterprise</option>
@@ -305,7 +305,7 @@ input.err,select.err,textarea.err{border-color:#b04030;}
           </div>
           <div class="form-group">
             <label id="lblTicketType">Issue type <span class="required">*</span></label>
-            <select id="fTicketType">
+            <select id="fTicketType" aria-required="true">
               <option value="">— Select —</option>
               <option value="technical" id="optTech">Technical issue</option>
               <option value="billing" id="optBilling">Billing / account</option>
@@ -326,7 +326,7 @@ input.err,select.err,textarea.err{border-color:#b04030;}
 
         <div class="form-group">
           <label id="lblIssue">Describe the issue <span class="required">*</span></label>
-          <textarea id="fIssue" placeholder="Describe what happened, what you expected, and the steps to reproduce..."></textarea>
+          <textarea id="fIssue" aria-required="true" placeholder="Describe what happened, what you expected, and the steps to reproduce..."></textarea>
         </div>
 
         <div class="form-group">
