@@ -35,9 +35,19 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://docsvalidate.com/"},
+        {"@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://docsvalidate.com/pricing.html"}
+      ]
+    },
+    {
   "@type": "WebPage",
   "name": "DocsValidate Pricing",
-  "description": "Export document validation plans",
+  "url": "https://docsvalidate.com/pricing.html",
+  "description": "Export document validation plans for cacao and coffee exporters",
   "offers": [
     {
       "@type": "Offer",
@@ -67,6 +77,8 @@
       "priceCurrency": "USD",
       "description": "Up to 350 validations per month, API access, custom document types, dedicated account manager"
     }
+  ]
+  }
   ]
 }
 </script>
