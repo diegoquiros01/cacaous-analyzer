@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   id                  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
   clerk_id            TEXT         UNIQUE NOT NULL,
   email               TEXT         DEFAULT '',
-  plan                TEXT         NOT NULL DEFAULT 'starter' CHECK (plan IN ('starter', 'professional', 'enterprise')),
+  plan                TEXT         NOT NULL DEFAULT 'starter' CHECK (plan IN ('starter', 'growth', 'professional', 'enterprise')),
   validations_used    INT          NOT NULL DEFAULT 0,
   stripe_customer_id  TEXT,
   last_reset          TIMESTAMPTZ,
@@ -44,8 +44,25 @@ CREATE INDEX IF NOT EXISTS idx_validation_history_clerk_id
 CREATE INDEX IF NOT EXISTS idx_validation_history_bl_number
   ON validation_history (bl_number);
 
--- Row-level security (enable if using Supabase RLS)
--- ALTER TABLE validation_history ENABLE ROW LEVEL SECURITY;
+-- Row-level security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE validation_history ENABLE ROW LEVEL SECURITY;
+
+-- RLS policies: users can only read/update their own row
+CREATE POLICY "Users read own row" ON users
+  FOR SELECT USING (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
+
+CREATE POLICY "Users update own row" ON users
+  FOR UPDATE USING (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
+
+-- RLS policies: users can only access their own validation history
+CREATE POLICY "Users read own history" ON validation_history
+  FOR SELECT USING (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
+
+CREATE POLICY "Users insert own history" ON validation_history
+  FOR INSERT WITH CHECK (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
+
+-- Service role (used by Netlify functions) bypasses RLS automatically
 
 -- ─────────────────────────────────────────────────────────────
 

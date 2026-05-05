@@ -68,8 +68,9 @@ async function checkGuestRateLimit(event) {
     const now = Date.now();
     if (!record || (now - record.windowStart) > WINDOW_MS) return true;
     return record.count < GUEST_LIMIT;
-  } catch {
-    return true; // Fail open for availability
+  } catch (e) {
+    console.error('Guest rate limit check failed:', e.message);
+    return false; // Fail closed — deny on error to prevent abuse
   }
 }
 
