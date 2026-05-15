@@ -134,8 +134,8 @@ async function openProfile(){
     const userId = window.__clerk_user.id;
     const email = window.__clerk_user.primaryEmailAddress?.emailAddress || '';
     const resp = await fetch('/.netlify/functions/user', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'get', clerk_id: userId, email })
+      method:'POST', headers: await buildAuthHeaders(),
+      body: JSON.stringify({ action:'get', email })
     });
     const data = await resp.json();
     const plan = (data.plan || 'starter').charAt(0).toUpperCase() + (data.plan || 'starter').slice(1);

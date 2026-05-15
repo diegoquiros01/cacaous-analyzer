@@ -42,10 +42,9 @@ async function _saveHistoryInner() {
     });
     const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await buildAuthHeaders(),
       body: JSON.stringify({
         action: 'save',
-        clerk_id: window.__clerk_user.id,
         bl_number: blNum,
         vessel_name: vessel,
         status: coherenceResult?.overallStatus || 'warning',
@@ -77,8 +76,8 @@ async function loadHistory() {
     const statusFilter = document.getElementById('histStatusFilter')?.value || '';
     const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'list', clerk_id: window.__clerk_user.id, search: search || undefined, status_filter: statusFilter || undefined }),
+      headers: await buildAuthHeaders(),
+      body: JSON.stringify({ action: 'list', search: search || undefined, status_filter: statusFilter || undefined }),
     });
     const data = await resp.json();
     const rows = data.records || data.history || data || [];
@@ -154,8 +153,8 @@ async function downloadHistReport(histId) {
   try {
     const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'get', clerk_id: window.__clerk_user.id, id: histId }),
+      headers: await buildAuthHeaders(),
+      body: JSON.stringify({ action: 'get', id: histId }),
     });
     const data = await resp.json();
     const record = data.record;
@@ -205,8 +204,8 @@ async function deleteSelectedReports() {
     try {
       await fetch('/.netlify/functions/history', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', clerk_id: window.__clerk_user.id, id }),
+        headers: await buildAuthHeaders(),
+        body: JSON.stringify({ action: 'delete', id }),
       });
     } catch (e) { console.warn('Delete failed:', id, e.message); }
   }
@@ -220,8 +219,8 @@ async function deleteReport(histId) {
   try {
     const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'delete', clerk_id: window.__clerk_user.id, id: histId }),
+      headers: await buildAuthHeaders(),
+      body: JSON.stringify({ action: 'delete', id: histId }),
     });
     if (!resp.ok) throw new Error('Delete failed');
     loadHistory(); // refresh list
@@ -236,8 +235,8 @@ async function loadHistReport(histId) {
   try {
     const resp = await fetch('/.netlify/functions/history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'get', clerk_id: window.__clerk_user.id, id: histId }),
+      headers: await buildAuthHeaders(),
+      body: JSON.stringify({ action: 'get', id: histId }),
     });
     const data = await resp.json();
     const record = data.record;

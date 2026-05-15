@@ -565,8 +565,8 @@ async function startAnalysis(){
       const email = window.__clerk_user.primaryEmailAddress?.emailAddress;
       const resp = await fetch('/.netlify/functions/user', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ action:'get', clerk_id: userId, email })
+        headers: await buildAuthHeaders(),
+        body: JSON.stringify({ action:'get', email })
       });
       const userData = await resp.json();
       if(!userData.can_analyze){
@@ -838,10 +838,12 @@ async function startAnalysis(){
       if(isLoggedIn()){
         const userId = window.__clerk_user.id;
         const email = window.__clerk_user.primaryEmailAddress?.emailAddress;
-        fetch('/.netlify/functions/user', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ action:'increment', clerk_id: userId, email })
-        }).catch(e => console.warn('Usage increment failed:', e.message));
+        buildAuthHeaders().then(hdrs => {
+          fetch('/.netlify/functions/user', {
+            method:'POST', headers: hdrs,
+            body: JSON.stringify({ action:'increment', email })
+          }).catch(e => console.warn('Usage increment failed:', e.message));
+        });
       } else {
         incGuestCount();
         fetch('/.netlify/functions/rate-limit', {
