@@ -8,6 +8,7 @@ const { verifyClerkJWT } = require('./verify-jwt');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
 const PLAN_LIMITS = {
   starter:      10,
@@ -146,8 +147,12 @@ exports.handler = async (event) => {
         user = { ...user, validations_used: 0, last_reset: now };
       }
 
-      const limit     = PLAN_LIMITS[user.plan] || 20;
-      const remaining = Math.max(0, limit - (user.validations_used || 0));
+      // Admin bypass: unlimited validations for the owner
+      const isAdmin = ADMIN_EMAIL && jwtResult.email
+        && jwtResult.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+      const limit     = isAdmin ? Infinity : (PLAN_LIMITS[user.plan] || 20);
+      const remaining = isAdmin ? 9999 : Math.max(0, limit - (user.validations_used || 0));
 
       // Calculate next reset date for the frontend to display
       const nextReset = nextResetDate(user);
@@ -185,9 +190,11 @@ exports.handler = async (event) => {
         user = { ...user, validations_used: 0, last_reset: now };
       }
 
-      const limit = PLAN_LIMITS[user.plan] || 20;
+      const isAdmin = ADMIN_EMAIL && jwtResult.email
+        && jwtResult.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      const limit = isAdmin ? Infinity : (PLAN_LIMITS[user.plan] || 20);
 
-      if (user.validations_used >= limit) {
+      if (!isAdmin && user.validations_used >= limit) {
         return {
           statusCode: 200,
           headers,
