@@ -116,7 +116,24 @@ Return ONLY valid JSON:
     .filter(([,v]) => v.destinationCountry)
     .map(([k,v]) => ({ doc: k, value: String(v.destinationCountry).trim(), docType: (v.docType||'').toLowerCase() }));
   if(destVals.length >= 2) {
-    const normD = s => s.toLowerCase().replace(/[^a-z]/g,'');
+    // Normalize destination: extract country from "CITY-COUNTRY" patterns, resolve aliases
+    const countryAliases = {
+      'usa':'unitedstates','eeuu':'unitedstates','estadosunidos':'unitedstates',
+      'unitedstatesofamerica':'unitedstates','us':'unitedstates',
+      'uk':'unitedkingdom','greatbritain':'unitedkingdom',
+      'holanda':'netherlands','holland':'netherlands','paisesbajos':'netherlands',
+    };
+    const normD = s => {
+      let n = s.toLowerCase().trim();
+      // Extract country from "CITY-COUNTRY" or "CITY, COUNTRY" patterns
+      // e.g. "NEW YORK-UNITED STATES" → "united states", "JERSEY CITY-UNITED STATES" → "united states"
+      const cityCountry = n.match(/^.+[-–—]\s*(.+)$/) || n.match(/^.+,\s*(.+)$/);
+      if (cityCountry) n = cityCountry[1].trim();
+      // Remove non-alpha
+      n = n.replace(/[^a-z]/g,'');
+      // Resolve aliases
+      return countryAliases[n] || n;
+    };
     // Prefer BL's destination as master
     const blDest = destVals.find(v =>
       v.docType.includes('bill of lading') || v.docType.includes('waybill') || v.docType.includes('conocimiento')
@@ -165,6 +182,95 @@ Return ONLY valid JSON:
     }
   }
 
+  // Check invoiceNumber — catches wrong invoice reference (e.g. Cert Origen says 824 but everything else says 823)
+  // Handles AI truncation: "001-002-0000082" is treated as prefix-match to "001-002-000000823" (not flagged)
+  // but "001-002-000000824" vs "001-002-000000823" IS a real mismatch (different last digits)
+  const invVals = Object.entries(slim)
+    .filter(([,v]) => v.invoiceNumber)
+    .map(([k,v]) => ({ doc: k, value: String(v.invoiceNumber).trim() }));
+  if(invVals.length >= 2) {
+    // Group by normalized value — treat truncated invoices as matching the longer version
+    // The AI often drops or misreads digits in invoice numbers, especially in Cert of Origin
+    // e.g. "001-002-0000082" vs "001-002-000000823" — the shorter one has fewer leading zeros in the last segment
+    // Strategy: split by dashes, compare the first two segments exactly, and for the last segment
+    // check if the shorter version's significant digits match the end of the longer version
+    const isTruncatedMatch = (a, b) => {
+      if (a === b) return true;
+      const pa = a.split('-');
+      const pb = b.split('-');
+      // Must have same structure (3 dash-separated segments)
+      if (pa.length !== 3 || pb.length !== 3) {
+        // Fallback: simple prefix check on full string
+        const short = a.length <= b.length ? a : b;
+        const long = a.length <= b.length ? b : a;
+        return long.startsWith(short) && (long.length - short.length) <= 3;
+      }
+      // First two segments must match exactly
+      if (pa[0] !== pb[0] || pa[1] !== pb[1]) return false;
+      // Last segment: compare as numbers (ignoring leading zeros)
+      // "0000082" as number = 82, "000000823" as number = 823
+      // 82 could be a truncation of 823 (missing last digit) — the significant digits of the shorter
+      // must be a prefix of the significant digits of the longer
+      const na = parseInt(pa[2], 10);
+      const nb = parseInt(pb[2], 10);
+      const sa = String(na);
+      const sb = String(nb);
+      const short = sa.length <= sb.length ? sa : sb;
+      const long = sa.length <= sb.length ? sb : sa;
+      return long.startsWith(short) && (long.length - short.length) <= 2;
+    };
+    const isPrefix = isTruncatedMatch;
+    // Step 1: Find full-length invoice values (not truncated) and group by exact match
+    const fullLengthVals = invVals.filter(v => {
+      const parts = v.value.split('-');
+      return parts.length !== 3 || parts[2].length >= 9; // Full Ecuadorian invoices have 9+ digits in last segment
+    });
+    const truncatedVals = invVals.filter(v => {
+      const parts = v.value.split('-');
+      return parts.length === 3 && parts[2].length < 12;
+    });
+
+    // Count full-length values to find majority
+    const fullCounts = {};
+    fullLengthVals.forEach(v => { fullCounts[v.value] = (fullCounts[v.value]||0)+1; });
+    const fullSorted = Object.entries(fullCounts).sort((a,b) => b[1]-a[1]);
+
+    if (fullSorted.length > 1) {
+      // Real mismatch between full-length invoices — flag minority
+      const majInv = fullSorted[0][0];
+      fullLengthVals.filter(v => v.value !== majInv).forEach(o => {
+        // Check it's not a truncation match with majority
+        if (!isTruncatedMatch(o.value, majInv)) {
+          jsPreErrors.push({ type:'error', field:'invoiceNumber',
+            message: isES
+              ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" indica factura "'+o.value+'" pero los demás documentos indican "'+majInv+'". Este documento debe corregirse antes del despacho aduanero.'
+              : '"'+o.doc.replace(/\.[^.]+$/,'')+'" shows invoice "'+o.value+'" but other documents show "'+majInv+'". This document must be corrected before customs release.',
+            details: invVals.map(v=>({doc:v.doc, value:v.value}))
+          });
+        }
+      });
+      // Truncated values are ambiguous — don't flag them
+    } else if (fullSorted.length === 0 && invVals.length >= 2) {
+      // All values are truncated — fall back to exact match comparison
+      const counts = {};
+      invVals.forEach(v => { counts[v.value]=(counts[v.value]||0)+1; });
+      const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+      if (sorted.length > 1) {
+        const maj = sorted[0][0];
+        invVals.filter(v => v.value !== maj).forEach(o => {
+          if (!isTruncatedMatch(o.value, maj)) {
+            jsPreErrors.push({ type:'error', field:'invoiceNumber',
+              message: isES
+                ? '"'+o.doc.replace(/\.[^.]+$/,'')+'" indica factura "'+o.value+'" pero los demás documentos indican "'+maj+'". Este documento debe corregirse antes del despacho aduanero.'
+                : '"'+o.doc.replace(/\.[^.]+$/,'')+'" shows invoice "'+o.value+'" but other documents show "'+maj+'". This document must be corrected before customs release.',
+              details: invVals.map(v=>({doc:v.doc, value:v.value}))
+            });
+          }
+        });
+      }
+    }
+  }
+
   // Check lotNumbers — catches wrong document in set
   // Exclude per-lot docs (fumigation, phyto) — they only cover 1 lot each by design
   const perLotDocTypes = ['fumig','gas clearance','quarantine','phytosanitary','fitosanitario'];
@@ -178,7 +284,16 @@ Return ONLY valid JSON:
     })
     .map(([k,v]) => ({ doc: k, value: String(v.lotNumbers).trim() }));
   if(lotVals.length >= 2) {
-    const normL = s => s.toLowerCase().replace(/\s+/g,'').replace(/^lote?\s*[-:\s]*/i,'').replace(/^lot\s*[-:\s]*/i,'').trim();
+    // Normalize lot strings: strip "LOT"/"LOTE" prefixes, sort components, normalize separators
+    const normL = s => {
+      let n = s.toLowerCase().replace(/\s+/g,' ').trim();
+      // Split into individual lot values, strip prefixes from each
+      const parts = n.split(/[,;]+/).map(p =>
+        p.trim().replace(/^lotes?\s*[-:\s#.]*/i,'').replace(/^lots?\s*[-:\s#.]*/i,'').trim()
+      ).filter(p => p.length > 0);
+      // Sort for order-independent comparison
+      return parts.sort().join(',');
+    };
     const lcounts = {}; lotVals.forEach(v => { const n=normL(v.value); lcounts[n]=(lcounts[n]||0)+1; });
     const lsorted = Object.entries(lcounts).sort((a,b)=>b[1]-a[1]);
     if(lsorted.length > 1) {
@@ -487,7 +602,8 @@ function normalizeValue(v){
   s = s.replace(/(\d),(\d{3})/g, '$1$2');
   // Normalize weight units to 'kg'
   s = s.replace(/\bkilogramos?\b/g, 'kg').replace(/\bkilograms?\b/g, 'kg')
-       .replace(/\bkgs\b/g, 'kg').replace(/\bkilos?\b/g, 'kg');
+       .replace(/\bkgs\b/g, 'kg').replace(/\bkilos?\b/g, 'kg')
+       .replace(/\bkgm\b/g, 'kg');
   // Normalize metric tons
   s = s.replace(/\btoneladas?\s*m[eé]tricas?\b/g, 'mt').replace(/\bmetric\s*ton+e?s?\b/g, 'mt');
 
@@ -540,6 +656,8 @@ function normalizeValue(v){
   // If the value is just a transport mode word, blank it out so it doesn't match vessel names
   const transportModeWords = ['maritimo','marítimo','maritime','maritima','air','airfreight','road','truck','rail','sea'];
   if(transportModeWords.includes(s.trim())) return '__transport_mode__';
+  // "via maritima" / "via marítima" = transport mode phrase
+  if(/^via\s+marit/i.test(s.trim())) return '__transport_mode__';
 
   // ── PORT NORMALIZATION ────────────────────────────────────────
   // Strip prefixes
@@ -557,6 +675,8 @@ function normalizeValue(v){
   s = s.replace(/\bnueva\s*york\b/g, 'new york');
   s = s.replace(/\bguayas\b/g, 'posorja');
   s = s.replace(/\bguayaquil\b/g, 'posorja');
+  s = s.replace(/\bpto\s*bol[ií]var\b/g, 'posorja');
+  s = s.replace(/\bpuerto\s*bol[ií]var\b/g, 'posorja');
   // Final cleanup: strip everything after comma, trim leading/trailing punctuation
   s = s.replace(/,.*$/, '').replace(/^[\s,\-]+/, '').trim();
 

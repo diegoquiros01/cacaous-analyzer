@@ -1,4 +1,5 @@
 // netlify/functions/stripe-webhook.js
+const crypto = require('crypto');
 // Listens to Stripe live events and keeps Supabase in sync.
 //
 // SETUP CHECKLIST (do this once in Stripe Dashboard):
@@ -37,7 +38,7 @@ PRICE_TO_PLAN[process.env.STRIPE_PRICE_ENT_MONTHLY || 'price_1TJNbKFZXtgfLmPeq2W
 PRICE_TO_PLAN[process.env.STRIPE_PRICE_ENT_ANNUAL  || 'price_1TJNcXFZXtgfLmPede2a7C4b'] = 'enterprise';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY;
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -93,7 +94,11 @@ async function verifyStripeSignature(payload, sigHeader, secret) {
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 
-  if (computed !== signature) throw new Error('Stripe signature mismatch');
+  const computedBuf = Buffer.from(computed, 'utf8');
+  const signatureBuf = Buffer.from(signature, 'utf8');
+  if (computedBuf.length !== signatureBuf.length || !crypto.timingSafeEqual(computedBuf, signatureBuf)) {
+    throw new Error('Stripe signature mismatch');
+  }
 
   // Reject events older than 5 minutes (replay attack protection)
   const age = Math.floor(Date.now() / 1000) - parseInt(timestamp);

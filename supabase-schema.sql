@@ -24,7 +24,7 @@ CREATE INDEX IF NOT EXISTS idx_users_stripe_customer_id ON users (stripe_custome
 -- validation_history: stores each validation run per user
 CREATE TABLE IF NOT EXISTS validation_history (
   id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-  clerk_id      TEXT         NOT NULL,
+  clerk_id      TEXT         NOT NULL REFERENCES users(clerk_id),
   bl_number     TEXT,
   vessel_name   TEXT,
   status        TEXT         NOT NULL CHECK (status IN ('approved', 'warning', 'rejected')),
@@ -44,6 +44,10 @@ CREATE INDEX IF NOT EXISTS idx_validation_history_clerk_id
 CREATE INDEX IF NOT EXISTS idx_validation_history_bl_number
   ON validation_history (bl_number);
 
+-- Index for admin queries filtering by status
+CREATE INDEX IF NOT EXISTS idx_validation_history_status
+  ON validation_history (status);
+
 -- Row-level security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE validation_history ENABLE ROW LEVEL SECURITY;
@@ -62,6 +66,9 @@ CREATE POLICY "Users read own history" ON validation_history
 CREATE POLICY "Users insert own history" ON validation_history
   FOR INSERT WITH CHECK (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
 
+CREATE POLICY "Users delete own history" ON validation_history
+  FOR DELETE USING (clerk_id = current_setting('request.jwt.claims', true)::json->>'sub');
+
 -- Service role (used by Netlify functions) bypasses RLS automatically
 
 -- ─────────────────────────────────────────────────────────────
@@ -72,5 +79,8 @@ CREATE TABLE IF NOT EXISTS webhook_events (
   created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
+ALTER TABLE webhook_events ENABLE ROW LEVEL SECURITY;
+-- Only service role should access webhook_events (no anon/authenticated access)
+
 -- Auto-cleanup: delete events older than 7 days (run via Supabase cron or pg_cron)
--- SELECT cron.schedule('cleanup-webhook-events', '0 3 * * *', $$DELETE FROM webhook_events WHERE created_at < now() - interval '7 days'$$);
+SELECT cron.schedule('cleanup-webhook-events', '0 3 * * *', $$DELETE FROM webhook_events WHERE created_at < now() - interval '7 days'$$);

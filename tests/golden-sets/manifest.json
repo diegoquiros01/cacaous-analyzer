@@ -1,0 +1,199 @@
+{
+  "_description": "Golden Set Manifest — expected outcomes for each real document set. Used to validate that DocsValidate correctly extracts data and detects inconsistencies.",
+  "_lastUpdated": "2026-05-11",
+  "_howToUse": "1) Run each set through the app. 2) Compare extraction results against 'expectedExtractions'. 3) Compare detected issues against 'expectedIssues'. 4) Log results in results/ folder.",
+
+  "sets": [
+    {
+      "id": "set-01",
+      "path": "sets de prueba/Set 1",
+      "description": "Minimal set: 3 docs (BL, Phyto, TAC certificate). Baseline simple.",
+      "commodity": "cacao",
+      "docCount": 3,
+      "expectedVerdict": "warning",
+      "expectedIssues": [],
+      "knownLimitations": ["Only 3 docs — may trigger 'incomplete set' observation"],
+      "notes": "Baseline simple test. If this fails, something fundamental is broken."
+    },
+    {
+      "id": "set-02",
+      "path": "sets de prueba/Set 2",
+      "description": "Complete cacao set: BL, Invoice, Packing List, Phyto, Cert Origen, Cert Calidad, Fumigation, Letter of Declaration, Shipping Notification. LOTE 24-2026.",
+      "commodity": "cacao",
+      "docCount": 9,
+      "expectedVerdict": "approved",
+      "expectedIssues": [],
+      "expectedExtractions": {
+        "blNumber": "GQL0440832",
+        "invoiceNumber": "001-002-000000819",
+        "lotNumbers": ["24-2026"],
+        "shipper": "should contain company name",
+        "vesselName": "should be consistent across docs"
+      },
+      "notes": "Canonical clean set. If this shows false positives, investigate noise sources."
+    },
+    {
+      "id": "set-03",
+      "path": "sets de prueba/Set 3",
+      "description": "Mixed format set with ISF Excel. Multi-lot (27,28). 5 docs: BL, Invoice, Letter, Packing List, ISF.xlsx",
+      "commodity": "cacao",
+      "docCount": 5,
+      "expectedVerdict": "approved",
+      "expectedIssues": [],
+      "testsFocusArea": ["Excel parsing", "multi-lot handling"],
+      "notes": "Tests Excel ISF extraction. Lot numbers span 27-2026 and 28-2026."
+    },
+    {
+      "id": "set-04",
+      "path": "sets de prueba/Set 4",
+      "description": "Complete set with Excel ISF. Same shipment as Set 2 (LOTE 24-2026) but with ISF added. 11 docs.",
+      "commodity": "cacao",
+      "docCount": 11,
+      "expectedVerdict": "approved",
+      "expectedIssues": [],
+      "expectedExtractions": {
+        "blNumber": "GQL0440832",
+        "invoiceNumber": "001-002-000000819"
+      },
+      "testsFocusArea": ["Large set handling", "ISF Excel", "duplicate BL detection"],
+      "notes": "Superset of Set 2. Should produce same results with ISF data added."
+    },
+    {
+      "id": "set-05",
+      "path": "sets de prueba/Set 5",
+      "description": "Multi-lot (27,28) with 2 separate fumigation certificates. 11 docs including ISF Excel.",
+      "commodity": "cacao",
+      "docCount": 11,
+      "expectedVerdict": "approved",
+      "expectedIssues": [],
+      "expectedExtractions": {
+        "blNumber": "GQL0443032",
+        "invoiceNumber": "001-002-000000821",
+        "lotNumbers": ["27-2026", "28-2026"]
+      },
+      "knownFalsePositives": [
+        {
+          "field": "netWeight",
+          "description": "Each fumigation cert covers only 1 lot (half the shipment). Tool may flag weight mismatch between fumigation certs and full-shipment docs. This is NOT an error — the fumigations are per-lot, not per-shipment.",
+          "expectedBehavior": "Should NOT flag as error, or flag as observation only"
+        },
+        {
+          "field": "bagCount",
+          "description": "Same as weight — fumigation certs show per-lot bag count, not total"
+        }
+      ],
+      "testsFocusArea": ["Split lot handling", "per-lot vs per-shipment values"],
+      "notes": "CRITICAL TEST: This is the most common real-world pattern — multi-lot shipments with per-lot certificates. If the tool can't handle this correctly, it generates noise that erodes trust."
+    },
+    {
+      "id": "set-06",
+      "path": "sets de prueba/Set 6",
+      "description": "Partial set: only BL, Booking, and ISF. LOTE 31,32. 3 docs.",
+      "commodity": "cacao",
+      "docCount": 3,
+      "expectedVerdict": "warning",
+      "expectedIssues": [],
+      "testsFocusArea": ["Incomplete set behavior", "booking vs BL distinction"],
+      "notes": "Tests behavior with minimal docs. Should not crash or produce meaningless results."
+    },
+    {
+      "id": "set-07",
+      "path": "sets de prueba/Set 7",
+      "description": "Set with possible year mismatch: FITO says 05-2025, everything else says 05-2026. 8 docs. Also has both BL and SWB (Sea Waybill).",
+      "commodity": "cacao",
+      "docCount": 8,
+      "expectedVerdict": "rejected",
+      "expectedIssues": [
+        {
+          "type": "error_or_observation",
+          "field": "lotNumbers",
+          "description": "Phyto cert filename says LOTE 05-2025 while all other docs say LOTE 05-2026. Tool should detect year discrepancy IF the content also differs.",
+          "action": "VERIFY: Is this a filename typo or actual content mismatch?"
+        }
+      ],
+      "testsFocusArea": ["Year mismatch detection", "BL vs SWB handling"],
+      "notes": "NEEDS MANUAL VERIFICATION: Open the phyto cert and check if content says 2025 or 2026. If filename is just a typo, expected verdict changes to approved."
+    },
+    {
+      "id": "set-08",
+      "path": "sets de prueba/Set 8",
+      "description": "Complete set LOTE 167-2025 with BL + SWB + ISF Excel. 9 docs.",
+      "commodity": "cacao",
+      "docCount": 9,
+      "expectedVerdict": "approved",
+      "expectedIssues": [],
+      "expectedExtractions": {
+        "blNumber": "GQL0431557",
+        "lotNumbers": ["167-2025"]
+      },
+      "testsFocusArea": ["SWB + BL coexistence", "ISF Excel extraction"],
+      "notes": "Tests dual transport document (BL + SWB for same shipment)."
+    },
+    {
+      "id": "set-09",
+      "path": "sets de prueba/Set 9",
+      "description": "COI organic set (TRADIN). 3 docs: BL, COI organic certificate, phyto-like doc. Different format/origin.",
+      "commodity": "cacao",
+      "docCount": 3,
+      "expectedVerdict": "warning",
+      "expectedIssues": [],
+      "testsFocusArea": ["Organic COI extraction", "different document formats", "TRADIN as consignee"],
+      "notes": "Tests organic certification workflow. COI has complex format with certifier, standard, operator fields."
+    },
+    {
+      "id": "set-10",
+      "path": "sets de prueba/Set 10",
+      "description": "COI + cocoa butter (different product). Has previous DocsValidate reports for comparison. 3 source docs + 3 reports.",
+      "commodity": "cocoa butter",
+      "docCount": 3,
+      "expectedVerdict": "check previous reports",
+      "testsFocusArea": ["Non-bean product handling", "COI extraction"],
+      "notes": "Contains 3 previous DocsValidate reports — use to compare consistency across runs. Only upload the 3 source docs (BL, COI, VE doc), not the reports."
+    },
+    {
+      "id": "set-11",
+      "path": "sets de prueba/Set 11 error no factura 823 vs 824",
+      "description": "KNOWN ERROR SET: Invoice number mismatch. Everything says 823, Certificate of Origin says 824. LOTE 33,34. Multi-lot with 2 fumigation certs. 12 source docs.",
+      "commodity": "cacao",
+      "docCount": 12,
+      "expectedVerdict": "rejected",
+      "expectedIssues": [
+        {
+          "type": "error",
+          "field": "invoiceNumber",
+          "description": "Certificate of Origin references invoice 001-002-000000824 while all other documents reference 001-002-000000823. This is the KNOWN REAL ERROR that must be detected.",
+          "mustDetect": true,
+          "documentsInvolved": ["CERT ORIGEN LOTE 33,34-2026.pdf"]
+        }
+      ],
+      "expectedExtractions": {
+        "blNumber": "GQL0444337",
+        "invoiceNumber_majority": "001-002-000000823",
+        "invoiceNumber_certOrigen": "001-002-000000824",
+        "lotNumbers": ["33-2026", "34-2026"],
+        "bagCount_total": "2896",
+        "vesselName": "CMA CGM HARMONY"
+      },
+      "knownFalsePositives": [
+        {
+          "field": "bagCount",
+          "description": "Cert Origen bag count must be read as 2896, NOT 3896. If tool reports 3896, it is an EXTRACTION ERROR (AI misread).",
+          "correctValue": "2896",
+          "wrongValue": "3896"
+        },
+        {
+          "field": "netWeight",
+          "description": "Fumigation certs show per-lot weight (~99912 kg each) while total shipment is ~199824 kg. This is NOT an error.",
+          "expectedBehavior": "Should not flag, or flag as observation only"
+        },
+        {
+          "field": "vesselName",
+          "description": "Cert Calidad may say 'Marítimo' (transport mode) and Cert Origen may say 'VIA MARITIMA'. These are NOT vessel names — the real vessel is CMA CGM HARMONY.",
+          "expectedBehavior": "Should not flag transport mode as vessel name mismatch"
+        }
+      ],
+      "testsFocusArea": ["Invoice number mismatch detection", "extraction accuracy", "false positive control in multi-lot sets"],
+      "notes": "THE MOST IMPORTANT TEST. This is a real error from production. The tool must: (1) detect the 823 vs 824 invoice mismatch, (2) correctly read 2896 bags (not 3896), (3) not flag per-lot fumigation weights as errors, (4) not confuse transport mode with vessel name."
+    }
+  ]
+}

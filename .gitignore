@@ -1,0 +1,4 @@
+node_modules/
+tests/golden-sets/results/
+.env
+.env.local

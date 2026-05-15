@@ -1,6 +1,8 @@
 // netlify/functions/history.js
 // Store and retrieve validation history from Supabase
 
+const { verifyClerkJWT } = require('./verify-jwt');
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
@@ -11,7 +13,7 @@ async function supabase(path, method = 'GET', body = null) {
       'Content-Type': 'application/json',
       'apikey': SUPABASE_KEY,
       'Authorization': `Bearer ${SUPABASE_KEY}`,
-      'Prefer': method === 'POST' ? 'return=representation' : 'return=representation',
+      'Prefer': 'return=representation',
     },
     body: body ? JSON.stringify(body) : null,
   });
@@ -43,10 +45,19 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
-    const { action, clerk_id, ...params } = JSON.parse(event.body || '{}');
+    // Verify JWT and extract clerk_id from the token (not from the body)
+    const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
+    const jwtResult = await verifyClerkJWT(authHeader);
+    if (!jwtResult?.valid) {
+      return { statusCode: 401, headers, body: JSON.stringify({ error: 'Authentication required' }) };
+    }
+
+    const { action, ...params } = JSON.parse(event.body || '{}');
+    // Use clerk_id from verified JWT, not from request body
+    const clerk_id = jwtResult.sub;
 
     if (!clerk_id) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id' }) };
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id in token' }) };
     }
     // Validate clerk_id format to prevent injection
     if (!/^[a-zA-Z0-9_-]{10,60}$/.test(clerk_id)) {

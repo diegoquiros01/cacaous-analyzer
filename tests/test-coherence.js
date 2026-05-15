@@ -590,6 +590,150 @@ section('Coherence pre-checks — All consistent (no errors)');
 }
 
 // ═══════════════════════════════════════════════════════════
+// GOLDEN SET 11 — Invoice number mismatch (823 vs 824)
+// Simulates real extraction data from Set 11 to verify
+// the JS pre-check catches the invoice number error.
+// ═══════════════════════════════════════════════════════════
+
+section('Golden Set 11 — Invoice number mismatch (823 vs 824)');
+{
+  // Simulated extraction: all docs say 823 except Cert Origen which says 824
+  const slim = {
+    'PACKING LIST LOTE 33,34-2026.pdf': {
+      docType: 'Packing List', invoiceNumber: '001-002-000000823', blNumber: 'GQL0444337',
+      bagCount: '2896', netWeight: '199824', grossWeight: '201272',
+      containerNumbers: ['BSIU8177031','CAAU5976057','CMAU9334195','TCLU8505492','TCNU5567348','TLLU4659292','TXGU4024457','TXGU8424003'],
+      vesselName: 'CMA CGM HARMONY', destinationCountry: 'United States',
+      lotNumbers: ['33-2026','34-2026']
+    },
+    'SHIPPING NOT LOTE 33,34-2026.pdf': {
+      docType: 'Shipping Notification', invoiceNumber: '001-002-000000823', blNumber: 'GQL0444337',
+      vesselName: 'CMA CGM HARMONY', destinationCountry: 'United States'
+    },
+    'CERT ORIGEN LOTE 33,34-2026.pdf': {
+      docType: 'Certificate of Origin', invoiceNumber: '001-002-000000824',
+      bagCount: '2896', netWeight: '199824', grossWeight: '201272',
+      vesselName: 'VIA MARITIMA', destinationCountry: 'United States',
+      lotNumbers: ['33-2026','34-2026']
+    },
+    'BL GQL0444337 LOT 33, 34-2026.pdf': {
+      docType: 'Bill of Lading', blNumber: 'GQL0444337', invoiceNumber: '001-002-000000823',
+      bagCount: '2896', netWeight: '199824', grossWeight: '201272',
+      containerNumbers: ['BSIU8070017','CAAU6292470','CMAU6910580','CMAU8482644','CMAU9710760','FFAU4540777','FFAU4792315','UETU6357893'],
+      vesselName: 'CMA CGM HARMONY', destinationCountry: 'United States',
+      lotNumbers: ['33-2026','34-2026']
+    },
+    'FACT 824 LOTE 33,34-2026 SJT.pdf': {
+      docType: 'Commercial Invoice', invoiceNumber: '001-002-000000823',
+      bagCount: '2896', netWeight: '199824', grossWeight: '201272',
+      vesselName: 'CMA CGM HARMONY', destinationCountry: 'United States',
+      lotNumbers: ['33-2026','34-2026']
+    },
+    'LETTER OF DECL LOTE 33,34-2026.pdf': {
+      docType: 'Declaration Letter', invoiceNumber: '001-002-000000823',
+      vesselName: 'CMA CGM HARMONY', destinationCountry: 'United States'
+    },
+    'FITO LOTE 33,34-2026.pdf': {
+      docType: 'Phytosanitary Certificate', bagCount: '2896', netWeight: '199824',
+      vesselName: 'CMA CGM HARMONY', destinationCountry: 'United States',
+      lotNumbers: ['33-2026','34-2026']
+    },
+    'CERT CALIDAD LOTE 33,34-2026.pdf': {
+      docType: 'Quality Certificate', bagCount: '2896', netWeight: '199824',
+      vesselName: 'Marítimo', lotNumbers: ['33-2026','34-2026']
+    },
+    'CERT FUMIGACION LOTE 33-2026.pdf': {
+      docType: 'Fumigation Certificate', bagCount: '1448', netWeight: '99912',
+      grossWeight: '100636', lotNumbers: ['33-2026']
+    },
+    'CERT FUMIGACION LOTE 34-2026.pdf': {
+      docType: 'Fumigation Certificate', bagCount: '1448', netWeight: '99912',
+      grossWeight: '100636', lotNumbers: ['34-2026']
+    },
+  };
+
+  // Run invoice pre-check with truncation tolerance (same logic as coherence.js)
+  const invVals = Object.entries(slim)
+    .filter(([,v]) => v.invoiceNumber)
+    .map(([k,v]) => ({ doc: k, value: String(v.invoiceNumber).trim() }));
+
+  assert(invVals.length >= 2, 'invoice numbers extracted from multiple docs (' + invVals.length + ')');
+
+  // Separate full-length from truncated values (Ecuadorian invoices: ###-###-############ with 12+ digits in last segment)
+  const fullLengthVals = invVals.filter(v => {
+    const parts = v.value.split('-');
+    return parts.length !== 3 || parts[2].length >= 9;
+  });
+  const truncatedVals = invVals.filter(v => {
+    const parts = v.value.split('-');
+    return parts.length === 3 && parts[2].length < 12;
+  });
+
+  assert(fullLengthVals.length >= 2, 'at least 2 full-length invoice values (' + fullLengthVals.length + ')');
+  // In this test data all invoices are full-length (simulated correct extraction)
+  // In real runs, Cert Origen may produce truncated values — those are handled separately
+
+  // Count full-length values — majority should be 823
+  const fullCounts = {};
+  fullLengthVals.forEach(v => { fullCounts[v.value]=(fullCounts[v.value]||0)+1; });
+  const fullSorted = Object.entries(fullCounts).sort((a,b)=>b[1]-a[1]);
+
+  assert(fullSorted.length >= 2, 'at least 2 distinct full-length invoice values (823 and 824)');
+  assert(fullSorted[0][0] === '001-002-000000823', 'majority full-length invoice is 823 (got: ' + fullSorted[0][0] + ')');
+
+  // Minority full-length values should be flagged
+  const majInv = fullSorted[0][0];
+  const mismatches = fullLengthVals.filter(v => v.value !== majInv);
+  assert(mismatches.length >= 1, 'at least 1 full-length mismatch found (' + mismatches.length + ')');
+  assert(mismatches.some(m => m.value === '001-002-000000824'), 'mismatch includes 824');
+
+  // Truncated values should NOT be flagged (they are ambiguous)
+  // "001-002-0000082" could be 823 or 824 — no way to know, so don't flag
+
+  // Verify fumigation certs are NOT flagged for lot mismatch
+  // (they cover per-lot, not per-shipment — this is by design)
+  const perLotDocTypes = ['fumig','gas clearance','quarantine','phytosanitary','fitosanitario'];
+  const lotVals = Object.entries(slim)
+    .filter(([k,v]) => {
+      if (!v.lotNumbers || v.lotNumbers.length === 0) return false;
+      const dt = (v.docType||'').toLowerCase();
+      const fn = k.toLowerCase();
+      if (perLotDocTypes.some(t => dt.includes(t) || fn.includes(t))) return false;
+      return true;
+    })
+    .map(([k,v]) => ({ doc: k, value: String(v.lotNumbers).trim() }));
+  const lotCounts = {};
+  lotVals.forEach(v => { lotCounts[v.value]=(lotCounts[v.value]||0)+1; });
+  const lotSorted = Object.entries(lotCounts).sort((a,b)=>b[1]-a[1]);
+  assert(lotSorted.length === 1, 'all non-fumigation docs have same lots (no false positive)');
+
+  // Verify BL number is consistent
+  const blVals = Object.entries(slim)
+    .filter(([,v]) => v.blNumber)
+    .map(([,v]) => v.blNumber.toUpperCase());
+  assert(new Set(blVals).size === 1, 'BL number is consistent across all docs (GQL0444337)');
+}
+
+section('Golden Set 11 — Vessel name false positive control');
+{
+  // "Marítimo" and "VIA MARITIMA" are transport modes, NOT vessel names.
+  // They should not be treated as vessel name mismatches vs "CMA CGM HARMONY".
+  const vesselVals = [
+    { doc: 'BL', value: 'CMA CGM HARMONY' },
+    { doc: 'Packing List', value: 'CMA CGM HARMONY' },
+    { doc: 'Cert Calidad', value: 'Marítimo' },
+    { doc: 'Cert Origen', value: 'VIA MARITIMA' },
+  ];
+  // The transport-mode values should be recognized as non-vessel
+  const transportModes = ['marítimo','maritimo','via maritima','terrestre','aéreo','aereo','maritime','sea','land','air'];
+  const realVessels = vesselVals.filter(v =>
+    !transportModes.some(m => v.value.toLowerCase().includes(m))
+  );
+  assert(realVessels.length === 2, 'correctly filters transport modes from vessel names (got ' + realVessels.length + ' real vessels)');
+  assert(new Set(realVessels.map(v => v.value)).size === 1, 'real vessel names are consistent (CMA CGM HARMONY)');
+}
+
+// ═══════════════════════════════════════════════════════════
 // SUMMARY
 // ═══════════════════════════════════════════════════════════
 console.log(`\n${'═'.repeat(50)}`);

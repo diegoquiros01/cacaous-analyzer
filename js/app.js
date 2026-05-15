@@ -5,6 +5,8 @@
 //             coherence.js (analyzeCoherence, translateWithAI, translateSummaryLocal, translateSummary, tx)
 //             rendering.js (renderResults)
 
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
 function setLang(l){
   lang=l;
   localStorage.setItem('dv_lang', l);
@@ -200,8 +202,6 @@ function fillGhostButtons(){
   }
 }
 
-function toggleDocTypeAccordion() { /* no-op — accordion removed */ }
-function updateDocTypeChips() { /* no-op — chips removed */ }
 
 function updateUploadStepper() {
   const activeTypes = document.querySelectorAll('.doc-type-btn.active').length;
@@ -334,7 +334,7 @@ function renderFiles(){
     list.innerHTML+=`<div class="${itemCls}">
       <div class="file-icon">${getIcon(f.name, isPdfPage)}</div>
       <div class="file-info">
-        <div class="file-name">${displayName}${f._pdfPage ? ` · <em style="opacity:0.5;font-size:0.85em;">page ${f._pdfPage}</em>` : ''}</div>
+        <div class="file-name">${escHtml(displayName)}${f._pdfPage ? ` · <em style="opacity:0.5;font-size:0.85em;">page ${f._pdfPage}</em>` : ''}</div>
         <div class="file-size">${displayExt} · ${size}</div>
       </div>
       ${getBadge(f.name)}${pageLabel}${detectedHtml}
@@ -958,12 +958,14 @@ function detectShippingLine(bl){
 }
 
 async function fetchTracking(blNumber, shippingLine){
-  // Build URL with query params for GET request (avoids CORS preflight)
-  const url = MAKE_WEBHOOK
-    + '?bl_number=' + encodeURIComponent(blNumber)
-    + '&shipping_line=' + encodeURIComponent(shippingLine);
-
-  const resp = await fetch(url, { method: 'GET' });
+  const resp = await fetch(MAKE_WEBHOOK, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...buildAuthHeaders(),
+    },
+    body: JSON.stringify({ bl_number: blNumber, shipping_line: shippingLine }),
+  });
   if(!resp.ok) throw new Error('HTTP ' + resp.status);
   const text = await resp.text();
   try { return JSON.parse(text); }

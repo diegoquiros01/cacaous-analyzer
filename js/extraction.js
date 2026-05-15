@@ -555,6 +555,14 @@ function cleanExtractedFields(doc) {
     inv = inv.replace(/\s*-\s*/g, '-');
     inv = inv.replace(/^[^0-9]+/, '');
     inv = inv.replace(/[^0-9]+$/, '');
+    // Fix truncated Ecuadorian invoice numbers (format: ###-###-############, 13 digits after dashes)
+    // AI sometimes truncates the last 1-2 digits, especially in Certificate of Origin
+    const invMatch = inv.match(/^(\d{3}-\d{3}-)(\d{10,12})$/);
+    if (invMatch && invMatch[2].length < 13) {
+      // Pad with trailing zero if clearly truncated (e.g. "001-002-0000082" → likely "001-002-000000820" or similar)
+      // We mark it as potentially truncated for the pre-check to handle via majority vote
+      doc._invoiceMayBeTruncated = true;
+    }
     if (inv && inv !== doc.invoiceNumber) doc.invoiceNumber = inv;
   }
   // Clean BL number — remove spaces
