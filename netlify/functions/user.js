@@ -96,19 +96,23 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
-    // Verify JWT and extract clerk_id from the token (not from the body)
+    // Verify JWT if present — extract clerk_id from token (secure)
+    // Fallback to clerk_id from body for backward compat (Clerk may not be ready on page load)
     const authHeader = event.headers['authorization'] || event.headers['Authorization'] || '';
     const jwtResult = await verifyClerkJWT(authHeader);
-    if (!jwtResult?.valid) {
+
+    const { action, clerk_id: body_clerk_id, email, new_plan } = JSON.parse(event.body || '{}');
+
+    // Prefer JWT clerk_id, fall back to body clerk_id
+    const clerk_id = jwtResult?.valid ? jwtResult.sub : body_clerk_id;
+
+    if (!clerk_id) {
       return { statusCode: 401, headers, body: JSON.stringify({ error: 'Authentication required' }) };
     }
 
-    const { action, email, new_plan } = JSON.parse(event.body || '{}');
-    // Use clerk_id from verified JWT, not from request body
-    const clerk_id = jwtResult.sub;
-
-    if (!clerk_id) {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing clerk_id in token' }) };
+    // Write operations (increment, update_plan) require JWT
+    if (!jwtResult?.valid && action && action !== 'get') {
+      return { statusCode: 401, headers, body: JSON.stringify({ error: 'Authentication required for this action' }) };
     }
     // Validate clerk_id format to prevent injection
     if (!/^[a-zA-Z0-9_-]{10,60}$/.test(clerk_id)) {
