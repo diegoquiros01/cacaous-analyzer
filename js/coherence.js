@@ -650,6 +650,16 @@ function normalizeValue(v){
   s = s.replace(/\bjt\b/g, 'bags jute');
 
   // ── COUNTRY NAMES ─────────────────────────────────────────────
+  // Extract country from "CITY-COUNTRY" or "CITY, COUNTRY" patterns
+  // e.g. "NEW YORK-UNITED STATES" → "united states" → "usa"
+  const cityCountryMatch = s.match(/^.+[-–—]\s*(.+)$/);
+  if (cityCountryMatch) {
+    const possibleCountry = cityCountryMatch[1].trim();
+    // Only extract if the suffix looks like a country name
+    if (/united states|usa|estados unidos|ecuador|colombia|venezuela|peru|mexico|panama|guatemala|china|netherlands|germany|france|spain|italy/i.test(possibleCountry)) {
+      s = possibleCountry;
+    }
+  }
   s = s.replace(/\bunited\s*states\s*of\s*america\b/g, 'usa')
        .replace(/\bunited\s*states\b/g, 'usa').replace(/\bu\.s\.a\.?\b/g, 'usa')
        .replace(/\bestados\s*unidos\b/g, 'usa');

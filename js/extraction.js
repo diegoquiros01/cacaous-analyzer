@@ -547,6 +547,25 @@ function cleanExtractedFields(doc) {
     }
   }
 
+  // Fix OCR-spaced text: "U n i t e d  S t a t e s" → "United States"
+  // Pattern: single characters separated by spaces (at least 4 occurrences = likely OCR artifact)
+  const fixSpacedText = (s) => {
+    if (!s || s.length < 5) return s;
+    // Detect pattern: letter space letter space letter... (most chars are single with spaces)
+    const stripped = s.replace(/\s+/g, '');
+    const spaceCount = (s.match(/\s/g) || []).length;
+    // If more than 40% of the string is spaces and stripped version is mostly alpha, it's OCR-spaced
+    if (spaceCount > stripped.length * 0.4 && /^[a-zA-Z]+$/.test(stripped)) {
+      return stripped.charAt(0).toUpperCase() + stripped.slice(1).toLowerCase();
+    }
+    return s;
+  };
+  // Apply to country and port fields which commonly have OCR issues
+  if (doc.destinationCountry) doc.destinationCountry = fixSpacedText(doc.destinationCountry);
+  if (doc.originCountry) doc.originCountry = fixSpacedText(doc.originCountry);
+  if (doc.portOfLoading) doc.portOfLoading = fixSpacedText(doc.portOfLoading);
+  if (doc.portOfDischarge) doc.portOfDischarge = fixSpacedText(doc.portOfDischarge);
+
   // Clean invoice number — remove spaces between digits, leading non-digit chars
   if (doc.invoiceNumber) {
     let inv = String(doc.invoiceNumber).trim();

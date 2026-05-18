@@ -148,7 +148,7 @@ exports.handler = async (event) => {
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 55000);
+    const timeout = setTimeout(() => controller.abort(), 85000);
 
     let response, data;
     try {
