@@ -105,6 +105,29 @@ exports.handler = async (event) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields: status, doc_count' }) };
       }
 
+      // Truncate result_json if too large (Supabase has row size limits)
+      let safeResultJson = result_json || null;
+      if (safeResultJson) {
+        const jsonStr = JSON.stringify(safeResultJson);
+        console.log('History save: result_json size =', jsonStr.length, 'bytes');
+        if (jsonStr.length > 500000) {
+          // Strip large fields to fit within limits
+          try {
+            const trimmed = JSON.parse(jsonStr);
+            if (trimmed.analysisResults) {
+              trimmed.analysisResults = trimmed.analysisResults.map(r => {
+                const c = { ...r };
+                delete c.productDescription;
+                delete c.extraFields;
+                delete c.consigneeAddress;
+                return c;
+              });
+            }
+            safeResultJson = trimmed;
+          } catch (e) { /* keep original */ }
+        }
+      }
+
       const record = {
         clerk_id,
         status,
@@ -114,9 +137,10 @@ exports.handler = async (event) => {
         error_count: error_count ?? 0,
         warning_count: warning_count ?? 0,
         summary_text: summary_text || null,
-        result_json: result_json || null,
+        result_json: safeResultJson,
       };
 
+      console.log('History save: clerk_id =', clerk_id, 'status =', status, 'doc_count =', doc_count);
       const rows = await supabase('validation_history', 'POST', record);
       const created = Array.isArray(rows) ? rows[0] : rows;
 
