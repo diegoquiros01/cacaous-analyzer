@@ -152,8 +152,10 @@ exports.handler = async (event) => {
       }
 
       // Admin bypass: unlimited validations for the owner
-      const isAdmin = ADMIN_EMAIL && jwtResult?.email
-        && jwtResult.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      // Check JWT email first, then DB email, then body email
+      const userEmail = jwtResult?.email || user.email || email || '';
+      const isAdmin = ADMIN_EMAIL && userEmail
+        && userEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
       const limit     = isAdmin ? 99999 : (PLAN_LIMITS[user.plan] || 20);
       const remaining = isAdmin ? 99999 : Math.max(0, limit - (user.validations_used || 0));
@@ -194,11 +196,12 @@ exports.handler = async (event) => {
         user = { ...user, validations_used: 0, last_reset: now };
       }
 
-      const isAdmin = ADMIN_EMAIL && jwtResult?.email
-        && jwtResult.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-      const limit = isAdmin ? 99999 : (PLAN_LIMITS[user.plan] || 20);
+      const incEmail = jwtResult?.email || user.email || email || '';
+      const isAdmin2 = ADMIN_EMAIL && incEmail
+        && incEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      const limit = isAdmin2 ? 99999 : (PLAN_LIMITS[user.plan] || 20);
 
-      if (!isAdmin && user.validations_used >= limit) {
+      if (!isAdmin2 && user.validations_used >= limit) {
         return {
           statusCode: 200,
           headers,
