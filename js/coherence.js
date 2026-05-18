@@ -51,7 +51,7 @@ IGNORE these — they are NOT errors:
 - Transport mode vs vessel name: "Marítimo" = "VIA MARITIMA" = "maritime" — these are transport modes, NOT vessel names. Do NOT flag as vessel mismatch.
 - Port area: "New York" = "Jersey City" = "Newark" (same metro area). But Guayaquil ≠ Posorja — these are different ports
 - Country synonyms: "USA" = "United States" = "Estados Unidos" = "EEUU"
-- Destination with city prefix: "NEW YORK-UNITED STATES" = "United States" = "USA" — extract the COUNTRY, ignore the city
+- Destination format variations: "USA" = "United States" = "Estados Unidos" = "EEUU" (same country, different names). But "NEW YORK-UNITED STATES" ≠ "UNITED STATES" — the city specification is meaningful
 - Missing/null fields in some documents
 - Port of discharge vs final destination (Thessaloniki port vs Sofia destination = normal transit)
 - FUMIGATION CERTIFICATES ARE PER-LOT: A shipment with 2 lots has 2 fumigation certificates, each covering HALF the shipment. Their bagCount, netWeight, and grossWeight will be approximately HALF of the BL total. This is NORMAL — do NOT flag fumigation cert weights/bags as inconsistent with the BL total. Only flag if the SUM of all fumigation certs differs significantly from the total.
@@ -128,10 +128,6 @@ Return ONLY valid JSON:
     };
     const normD = s => {
       let n = s.toLowerCase().trim();
-      // Extract country from "CITY-COUNTRY" or "CITY, COUNTRY" patterns
-      // e.g. "NEW YORK-UNITED STATES" → "united states", "JERSEY CITY-UNITED STATES" → "united states"
-      const cityCountry = n.match(/^.+[-–—]\s*(.+)$/) || n.match(/^.+,\s*(.+)$/);
-      if (cityCountry) n = cityCountry[1].trim();
       // Remove non-alpha
       n = n.replace(/[^a-z]/g,'');
       // Resolve aliases
@@ -650,16 +646,7 @@ function normalizeValue(v){
   s = s.replace(/\bjt\b/g, 'bags jute');
 
   // ── COUNTRY NAMES ─────────────────────────────────────────────
-  // Extract country from "CITY-COUNTRY" or "CITY, COUNTRY" patterns
-  // e.g. "NEW YORK-UNITED STATES" → "united states" → "usa"
-  const cityCountryMatch = s.match(/^.+[-–—]\s*(.+)$/);
-  if (cityCountryMatch) {
-    const possibleCountry = cityCountryMatch[1].trim();
-    // Only extract if the suffix looks like a country name
-    if (/united states|usa|estados unidos|ecuador|colombia|venezuela|peru|mexico|panama|guatemala|china|netherlands|germany|france|spain|italy/i.test(possibleCountry)) {
-      s = possibleCountry;
-    }
-  }
+  // Do NOT strip city from "CITY-COUNTRY" — the specific destination matters
   s = s.replace(/\bunited\s*states\s*of\s*america\b/g, 'usa')
        .replace(/\bunited\s*states\b/g, 'usa').replace(/\bu\.s\.a\.?\b/g, 'usa')
        .replace(/\bestados\s*unidos\b/g, 'usa');
