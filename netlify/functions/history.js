@@ -59,9 +59,9 @@ exports.handler = async (event) => {
       return { statusCode: 401, headers, body: JSON.stringify({ error: 'Authentication required' }) };
     }
 
-    // Write operations (save, delete) require JWT
-    if (!jwtResult?.valid && action && !['list', 'get'].includes(action)) {
-      return { statusCode: 401, headers, body: JSON.stringify({ error: 'Authentication required for this action' }) };
+    // Delete requires JWT; save/list/get allow body fallback
+    if (!jwtResult?.valid && action === 'delete' && !clerk_id) {
+      return { statusCode: 401, headers, body: JSON.stringify({ error: 'Authentication required for delete' }) };
     }
     // Validate clerk_id format to prevent injection
     if (!/^[a-zA-Z0-9_-]{10,60}$/.test(clerk_id)) {

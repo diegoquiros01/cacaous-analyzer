@@ -45,13 +45,16 @@ Analyze the extracted fields from this document set and find ALL inconsistencies
 IGNORE these — they are NOT errors:
 - Case differences: "Indonesia" = "INDONESIA"
 - Number formatting: "150,480.00" = "150480"
-- Unit synonyms: kg = KGS = kilogramos
+- Unit synonyms: kg = KGS = kilogramos = KGM
+- Bag unit synonyms: "bags" = "YUTE BAGS" = "JT" = "sacos" = "Saco de yute" = "jute bags" — if the NUMBER is the same, it is NOT an error regardless of unit text
 - Company name + address vs name alone
-- Transport mode vs vessel name: "Marítimo" ≠ mismatch with "MAERSK GLACIER"
-- Port area: "New York" = "Jersey City" = "Newark"
-- Country synonyms: "USA" = "United States"
+- Transport mode vs vessel name: "Marítimo" = "VIA MARITIMA" = "maritime" — these are transport modes, NOT vessel names. Do NOT flag as vessel mismatch.
+- Port area: "New York" = "Jersey City" = "Newark"; "Guayaquil" = "Posorja" = "Puerto Bolivar" (same port complex)
+- Country synonyms: "USA" = "United States" = "Estados Unidos" = "EEUU"
+- Destination with city prefix: "NEW YORK-UNITED STATES" = "United States" = "USA" — extract the COUNTRY, ignore the city
 - Missing/null fields in some documents
 - Port of discharge vs final destination (Thessaloniki port vs Sofia destination = normal transit)
+- FUMIGATION CERTIFICATES ARE PER-LOT: A shipment with 2 lots has 2 fumigation certificates, each covering HALF the shipment. Their bagCount, netWeight, and grossWeight will be approximately HALF of the BL total. This is NORMAL — do NOT flag fumigation cert weights/bags as inconsistent with the BL total. Only flag if the SUM of all fumigation certs differs significantly from the total.
 
 FLAG these as CRITICAL errors (type: "error"):
 - destinationCountry: if ANY document has a different country than the majority — this is CRITICAL
