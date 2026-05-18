@@ -559,7 +559,7 @@ Return ONLY valid JSON:
 
 
   try {
-    const raw = await callClaude(system, msg, 4000);
+    const raw = await callClaudeHaiku(system, msg, 4000);
     const cleaned = raw.trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
     // Try to parse, if truncated try to salvage
     let parsed;
