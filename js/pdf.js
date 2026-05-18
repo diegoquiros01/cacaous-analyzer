@@ -70,7 +70,12 @@ async function downloadPdfReport() {
           matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;font-size:6.5px;background:#f7f8fa;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+_e(bv.substring(0,28))+'</td>';
           otherDocs.forEach(function(d){
             var dv=gv(d,f.k,f.a);
-            if(!dv){matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;color:#d0d6e2;">&mdash;</td>';return;}
+            // Fumigation certs are per-lot: skip bag/weight comparison
+            var dt=(d.docType||'').toLowerCase();
+            var fn=(d._filename||'').toLowerCase();
+            var isPerLot=dt.includes('fumig')||dt.includes('gas clearance')||fn.includes('fumig');
+            var isPerLotField=['bagCount','netWeight','grossWeight'].indexOf(f.k)>=0;
+            if(!dv||( isPerLot&&isPerLotField)){matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;color:#d0d6e2;">&mdash;</td>';return;}
             var ok=isTrivialDifference(bv,dv);
             matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;font-weight:700;font-size:7px;color:'+(ok?'#1a6b3a':'#7a2e22')+';background:'+(ok?'rgba(26,107,58,0.06)':'rgba(176,64,48,0.08)')+';">'+(ok?'OK':'DIFF')+'</td>';
           });
@@ -98,7 +103,7 @@ async function downloadPdfReport() {
         if(f.values&&f.values.length>0){
           issuesHtml+='<div style="font-size:7px;font-weight:700;color:#7a8499;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">'+(lang==='es'?'Valor por documento':'Value per document')+'</div>';
           f.values.forEach(function(v){
-            var isOut = f.majVal && (v.value||'').trim()!==f.majVal;
+            var isOut = f.majVal && !isTrivialDifference(f.majVal, (v.value||'').trim());
             issuesHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 8px;margin-bottom:2px;border-radius:4px;font-size:7.5px;'+(isOut?'background:rgba(176,64,48,0.06);color:#7a2e22;font-weight:700;':'background:#f7f8fa;color:#3a4255;')+'">';
             issuesHtml+='<span style="color:#7a8499;min-width:120px;">'+cleanDoc(v.doc)+'</span>';
             issuesHtml+='<span>'+_e(v.value||'—')+'</span>';
