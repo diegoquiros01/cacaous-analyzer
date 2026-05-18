@@ -46,10 +46,10 @@ IGNORE these — they are NOT errors:
 - Case differences: "Indonesia" = "INDONESIA"
 - Number formatting: "150,480.00" = "150480"
 - Unit synonyms: kg = KGS = kilogramos = KGM
-- Bag unit synonyms: "bags" = "YUTE BAGS" = "JT" = "sacos" = "Saco de yute" = "jute bags" — if the NUMBER is the same, it is NOT an error regardless of unit text
+- Bag unit LANGUAGE synonyms: "bags" = "sacos" = "sacks" (same word in different languages). But "YUTE BAGS" ≠ "bags" — material specification matters
 - Company name + address vs name alone
 - Transport mode vs vessel name: "Marítimo" = "VIA MARITIMA" = "maritime" — these are transport modes, NOT vessel names. Do NOT flag as vessel mismatch.
-- Port area: "New York" = "Jersey City" = "Newark"; "Guayaquil" = "Posorja" = "Puerto Bolivar" (same port complex)
+- Port area: "New York" = "Jersey City" = "Newark" (same metro area). But Guayaquil ≠ Posorja — these are different ports
 - Country synonyms: "USA" = "United States" = "Estados Unidos" = "EEUU"
 - Destination with city prefix: "NEW YORK-UNITED STATES" = "United States" = "USA" — extract the COUNTRY, ignore the city
 - Missing/null fields in some documents
@@ -676,10 +676,7 @@ function normalizeValue(v){
   s = s.replace(/\bjersey\s*city\b/g, 'new york');
   s = s.replace(/\bnewark\b/g, 'new york');
   s = s.replace(/\bnueva\s*york\b/g, 'new york');
-  s = s.replace(/\bguayas\b/g, 'posorja');
-  s = s.replace(/\bguayaquil\b/g, 'posorja');
-  s = s.replace(/\bpto\s*bol[ií]var\b/g, 'posorja');
-  s = s.replace(/\bpuerto\s*bol[ií]var\b/g, 'posorja');
+  // Ecuadorian ports — keep as distinct (Guayaquil ≠ Posorja ≠ Puerto Bolívar)
   // Final cleanup: strip everything after comma, trim leading/trailing punctuation
   s = s.replace(/,.*$/, '').replace(/^[\s,\-]+/, '').trim();
 
