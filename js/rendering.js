@@ -487,7 +487,7 @@ function renderResults(){
 
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
-                const isOutlier = (d.value||'').trim() !== majVal;
+                const isOutlier = !isTrivialDifference(majVal, (d.value||'').trim());
                 const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
                 const border = isOutlier ? '#c0392b' : '#6aaa6a';
                 const icon = isOutlier ? '✗' : '✓';
@@ -582,7 +582,7 @@ function renderResults(){
       majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
     }
     const valHtml = vals.map(v => {
-      const isOut = (v.value||'').trim() !== majVal;
+      const isOut = !isTrivialDifference(majVal, (v.value||'').trim());
       let disp = v.value||'—';
       if(isOut && majVal && disp.length===majVal.length && disp.length<=20){
         let hl='';
