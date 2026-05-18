@@ -334,7 +334,7 @@ function renderFiles(){
     list.innerHTML+=`<div class="${itemCls}">
       <div class="file-icon">${getIcon(f.name, isPdfPage)}</div>
       <div class="file-info">
-        <div class="file-name">${escHtml(displayName)}${f._pdfPage ? ` · <em style="opacity:0.5;font-size:0.85em;">page ${f._pdfPage}</em>` : ''}</div>
+        <div class="file-name">${escHtml(displayName)}${f._pdfPage ? ` · <em style="opacity:0.5;font-size:0.85em;">${lang==='es' ? 'pág' : 'page'} ${f._pdfPage}</em>` : ''}</div>
         <div class="file-size">${displayExt} · ${size}</div>
       </div>
       ${getBadge(f.name)}${pageLabel}${detectedHtml}

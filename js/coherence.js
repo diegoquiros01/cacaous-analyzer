@@ -31,10 +31,17 @@ async function analyzeCoherence(docs){
   const slim = {};
   Object.entries(docs).forEach(([fn, arr]) => {
     (Array.isArray(arr) ? arr : [arr]).forEach((d, i) => {
-      const key = (Array.isArray(arr) && arr.length > 1) ? fn + '_doc' + i : fn;
+      // Shorten filename keys to reduce payload size
+      const shortFn = fn.replace(/\.[^.]+$/, '').substring(0, 40);
+      const key = (Array.isArray(arr) && arr.length > 1) ? shortFn + '_doc' + i : shortFn;
       const s = {};
-      relevantFields.forEach(f => { if(d[f] != null && d[f] !== '' && d[f] !== 'null') s[f] = d[f]; });
-      if(Object.keys(s).length > 1) slim[key] = s; // skip empty docs
+      relevantFields.forEach(f => {
+        if(d[f] != null && d[f] !== '' && d[f] !== 'null') {
+          // Truncate long string values to reduce payload
+          s[f] = Array.isArray(d[f]) ? d[f].slice(0, 20) : typeof d[f] === 'string' ? d[f].substring(0, 100) : d[f];
+        }
+      });
+      if(Object.keys(s).length > 1) slim[key] = s;
     });
   });
 
@@ -360,7 +367,7 @@ Return ONLY valid JSON:
                 : '"' + docName.replace(/\.[^.]+$/,'') + '" has no containers listed — verify manually against BL (' + blLabel + ').',
               details: [
                 { doc: blDoc, value: blContainers.join(', ') },
-                { doc: docName, value: '(none extracted)' },
+                { doc: docName, value: isES ? '(no se extrajeron)' : '(none extracted)' },
               ]
             });
           }
@@ -588,7 +595,7 @@ Return ONLY valid JSON:
     if(jsPreErrors.length > 0) {
       return { overallStatus:'rejected', summary:'', setValues:{}, coherenceIssues:jsPreErrors, perDocumentStatus:{} };
     }
-    return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[{type:'warning',field:'system',message:'Analysis timeout — results may be incomplete. Try with fewer documents.',details:[]}], perDocumentStatus:{} };
+    return { overallStatus:'warning', summary:'', setValues:{}, coherenceIssues:[{type:'warning',field:'system',message:isES ? 'Tiempo de espera agotado — los resultados pueden estar incompletos. Intenta con menos documentos.' : 'Analysis timeout — results may be incomplete. Try with fewer documents.',details:[]}], perDocumentStatus:{} };
   }
 }
 

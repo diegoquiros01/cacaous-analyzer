@@ -34,10 +34,17 @@ async function _saveHistoryInner() {
   try {
     const blNum = analysisResults.find(r => r.blNumber)?.blNumber || '';
     const vessel = analysisResults.find(r => r.vesselName)?.vesselName || '';
-    // Build compact result for storage (strip base64 data, keep extracted fields)
+    // Build compact result for storage (strip base64, large text, keep essential fields)
     const compactResults = analysisResults.map(r => {
       const c = {...r};
-      delete c._file; delete c._blob;
+      delete c._file; delete c._blob; delete c._textContent;
+      // Truncate extraFields and long strings to reduce payload size
+      if (c.extraFields) {
+        const ef = {};
+        Object.entries(c.extraFields).forEach(([k,v]) => { ef[k] = String(v).substring(0, 100); });
+        c.extraFields = ef;
+      }
+      if (c.productDescription && c.productDescription.length > 100) c.productDescription = c.productDescription.substring(0, 100);
       return c;
     });
     const resp = await fetch('/.netlify/functions/history', {

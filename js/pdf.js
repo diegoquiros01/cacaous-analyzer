@@ -163,14 +163,14 @@ async function downloadPdfReport() {
     // TRANSPORT INFO
     +'<table style="width:100%;margin-bottom:10px;border:1px solid #e8edf5;border-collapse:collapse;"><tr>'
     +'<td style="padding:10px 14px;width:50%;vertical-align:top;border-right:1px solid #e8edf5;">'
-    +'<div style="font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;margin-bottom:4px;">TRANSPORT</div>'
+    +'<div style="font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;margin-bottom:4px;">'+(lang==='es' ? 'TRANSPORTE' : 'TRANSPORT')+'</div>'
     +(blNum?'<div style="font-size:14px;font-weight:700;color:#0d1b2a;margin-bottom:2px;">B/L '+blNum+'</div>':'')
     +(vessel?'<div style="font-size:9px;color:#3a4255;"><b>'+vessel+'</b>'+(voyage?' · Voy. '+voyage:'')+'</div>':'')
     +(routeLine?'<div style="font-size:8px;color:#7a8499;margin-top:2px;">'+routeLine+'</div>':'')
-    +(lotsLine?'<div style="font-size:8px;color:#7a8499;">'+lotsLine+(containers.length?' · '+containers.length+' containers':'')+'</div>':'')
+    +(lotsLine?'<div style="font-size:8px;color:#7a8499;">'+lotsLine+(containers.length?' · '+containers.length+' '+(lang==='es' ? 'contenedores' : 'containers'):'')+'</div>':'')
     +'</td>'
     +'<td style="padding:10px 14px;vertical-align:top;">'
-    +'<div style="font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;margin-bottom:4px;">COMMERCIAL</div>'
+    +'<div style="font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7a8499;margin-bottom:4px;">'+(lang==='es' ? 'COMERCIAL' : 'COMMERCIAL')+'</div>'
     +(totalAmt?'<div style="font-size:12px;font-weight:700;color:#0d1b2a;">'+totalAmt+'</div>':'<div style="color:#d0d6e2;">—</div>')
     +(priceUnit?'<div style="font-size:8px;color:#7a8499;">'+priceUnit+'</div>':'')
     +'</td></tr></table>'
@@ -178,7 +178,7 @@ async function downloadPdfReport() {
     // VERDICT
     +'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border:1px solid #e8edf5;border-left:4px solid '+sc.bg+';margin-bottom:8px;border-radius:0 6px 6px 0;">'
     +'<div style="display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:'+sc.bg+';"></span><span style="font-size:10px;font-weight:700;color:'+sc.bg+';">'+sc.lbl+'</span></div>'
-    +'<div style="font-size:8px;color:#7a8499;"><span style="color:#7a2e22;font-weight:700;">'+finalErr+'</span> critical · <span>'+analysisResults.length+'</span> docs · <span style="color:#1a6b3a;">'+okDocs+'</span> clean</div>'
+    +'<div style="font-size:8px;color:#7a8499;"><span style="color:#7a2e22;font-weight:700;">'+finalErr+'</span> '+(lang==='es'?'críticos':'critical')+' · <span>'+analysisResults.length+'</span> docs · <span style="color:#1a6b3a;">'+okDocs+'</span> '+(lang==='es'?'sin problemas':'clean')+'</div>'
     +'</div>'
 
     // AI SUMMARY
@@ -206,7 +206,7 @@ async function downloadPdfReport() {
     +'<table style="width:100%;border-collapse:collapse;border:1px solid #e8edf5;"><thead><tr style="background:#f7f8fa;">'
     +'<th style="padding:4px 8px;text-align:left;font-size:6.5px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">'+(lang==='es'?'Tipo':'Type')+'</th>'
     +'<th style="padding:4px 8px;text-align:left;font-size:6.5px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">'+(lang==='es'?'Archivo':'File')+'</th>'
-    +'<th style="padding:4px 8px;text-align:center;font-size:6.5px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">Status</th>'
+    +'<th style="padding:4px 8px;text-align:center;font-size:6.5px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">'+(lang==='es'?'Estado':'Status')+'</th>'
     +'<th style="padding:4px 8px;text-align:left;font-size:6.5px;letter-spacing:0.08em;text-transform:uppercase;color:#7a8499;">'+(lang==='es'?'Notas':'Notes')+'</th>'
     +'</tr></thead><tbody>'+docRows+'</tbody></table>'
 
@@ -233,7 +233,7 @@ async function downloadPdfReport() {
     document.body.removeChild(container);
   } catch(e) {
     console.error('PDF generation error:',e);
-    alert('PDF error: '+e.message);
+    alert((lang==='es' ? 'Error en PDF: ' : 'PDF error: ') + e.message);
   }
 }
 

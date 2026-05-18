@@ -6,7 +6,10 @@
   external_node_modules = ["@netlify/blobs"]
 
 [functions."claude"]
-  timeout = 90
+  timeout = 120
+
+[functions."history"]
+  timeout = 30
 
 # ── Images: cache 1 year (they don't change, versioned by filename if needed)
 [[headers]]

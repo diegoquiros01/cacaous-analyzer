@@ -36,7 +36,7 @@ function renderResults(){
         pd[r._filename] = {
           status: r._err ? 'warning' : 'approved',
           docType: translateDocType(r.docType) || r._filename,
-          issues: r._err ? ['Could not fully extract data'] : [],
+          issues: r._err ? [lang==='es' ? 'No se pudieron extraer todos los datos' : 'Could not fully extract data'] : [],
           comment: ''
         };
       });
@@ -309,7 +309,7 @@ function renderResults(){
     const rhLots = document.getElementById('rhLots');
 
     if (rhBL) rhBL.textContent = blNum || '—';
-    if (rhVessel) rhVessel.innerHTML = (vessel ? '<strong>' + vessel + '</strong>' : '') + (voyage ? ' · Voy. ' + voyage : '');
+    if (rhVessel) rhVessel.innerHTML = (vessel ? '<strong>' + vessel + '</strong>' : '') + (voyage ? (lang==='es' ? ' · Viaje ' : ' · Voy. ') + voyage : '');
     if (rhRoute) rhRoute.innerHTML = portLoad && portDisch ? portLoad + ' → ' + portDisch : (portLoad || portDisch || '');
     if (rhLots) {
       const parts = [];
