@@ -941,18 +941,23 @@ function filterTrivialInconsistencies(coherenceResult){
     }
   }
   f.coherenceIssues = filtered_issues;
-  // Fix setValues statuses
+  // Fix setValues statuses — both directions:
+  // 1. AI says "inconsistent" but values are trivially same → fix to "consistent"
+  // 2. AI says "consistent" but values are genuinely different → fix to "inconsistent"
   if(f.setValues){
     for(const key of Object.keys(f.setValues)){
       const d = f.setValues[key];
-      if(d && d.status==='inconsistent' && (d.values||[]).length > 1){
-        const vals = d.values.map(v=>v.value).filter(Boolean);
-        let trivial = true;
-        outer: for(let i=0; i<vals.length; i++)
-          for(let j=i+1; j<vals.length; j++)
-            if(!isTrivialDifference(vals[i],vals[j])){ trivial=false; break outer; }
-        if(trivial) d.status = 'consistent';
-      }
+      if(!d || !d.values || d.values.length < 2) continue;
+      const vals = d.values.map(v=>v.value).filter(Boolean);
+      if(vals.length < 2) continue;
+
+      let allTrivial = true;
+      outer: for(let i=0; i<vals.length; i++)
+        for(let j=i+1; j<vals.length; j++)
+          if(!isTrivialDifference(vals[i],vals[j])){ allTrivial=false; break outer; }
+
+      if(d.status==='inconsistent' && allTrivial) d.status = 'consistent';
+      if(d.status==='consistent' && !allTrivial) d.status = 'inconsistent';
     }
   }
   const errs = f.coherenceIssues.filter(i=>i.type==='error').length;
