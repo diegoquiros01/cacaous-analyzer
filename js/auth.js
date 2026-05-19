@@ -195,8 +195,7 @@ function openClerkSignIn(){
 async function signOut(){
   await window.Clerk?.signOut();
   window.__clerk_user = null;
-  const badge = document.getElementById('userBadge');
-  if(badge) badge.innerHTML = '<li><a href="#" onclick="openClerkSignIn();return false;">' + (lang==='es' ? 'Iniciar sesión' : 'Sign in') + '</a></li>';
+  window.location.href = '/';
 }
 
 // ── KEYBOARD: Escape closes modals ───────────────
