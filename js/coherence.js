@@ -815,13 +815,8 @@ function isTrivialDifference(a, b){
       const longer = la.length > lb.length ? la : lb;
       if(longer.startsWith(shorter)) return true;
     }
-    // High similarity: same prefix structure, differs only in last 3 digits (OCR error)
-    // e.g. "001002000000080" vs "001002000000802" — share first 12 digits
-    if(la.length > 10 && lb.length > 10) {
-      const minLen = Math.min(la.length, lb.length);
-      const prefixLen = Math.floor(minLen * 0.8);
-      if(la.substring(0, prefixLen) === lb.substring(0, prefixLen)) return true;
-    }
+    // Note: removed "80% prefix match" OCR heuristic — too permissive for Ecuadorian invoices
+    // where the first 12 digits are all zeros and only the last 3 matter (835 vs 883)
     return false;
   }
 
@@ -859,9 +854,11 @@ function isTrivialDifference(a, b){
 
   // 6. Numeric comparison — only for values that are purely numeric/weight
   // Skip if values have bag material qualifiers (726 bags jute ≠ 726 bags plastic)
+  // Skip if values have dashes (invoice numbers, reference codes like 001-002-000000835)
   const hasBagMaterial = s => /\bbags\s+\w+\b/.test(s) || /\bbag\s+\w+\b/.test(s);
+  const hasDash = sa.includes('-') || sb.includes('-');
   const skipNumeric = hasBagMaterial(na) || hasBagMaterial(nb);
-  if(!skipNumeric){
+  if(!skipNumeric && !hasDash){
     const n1 = extractNum(sa), n2 = extractNum(sb);
     if(!isNaN(n1) && !isNaN(n2) && n1 > 0 && Math.abs(n1-n2) < 0.01) return true;
     // Numeric after normalization (handles 199824.00 KGS vs 199824 kg)
@@ -870,19 +867,17 @@ function isTrivialDifference(a, b){
   }
 
   // 8. European vs American format (50.094 vs 50,094 vs 50094)
-  // Skip if values have bag material qualifiers (same guard as step 6)
-  if(!skipNumeric){
+  // Skip if values have bag material qualifiers or dashes (same guard as step 6)
+  if(!skipNumeric && !hasDash){
     const en1 = normalizeExtractedNumber(sa), en2 = normalizeExtractedNumber(sb);
     if(en1 && en2 && !isNaN(en1) && !isNaN(en2) && en1 > 0 && Math.abs(en1-en2) < 0.01) return true;
   }
 
-  // 8. Both look like dates
-  const isDate = s => /\d{1,2}[\/\-\.]\d{1,2}|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ene|abr|ago)/i.test(s);
+  // 8. Both look like dates (must be SHORT strings that look like dates, not invoice numbers)
+  const isDate = s => s.length < 20 && (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}$/.test(s.trim()) || /^\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}$/.test(s.trim()) || /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|ene|abr|ago)/i.test(s));
   if(isDate(sa) && isDate(sb)) return true;
 
   // 9. Weight tolerance — values within 0.5% are trivial (scale rounding, moisture loss)
-  // Skip values with dashes (invoice numbers, reference codes) — they look numeric but aren't weights
-  const hasDash = sa.includes('-') || sb.includes('-');
   if(!skipNumeric && !hasDash){
     const w1 = normalizeExtractedNumber(sa), w2 = normalizeExtractedNumber(sb);
     if(w1 && w2 && !isNaN(w1) && !isNaN(w2) && w1 > 100 && w2 > 100) {
