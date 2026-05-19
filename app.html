@@ -1745,12 +1745,8 @@ mark.diff-mark {
         <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.docx,.doc">
       </div>
 
-      <!-- Doc Types Summary (inline) -->
-      <div id="upDtSummary" style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-        <span id="upDtInlineCount" style="font-size:0.82rem;color:var(--text-light);">13 document types selected</span>
-        <span style="color:var(--border);font-size:0.82rem;">·</span>
-        <button onclick="document.getElementById('docTypesGrid').style.display=document.getElementById('docTypesGrid').style.display==='flex'?'none':'flex';this.textContent=this.textContent===(lang==='es'?'Listo':'Done')?(lang==='es'?'Editar':'Edit'):(lang==='es'?'Listo':'Done')" style="font-family:'Raleway',sans-serif;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--steel);background:none;border:0.5px solid var(--border);border-radius:5px;padding:3px 9px;cursor:pointer;">Edit</button>
-      </div>
+      <!-- Doc Types Summary (hidden — not useful to users) -->
+      <div id="upDtSummary" style="display:none;"></div>
 
       <!-- Hidden: full doc type grid for editing -->
       <div id="docTypesGrid" class="up-dt-edit" style="display:none;">
