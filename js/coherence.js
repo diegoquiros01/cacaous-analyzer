@@ -881,7 +881,9 @@ function isTrivialDifference(a, b){
   if(isDate(sa) && isDate(sb)) return true;
 
   // 9. Weight tolerance — values within 0.5% are trivial (scale rounding, moisture loss)
-  if(!skipNumeric){
+  // Skip values with dashes (invoice numbers, reference codes) — they look numeric but aren't weights
+  const hasDash = sa.includes('-') || sb.includes('-');
+  if(!skipNumeric && !hasDash){
     const w1 = normalizeExtractedNumber(sa), w2 = normalizeExtractedNumber(sb);
     if(w1 && w2 && !isNaN(w1) && !isNaN(w2) && w1 > 100 && w2 > 100) {
       const diff = Math.abs(w1 - w2);
