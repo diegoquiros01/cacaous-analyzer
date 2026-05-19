@@ -1212,13 +1212,17 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       video.src = 'hero-video.webm';
       video.load();
 
-      video.addEventListener('canplaythrough', function onReady(){
-        video.removeEventListener('canplaythrough', onReady);
-        // Fade in video — gradient overlay stays on top, image stays as fallback
+      function startVideo(){
         video.play().then(function(){
-          video.style.opacity = '0.4'; // Subtle — video shows through but gradient keeps it dark
-        }).catch(function(){ /* autoplay blocked — keep image */ });
+          video.style.opacity = '0.4';
+        }).catch(function(e){ console.log('Hero video autoplay blocked:', e.message); });
+      }
+      video.addEventListener('canplay', function onReady(){
+        video.removeEventListener('canplay', onReady);
+        startVideo();
       });
+      // Fallback if canplay already fired before listener
+      if (video.readyState >= 3) startVideo();
 
       // When video ends: fade out, pause, restart with fade in
       video.addEventListener('ended', function(){
