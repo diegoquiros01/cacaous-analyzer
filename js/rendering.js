@@ -495,11 +495,29 @@ function renderResults(){
 
           detailsHtml = '<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">'
             + details.map(d => {
-                const isOutlier = !isTrivialDifference(majVal, (d.value||'').trim());
-                const bg = isOutlier ? '#fff8f7' : '#f8fdf8';
-                const border = isOutlier ? '#c0392b' : '#6aaa6a';
-                const icon = isOutlier ? '✗' : '✓';
-                const iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
+                const val = (d.value||'').trim();
+                const docFn = (d.doc||'').toLowerCase();
+                const isNoneExtracted = val.includes('(none') || val.includes('(no se');
+                const isBLDoc = docFn.includes('bl ') || docFn.includes('bill') || docFn.includes('lading');
+                // Per-lot check for aggregate fields
+                const isPerLotDoc = (docFn.includes('fumig') || docFn.includes('gas clearance'));
+                const isAggField = ['bagCount','netWeight','grossWeight','bags'].some(k => iss.field && iss.field.toLowerCase().includes(k.toLowerCase()));
+                const isPerLotValue = isPerLotDoc && isAggField;
+
+                let bg, border, icon, iconColor;
+                if (isNoneExtracted) {
+                  bg = '#f7f8fa'; border = '#d0d6e2'; icon = '—'; iconColor = '#7a8499';
+                } else if (isBLDoc) {
+                  bg = '#f0f7f4'; border = '#1a6b3a'; icon = '★'; iconColor = '#1a6b3a';
+                } else if (isPerLotValue) {
+                  bg = 'rgba(74,111,165,0.06)'; border = '#4a6fa5'; icon = 'Σ'; iconColor = '#4a6fa5';
+                } else {
+                  const isOutlier = !isTrivialDifference(majVal, val);
+                  bg = isOutlier ? '#fff8f7' : '#f8fdf8';
+                  border = isOutlier ? '#c0392b' : '#6aaa6a';
+                  icon = isOutlier ? '✗' : '✓';
+                  iconColor = isOutlier ? '#c0392b' : '#6aaa6a';
+                }
                 return '<div style="background:'+bg+';border-left:3px solid '+border+';padding:6px 10px;border-radius:0 4px 4px 0;">'
                   +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
                   +'<span style="color:'+iconColor+';font-weight:700;">'+icon+'</span>'
@@ -590,19 +608,36 @@ function renderResults(){
       majVal = Object.entries(valCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||'';
     }
     const valHtml = vals.map(v => {
-      const isOut = !isTrivialDifference(majVal, (v.value||'').trim());
-      let disp = v.value||'—';
-      if(isOut && majVal && disp.length===majVal.length && disp.length<=20){
-        let hl='';
-        for(let i=0;i<disp.length;i++){
-          hl += disp[i]!==majVal[i] ? `<span class="char-diff">${disp[i]}</span>` : disp[i];
+      const val = (v.value||'').trim();
+      const vDocFn = (v.doc||'').toLowerCase();
+      const vIsNone = val.includes('(none') || val.includes('(no se');
+      const vIsBL = vDocFn.includes('bl ') || vDocFn.includes('bill') || vDocFn.includes('lading');
+      const vIsPerLot = (vDocFn.includes('fumig') || vDocFn.includes('gas clearance'));
+      const vIsAggField = ['bagCount','netWeight','grossWeight','bags'].some(fk => k && k.toLowerCase().includes(fk.toLowerCase()));
+
+      let cls, icon, disp = v.value||'—';
+      if (vIsNone) {
+        cls = 'rdr-neutral'; icon = '—';
+      } else if (vIsBL) {
+        cls = 'rdr-ok'; icon = '★';
+      } else if (vIsPerLot && vIsAggField) {
+        cls = 'rdr-info'; icon = 'Σ';
+      } else {
+        const isOut = !isTrivialDifference(majVal, val);
+        if(isOut && majVal && disp.length===majVal.length && disp.length<=20){
+          let hl='';
+          for(let i=0;i<disp.length;i++){
+            hl += disp[i]!==majVal[i] ? `<span class="char-diff">${disp[i]}</span>` : disp[i];
+          }
+          disp = hl;
         }
-        disp = hl;
+        cls = isOut ? 'rdr-err' : 'rdr-ok';
+        icon = isOut ? '✗' : '✓';
       }
-      return `<div class="r-diff-row ${isOut?'rdr-err':'rdr-ok'}" style="margin-bottom:3px;">
+      return `<div class="r-diff-row ${cls}" style="margin-bottom:3px;">
         <span class="r-diff-doc">${cleanDoc(v.doc||'')}</span>
         <span class="r-diff-val">${disp}</span>
-        <span class="r-diff-icon">${isOut?'✗':'✓'}</span>
+        <span class="r-diff-icon">${icon}</span>
       </div>`;
     }).join('');
     tbody.innerHTML += `<tr class="rt-err">
