@@ -226,16 +226,20 @@ async function downloadPdfReport() {
     document.body.appendChild(container);
 
     var filename = 'docsvalidate-report-'+(blNum||Date.now())+'.pdf';
-    await html2pdf().set({
+    var pdfBlob = await html2pdf().set({
       margin:[8,8,8,8],
       filename:filename,
       image:{type:'jpeg',quality:0.95},
       html2canvas:{scale:2,useCORS:true,logging:false},
       jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
       pagebreak:{mode:['avoid-all','css','legacy']},
-    }).from(container.firstElementChild).save();
+    }).from(container.firstElementChild).outputPdf('blob');
 
     document.body.removeChild(container);
+
+    // Open PDF in new tab for preview
+    var blobUrl = URL.createObjectURL(new Blob([pdfBlob], {type: 'application/pdf'}));
+    window.open(blobUrl, '_blank');
   } catch(e) {
     console.error('PDF generation error:',e);
     alert((lang==='es' ? 'Error en PDF: ' : 'PDF error: ') + e.message);
