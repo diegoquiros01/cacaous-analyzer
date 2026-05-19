@@ -207,7 +207,8 @@ nav#navbar.scrolled { box-shadow: 0 2px 20px rgba(13,27,42,.08); }
   padding-top: 68px; text-align: center;
 }
 .hero-bg {
-  position: absolute; inset: 0;
+  position: absolute; inset: 0; z-index: 1;
+  transition: background-image 1.2s ease;
   background:
     linear-gradient(
       to bottom,
@@ -221,7 +222,7 @@ nav#navbar.scrolled { box-shadow: 0 2px 20px rgba(13,27,42,.08); }
 }
 .hero-bg::after {
   content: '';
-  position: absolute; inset: 0;
+  position: absolute; inset: 0; z-index: 2;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   opacity: .4;
 }
@@ -578,7 +579,10 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 
 <!-- ══ HERO ══ -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg" id="heroBg"></div>
+  <video id="heroVideo" muted playsinline preload="none"
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.2s ease;">
+  </video>
   <div class="hero-inner">
     <div class="hero-eyebrow" id="heroEyebrow"><span></span>AI-Powered Documents Validation</div>
 
@@ -1188,5 +1192,51 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 })();
 </script>
 
+<script>
+// Hero video: load only on fast connections, fade transitions with image
+(function(){
+  var video = document.getElementById('heroVideo');
+  var bg = document.getElementById('heroBg');
+  if (!video || !bg) return;
+
+  // Check connection speed — only load on 4g or unknown (desktop usually)
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn && conn.effectiveType && conn.effectiveType !== '4g') return;
+
+  // Also skip if user prefers reduced motion
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Wait for page load before loading video (don't compete with critical resources)
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      video.src = 'hero-1 video.webm';
+      video.load();
+
+      video.addEventListener('canplaythrough', function onReady(){
+        video.removeEventListener('canplaythrough', onReady);
+        // Fade in video, fade out background image
+        video.play().then(function(){
+          video.style.opacity = '1';
+          bg.style.backgroundImage = 'linear-gradient(to bottom, rgba(13,27,42,0.75) 0%, rgba(13,27,42,0.68) 30%, rgba(13,27,42,0.80) 60%, rgba(13,27,42,0.88) 85%, rgba(13,27,42,0.95) 100%)';
+        }).catch(function(){ /* autoplay blocked — keep image */ });
+      });
+
+      // When video ends: fade back to image, then loop
+      video.addEventListener('ended', function(){
+        video.style.opacity = '0';
+        bg.style.backgroundImage = '';
+        // After fade out completes, restart video with fade in
+        setTimeout(function(){
+          video.currentTime = 0;
+          video.play().then(function(){
+            video.style.opacity = '1';
+            bg.style.backgroundImage = 'linear-gradient(to bottom, rgba(13,27,42,0.75) 0%, rgba(13,27,42,0.68) 30%, rgba(13,27,42,0.80) 60%, rgba(13,27,42,0.88) 85%, rgba(13,27,42,0.95) 100%)';
+          }).catch(function(){});
+        }, 1500);
+      });
+    }, 2000); // Wait 2s after page load
+  });
+})();
+</script>
 </body>
 </html>
