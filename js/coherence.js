@@ -357,7 +357,10 @@ Return ONLY valid JSON:
         if (docContainers.length === 0) {
           // If this doc type SHOULD have containers, warn about missing extraction
           const shouldHaveContainers = ['packing','lista de empaque',
-            'certificate of origin','certificado de origen'];
+            'certificate of origin','certificado de origen',
+            'phytosanitary','fitosanitario','fito',
+            'isf','customs',
+            'fumig','gas clearance'];
           const isPL = dt.includes('packing') || fn.includes('packing') || dt.includes('lista de empaque');
           if (shouldHaveContainers.some(s => dt.includes(s) || fn.includes(s))) {
             jsPreErrors.push({
