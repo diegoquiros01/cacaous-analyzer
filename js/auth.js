@@ -15,7 +15,6 @@ function initClerk() {
     if(user){
       window.__clerk_user = user;
       updateUserBadge(user);
-      // History loads on demand via "My Reports" button
       // Show admin nav link if admin email matches
       window.Clerk.session?.getToken().then(token => {
         if(!token) return;
@@ -27,6 +26,10 @@ function initClerk() {
           if(r.ok){ const li=document.getElementById('adminNavItem'); if(li) li.style.display='list-item'; }
         }).catch(()=>{});
       }).catch(()=>{});
+    } else {
+      // No user — show Sign In link
+      const badge = document.getElementById('userBadge');
+      if(badge) badge.innerHTML = '<li><a href="#" onclick="openClerkSignIn();return false;">' + (lang==='es' ? 'Iniciar sesión' : 'Sign in') + '</a></li>';
     }
   }).catch(e => console.warn('Clerk load error:', e.message));
 }
