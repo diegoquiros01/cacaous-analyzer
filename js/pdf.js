@@ -76,7 +76,8 @@ async function downloadPdfReport(mode) {
             var fn=(d._filename||'').toLowerCase();
             var isPerLot=dt.includes('fumig')||dt.includes('gas clearance')||fn.includes('fumig');
             var isPerLotField=['bagCount','netWeight','grossWeight'].indexOf(f.k)>=0;
-            if(!dv||( isPerLot&&isPerLotField)){matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;color:#d0d6e2;">&mdash;</td>';return;}
+            if(!dv){matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;color:#d0d6e2;" title="' + (lang==='es'?'No presente en este documento':'Not present in this document') + '">&mdash;</td>';return;}
+            if(isPerLot&&isPerLotField){matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;font-size:6px;color:#7a8499;" title="' + (lang==='es'?'Valor por lote — verificar suma vs total':'Per-lot value — verify sum vs total') + '">&Sigma; '+_e(dv.substring(0,10))+'</td>';return;}
             var ok=isTrivialDifference(bv,dv);
             matrixHtml+='<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;font-weight:700;font-size:7px;color:'+(ok?'#1a6b3a':'#7a2e22')+';background:'+(ok?'rgba(26,107,58,0.06)':'rgba(176,64,48,0.08)')+';">'+(ok?'OK':'DIFF')+'</td>';
           });
@@ -105,10 +106,24 @@ async function downloadPdfReport(mode) {
           issuesHtml+='<div style="font-size:7px;font-weight:700;color:#7a8499;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">'+(lang==='es'?'Valor por documento':'Value per document')+'</div>';
           f.values.forEach(function(v){
             var isOut = f.majVal && !isTrivialDifference(f.majVal, (v.value||'').trim());
-            issuesHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 8px;margin-bottom:2px;border-radius:4px;font-size:7.5px;'+(isOut?'background:rgba(176,64,48,0.06);color:#7a2e22;font-weight:700;':'background:#f7f8fa;color:#3a4255;')+'">';
+            // Detect per-lot documents for aggregate fields
+            var pdfDocFn = (v.doc||'').toLowerCase();
+            var pdfIsPerLot = (pdfDocFn.includes('fumig') || pdfDocFn.includes('gas clearance')) && ['bagCount','netWeight','grossWeight','bags'].some(function(k){ return f.key && f.key.toLowerCase().includes(k.toLowerCase()); });
+            var rowBg, rowColor, rowWeight, rowIcon;
+            if (pdfIsPerLot) {
+              rowBg = 'background:rgba(74,111,165,0.06);color:#4a6fa5;font-weight:600;';
+              rowIcon = '&Sigma;';
+            } else if (isOut) {
+              rowBg = 'background:rgba(176,64,48,0.06);color:#7a2e22;font-weight:700;';
+              rowIcon = '✗';
+            } else {
+              rowBg = 'background:#f7f8fa;color:#3a4255;';
+              rowIcon = '✓';
+            }
+            issuesHtml+='<div style="display:flex;align-items:center;gap:8px;padding:3px 8px;margin-bottom:2px;border-radius:4px;font-size:7.5px;'+rowBg+'">';
             issuesHtml+='<span style="color:#7a8499;min-width:120px;">'+cleanDoc(v.doc)+'</span>';
             issuesHtml+='<span>'+_e(v.value||'—')+'</span>';
-            issuesHtml+='<span style="margin-left:auto;">'+(isOut?'✗':'✓')+'</span></div>';
+            issuesHtml+='<span style="margin-left:auto;">'+rowIcon+'</span></div>';
           });
         }
         issuesHtml+='</div></div>';

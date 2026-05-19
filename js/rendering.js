@@ -278,6 +278,14 @@ function renderResults(){
     // Find BL document for authoritative transport data
     const blDoc = findBLDoc(analysisResults);
 
+    if (!blDoc) {
+      const noBLEl = document.getElementById('criticalBanner');
+      if (noBLEl) {
+        noBLEl.style.display = 'block';
+        noBLEl.innerHTML = '<div style="background:#7a2e22;color:#fff;padding:12px 16px;border-radius:6px;font-size:0.85rem;font-weight:600;">' + (lang==='es' ? '\u26A0 No se detect\u00f3 Bill of Lading. La validaci\u00f3n no puede continuar sin el documento maestro.' : '\u26A0 No Bill of Lading detected. Validation cannot proceed without master document.') + '</div>';
+      }
+    }
+
     // Commercial data
     const totalAmount = analysisResults.find(r => r.totalAmount)?.totalAmount || '';
     const pricePerUnit = analysisResults.find(r => r.pricePerUnit)?.pricePerUnit || '';
@@ -981,10 +989,10 @@ function renderMatrix(){
         || fn.includes('fumig') || fn.includes('gas clearance');
       const isPerLotField = ['bagCount','netWeight','grossWeight'].includes(f.key);
       if(!docVal){
-        html += '<td class="mx-na">&mdash;</td>';
+        html += '<td class="mx-na" title="' + (lang==='es'?'No presente en este documento':'Not present in this document') + '">&mdash;</td>';
       } else if(isPerLotDoc && isPerLotField){
-        // Per-lot doc — skip comparison for aggregate fields
-        html += '<td class="mx-na">&mdash;</td>';
+        // Per-lot doc — show per-lot value with sum indicator instead of dash
+        html += '<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;font-size:6px;color:#7a8499;" title="' + (lang==='es'?'Valor por lote — verificar suma vs total':'Per-lot value — verify sum vs total') + '">&Sigma; ' + docVal.substring(0,10) + '</td>';
       } else if(isTrivialDifference(blVal, docVal)){
         html += '<td class="mx-ok">OK</td>';
       } else {
@@ -1176,17 +1184,31 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
         rightHtml += '<div class="r-diff-wrap"><div class="r-diff-label">' + (t.spValuePerDoc || 'Value per document') + '</div><div class="r-diff-rows">';
         field.values.forEach(v => {
           const isOut = field.majVal && (v.value||'').trim() !== field.majVal;
-          const rc = isOut ? 'rdr-err' : (field.majVal ? 'rdr-ok' : 'rdr-neu');
-          const icon = isOut ? '✗' : (field.majVal ? '✓' : '');
+          // Detect per-lot documents (fumigation/gas clearance) for aggregate fields
+          var docFn = (v.doc||'').toLowerCase();
+          var isPerLotValue = (docFn.includes('fumig') || docFn.includes('gas clearance')) && ['bagCount','netWeight','grossWeight','bags'].some(function(k){ return field.key && field.key.toLowerCase().includes(k.toLowerCase()); });
+          var rc, icon;
+          if (isPerLotValue) {
+            rc = 'rdr-neu';
+            icon = '&Sigma;';
+          } else if (isOut) {
+            rc = 'rdr-err';
+            icon = '&#10007;';
+          } else {
+            rc = field.majVal ? 'rdr-ok' : 'rdr-neu';
+            icon = field.majVal ? '&#10003;' : '';
+          }
           let dispVal = v.value || '—';
-          if (isOut && field.majVal && dispVal.length === field.majVal.length && dispVal.length <= 20) {
+          if (isOut && !isPerLotValue && field.majVal && dispVal.length === field.majVal.length && dispVal.length <= 20) {
             let hl = '';
             for (let ci = 0; ci < dispVal.length; ci++) {
               hl += dispVal[ci] !== field.majVal[ci] ? '<span class="char-diff">' + dispVal[ci] + '</span>' : dispVal[ci];
             }
             dispVal = hl;
           }
-          rightHtml += '<div class="r-diff-row ' + rc + '"><span class="r-diff-doc">' + cleanDoc(v.doc||'') + '</span><span class="r-diff-val">' + dispVal + '</span><span class="r-diff-icon">' + icon + '</span></div>';
+          var rowStyle = isPerLotValue ? ' style="background:rgba(74,111,165,0.06);border-left:3px solid #4a6fa5;"' : '';
+          var iconStyle = isPerLotValue ? ' style="color:#4a6fa5;font-weight:700;"' : '';
+          rightHtml += '<div class="r-diff-row ' + rc + '"' + rowStyle + '><span class="r-diff-doc">' + cleanDoc(v.doc||'') + '</span><span class="r-diff-val">' + dispVal + '</span><span class="r-diff-icon"' + iconStyle + '>' + icon + '</span></div>';
         });
         rightHtml += '</div>';
         const isContainerField = ['containers','containerNumbers','seals','sealNumbers'].includes(field.key);
