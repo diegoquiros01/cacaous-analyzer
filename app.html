@@ -1995,15 +1995,11 @@ mark.diff-mark {
 
     <!-- ⑨ ACTIONS -->
     <div class="actions" style="margin-top:1.5rem;">
-      <button class="btn-dl" id="btnDlPdf" aria-label="Download PDF report" onclick="downloadPdfReport('download')">
-        ↓ <span id="dlPdfTxt">Download PDF Report</span>
+      <button class="btn-dl" id="btnReset" aria-label="Start new analysis" onclick="resetApp()">
+        ↺ <span id="resetTxt">New Analysis</span>
       </button>
-      <!-- TXT download removed -->
       <button class="btn-reset" style="background:none;border:1px solid var(--tan);color:var(--tan);" id="btnSaveReport" aria-label="Save report to account" onclick="saveReportManual()">
         💾 <span id="saveReportTxt">Save Report</span>
-      </button>
-      <button class="btn-reset" id="btnReset" aria-label="Start new analysis" onclick="resetApp()">
-        ↺ <span id="resetTxt">New Analysis</span>
       </button>
     </div>
 
