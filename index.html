@@ -207,27 +207,29 @@ nav#navbar.scrolled { box-shadow: 0 2px 20px rgba(13,27,42,.08); }
   padding-top: 68px; text-align: center;
 }
 .hero-bg {
-  position: absolute; inset: 0; z-index: 1;
-  transition: background-image 1.2s ease;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(13,27,42,0.75) 0%,
-      rgba(13,27,42,0.68) 30%,
-      rgba(13,27,42,0.80) 60%,
-      rgba(13,27,42,0.88) 85%,
-      rgba(13,27,42,0.95) 100%
-    ),
-    url('hero-1.jpg') center/cover no-repeat;
+  position: absolute; inset: 0; z-index: 0;
+  background: url('hero-1.jpg') center/cover no-repeat;
+  transition: opacity 1.2s ease;
 }
-.hero-bg::after {
-  content: '';
+.hero-overlay {
   position: absolute; inset: 0; z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    rgba(13,27,42,0.75) 0%,
+    rgba(13,27,42,0.68) 30%,
+    rgba(13,27,42,0.80) 60%,
+    rgba(13,27,42,0.88) 85%,
+    rgba(13,27,42,0.95) 100%
+  );
+}
+.hero-overlay::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 3;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
   opacity: .4;
 }
 .hero-inner {
-  position: relative; z-index: 3;
+  position: relative; z-index: 4;
   text-align: center; padding: 80px 5% 80px;
   max-width: 900px; margin: 0 auto;
 }
@@ -580,8 +582,9 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <!-- ══ HERO ══ -->
 <section class="hero">
   <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
   <video id="heroVideo" muted playsinline preload="none"
-    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.2s ease;background:transparent;">
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;transition:opacity 1.2s ease;background:transparent;">
   </video>
   <div class="hero-inner">
     <div class="hero-eyebrow" id="heroEyebrow"><span></span>AI-Powered Documents Validation</div>
@@ -1214,7 +1217,8 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 
       function startVideo(){
         video.play().then(function(){
-          video.style.opacity = '0.4';
+          video.style.opacity = '1';
+          bg.style.opacity = '0'; // fade out image, video shows through gradient
         }).catch(function(e){ console.log('Hero video autoplay blocked:', e.message); });
       }
       video.addEventListener('canplay', function onReady(){
@@ -1227,11 +1231,10 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
       // When video ends: fade out, pause, restart with fade in
       video.addEventListener('ended', function(){
         video.style.opacity = '0';
+        bg.style.opacity = '1'; // show image again
         setTimeout(function(){
           video.currentTime = 0;
-          video.play().then(function(){
-            video.style.opacity = '0.4';
-          }).catch(function(){});
+          startVideo();
         }, 2000);
       });
     }, 2000); // Wait 2s after page load
