@@ -101,6 +101,8 @@ function applyLang(){
 
   // ── Action buttons ─────────────────────────────
   st('dlPdfTxt', t.dlPdfTxt);
+  st('dlPdfDownTxt', t.dlPdfDownTxt);
+  st('dlPdfPrintTxt', t.dlPdfPrintTxt);
   // Only update save button text if not already saved
   const saveBtn = document.getElementById('btnSaveReport');
   if(saveBtn && !saveBtn.disabled) st('saveReportTxt', t.saveReportTxt);

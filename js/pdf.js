@@ -14,7 +14,8 @@ function loadHtml2Pdf() {
   });
 }
 
-async function downloadPdfReport() {
+async function downloadPdfReport(mode) {
+  mode = mode || 'preview';
   try {
     setStep(4);
     await loadHtml2Pdf();
@@ -237,9 +238,24 @@ async function downloadPdfReport() {
 
     document.body.removeChild(container);
 
-    // Open PDF in new tab for preview
-    var blobUrl = URL.createObjectURL(new Blob([pdfBlob], {type: 'application/pdf'}));
-    window.open(blobUrl, '_blank');
+    var blob = new Blob([pdfBlob], {type: 'application/pdf'});
+    var blobUrl = URL.createObjectURL(blob);
+
+    if (mode === 'download') {
+      // Direct download
+      var a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 1000);
+    } else if (mode === 'print') {
+      // Open in new tab and trigger print
+      var w = window.open(blobUrl, '_blank');
+      if (w) setTimeout(function(){ try { w.print(); } catch(e){} }, 1000);
+    } else {
+      // Preview in new tab
+      window.open(blobUrl, '_blank');
+    }
   } catch(e) {
     console.error('PDF generation error:',e);
     alert((lang==='es' ? 'Error en PDF: ' : 'PDF error: ') + e.message);

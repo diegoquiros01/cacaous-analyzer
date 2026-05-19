@@ -1995,8 +1995,14 @@ mark.diff-mark {
 
     <!-- ⑨ ACTIONS -->
     <div class="actions" style="margin-top:1.5rem;">
-      <button class="btn-dl" id="btnDlPdf" aria-label="Download PDF report" onclick="downloadPdfReport()">
-        ↓ <span id="dlPdfTxt">Download PDF Report</span>
+      <button class="btn-dl" id="btnDlPdf" aria-label="Preview PDF report" onclick="downloadPdfReport('preview')">
+        ◎ <span id="dlPdfTxt">Preview Report</span>
+      </button>
+      <button class="btn-dl" style="background:none;border:1.5px solid var(--navy);color:var(--navy);" onclick="downloadPdfReport('download')">
+        ↓ <span id="dlPdfDownTxt">Download</span>
+      </button>
+      <button class="btn-dl" style="background:none;border:1.5px solid var(--navy);color:var(--navy);" onclick="downloadPdfReport('print')">
+        🖨 <span id="dlPdfPrintTxt">Print</span>
       </button>
       <!-- TXT download removed -->
       <button class="btn-reset" style="background:none;border:1px solid var(--tan);color:var(--tan);" id="btnSaveReport" aria-label="Save report to account" onclick="saveReportManual()">
@@ -2053,7 +2059,7 @@ const TX = {
     ctableTitle:'Field-by-field comparison across all documents',
     th1:'Field', th2:'Status', th3:'Value(s) Found', th4:'Found In',
     perDocTitle:'Per Document Detail',
-    dlPdfTxt:'Download PDF Report', dlTxt:'Download TXT', saveReportTxt:'Save Report', saveReportDone:'✓ Saved', resetTxt:'New Analysis', trackTxt:'Track Shipment',
+    dlPdfTxt:'Preview Report', dlPdfDownTxt:'Download', dlPdfPrintTxt:'Print', dlTxt:'Download TXT', saveReportTxt:'Save Report', saveReportDone:'✓ Saved', resetTxt:'New Analysis', trackTxt:'Track Shipment',
     trackingTitle:'Shipment Tracking',
     trackingLoading:'Querying carrier...',
     trackingError:'Could not retrieve tracking data. Check the BL number and try again.',
@@ -2154,7 +2160,7 @@ const TX = {
     ctableTitle:'Comparación campo por campo entre todos los documentos',
     th1:'Campo', th2:'Estado', th3:'Valor(es) Encontrado(s)', th4:'Encontrado En',
     perDocTitle:'Detalle por Documento',
-    dlPdfTxt:'Descargar Reporte PDF', dlTxt:'Descargar TXT', saveReportTxt:'Guardar Reporte', saveReportDone:'✓ Guardado', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
+    dlPdfTxt:'Vista Previa', dlPdfDownTxt:'Descargar', dlPdfPrintTxt:'Imprimir', dlTxt:'Descargar TXT', saveReportTxt:'Guardar Reporte', saveReportDone:'✓ Guardado', resetTxt:'Nuevo Análisis', trackTxt:'Track del Embarque',
     trackingTitle:'Tracking del Embarque',
     trackingLoading:'Consultando naviera...',
     trackingError:'No se pudo obtener el tracking. Verifica el número de BL e intenta de nuevo.',
