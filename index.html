@@ -581,7 +581,7 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 <section class="hero">
   <div class="hero-bg" id="heroBg"></div>
   <video id="heroVideo" muted playsinline preload="none"
-    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.2s ease;">
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0;transition:opacity 1.2s ease;background:transparent;">
   </video>
   <div class="hero-inner">
     <div class="hero-eyebrow" id="heroEyebrow"><span></span>AI-Powered Documents Validation</div>
@@ -1214,25 +1214,21 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
 
       video.addEventListener('canplaythrough', function onReady(){
         video.removeEventListener('canplaythrough', onReady);
-        // Fade in video, fade out background image
+        // Fade in video — gradient overlay stays on top, image stays as fallback
         video.play().then(function(){
-          video.style.opacity = '1';
-          bg.style.backgroundImage = 'linear-gradient(to bottom, rgba(13,27,42,0.75) 0%, rgba(13,27,42,0.68) 30%, rgba(13,27,42,0.80) 60%, rgba(13,27,42,0.88) 85%, rgba(13,27,42,0.95) 100%)';
+          video.style.opacity = '0.4'; // Subtle — video shows through but gradient keeps it dark
         }).catch(function(){ /* autoplay blocked — keep image */ });
       });
 
-      // When video ends: fade back to image, then loop
+      // When video ends: fade out, pause, restart with fade in
       video.addEventListener('ended', function(){
         video.style.opacity = '0';
-        bg.style.backgroundImage = '';
-        // After fade out completes, restart video with fade in
         setTimeout(function(){
           video.currentTime = 0;
           video.play().then(function(){
-            video.style.opacity = '1';
-            bg.style.backgroundImage = 'linear-gradient(to bottom, rgba(13,27,42,0.75) 0%, rgba(13,27,42,0.68) 30%, rgba(13,27,42,0.80) 60%, rgba(13,27,42,0.88) 85%, rgba(13,27,42,0.95) 100%)';
+            video.style.opacity = '0.4';
           }).catch(function(){});
-        }, 1500);
+        }, 2000);
       });
     }, 2000); // Wait 2s after page load
   });
