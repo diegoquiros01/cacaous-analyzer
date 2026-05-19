@@ -1218,13 +1218,21 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
       if (field.values && field.values.length > 0 && field.severity !== 'ok') {
         rightHtml += '<div class="r-diff-wrap"><div class="r-diff-label">' + (t.spValuePerDoc || 'Value per document') + '</div><div class="r-diff-rows">';
         field.values.forEach(v => {
-          const isOut = field.majVal && (v.value||'').trim() !== field.majVal;
-          // Detect per-lot documents (fumigation/gas clearance) for aggregate fields
+          var val = (v.value||'').trim();
           var docFn = (v.doc||'').toLowerCase();
-          var isPerLotValue = (docFn.includes('fumig') || docFn.includes('gas clearance')) && ['bagCount','netWeight','grossWeight','bags'].some(function(k){ return field.key && field.key.toLowerCase().includes(k.toLowerCase()); });
+          var isNoneVal = val.includes('(none') || val.includes('(no se');
+          var isBLVal = docFn.includes('bl ') || docFn.includes('bill') || docFn.includes('lading');
+          var isPerLotValue = (docFn.includes('fumig') || docFn.includes('gas clearance')) && ['bagCount','netWeight','grossWeight','bags','containers'].some(function(k){ return field.key && field.key.toLowerCase().includes(k.toLowerCase()); });
+          var isOut = field.majVal && !isTrivialDifference(field.majVal, val);
           var rc, icon;
-          if (isPerLotValue) {
-            rc = 'rdr-neu';
+          if (isNoneVal) {
+            rc = 'rdr-neutral';
+            icon = '—';
+          } else if (isBLVal) {
+            rc = 'rdr-ok';
+            icon = '★';
+          } else if (isPerLotValue) {
+            rc = 'rdr-info';
             icon = '&Sigma;';
           } else if (isOut) {
             rc = 'rdr-err';
