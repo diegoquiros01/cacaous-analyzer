@@ -346,6 +346,11 @@ Return ONLY valid JSON:
 
     if (blContainers.length > 0) {
       const blSet = new Set(blContainers);
+      // Collect ALL container results for the detail panel (not just errors)
+      const containerDetails = [{ doc: blDoc, value: blContainers.join(', ') }];
+      let containerHasError = false;
+      let containerMessages = [];
+
       Object.entries(slim).forEach(([docName, docData]) => {
         if (docName === blDoc) return;
         const dt = (docData.docType || '').toLowerCase();
@@ -355,32 +360,25 @@ Return ONLY valid JSON:
           .map(c => String(c).trim().toUpperCase())
           .filter(c => /^[A-Z]{4}\d{6,7}$/.test(c));
         if (docContainers.length === 0) {
-          // If this doc type SHOULD have containers, warn about missing extraction
+          // If this doc type SHOULD have containers, note it
           const shouldHaveContainers = ['packing','lista de empaque',
             'certificate of origin','certificado de origen',
             'phytosanitary','fitosanitario','fito',
             'isf','customs',
             'fumig','gas clearance'];
-          const isPL = dt.includes('packing') || fn.includes('packing') || dt.includes('lista de empaque');
           if (shouldHaveContainers.some(s => dt.includes(s) || fn.includes(s))) {
-            jsPreErrors.push({
-              type: isPL ? 'error' : 'warning', field: 'containers',
-              message: isES
-                ? '"' + docName.replace(/\.[^.]+$/,'') + '" no incluye contenedores — verificar manualmente contra el BL (' + blLabel + ').'
-                : '"' + docName.replace(/\.[^.]+$/,'') + '" has no containers listed — verify manually against BL (' + blLabel + ').',
-              details: [
-                { doc: blDoc, value: blContainers.join(', ') },
-                { doc: docName, value: isES ? '(no se extrajeron)' : '(none extracted)' },
-              ]
-            });
+            containerDetails.push({ doc: docName, value: isES ? '(no se extrajeron)' : '(none extracted)' });
           }
           return;
         }
 
+        // Has containers — compare against BL
+        containerDetails.push({ doc: docName, value: docContainers.join(', ') });
+
         const docSet = new Set(docContainers);
         const extraInDoc = docContainers.filter(c => !blSet.has(c));
         const missingFromDoc = blContainers.filter(c => !docSet.has(c));
-        if (extraInDoc.length === 0 && missingFromDoc.length === 0) return;
+        if (extraInDoc.length === 0 && missingFromDoc.length === 0) return; // match — already added to details
 
         const docLabel = docName.replace(/\.[^.]+$/, '');
         let msg;
@@ -411,14 +409,27 @@ Return ONLY valid JSON:
                 + missingFromDoc.join(', ') + '. The BL is the master document — this document must be corrected.';
           }
         }
-        jsPreErrors.push({
-          type: 'error', field: 'containers', message: msg,
-          details: [
-            { doc: blDoc, value: 'BL (master): ' + blContainers.join(', ') },
-            { doc: docName, value: docLabel + ': ' + docContainers.join(', ') },
-          ]
-        });
+        containerHasError = true;
+        containerMessages.push(msg);
       });
+
+      // Emit a single container issue with ALL documents listed
+      if (containerHasError) {
+        jsPreErrors.push({
+          type: 'error', field: 'containers',
+          message: containerMessages.join(' '),
+          details: containerDetails
+        });
+      } else if (containerDetails.some(d => (d.value||'').includes('(no') || (d.value||'').includes('(none'))) {
+        // Some docs missing containers — observation level
+        jsPreErrors.push({
+          type: 'warning', field: 'containers',
+          message: isES
+            ? 'Algunos documentos no incluyen contenedores — verificar manualmente contra el BL (' + blLabel + ').'
+            : 'Some documents have no containers listed — verify manually against BL (' + blLabel + ').',
+          details: containerDetails
+        });
+      }
     }
 
     // ── SEALS (BL is master) ──
