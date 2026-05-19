@@ -949,8 +949,21 @@ function filterTrivialInconsistencies(coherenceResult){
   if(f.setValues){
     for(const key of Object.keys(f.setValues)){
       const d = f.setValues[key];
-      if(!d || !d.values || d.values.length < 2) continue;
-      const vals = d.values.map(v=>v.value).filter(Boolean);
+      if(!d) continue;
+      // Extract all unique values — handle both array of {doc,value} and combined "val1 / val2" strings
+      let vals = [];
+      if(d.values && d.values.length > 0) {
+        d.values.forEach(v => {
+          const raw = v.value || '';
+          // Split combined values like "001-002-000000835 / 001-002-000000883"
+          if(raw.includes(' / ')) {
+            raw.split(' / ').forEach(part => { if(part.trim()) vals.push(part.trim()); });
+          } else if(raw.trim()) {
+            vals.push(raw.trim());
+          }
+        });
+      }
+      vals = [...new Set(vals)]; // unique
       if(vals.length < 2) continue;
 
       let allTrivial = true;
