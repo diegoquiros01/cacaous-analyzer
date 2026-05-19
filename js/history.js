@@ -122,7 +122,7 @@ function renderHistory(rows) {
     + '<span style="flex:0 0 140px;">'+t.histVessel+'</span>'
     + '<span style="flex:0 0 80px;text-align:center;">'+t.histStatus+'</span>'
     + '<span style="flex:0 0 50px;text-align:center;">'+t.histDocs+'</span>'
-    + '<span style="flex:0 0 30px;"></span>'
+    + '<span style="flex:0 0 160px;text-align:right;">'+(lang==='es'?'Acciones':'Actions')+'</span>'
     + '</div>'
     + '<div id="histBulkActions" style="display:none;padding:0.4rem 1rem;background:var(--cream);border-bottom:1px solid var(--border-light);"><button onclick="deleteSelectedReports()" style="background:none;border:1px solid var(--red);color:var(--red);font-family:Raleway,sans-serif;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.3rem 0.8rem;cursor:pointer;border-radius:6px;">' + delSelLabel + '</button></div>';
   // Escape HTML to prevent XSS from API data (BL numbers, vessel names, etc.)
@@ -143,7 +143,12 @@ function renderHistory(rows) {
       + '<span style="flex:0 0 140px;color:var(--text-light);font-size:0.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+safeVessel+'</span>'
       + '<span style="flex:0 0 80px;text-align:center;">'+statusBadge(r.status)+'</span>'
       + '<span style="flex:0 0 50px;text-align:center;color:var(--text-light);">'+esc(String(r.doc_count||0))+'</span>'
-      + '<span style="flex:0 0 30px;text-align:center;"><a href="#" onclick="event.stopPropagation();deleteReport(\''+safeId+'\');return false;" style="color:var(--text-light);text-decoration:none;font-size:0.8rem;transition:color 0.2s;" onmouseover="this.style.color=\'var(--red)\'" onmouseout="this.style.color=\'var(--text-light)\'">✕</a></span>'
+      + '<span style="flex:0 0 160px;text-align:right;display:flex;gap:4px;justify-content:flex-end;" onclick="event.stopPropagation();">'
+      + '<button onclick="downloadHistReport(\''+safeId+'\',\'preview\')" style="background:none;border:1px solid var(--border);color:var(--steel);font-family:Raleway,sans-serif;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;cursor:pointer;border-radius:4px;" title="'+(lang==='es'?'Vista previa':'Preview')+'">◎</button>'
+      + '<button onclick="downloadHistReport(\''+safeId+'\',\'download\')" style="background:none;border:1px solid var(--border);color:var(--steel);font-family:Raleway,sans-serif;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;cursor:pointer;border-radius:4px;" title="'+(lang==='es'?'Descargar':'Download')+'">↓</button>'
+      + '<button onclick="downloadHistReport(\''+safeId+'\',\'print\')" style="background:none;border:1px solid var(--border);color:var(--steel);font-family:Raleway,sans-serif;font-size:0.5rem;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;cursor:pointer;border-radius:4px;" title="'+(lang==='es'?'Imprimir':'Print')+'">🖨</button>'
+      + '<a href="#" onclick="event.stopPropagation();deleteReport(\''+safeId+'\');return false;" style="color:var(--text-light);text-decoration:none;font-size:0.8rem;transition:color 0.2s;padding:2px 4px;" onmouseover="this.style.color=\'var(--red)\'" onmouseout="this.style.color=\'var(--text-light)\'">✕</a>'
+      + '</span>'
       + '</div>';
   }).join('');
   list.innerHTML = header + rowsHtml;
@@ -152,11 +157,11 @@ function renderHistory(rows) {
 function showHistDetail(el) {
   const histId = el.dataset.id;
   if (!histId) return;
-  // Load report data and download PDF directly
-  downloadHistReport(histId);
+  downloadHistReport(histId, 'preview');
 }
 
-async function downloadHistReport(histId) {
+async function downloadHistReport(histId, mode) {
+  mode = mode || 'preview';
   if (!isLoggedIn()) return;
   try {
     const resp = await fetch('/.netlify/functions/history', {
@@ -178,8 +183,8 @@ async function downloadHistReport(histId) {
     coherenceResult = saved.coherenceResult;
     analysisResults = saved.analysisResults || [];
     _cachedSummary = coherenceResult?.summary || null;
-    // Generate and download PDF
-    await downloadPdfReport();
+    // Generate PDF in requested mode
+    await downloadPdfReport(mode);
     // Restore previous state
     coherenceResult = prevCoherence;
     analysisResults = prevResults;
