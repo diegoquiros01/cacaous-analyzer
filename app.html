@@ -1645,7 +1645,7 @@ mark.diff-mark {
   border-bottom:1px solid var(--border-light);
   box-shadow:0 2px 12px rgba(13,27,42,0.06);
 ">
-  <a href="/" style="display:flex;align-items:center;text-decoration:none;">
+  <a href="#" onclick="setStep(1);return false;" style="display:flex;align-items:center;text-decoration:none;cursor:pointer;" title="New Analysis">
     <img src="logo.png" alt="DocsValidate" style="height:32px;" onerror="this.style.display='none'">
   </a>
   <div style="display:flex;align-items:center;gap:16px;">
@@ -1704,8 +1704,11 @@ mark.diff-mark {
     </div>
     <div id="histList" style="border:1px solid var(--border-light);border-radius:8px;overflow:hidden;"></div>
     <!-- histDetail removed — clicking a report now loads full results directly -->
-    <div style="margin-top:1.5rem;">
-      <button onclick="toggleMyReports()" style="padding:0.6rem 1.5rem;background:none;border:1.5px solid var(--border);color:var(--steel);font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border-radius:7px;">
+    <div style="margin-top:1.5rem;display:flex;gap:12px;align-items:center;">
+      <button onclick="toggleMyReports();setStep(1);" style="padding:0.7rem 1.8rem;background:var(--navy);border:none;color:#fff;font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:7px;">
+        ✦ <span id="histNewBtn">New Validation</span>
+      </button>
+      <button onclick="toggleMyReports()" style="padding:0.7rem 1.5rem;background:none;border:1.5px solid var(--border);color:var(--steel);font-family:'Raleway',sans-serif;font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border-radius:7px;">
         ← <span id="histBackBtn">Back to Home</span>
       </button>
     </div>
@@ -2126,7 +2129,7 @@ const TX = {
     spFixRequired:'Fix required', spVerify:'Verify', spConsistent:'Consistent', spValuePerDoc:'Value per document',
     matrixLabel:'Consistency Matrix — Key Fields',
     matrixLegend:'OK = consistent with B/L | — = field not present | DIFF = different value',
-    wsLeftTitle:'Documents analyzed', wsScoreLbl:'Consistency Score', activityLogTitle:'Activity log', histBackBtn:'← Back to Home',
+    wsLeftTitle:'Documents analyzed', wsScoreLbl:'Consistency Score', activityLogTitle:'Activity log', histBackBtn:'← Back to Home', histNewBtn:'New Validation',
   },
   es: {
     logoTagline:'DocsValidate.com',
@@ -2227,7 +2230,7 @@ const TX = {
     spFixRequired:'Corregir', spVerify:'Verificar', spConsistent:'Consistente', spValuePerDoc:'Valor por documento',
     matrixLabel:'Matriz de Consistencia — Campos Clave',
     matrixLegend:'OK = consistente con B/L | — = campo no presente | DIFF = valor diferente',
-    wsLeftTitle:'Documentos analizados', wsScoreLbl:'Puntuación de Consistencia', activityLogTitle:'Registro de actividad', histBackBtn:'← Volver a Inicio',
+    wsLeftTitle:'Documentos analizados', wsScoreLbl:'Puntuación de Consistencia', activityLogTitle:'Registro de actividad', histBackBtn:'← Volver a Inicio', histNewBtn:'Nueva Validación',
   }
 };
 

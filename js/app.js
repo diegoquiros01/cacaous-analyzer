@@ -145,6 +145,7 @@ function applyLang(){
   st('wsScoreLbl', t.wsScoreLbl);
   st('activityLogTitle', t.activityLogTitle);
   st('histBackBtn', t.histBackBtn);
+  st('histNewBtn', t.histNewBtn);
 
   // ── History labels ──────────────────────────────
   st('histTitle', t.histTitle); st('histSub', t.histSub);
