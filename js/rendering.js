@@ -1027,7 +1027,7 @@ function renderMatrix(){
         html += '<td class="mx-na" title="' + (lang==='es'?'No presente en este documento':'Not present in this document') + '">&mdash;</td>';
       } else if(isPerLotDoc && isPerLotField){
         // Per-lot doc — show per-lot value with sum indicator instead of dash
-        html += '<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;font-size:6px;color:#7a8499;" title="' + (lang==='es'?'Valor por lote — verificar suma vs total':'Per-lot value — verify sum vs total') + '">&Sigma; ' + docVal.substring(0,10) + '</td>';
+        html += '<td style="padding:3px 6px;border-bottom:1px solid #e8edf5;text-align:center;font-size:0.7rem;font-weight:600;color:#4a6fa5;" title="' + (lang==='es'?'Valor por lote — verificar suma vs total':'Per-lot value — verify sum vs total') + '">&Sigma; ' + docVal.substring(0,10) + '</td>';
       } else if(isTrivialDifference(blVal, docVal)){
         html += '<td class="mx-ok">OK</td>';
       } else {
