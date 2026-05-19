@@ -1209,7 +1209,7 @@ footer.mkt-footer { background: var(--navy); padding: 44px 5% 28px; }
   // Wait for page load before loading video (don't compete with critical resources)
   window.addEventListener('load', function(){
     setTimeout(function(){
-      video.src = 'hero-1 video.webm';
+      video.src = 'hero-video.webm';
       video.load();
 
       video.addEventListener('canplaythrough', function onReady(){
