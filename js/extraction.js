@@ -343,11 +343,14 @@ SPECIAL FIELD MAPPING FOR FUMIGATION / GAS CLEARANCE / QUARANTINE CERTIFICATES:
 - "Trip No." / "No. de viaje" → voyageNumber
 
 CRITICAL INVOICE NUMBER EXTRACTION RULES:
-- Invoice numbers have format ###-###-############ (e.g. 001-002-000000824)
-- If digits appear separated by spaces, JOIN them: "0 0 1 - 0 0 2 - 00000082 4" → "001-002-000000824"
-- In Certificate of Origin, column 10 "Number and date of invoices" contains the invoice number — read ALL digits including the very last one at the edge of the cell
-- NEVER truncate the last digit — "001-002-00000082" is WRONG, the full number is "001-002-000000824" (13 digits after the dashes)
-- If a bracket or parenthesis wraps the number, remove it: "[001-002-000000824]" → "001-002-000000824"
+- Ecuadorian invoice numbers have format ###-###-############# (3 digits, dash, 3 digits, dash, 12-13 digits)
+- Example: 001-002-000000835 — the last segment ALWAYS has 12-13 digits (mostly zeros then the actual number)
+- If digits appear separated by spaces, JOIN them: "0 0 1 - 0 0 2 - 00000083 5" → "001-002-000000835"
+- In Certificate of Origin (Form A), column 10 "Number and date of invoices" contains the invoice number inside brackets like [001-002-000000835] — the number may WRAP to the next line. Read BOTH lines and concatenate: if you see "[001-002-00000083" on one line and "5] - 2026-05-11" on the next, the full invoice is "001-002-000000835"
+- The last segment must have 12+ digits. If you extracted fewer (e.g. "001-002-0000083"), you MISSED digits — look again at the edge of the cell or the next line
+- NEVER truncate — "001-002-00000083" is WRONG if the document says "001-002-000000835"
+- Remove brackets: "[001-002-000000835]" → "001-002-000000835"
+- Remove date suffix: "001-002-000000835 - 2026-05-11" → just "001-002-000000835"
 
 CRITICAL NUMBER EXTRACTION RULES:
 - Many documents use EUROPEAN format: period as thousands separator, comma as decimal → "50.094,00" means 50094 kg
