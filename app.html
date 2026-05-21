@@ -401,6 +401,8 @@ main { max-width: 1040px; margin: 0 auto; padding: 4rem 2rem 6rem; }
 ══════════════════════════════════════ */
 .results { display: none; }
 .results.show { display: block; }
+.results.show ~ script { display: none; } /* no-op, just a separator */
+main:has(.results.show) { padding-top: 0; padding-bottom: 0; max-width: none; }
 
 /* Verdict banner */
 .verdict {
