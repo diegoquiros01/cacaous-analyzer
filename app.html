@@ -1260,7 +1260,20 @@ mark.diff-mark {
 /* Consistency Matrix */
 .mx-scroll-wrap {
   overflow-x: auto; border: 1px solid var(--border-light); border-radius: 8px;
+  position: relative;
 }
+.mx-scroll-wrap::after {
+  content: '›';
+  position: sticky; right: 0; top: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 100%; min-height: 40px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.95) 40%);
+  color: var(--steel); font-size: 1.4rem; font-weight: 300;
+  pointer-events: none;
+  position: absolute; right: 0; top: 0; bottom: 0;
+  transition: opacity 0.3s;
+}
+.mx-scroll-wrap.scrolled-end::after { opacity: 0; }
 .mx-table {
   width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.72rem;
   min-width: 600px;

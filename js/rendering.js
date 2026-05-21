@@ -1047,6 +1047,17 @@ function renderMatrix(){
   }
 
   section.style.display = activeFields.length > 0 ? '' : 'none';
+
+  // Scroll indicator: hide arrow when scrolled to end
+  const scrollWrap = table.closest('.mx-scroll-wrap');
+  if (scrollWrap) {
+    const checkScroll = () => {
+      const atEnd = scrollWrap.scrollLeft + scrollWrap.clientWidth >= scrollWrap.scrollWidth - 5;
+      scrollWrap.classList.toggle('scrolled-end', atEnd);
+    };
+    scrollWrap.addEventListener('scroll', checkScroll);
+    setTimeout(checkScroll, 100);
+  }
 }
 
 // ── SPLIT PANEL RENDERING ─────────────────────────────────────
