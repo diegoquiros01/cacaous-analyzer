@@ -370,6 +370,8 @@ function setStep(n){
   if(upStepper) upStepper.style.display = (n >= 3) ? 'none' : '';
   const footer = document.querySelector('footer');
   if(footer) footer.style.display = (n >= 3) ? 'none' : '';
+  const uploadSec = document.getElementById('uploadSection');
+  if(uploadSec) uploadSec.style.display = (n >= 3) ? 'none' : '';
 }
 
 function setProgress(pct, phase){
