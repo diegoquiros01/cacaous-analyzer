@@ -1047,19 +1047,6 @@ function renderMatrix(){
   }
 
   section.style.display = activeFields.length > 0 ? '' : 'none';
-
-  // Scroll indicator: show "scroll →" hint when table overflows, hide when scrolled to end
-  const scrollWrap = document.getElementById('matrixScrollWrap');
-  const scrollHint = document.getElementById('matrixScrollHint');
-  if (scrollWrap && scrollHint) {
-    const checkScroll = () => {
-      const hasOverflow = scrollWrap.scrollWidth > scrollWrap.clientWidth + 5;
-      const atEnd = scrollWrap.scrollLeft + scrollWrap.clientWidth >= scrollWrap.scrollWidth - 5;
-      scrollHint.classList.toggle('hidden', !hasOverflow || atEnd);
-    };
-    scrollWrap.addEventListener('scroll', checkScroll);
-    setTimeout(checkScroll, 100);
-  }
 }
 
 // ── SPLIT PANEL RENDERING ─────────────────────────────────────
@@ -1288,19 +1275,6 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
     spContent.innerHTML = rightHtml;
     if (spEmpty) spEmpty.style.display = 'none';
     spContent.style.display = 'block';
-
-    // Scroll indicators for split panel right side (3 options for preview)
-    const spRight = document.getElementById('spRight');
-    const scrollEls = ['spScrollA','spScrollB','spScrollC'].map(id => document.getElementById(id)).filter(Boolean);
-    if (spRight && scrollEls.length) {
-      const checkSpScroll = () => {
-        const hasOverflow = spRight.scrollHeight > spRight.clientHeight + 20;
-        const atBottom = spRight.scrollTop + spRight.clientHeight >= spRight.scrollHeight - 10;
-        scrollEls.forEach(el => el.classList.toggle('hidden', !hasOverflow || atBottom));
-      };
-      spRight.addEventListener('scroll', checkSpScroll);
-      setTimeout(checkSpScroll, 200);
-    }
 
     // Async translate AI messages to current language
     if (lang === 'es') {

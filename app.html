@@ -1162,7 +1162,7 @@ mark.diff-mark {
 }
 
 /* Collapsible table */
-.r-table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow-x: auto; margin-top: 0.55rem; margin-bottom: 1.4rem; }
+.r-table-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 0.55rem; margin-bottom: 1.4rem; }
 .r-table-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.8rem 1.2rem; background: var(--navy);
@@ -1197,7 +1197,7 @@ mark.diff-mark {
 .r-dot.d-neu  { background: var(--border); }
 
 /* Collapsible per-doc */
-.r-perdoc-wrap { border: 1px solid var(--border); border-radius: 4px; overflow-x: auto; margin-top: 0.55rem; margin-bottom: 1.4rem; }
+.r-perdoc-wrap { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 0.55rem; margin-bottom: 1.4rem; }
 .r-perdoc-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.8rem 1.2rem; background: var(--offwhite);
@@ -1261,12 +1261,6 @@ mark.diff-mark {
 .mx-scroll-wrap {
   overflow-x: auto; border: 1px solid var(--border-light); border-radius: 8px;
 }
-.mx-scroll-hint {
-  display: flex; align-items: center; justify-content: flex-end; gap: 4px;
-  font-family: 'Raleway', sans-serif; font-size: 0.6rem; color: var(--steel);
-  letter-spacing: 0.06em; padding: 4px 8px 2px; transition: opacity 0.3s;
-}
-.mx-scroll-hint.hidden { opacity: 0; }
 .mx-table {
   width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.72rem;
   min-width: 600px;
@@ -1331,45 +1325,7 @@ mark.diff-mark {
 }
 .sp-right {
   background: var(--offwhite); overflow-y: auto; max-height: 600px;
-  position: relative;
 }
-/* Scroll indicators — 3 options to preview, pick one */
-/* OPTION A: Fade gradient only */
-.scroll-fade {
-  position: sticky; bottom: 0; left: 0; right: 0;
-  height: 48px; pointer-events: none;
-  background: linear-gradient(to bottom, transparent, rgba(247,248,250,0.98));
-  transition: opacity 0.3s;
-}
-.scroll-fade.hidden { opacity: 0; }
-
-/* OPTION B: Animated chevron */
-.scroll-chevron {
-  position: sticky; bottom: 0; left: 0; right: 0;
-  display: flex; align-items: center; justify-content: center;
-  height: 36px; pointer-events: none;
-  background: linear-gradient(to bottom, transparent, rgba(247,248,250,0.95));
-  transition: opacity 0.3s;
-}
-.scroll-chevron::after {
-  content: '⌄';
-  font-size: 1.2rem; color: var(--steel); font-weight: 300;
-  animation: chevronPulse 2s ease-in-out infinite;
-}
-@keyframes chevronPulse {
-  0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50% { transform: translateY(4px); opacity: 0.9; }
-}
-.scroll-chevron.hidden { opacity: 0; }
-
-/* OPTION C: Inner shadow */
-.scroll-shadow {
-  position: sticky; bottom: 0; left: 0; right: 0;
-  height: 20px; pointer-events: none;
-  box-shadow: inset 0 -12px 16px -8px rgba(13,27,42,0.10);
-  transition: opacity 0.3s;
-}
-.scroll-shadow.hidden { opacity: 0; }
 .sp-right-empty {
   display: flex; align-items: center; justify-content: center;
   height: 100%; min-height: 300px;
@@ -1947,8 +1903,7 @@ mark.diff-mark {
     <!-- ③b CONSISTENCY MATRIX -->
     <div id="matrixSection" style="display:none;margin-bottom:1.4rem;">
       <div class="r-sec-label" id="matrixLabel">Consistency Matrix</div>
-      <div id="matrixScrollHint" class="mx-scroll-hint">scroll →</div>
-      <div class="mx-scroll-wrap" id="matrixScrollWrap">
+      <div class="mx-scroll-wrap">
         <table id="matrixTable" class="mx-table">
           <!-- Populated by JS -->
         </table>
@@ -1967,9 +1922,6 @@ mark.diff-mark {
           <span id="spEmptyText">Select a field to see details</span>
         </div>
         <div class="sp-right-content" id="spRightContent" style="display:none;"></div>
-        <div class="scroll-fade" id="spScrollA"></div>
-        <div class="scroll-chevron" id="spScrollB"></div>
-        <div class="scroll-shadow" id="spScrollC"></div>
       </div>
     </div>
 
