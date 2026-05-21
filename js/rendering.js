@@ -1048,12 +1048,14 @@ function renderMatrix(){
 
   section.style.display = activeFields.length > 0 ? '' : 'none';
 
-  // Scroll indicator: hide arrow when scrolled to end
-  const scrollWrap = table.closest('.mx-scroll-wrap');
-  if (scrollWrap) {
+  // Scroll indicator: show "scroll →" hint when table overflows, hide when scrolled to end
+  const scrollWrap = document.getElementById('matrixScrollWrap');
+  const scrollHint = document.getElementById('matrixScrollHint');
+  if (scrollWrap && scrollHint) {
     const checkScroll = () => {
+      const hasOverflow = scrollWrap.scrollWidth > scrollWrap.clientWidth + 5;
       const atEnd = scrollWrap.scrollLeft + scrollWrap.clientWidth >= scrollWrap.scrollWidth - 5;
-      scrollWrap.classList.toggle('scrolled-end', atEnd);
+      scrollHint.classList.toggle('hidden', !hasOverflow || atEnd);
     };
     scrollWrap.addEventListener('scroll', checkScroll);
     setTimeout(checkScroll, 100);
