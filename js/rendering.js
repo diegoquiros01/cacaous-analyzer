@@ -1289,14 +1289,14 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
     if (spEmpty) spEmpty.style.display = 'none';
     spContent.style.display = 'block';
 
-    // Scroll hint for split panel right side
+    // Scroll indicators for split panel right side (3 options for preview)
     const spRight = document.getElementById('spRight');
-    const spHint = document.getElementById('spScrollHint');
-    if (spRight && spHint) {
+    const scrollEls = ['spScrollA','spScrollB','spScrollC'].map(id => document.getElementById(id)).filter(Boolean);
+    if (spRight && scrollEls.length) {
       const checkSpScroll = () => {
         const hasOverflow = spRight.scrollHeight > spRight.clientHeight + 20;
         const atBottom = spRight.scrollTop + spRight.clientHeight >= spRight.scrollHeight - 10;
-        spHint.classList.toggle('hidden', !hasOverflow || atBottom);
+        scrollEls.forEach(el => el.classList.toggle('hidden', !hasOverflow || atBottom));
       };
       spRight.addEventListener('scroll', checkSpScroll);
       setTimeout(checkSpScroll, 200);
