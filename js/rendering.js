@@ -1289,6 +1289,19 @@ function renderSplitPanel(tableEntries, displayIssues, blMasterFields, invoiceMa
     if (spEmpty) spEmpty.style.display = 'none';
     spContent.style.display = 'block';
 
+    // Scroll hint for split panel right side
+    const spRight = document.getElementById('spRight');
+    const spHint = document.getElementById('spScrollHint');
+    if (spRight && spHint) {
+      const checkSpScroll = () => {
+        const hasOverflow = spRight.scrollHeight > spRight.clientHeight + 20;
+        const atBottom = spRight.scrollTop + spRight.clientHeight >= spRight.scrollHeight - 10;
+        spHint.classList.toggle('hidden', !hasOverflow || atBottom);
+      };
+      spRight.addEventListener('scroll', checkSpScroll);
+      setTimeout(checkSpScroll, 200);
+    }
+
     // Async translate AI messages to current language
     if (lang === 'es') {
       spContent.querySelectorAll('.sp-detail-msg').forEach(el => {
